@@ -1,11 +1,11 @@
 # Plasma SmartBar
 
-**Barra superior inteligente, minimalista y modular para Linux con KDE Plasma 6.**
+**Barra inteligente, minimalista y modular para Linux con KDE Plasma 6: arriba por defecto, abajo como modo configurable previsto.**
 
-> **Estado del proyecto:** fase de diseño y documentación. **No existe todavía un complemento funcional ni una versión instalable.** CachyOS será el primer entorno de pruebas; el objetivo es funcionar también en otras distribuciones Linux con Plasma compatible.
+> **Estado del proyecto:** fase de diseño y documentación. **No existe todavía un complemento funcional ni una versión instalable; tampoco están implementados los modos superior o inferior.** CachyOS será el primer entorno de pruebas; el objetivo es funcionar también en otras distribuciones Linux con Plasma compatible.
 
 ## Idea principal
-Plasma SmartBar busca concentrar la gestión de ventanas en una **barra superior de grosor constante**, sin llenar el escritorio de tareas visibles de forma permanente:
+Plasma SmartBar busca concentrar la gestión de ventanas en **islas de una barra horizontal de grosor constante**, sin llenar el escritorio de tareas visibles de forma permanente. **Se desarrolla primero arriba y se admite como modo oficial configurable abajo:**
 
 - Un **lanzador izquierdo** permite buscar e iniciar programas instalados.
 - Un botón **SO** a la derecha abre hacia la **izquierda** una fila horizontal de fichas de **aplicaciones ya abiertas**. Por defecto agrupa todas las ventanas de una aplicación en una ficha; puede desagruparse por configuración.
@@ -15,11 +15,13 @@ Plasma SmartBar busca concentrar la gestión de ventanas en una **barra superior
 - Video y juegos en **pantalla completa real** ocultan los controles superiores.
 - Seleccionar una ventana **contrae SO por defecto**; opciones de configuración permitirán mantenerlo expandido o utilizar visibilidad adaptativa.
 
-**Regla de diseño central:** la altura configurada de la barra es **invariable durante todos los estados**. Los paneles de herramientas secundarias pueden flotar debajo sin modificarla.
+**Regla de diseño central:** la altura configurada de la barra es **invariable durante todos los estados**, tanto **arriba** como **abajo**. Los paneles secundarios flotan **hacia el interior de la pantalla**, sin modificarla. Al maximizar, los controles de SmartBar están en el borde elegido: **superior o inferior**. Mover los controles **originales** de todas las aplicaciones no está garantizado y requiere pruebas con KWin/Wayland.
+
+**Extensibilidad:** las orientaciones verticales izquierda/derecha quedan como experimentación futura, no como modos comprometidos. La arquitectura debe separar orientación/posición de la lógica de tareas. [Prueba de modo inferior #2](https://github.com/nicoarg87/plasma-smartbar/issues/2).
 
 ## Documentación rectora
 - [Constitución técnica](docs/CONSTITUCION_TECNICA.md) — reglas innegociables y autoridad del diseño.
-- [Manual Maestro v0.8](docs/MANUAL_MAESTRO.md) — especificación detallada, historia de decisiones, opciones y requisitos.
+- [Manual Maestro v0.11](docs/MANUAL_MAESTRO.md) — especificación detallada, historia de decisiones, opciones y requisitos.
 - [Gobernanza](GOVERNANCE.md) — quién dirige y cómo se aprueban los cambios.
 - [Contribuir](CONTRIBUTING.md) — reportar bugs, discutir mejoras y enviar pull requests.
 - [Hoja de ruta](ROADMAP.md) — desarrollo por etapas.
@@ -39,7 +41,8 @@ Este repositorio es **público** y utiliza la licencia **GNU GPL versión 3** (v
 - [x] Repositorio público y licencia GPL-3.0.
 - [x] Especificación funcional y reglas de colaboración iniciales.
 - [ ] Diseño e investigación de las APIs necesarias.
-- [ ] Primer prototipo de barra y gestión de ventanas.
+- [ ] Primer prototipo superior de barra y gestión de ventanas.
+- [ ] Modo inferior con controles SmartBar en la parte baja, pendiente de pruebas técnicas.
 - [ ] Pruebas de funcionamiento, foco, compatibilidad y fullscreen.
 - [ ] Lanzamiento experimental.
 
