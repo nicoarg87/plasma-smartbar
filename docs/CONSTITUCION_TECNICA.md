@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.19 (recuperación directa de Malvina desde menú del agarre de Soledad, 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.20 (agarre izquierdo solo arrastra; opciones por clic derecho/teclado, 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -196,10 +196,21 @@ Esta decisión sustituye las reglas previas que hacían cerrar SO y bandeja al a
 
 **PROBLEMA COMPROBADO POR EL MANTENEDOR:** después de ocultar **Malvina (isla 2)** en la maqueta de CachyOS, no encontró una opción accesible dentro de Soledad que le permitiera volver a mostrarla. Los accesos ya existentes —menú contextual de SO y botón del lanzador flotante tras sostener SO— **no resultaron fáciles de descubrir**, por lo que la recuperación debe tener una entrada visible en la configuración usual.
 
-- **CONFIRMADO:** el agarre de **seis puntos** de **Soledad (isla 1)** conserva el menú de opciones que se abre mediante **clic breve**, y ese menú debe tener como primera acción, siempre disponible, **«Mostrar Malvina (isla 2)»** si Malvina está oculta. La acción reaparece como **«Ocultar Malvina (isla 2)»** cuando está visible. La opción es seleccionable con un clic y no exige recordar una pulsación larga ni un clic derecho.
+- **CONFIRMADO, con gesto de apertura actualizado en la sección 2.18:** el agarre de **seis puntos** de **Soledad (isla 1)** conserva el menú de opciones; la **primera acción** siempre disponible será **«Mostrar Malvina (isla 2)»** si Malvina está oculta, y **«Ocultar Malvina (isla 2)»** cuando esté visible. El menú se abre con **clic derecho**, no con clic breve izquierdo; existe alternativa de teclado. El clic sobre el ítem ejecuta la acción.
 - **No se rediseña el panel:** no se agrega otra isla, no cambia el orden de SO/agarre, la altura constante, el movimiento horizontal, las expansiones, los controles de ventana ni la visibilidad predeterminada (**Malvina sigue visible de inicio**).
 - **Rutas adicionales conservadas:** menú contextual de SO y botón «Mostrar Malvina» dentro del lanzador flotante permanecen disponibles. El estado de visibilidad debe sincronizarse con `showLauncherIsland=true` en la configuración KConfig del plasmoide real; en la vista Qt independiente rige el estado de sesión.
 - **IMPLEMENTADO SOLO EN MAQUETA QML EXPERIMENTAL:** `gripMenu` ahora presenta la acción en su primera posición, y las ayudas de SO/agarre indican cómo recuperarla cuando está oculta. **PENDIENTE de prueba en CachyOS**. La persistencia de KConfig real no está validada.
+
+## 2.18. Gesto del agarre: arrastrar con izquierdo, opciones con derecho (14/11/2026)
+
+**DECISIÓN FUNCIONAL POSTERIOR, QUE SUSTITUYE LA APERTURA CON CLIC IZQUIERDO DE LA SECCIÓN 2.17:** el mantenedor observó en CachyOS que el menú de los seis puntos se desplegaba al tocar el agarre para mover Soledad y que un segundo clic podía cerrarlo y reabrirlo inmediatamente. Esto resulta intrusivo al arrastrar la isla.
+
+- **Botón izquierdo del ratón sobre el agarre de seis puntos:** reservado al **arrastre horizontal manual de Soledad**, sin abrir el menú por clic simple ni al soltar el agarre. El usuario no debe tener que cerrar opciones para mover la isla.
+- **Botón derecho del ratón sobre el agarre:** **abre o cierra** el menú de «Opciones de Soledad» con clics sucesivos. Se evita el fallo de cerrar por pulsación exterior y reabrir en el mismo clic.
+- **Teclado y accesibilidad:** cuando el agarre está enfocado, la **tecla Menú** o **Mayús+F10** alterna el menú. Esc y clic fuera del agarre deben cerrarlo. El tooltip puede indicar la nueva operación, evitando mostrarse durante el arrastre. **Doble clic izquierdo no se habilita por defecto**: el mantenedor señaló el derecho como preferencia y así no se mezcla con el movimiento horizontal.
+- **Recuperación de Malvina sin pérdida:** al abrir el menú por derecho o teclado, la primera opción sigue siendo «Mostrar Malvina (isla 2)» si está oculta, «Ocultar Malvina (isla 2)» si está visible. También siguen disponibles las rutas de menú contextual SO y lanzador flotante SO. Malvina sigue visible por defecto.
+- **Invariantes:** no cambian el agarre de seis puntos, la altura constante, la distancia entre islas, los controles fijos, el cálculo de espacio SO/bandeja ni el lanzamiento flotante de Malvina/Soledad.
+- **IMPLEMENTADO EN RAMA EXPERIMENTAL, PENDIENTE DE PRUEBA EN CACHYOS:** `SmartBarContent.qml` desactiva la acción del clic izquierdo en `moveGrip`, añade `MouseArea` que acepta solo botón derecho y una alternativa de teclado; `gripMenu` usa una política de cierre que no interfiere con el segundo clic derecho. Sin tocar el panel de KDE instalado.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
