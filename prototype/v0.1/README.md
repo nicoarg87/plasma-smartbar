@@ -352,3 +352,25 @@ bash prototype/v0.1/probar_ancho.sh
 5. Comprobar que el separador entre SO/bandeja, agarre y controles fijos no se alteren.
 
 **Alcance:** interfaz QML de simulación, sin ejecutar aplicaciones reales ni modificar panel de KDE. Código revisado estáticamente; **validación final pendiente del usuario**.
+
+## Corrección: mantener SO y bandeja visibles al abrir lanzador desde SO (14/11/2026)
+
+**BUG OBSERVADO POR EL MANTENEDOR EN CACHYOS:** con SO expandido y bandeja expandida, mantener presionado el botón SO unos 400 ms abría correctamente el lanzador flotante bajo Soledad, pero **contraía automáticamente ambas expansiones horizontales**. El usuario pidió que los tres contenidos puedan coexistir sin que el lanzador provoque cierres.
+
+**CAUSA:** `openInstalledLauncher(source)` ejecutaba `soExpanded = false` y `trayExpanded = false` cuando el origen era `so` (una antigua regla de exclusividad). **PARCHE IMPLEMENTADO, AÚN NO RETESTEADO:** se eliminó ese cierre forzado para ambos orígenes. Se conserva el comportamiento de posición del popup: SO → debajo de Soledad, Malvina → debajo de Malvina; Malvina sigue abriendo/cerrando con clics alternados.
+
+**Prueba segura en Fish:**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Usá una ventana de prueba ancha, hacé clic breve SO para mostrar fichas de ejemplo y abrí la bandeja. Deben quedar ambas secciones visibles y separadas por la línea vertical.
+2. **Mantené SO ~400 ms**, sin soltar antes del umbral. Debe aparecer el menú de aplicaciones de muestra **debajo de Soledad**, y las fichas SO + los iconos de bandeja deben **seguir abiertos arriba**.
+3. Cerrá el menú flotante con Esc o clic afuera y comprobá que **las fichas SO y bandeja sigan igual de visibles**.
+4. Abrí el lanzador desde Malvina (clic a la izquierda), comprobá que aparece bajo Malvina sin cerrar Soledad, y que un segundo clic en Malvina lo cierre.
+5. Verificá aparte que **seleccionar una ficha SO** contraiga el selector solo si la opción `autoCollapseSO` está activada, que **usar un icono simulado de bandeja** lo contraiga solo si `autoCollapseTray` está activada, y que siga funcionando la exclusión **por falta de espacio real** cuando ambas expansiones horizontales no entren.
+
+**Estado de este parche:** revisión de código, pendiente de validación efectiva en CachyOS. No hay aplicaciones, controles ni bandeja reales y no se toca el panel instalado.
