@@ -13,6 +13,13 @@ QQC2.Button {
     property real iconZoom: 1
     property real iconPanX: 0
     property real iconPanY: 0
+    // SOLO Soledad conecta esto a la cantidad real de ventanas.
+    // Sin ventanas se destruye el lienzo, evitando animación y consumo.
+    property int activityCount: 0
+    property string activityEffect: "steady"  // off, steady, orbit
+    property color activityColor: "#35d7ff"
+    property real activityStroke: 1.0
+    property bool activityMotionAllowed: true
 
     implicitHeight: 34
     implicitWidth: iconSource.toString().length > 0
@@ -52,6 +59,29 @@ QQC2.Button {
                     zoom: control.iconZoom
                     panX: control.iconPanX
                     panY: control.iconPanY
+                }
+            }
+        }
+
+        // El contorno rodea la forma elegida del logo. Se carga solo
+        // si hay una ventana real (en la maqueta, ficha de muestra).
+        Loader {
+            id: activityOutlineLoader
+            anchors.centerIn: parent
+            width: 32
+            height: 32
+            active: control.activityCount > 0 &&
+                    control.activityEffect !== "off"
+            sourceComponent: Component {
+                SoActivityOutline {
+                    width: 32
+                    height: 32
+                    shape: control.iconShape
+                    accentColor: control.activityColor
+                    strokeSize: control.activityStroke
+                    effectStyle: control.activityEffect
+                    allowMotion: control.activityMotionAllowed
+                    hasWindows: control.activityCount > 0
                 }
             }
         }
