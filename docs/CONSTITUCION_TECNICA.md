@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.13 (anclaje del lanzador SO al desplazamiento de isla 1; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.14 (expansiones condicionales de Soledad y Malvina, 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -10,7 +10,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 1. La barra y todos los menús que se **expanden horizontalmente** mantienen idéntico **grosor**. En modo horizontal (superior/inferior), la altura puede configurarse como preferencia del usuario, pero no cambia al maximizar, restaurar, abrir una bandeja o navegar entre ventanas.
 2. El botón **SO** muestra aplicaciones/ventanas que ya están abiertas; el lanzador del extremo izquierdo busca programas **instalados**. Son controles diferentes.
 3. SO despliega fichas **hacia la izquierda, en una sola fila**. Agrupa por aplicación de manera predeterminada (por ejemplo, tres ventanas Dolphin en una ficha). Se puede desagrupar por configuración.
-4. La flecha de bandeja es **izquierda al abrir (◀)** y **derecha al cerrar (▶)**. SO y bandeja **son mutuamente excluyentes**.
+4. La flecha de bandeja es **izquierda al abrir (◀)** y **derecha al cerrar (▶)**. **SO y bandeja pueden permanecer expandidos simultáneamente si hay espacio físico; si no lo hay, al abrir uno se contrae el anterior** (sección 2.12).
 5. Cuando una ventana está maximizada, los botones de SmartBar **minimizar, restaurar/maximizar y cerrar** aparecen **anclados al extremo derecho de la ventana/franja horizontal**, **en el mismo borde elegido**: arriba si está arriba, **abajo si está abajo**. **No se arrastran junto a la isla 1**, no siguen a SO ni cambian de posición al abrir su bandeja. **La isla 1 debe apartarse a la izquierda de los botones al maximizar**, y el agarre solo mueve la isla. En ventanas normales siguen existiendo los controles propios de cada aplicación. El tamaño y la alineación respecto de la barra permanecen constantes. El destino exacto de los botones originales de cada aplicación está sujeto a validación técnica y no se presume que KWin pueda trasladarlos universalmente.
 6. Las islas y sus expansiones tienen prioridad de capa en el borde horizontal elegido sobre la **interfaz de las ventanas maximizadas**; en modo superior esto incluye las pestañas del navegador, cuya convivencia sigue pendiente de validación. Se puede cubrir contenido temporalmente, pero jamás desplazar pestañas, redimensionar ventanas o crear otra fila.
 7. En **pantalla completa real** (video o videojuego), los controles de escritorio no deben superponerse al contenido.
@@ -82,7 +82,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Desactivar alineación manualmente:** simplemente deja libre el posicionamiento; no mueve la isla por sí sola.
 - **Retorno al desmaximizar:** la preferencia independiente, configurada **activada por defecto**, conserva su regla anterior: cuando una ventana deja de estar maximizada, la isla regresa a la derecha si el usuario no la desactivó. **No se aplica al soltar el agarre.**
 - **Perfiles por aplicación:** si Steam, Dolphin u otra aplicación tiene una posición guardada, debe poder recuperarse sin tener que modificar a mano la casilla. Un movimiento manual destilda la alineación, **pero no guarda ni sobrescribe perfiles**; el guardado requiere la acción contextual «Recordar esta posición para [aplicación]» ya aprobada.
-- **Invariantes:** no alterar altura, expansión en una sola fila, bandeja/SO excluyentes, fullscreen real, compatibilidad de aplicaciones ni el posicionamiento fijo de controles de ventana.
+- **Invariantes:** no alterar altura, expansión en una sola fila, bandeja/SO simultáneos cuando haya espacio y con prioridad a la expansión reciente si falta, fullscreen real, compatibilidad de aplicaciones ni el posicionamiento fijo de controles de ventana.
 - **Estado:** lógica de alineación incorporada **solo a la maqueta QML en la rama v0.1**, **todavía sin repetir pruebas en CachyOS**; integración con ventanas reales/KWin pendiente. La persistencia de preferencias globales continúa por validar.
 
 ## 2.7. Mantener la posición física al retirar los controles de ventana (14/11/2026)
@@ -130,8 +130,23 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 
 - **Geometría reactiva:** el lanzador sigue horizontalmente la posición de **isla 1** al arrastrarla o al redimensionar el contenedor. En modo superior se muestra **debajo** de la isla; en el modo inferior futuro debe abrirse **por encima** (según el diseño aprobado de los paneles secundarios).
 - **Límites:** el popup permanece dentro de los márgenes útiles de la pantalla/contenedor, incluso cerca de los bordes. El ajuste por límites no mueve isla 1 ni los controles independientes de ventana.
-- **No cambia:** clic breve SO para ventanas abiertas, pulsación de prueba ~400 ms para lanzador, islas separadas, bandeja/SO excluyentes, grosor fijo, agarre de seis puntos ni controles anclados a la derecha.
+- **No cambia:** clic breve SO para ventanas abiertas, pulsación de prueba ~400 ms para lanzador, islas separadas, bandeja/SO coexistentes si caben, grosor fijo, agarre de seis puntos ni controles anclados a la derecha.
 - **Estado técnico:** parche únicamente en la maqueta QML de [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), pasando a usar `systemIsland.x` y `systemIsland.width` como dependencias reactivas del popup. **Todavía no probado en CachyOS tras la corrección**, ni conectado al catálogo real de aplicaciones.
+
+## 2.12. Soledad, Malvina y expansión coexistente según espacio (14/11/2026)
+
+**CAMBIO FUNCIONAL CONFIRMADO POR EL MANTENEDOR, QUE SUSTITUYE LA EXCLUSIVIDAD ABSOLUTA ANTERIOR:**
+
+- **Soledad** es el nombre de la **isla 1 principal**, que contiene el botón **SO** (se conserva la abreviatura visible), bandeja de sistema y agarre horizontal de seis puntos. **Malvina** es el nombre de la **isla 2**, lanzador izquierdo secundario, visible por defecto y ocultable.
+- **SO y bandeja pueden permanecer expandidos al mismo tiempo** si las fichas de ambos conjuntos **entran en el espacio horizontal real disponible**, manteniendo una sola fila y sin afectar la altura. La apertura de uno **no contrae preventivamente** el otro por costumbre. Los dos se pueden dejar abiertos por voluntad del usuario.
+- **Cuando NO hay espacio para ambas expansiones**, se **conserva la expansión recién solicitada** y se contrae la que estaba abierta antes. La misma protección debe aplicarse si el usuario desplaza Soledad horizontalmente o cambia el ancho útil mientras están ambas abiertas.
+- El cálculo físico respeta la posición desplazada de Soledad, el espacio que ocupa Malvina cuando está visible y los controles independientes `− □ ×` de ventana maximizada. Las expansiones nunca alteran el anclaje de SO y el agarre, ni desplazan pestañas, controles originales o tamaño de ventanas. Si el espacio fuese insuficiente incluso para una sola expansión, debe tratarse en una prueba específica sin inventar nuevas filas ni variar el grosor.
+- El **lanzador flotante** de pulsación sostenida de SO sigue siendo distinto de estas dos expansiones: al abrirlo cierra las fichas de SO y bandeja para evitar que un menú flotante se superponga con ellas. Esta regla **no implica exclusividad automática** entre las fichas horizontales SO y bandeja.
+- **Recuperación de Malvina:** si está oculta, el lanzador flotante abierto desde SO debe mostrar una acción de **un clic «Mostrar Malvina (isla 2)»**, además de la opción existente del menú contextual de SO. No dejar la reaparición dependiente de un gesto poco descubrible. Su configuración por defecto sigue siendo visible.
+- **Nomenclatura:** quedan anotados los nombres **Soledad** e **Malvina** como nombres funcionales de las islas, sin renombrar aún el repositorio oficial `plasma-smartbar` ni su licencia. La posible denominación pública del **proyecto completo** como «Malvina» queda pendiente de confirmación explícita para no interpretar una frase ambigua como autorización de renombrar infraestructura.
+- **Estado:** la demostración QML del PR #3 implementa la lógica de capacidad y la recuperación directa de Malvina, **pendiente de prueba en CachyOS**. Sigue usando aplicaciones y bandeja ficticias. No implica integración con bandeja/ventanas reales ni prueba definitiva de todos los anchos.
+
+Esta sección más reciente **prevalece sobre cualquier formulación anterior de «SO y bandeja mutuamente excluyentes»** en este documento o manuales históricos.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
