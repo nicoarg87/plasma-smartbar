@@ -398,3 +398,25 @@ bash prototype/v0.1/probar_ancho.sh
 5. Repetir con Malvina: clic M abre y siguiente clic M cierra, sin contraer fichas SO/bandeja. Confirmar que falta de espacio o preferencias de autocontracción por selección conservan sus reglas previas.
 
 **Estado:** código revisado, **no probado todavía en CachyOS después del parche**; apps ficticias; PR #3 borrador.
+
+## Recuperar Malvina directamente desde el menú de los seis puntos (14/11/2026)
+
+**ERROR DE USABILIDAD CONFIRMADO por el mantenedor en CachyOS:** pudo ocultar Malvina (isla 2), pero después no encontró forma evidente de mostrarla. Existían clic derecho sobre SO y opción en el lanzador de SO sostenido, pero no eran descubribles.
+
+**NUEVO CAMINO DIRECTO PROGRAMADO, PENDIENTE DE PRUEBA:** en **Soledad** (isla 1), hacer un **clic normal en los seis puntos** junto a SO; el menú «Opciones de Soledad» ahora tiene como **primera acción** «Mostrar Malvina (isla 2)» cuando está oculta o «Ocultar Malvina (isla 2)» cuando está visible. Un solo clic cambia su estado, sin afectar la bandeja, las fichas SO ni el anclaje de Soledad. El mensaje de ayuda del agarre también explica qué hacer cuando Malvina está oculta.
+
+**Cómo comprobarlo en Fish:**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Clic derecho en el botón M de Malvina (izquierda) → «Ocultar Malvina (isla 2)». Debe desaparecer el botón izquierdo.
+2. **Clic normal en los seis puntos de Soledad** (junto a SO, siempre visibles) → menú «Opciones de Soledad». La primera opción debe decir **«Mostrar Malvina (isla 2)»**.
+3. Clic en «Mostrar Malvina» → debe volver a aparecer el botón M a la izquierda, sin tocar las fichas SO o la bandeja.
+4. Reabrí el menú de seis puntos: la primera acción ahora debe indicar **«Ocultar Malvina (isla 2)»**. Ocultá desde allí y recuperá con un nuevo clic en el agarre.
+5. Comprobá además que SO sostenido todavía abre el lanzador debajo de Soledad y que un clic breve en SO con el lanzador abierto solo cierra el flotante. El menú de Malvina sigue abriendo/cerrando con clics alternos.
+
+**Alcance:** solo maqueta de Qt Quick, con iconos y aplicaciones simulados. El estado de Malvina en la vista independiente dura una sesión; persistencia en el applet Plasma todavía no comprobada. No toca el panel original del usuario.
