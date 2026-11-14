@@ -38,7 +38,7 @@ Window {
         id: chooseImage
         title: "Elegir fotografía, logo o GIF"
         fileMode: FileDialog.OpenFile
-        nameFilters: ["Imágenes (PNG JPG JPEG WEBP SVG GIF BMP)",
+        nameFilters: ["Imágenes (*.png *.jpg *.jpeg *.webp *.svg *.gif *.bmp)",
                       "Todos los archivos (*)"]
         onAccepted: {
             editor.filePath = selectedFile.toString()
