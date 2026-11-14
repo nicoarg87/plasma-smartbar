@@ -31,6 +31,7 @@ PlasmoidItem {
         soLogoMode: Plasmoid.configuration.soLogoMode
         soLogoPath: Plasmoid.configuration.soLogoPath
         soLogoShape: Plasmoid.configuration.soLogoShape
+        soLogoFitMode: Plasmoid.configuration.soLogoFitMode
         soLogoZoom: Plasmoid.configuration.soLogoZoom
         soLogoPanX: Plasmoid.configuration.soLogoPanX
         soLogoPanY: Plasmoid.configuration.soLogoPanY
@@ -52,10 +53,11 @@ PlasmoidItem {
             Plasmoid.configuration.soActivityStroke = stroke
             Plasmoid.configuration.soActivityMotion = allowMotion
         }
-        onRequestSoLogoChange: function(mode, path, shape, zoom, panX, panY, allowGif) {
+        onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif) {
             Plasmoid.configuration.soLogoMode = mode
             Plasmoid.configuration.soLogoPath = path
             Plasmoid.configuration.soLogoShape = shape
+            Plasmoid.configuration.soLogoFitMode = fitMode
             Plasmoid.configuration.soLogoZoom = zoom
             Plasmoid.configuration.soLogoPanX = panX
             Plasmoid.configuration.soLogoPanY = panY
