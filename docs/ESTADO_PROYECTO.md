@@ -66,10 +66,17 @@
 
 **TODAVÍA NO IMPLEMENTADO:** selección de ventanas reales mediante KWin, estados de maximización reales y configuración de posición en un panel de uso diario. Los resultados no permiten todavía anunciar v0.1 terminada ni fusionar el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3). Pruebas detalladas en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
 
+## Cuarta prueba v0.1 — retorno al extremo derecho comprobado (14/11/2026)
+
+- **PROBADO:** en `plasmoidviewer`, el mantenedor activó y desactivó «Simular ventana maximizada»; al desactivar la simulación, la **isla 1 volvió automáticamente a su posición original a la derecha**.
+- **COMPORTAMIENTO ESPERADO:** los controles ficticios de minimizar, restaurar y cerrar no realizaron acciones al pulsarlos; en la maqueta v0.1 están deshabilitados. Esto **no es un defecto de las funciones reales**, que todavía no existen.
+- **PENDIENTE:** comprobar desactivación y persistencia de la preferencia `autoReturnRight` tras reiniciar; probar exclusividad automática SO/bandeja, constancia geométrica con medidas, recarga del visor y futura integración KWin/Wayland.
+- **Estado:** v0.1 ha superado nuevas interacciones manuales de demostración, pero no está lista como barra de uso diario. Registro en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) continúa en borrador.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
-**Siguiente paso inmediato:** validar el **retorno automático** tras desmaximización simulada, probar la **preferencia desactivable/persistente**, y verificar exclusividad SO/bandeja y geometría fija. Si reaparece el problema del botón de recarga de `plasmoidviewer`, conservar el registro para diagnosticarlo. Revisar resultados en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) permanece borrador. Después, comenzar la investigación de ventanas reales y KWin/Wayland.
+**Siguiente paso inmediato:** validar la **preferencia de retorno desactivable/persistente** (el retorno activado por defecto ya fue probado), y verificar exclusividad SO/bandeja y geometría fija. Si reaparece el problema del botón de recarga de `plasmoidviewer`, conservar el registro para diagnosticarlo. Revisar resultados en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) permanece borrador. Después, comenzar la investigación de ventanas reales y KWin/Wayland.
 
 ## Próximo hito organizativo
 Conservar la sincronía documental entre la Constitución, el Manual Maestro y la plantilla del Proyecto de ChatGPT. **Si la plantilla en GitHub cambia, copiar su versión actualizada a las instrucciones del Proyecto en ChatGPT; la sincronización no es automática.**
