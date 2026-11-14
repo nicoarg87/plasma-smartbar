@@ -7,7 +7,7 @@ import org.kde.plasma.plasmoid
 PlasmoidItem {
     id: root
 
-    Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
+    // Sin compactRepresentation: Plasma 6 usa el contenido principal como vista completa.
 
     // Una sola franja de alto fijo, tanto con SO como con la bandeja abiertos.
     readonly property int fixedHeight: 48
