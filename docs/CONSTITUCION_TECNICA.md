@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.9 (conservación de posición física al desmaximizar sin retorno; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.10 (ancho adaptable del contenedor, sin modificar grosor; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -93,6 +93,15 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Retorno activado:** al desmaximizar, sigue rigiendo el regreso al extremo derecho. **Retorno desactivado:** conservar posición visual salvo ajuste mínimo imprescindible por límites físicos de pantalla.
 - La casilla contextual «Alinear isla 1 a la derecha» mantiene su independencia: al arrastrar se destilda, al tildar retorna inmediatamente. Un perfil de posición por aplicación guardado mediante clic derecho no se modifica solo por desmaximizar.
 - **Estado:** la corrección existe **solo en QML experimental del PR #3, no probada aún en CachyOS tras ese parche**. El posicionamiento con ventanas reales y varios monitores sigue pendiente. No cambia el grosor ni la separación de controles.
+
+## 2.8. Adaptación al ancho disponible (14/11/2026)
+
+- **CONFIRMADO:** en orientación horizontal, SmartBar debe **distribuir sus islas a lo largo de todo el ancho útil disponible** del panel/contenedor, sin conservar un ancho máximo fijo que deje la isla 1 lejos del extremo derecho.
+- **Respuesta a cambios:** si la pantalla, resolución, escalado, contenedor o ventana de ensayo cambian de ancho, la **isla 2 sigue anclada al extremo izquierdo útil** y **la isla 1 y los controles independientes de ventana siguen el extremo derecho útil**, respetando desplazamiento manual, reserva para controles y límites de pantalla. No se exige recargar el widget para reajustarlo.
+- **No confundir ancho con aspecto:** «ocupar el ancho disponible» significa que **las posiciones/anclajes usan el ancho completo**, **NO** que deba aparecer un fondo continuo entre islas. De forma predeterminada solo se ven islas separadas, como se aprobó.
+- **Altura invariable:** cambios en el ancho no hacen que aparezcan segundas filas ni cambian el grosor de SmartBar. Al reducirse mucho el ancho, el comportamiento ante falta de espacio debe probarse y decidirse antes de sacrificar requisitos confirmados.
+- **Limitación de prueba:** `plasmoidviewer` puede agregar márgenes o restricciones propias. Esto no exime a SmartBar de redimensionarse correctamente cuando recibe nueva geometría. La integración de pantalla y KWin/Wayland **no está verificada** por la ventana de ensayo.
+- **Estado:** el QML del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) solicita `Layout.fillWidth` y registra cambios de anchura, pero **esta corrección no ha sido probada todavía en CachyOS**.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
