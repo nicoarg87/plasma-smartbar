@@ -21,6 +21,8 @@ Item {
 
     property bool soExpanded: false
     property bool trayExpanded: false
+    // Última expansión iniciada por el usuario: gana si falta espacio.
+    property string lastExpandedMode: "so"
     property bool launcherPreview: false
     property bool previewMaximized: false  // ¡Simulación! No se consulta KWin.
     // Indica la selección manual de «Alinear a la derecha», independiente
@@ -43,6 +45,13 @@ Item {
         0, root.width - (root.launcherIslandVisible ? launcherIsland.width : 0) - 460 - 12
            - controlsReservation
     )
+    // Espacio físico desde el borde izquierdo libre hasta la derecha de
+    // Soledad. Se calcula en el ancho REAL, respetando Malvina si está visible.
+    readonly property real availableIslandWidth: Math.max(
+        0, root.width - islandOffset - controlsReservation
+           - (launcherIslandVisible ? launcherIsland.width + 12 : 12)
+    )
+    onAvailableIslandWidthChanged: ensureExpansionFits()
 
     function setIslandOffset(offset) {
         islandOffset = Math.max(0, Math.min(maxIslandOffset, offset))
@@ -107,13 +116,35 @@ Item {
                     "desplazamiento =", islandOffset)
     }
 
+    function ensureExpansionFits() {
+        if (!soExpanded || !trayExpanded) {
+            return
+        }
+        // La anchura visible de la fila mide exactamente ambos conjuntos.
+        // Solo contraer uno si juntos invadirían el espacio de Malvina
+        // o superarían el borde disponible de la ventana.
+        if (systemIsland.width > availableIslandWidth + 0.5) {
+            if (lastExpandedMode === "tray") {
+                soExpanded = false
+            } else {
+                trayExpanded = false
+            }
+            console.log("Soledad: espacio insuficiente, contraer expansión anterior")
+        }
+    }
+
     function toggleSO() {
         if (installedAppsPopup.opened) {
             installedAppsPopup.close()
         }
-        soExpanded = !soExpanded
         if (soExpanded) {
-            trayExpanded = false
+            soExpanded = false
+        } else {
+            lastExpandedMode = "so"
+            soExpanded = true
+            // Si entra la bandeja junto a SO, conservar ambos.
+            // systemIsland.onWidthChanged calcula la colisión real.
+            ensureExpansionFits()
         }
     }
 
@@ -136,9 +167,13 @@ Item {
 
     function toggleTray() {
         installedAppsPopup.close()
-        trayExpanded = !trayExpanded
         if (trayExpanded) {
-            soExpanded = false
+            trayExpanded = false
+        } else {
+            lastExpandedMode = "tray"
+            trayExpanded = true
+            // Si hay espacio suficiente, la expansión SO queda abierta.
+            ensureExpansionFits()
         }
     }
 
@@ -190,18 +225,37 @@ Item {
                 placeholderText: "Buscar aplicación…"
                 focus: true
             }
-            Repeater {
-                model: root.demoInstalledApps.filter(function(name) {
-                    return name.toLowerCase().indexOf(installedAppsSearch.text.toLowerCase()) >= 0
-                })
-                delegate: QQC2.Button {
-                    required property string modelData
-                    text: modelData + "  · muestra"
-                    width: 248
-                    height: 28
-                    onClicked: {
-                        console.log("SmartBar: app simulada", modelData, "(no se ejecuta)")
-                        installedAppsPopup.close()
+            // Recuperación visible incluso cuando Malvina está oculta:
+            // mantener SO y pulsar una sola opción, sin clic derecho.
+            QQC2.Button {
+                visible: !root.launcherIslandVisible
+                width: 248
+                height: 30
+                text: "Mostrar Malvina (isla 2)"
+                onClicked: {
+                    root.setLauncherIslandVisible(true)
+                    installedAppsPopup.close()
+                }
+            }
+            QQC2.ScrollView {
+                width: 248
+                height: root.launcherIslandVisible ? 162 : 128
+                clip: true
+                ListView {
+                    model: root.demoInstalledApps.filter(function(name) {
+                        return name.toLowerCase().indexOf(installedAppsSearch.text.toLowerCase()) >= 0
+                    })
+                    spacing: 4
+                    clip: true
+                    delegate: QQC2.Button {
+                        required property string modelData
+                        text: modelData + "  · muestra"
+                        width: 240
+                        height: 28
+                        onClicked: {
+                            console.log("SmartBar: app simulada", modelData, "(no se ejecuta)")
+                            installedAppsPopup.close()
+                        }
                     }
                 }
             }
@@ -227,11 +281,11 @@ Item {
             IslandButton {
                 id: launcherButton
                 anchors.centerIn: parent
-                text: root.launcherPreview ? "Apps" : "◇"
+                text: root.launcherPreview ? "Apps" : "M"
                 accent: true
                 onClicked: root.openInstalledLauncher()
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: "Isla 2: lanzador de muestra. Clic derecho: ocultar."
+                QQC2.ToolTip.text: "Malvina (isla 2): lanzador de muestra. Clic derecho: ocultar."
 
                 MouseArea {
                     anchors.fill: parent
@@ -241,7 +295,7 @@ Item {
                 QQC2.Menu {
                     id: launcherContextMenu
                     QQC2.MenuItem {
-                        text: "Ocultar isla 2"
+                        text: "Ocultar Malvina (isla 2)"
                         onTriggered: root.setLauncherIslandVisible(false)
                     }
                 }
@@ -253,6 +307,9 @@ Item {
             id: systemIsland
             height: 44
             width: systemRow.implicitWidth + 12
+            // Al cambiar fichas o espacio por arrastre, mantener ambas
+            // expansiones salvo que realmente dejen de caber.
+            onWidthChanged: root.ensureExpansionFits()
             radius: 22
             color: "#101e31"
             border.color: "#4e8499"
@@ -344,13 +401,13 @@ Item {
                             onTriggered: root.openInstalledLauncher()
                         }
                         QQC2.MenuItem {
-                            text: root.launcherIslandVisible ? "Ocultar isla 2" : "Mostrar isla 2"
+                            text: root.launcherIslandVisible ? "Ocultar Malvina (isla 2)" : "Mostrar Malvina (isla 2)"
                             onTriggered: root.setLauncherIslandVisible(!root.launcherIslandVisible)
                         }
                     }
 
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Clic: ventanas de muestra · mantener 0,4 s: apps · derecho: opciones"
+                    QQC2.ToolTip.text: "Soledad (isla 1) · clic: ventanas · mantener 0,4 s: apps · derecho: opciones"
                 }
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
