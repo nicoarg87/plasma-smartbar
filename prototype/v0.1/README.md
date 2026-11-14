@@ -191,3 +191,23 @@ bash prototype/v0.1/probar_ancho.sh
 6. Repetir con «Alinear isla 1 a la derecha» marcada: debe quedar contigua al grupo fijo.
 
 **Estado:** código corregido y revisión estática pendiente de validación real. No se administran ventanas reales ni se altera el panel instalado.
+
+## Primer diagnóstico de ventanas reales — SOLO LECTURA (14/11/2026)
+
+Esta es **una prueba nueva, sin resultados de CachyOS todavía**. KDE Plasma 6 publica un modelo QML de tareas (`TaskManager.TasksModel`, módulo `org.kde.taskmanager 0.1`), con información sobre nombres de aplicación, ventanas agrupadas y estado de maximización. Se preparó una **ventana independiente** para verificar que el módulo está disponible y detecta aplicaciones reales sin ninguna operación de control.
+
+Ejecutá desde **Fish**:
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ventanas.sh
+```
+
+**Resultados esperados:** aparece una ventana titulada «Plasma SmartBar — ventanas reales (solo lectura)» con una lista que muestra las apps abiertas y sus estados. Abrí Dolphin o Konsole por tu cuenta y comprobá si aparece una fila nueva, o cambia la agrupación. Cerrá esa aplicación con sus controles habituales y comprobá que la fila desaparece. **La lista no tiene botones para activar, cerrar, maximizar o minimizar nada.**
+
+**Si falla:** copiá la salida de Konsole, especialmente si aparece `module "org.kde.taskmanager" is not installed` o un error de tipos. La compatibilidad del import `TasksModel` ejecutado mediante `qml6`/Qt 6 **todavía no está probada en CachyOS**, aunque el modelo esté documentado en KDE. No instales dependencias al azar, ni uses `plasmashell --replace` para esta prueba. El visor anterior `probar_ancho.sh` sigue intacto.
+
+**Alcance:** solamente detecta y enumera. La ventana independiente de Qt no es todavía SO con fichas reales, ni demuestra coexistencia con las islas dentro del panel Plasma. El siguiente paso, **solo si esta prueba funciona**, es alimentar las fichas de SO con el modelo de tareas, manteniendo las acciones de control deshabilitadas al principio.
+
+**Referencias:** https://github.com/KDE/plasma-workspace/blob/master/libtaskmanager/tasksmodel.h , https://github.com/KDE/plasma-workspace/blob/master/libtaskmanager/abstracttasksmodel.h , y [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
