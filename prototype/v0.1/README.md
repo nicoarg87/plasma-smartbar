@@ -17,6 +17,34 @@
 - La isla 3 (buscador persistente) no aparece. La maximización **es una simulación**; aún no leemos el estado de ventanas reales mediante KWin.
 - El grosor visual de la franja sigue fijo; **sin animaciones ni MPRIS**.
 
+## Prueba alternativa: ventana Qt redimensionable (14/11/2026)
+
+**Segundo resultado real comunicado por el mantenedor:** aunque se incorporó `Layout.fillWidth: true`, **agrandar/maximizar `plasmoidviewer` siguió sin expandir la representación de SmartBar**. Por tanto, esa primera corrección por sí sola **no ha resuelto** la prueba dentro del visor. No repetirla a ciegas ni afirmar que el contenedor de Plasma necesariamente entrega toda la anchura.
+
+### Ensayo recomendado, sin riesgo para tu panel
+
+El código se dividió en un **componente compartido** `package/contents/ui/SmartBarContent.qml` (con todas las islas, SO, bandeja, agarre, controles de muestra y lógica de estado). El envoltorio `package/contents/ui/main.qml` lo utiliza dentro del plasmoide. Y `preview_redimensionable.qml` reutiliza **ese mismo componente** en una ventana Qt Quick normal, donde su ancho está enlazado explícitamente a los bordes de la ventana.
+
+En **Fish**, estando en `~/plasma-smartbar`, ejecutá:
+
+```fish
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+El script usa `qml6` o `/usr/lib/qt6/bin/qml` de Qt 6 (normalmente disponible mediante `qt6-declarative` en CachyOS/Arch), **sin instalar nada**. Si falta, muestra un diagnóstico.
+
+**Comprobaciones:**
+1. Abrir la ventana independiente: isla 2 a la izquierda e isla 1 a la derecha. Solo aparece una superficie de fondo del **visor de prueba**; no conecta visualmente las islas.
+2. Agrandar/maximizar/restaurar la ventana: el número «Ancho del contenido» debe cambiar; SO y los controles de muestra deben seguir el extremo derecho.
+3. Activar «Simular ventana maximizada» y arrastrar isla 1: controles `− □ ×` se quedan al extremo derecho. SO y bandeja continúan expandiendo hacia la izquierda, a una sola fila.
+4. Cerrar con la X, sin dejar nada instalado ni cambiar el panel real.
+
+Si esta ventana responde al ancho pero `plasmoidviewer` no, sabremos que **la interfaz compartida puede adaptarse** y que el siguiente problema está en cómo el contenedor de `plasmoidviewer` dimensiona el applet (aún por investigar). Si tampoco responde, revisaremos el componente QML. **La ventana Qt no acredita todavía la integración con un panel real ni con KWin/Wayland.**
+
+### Estado
+**Código escrito y verificado por lectura estática, pero NO ejecutado en CachyOS después de refactorizar.** El [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue siendo borrador. `probar.sh` sigue disponible para la prueba original con `plasmoidviewer`.
+
 ## Ancho adaptable del visor — parche en espera de prueba (14/11/2026)
 
 **Reporte del mantenedor:** la interfaz ocupaba aproximadamente el ancho inicial de la maqueta y **no llegaba al extremo derecho** de `plasmoidviewer`; al maximizar o redimensionar la ventana del visor, la isla derecha **no seguía el nuevo borde**. Es un comportamiento incorrecto para el diseño final; puede existir además un margen propio del visor, que aún hay que comprobar.
