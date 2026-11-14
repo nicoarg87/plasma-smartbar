@@ -148,8 +148,12 @@ Item {
     }
 
     function toggleSO() {
-        if (installedAppsPopup.opened) {
+        // Si el lanzador flotante está visible, el clic breve en SO
+        // cierra SOLO ese menú. Las fichas SO y la bandeja conservan
+        // su estado: no alternar soExpanded en el mismo clic.
+        if (installedAppsPopup.visible) {
             installedAppsPopup.close()
+            return
         }
         if (soExpanded) {
             soExpanded = false
