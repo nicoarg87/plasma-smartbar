@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.23](MANUAL_MAESTRO.md), [Constitución Técnica v1.15](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.24](MANUAL_MAESTRO.md), [Constitución Técnica v1.16](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -192,6 +192,14 @@
 - **NUEVO INSTRUMENTO IMPLEMENTADO, PENDIENTE DE PRUEBA EN CACHYOS:** en la rama [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) se agregó exclusivamente a la ventana de prueba Qt un indicador de estados SO/bandeja, visibilidad de Malvina, preferencias de autocontracción, ancho de Soledad versus espacio disponible y prioridad de última expansión. El componente QML expone `actualIslandWidth` solo para diagnosticar y registra números al faltar espacio.
 - **VALIDACIÓN SOLICITADA:** `git pull`; `bash prototype/v0.1/probar_ancho.sh`. Con ventana ancha abrir SO y bandeja y comprobar ambos abiertos; disminuir el ancho o desplazar Soledad hasta que falte espacio y verificar que solo la última expansión solicitada quede abierta. Probar opcionalmente autocontracción tras selección y recuperación de Malvina. **No se modificó el panel KDE actual y aún no se ha probado en el equipo del mantenedor.**
 - **PENDIENTE DESPUÉS:** revisar resultado de esta prueba en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); si es positivo, continuar con `probar_ventanas.sh` para validar detección real en modo solo lectura. Sin fusión a main.
+
+## Prueba positiva de coexistencia y nuevos ajustes del lanzador Malvina (14/11/2026)
+
+- **PROBADO EN CACHYOS:** el mantenedor confirmó que la apertura conjunta de SO y bandeja «está funcionando como se esperaba» en la ventana Qt experimental. Eso valida su coexistencia en el escenario ensayado, no la bandeja real de Plasma ni todas las geometrías posibles.
+- **AJUSTE VISUAL CONFIRMADO:** cuando ambas expansiones horizontales están abiertas, deben diferenciarse mediante **una línea vertical fina y discreta entre iconos de bandeja y fichas SO**, que desaparezca si se contrae una sección. Sin segunda fila ni variación de altura; la anchura de la línea participa del cálculo de espacio.
+- **BUG CONFIRMADO:** al hacer clic en Malvina (isla 2 izquierda) el lanzador flotante de prueba aparecía debajo de Soledad (isla 1). **COMPORTAMIENTO CONFIRMADO:** cada origen abre su lanzador inmediatamente debajo de su isla: Malvina a la izquierda; SO sostenido o menú contextual SO bajo la posición actual de Soledad. El menú de Malvina no debe contraer innecesariamente SO/bandeja que estén abiertos.
+- **IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL, NO PROBADO DESPUÉS:** [commit d2edf83](https://github.com/nicoarg87/plasma-smartbar/commit/d2edf8327ba764dfba646a7b817bf70f805a0aa2) incorpora `traySOSeparator`, origen `installedLauncherSource` y posicionamiento reactivo respecto de `launcherIsland` o `systemIsland`, con límites de ventana; se mantiene el temporizador de SO de ~400 ms.
+- **PRÓXIMA PRUEBA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; abrir ambas expansiones y comprobar la línea; cerrarlas por separado y comprobar que desaparece; clic en Malvina para verificar menú bajo la isla izquierda; mover Soledad al centro y sostener SO para verificar menú bajo esa isla. No modifica panel actual. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
