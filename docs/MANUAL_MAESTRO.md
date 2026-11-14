@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.32 — Logo SO/GIF editable, recortes, colores y contorno por actividad  
+**Versión:** 0.33 — Gestos de SO, menú de opciones bajo Soledad y forma única de logo  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -785,3 +785,32 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 **Requisitos de rendimiento/accesibilidad:** no instanciar efectos ni ejecutar temporizadores con cero ventanas. No animar la geometría ni bloquear el botón. La vista experimental usa un lienzo de 32×32 y refresco opcional moderado (~15 fps); su consumo debe verificarse en CachyOS con las ventanas reales antes de integrarlo. Un GIF personalizado es animación independiente, configurable por separado.
 
 **IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL:** menú de seis puntos (clic derecho) con «Personalizar logo de SO», «Colores y transparencia de islas y fondo» y «Contorno de actividad de SO». Archivos `LogoArtwork.qml`, `LogoEditor.qml`, `SoActivityOutline.qml`, `SoActivityEditor.qml`, `AppearanceEditor.qml`, `IslandButton.qml` y el botón de `SmartBarContent.qml`; KConfig y vista Qt están conectados, pero **no ejecutados ni validados después del cambio en CachyOS**, ni probados en plasmoide instalado. En la maqueta se puede alternar **3 ventanas de muestra o cero** desde el menú de opciones para verificar la desaparición total del borde. Documentación y seguimiento en [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5) y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) (borrador). El panel KDE del mantenedor permanece intacto.
+
+## 44. Correcciones de menú y representación del botón SO (v0.33, 14/11/2026)
+
+**Decisión funcional posterior, aprobada por el mantenedor a partir de la ventana v0.1 de CachyOS y una captura.** Las indicaciones históricas de las secciones 32/34/40 que decían «clic derecho SO → menú contextual para mostrar Malvina» quedan **sustituidas** por esta sección. La funcionalidad de lanzar aplicaciones instaladas continúa siendo un objetivo futuro: en la maqueta solo hay nombres de prueba.
+
+### SO: gestos claramente separados
+
+- **Izquierdo breve sobre SO:** alternar las fichas de ventanas abiertas; conservar la regla más reciente de que, si el lanzador está abierto, el clic breve primero cierra únicamente ese flotante, sin contraer SO ni bandeja.
+- **Derecho sobre SO:** abrir directamente el lanzador flotante de aplicaciones instaladas, situado debajo de la ubicación actual de Soledad. No desplegar menú intermedio. En v0.1 se simulan programas y no se ejecutan.
+- **Izquierdo sostenido unos 400 ms:** mantener el mismo acceso al lanzador flotante sin desencadenar un clic breve al soltar. La tecla Menú o Mayús+F10 en SO ofrece alternativa accesible al derecho.
+- Las expansiones de SO y bandeja no deben contraerse solo por abrir ese lanzador. Se conserva su regulación por capacidad horizontal y preferencias independientes.
+
+### Seis puntos: ajustes en el lugar correcto
+
+- **Derecho en el agarre:** abrir/cerrar «Opciones de Soledad» **debajo de la isla**, no encima ni a la altura del puntero, siguiendo la coordenada horizontal vigente incluso después de arrastrarla. Limitar a pantalla y no tapar SO, bandeja, agarre o controles. En modo inferior futuro, abrir hacia el interior (arriba).
+- **Izquierdo sobre el agarre:** mantener arrastre horizontal; un clic breve cierra el menú solo si ya estaba abierto y no produjo arrastre; no abre opciones estando cerrado.
+- **Primera entrada de opciones:** «Mostrar Malvina (isla 2)» u «Ocultar Malvina (isla 2)» según estado. Otras opciones de logo, colores y transparencia, contorno y autocontracción permanecen en ese menú. El clic derecho en SO ya **no** incluye controlar Malvina. Se conserva clic derecho en Malvina para ocultarla y el acceso de recuperación desde el lanzador cuando Malvina está oculta.
+
+### Logo con una sola forma
+
+- Cuando se muestra una imagen en SO, el marco permanente del botón no debe agregar un círculo redondeado visualmente diferente a la máscara elegida. Forma seleccionable: **cuadrado, círculo, rombo, corazón o estrella**.
+- El contorno luminoso de actividad (off/fijo/recorrido) utiliza esa **misma forma**, no otra superpuesta; cuando las ventanas son cero debe estar completamente apagado. No deformar el logo ni alterar el tamaño de SO o el grosor fijo.
+- El editor de logo conserva encuadre, zoom, desplazamiento horizontal/vertical, opciones encajar/rellenar y restablecer. **El mantenedor todavía no comprobó si todos estos controles funcionan**; no anunciar una corrección inexistente del editor.
+
+### Implementación y criterios de validación
+
+**IMPLEMENTADO SOLO EN LA RAMA EXPERIMENTAL DEL [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), PENDIENTE DE EJECUCIÓN DESPUÉS DEL PARCHE.** Se modificaron `SmartBarContent.qml` (menú anclado a la raíz, `QQC2.Popup.Window` en Qt 6.8+, apertura directa del lanzador por derecho y ausencia de `soContextMenu`) e `IslandButton.qml` (marco redondeado oculto únicamente para botones con imagen). El resto de las fichas no cambia de aspecto. Actualizada la guía `prototype/v0.1/README.md`.
+
+Se debe verificar en **CachyOS, sin sustituir el panel habitual**, apertura bajo Soledad con seis puntos, seguimiento del desplazamiento, cierre correcto con derecho/izquierdo/Esc; clic derecho SO directo al lanzador, izquierdo SO para ventanas, SO sostenido, conservación de expansiones; forma única de imagen con y sin efecto de actividad y los cinco recortes; usabilidad del editor, rendimiento y posibles avisos QML. Una lectura estática de código **no equivale a prueba ejecutada**. Seguimiento: [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
