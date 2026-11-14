@@ -39,12 +39,14 @@ Ante «retomemos Plasma SmartBar», el asistente debe:
 - Complemento para **Linux + KDE Plasma 6**, primero probado en **CachyOS / Wayland**; GNOME, Cinnamon, Windows y macOS no son objetivos.
 - Barra superior de **grosor invariable**. Al expandirse, ninguna lista crea una segunda fila, mueve pestañas ni redimensiona la aplicación.
 - Lanzador izquierdo: aplicaciones **instaladas**. Botón **SO** derecho: aplicaciones/ventanas **abiertas**.
+- **Islas visuales:** isla 1 derecha (SO y bandeja), isla 2 izquierda (lanzador), isla 3 (buscador visible) opcional y oculta por defecto; sin fondo continuo por defecto.
+- **Agarre horizontal aprobado:** tres o cuatro puntos discretos **inmediatamente a la derecha de SO**, antes de controles de ventana si está maximizada. **SO y agarre no se mueven al expandir/contraer bandeja o SO**. El agarre reubica horizontalmente la isla 1; implementación, límites y persistencia **pendientes**.
 - SO expande fichas hacia **la izquierda en una única fila**; agrupa ventanas por aplicación por defecto, con opción de desagrupar.
 - SO y bandeja son mutuamente excluyentes. Flecha de bandeja **◀ cerrada / ▶ expandida**.
 - SO se contrae tras seleccionar ventana por defecto; configuración alternativa de permanencia y modo de visibilidad adaptable a navegadores.
 - Con ventana maximizada, los controles minimizar/restaurar/cerrar están a la derecha; la barra prioriza su capa sobre pestañas **sin desplazarlas**. Viabilidad técnica por demostrar, no «función ya resuelta».
 - **Fullscreen real** oculta la barra. Los paneles secundarios flotan debajo; flecha vertical **↓ / ↑** dentro de bandeja.
-- Primero rendimiento, estabilidad, accesibilidad y **sin animaciones**. MPRIS, temas avanzados, efectos decorativos y expansiones futuras solo después del MVP.
+- Primero rendimiento, estabilidad, accesibilidad y **sin animaciones**. MPRIS, temas avanzados, efectos decorativos y expansiones futuras solo después del MVP. La animación opcional «gaveta de SO» al minimizar queda para una fase posterior. El agarre aprobado también se implementará y probará después de la demostración v0.1.
 - No generar imágenes conceptuales salvo que el usuario las pida; los renders rechazados no son requisitos.
 
 ## 5. Reglas del trabajo diario
@@ -70,7 +72,7 @@ Actualizar [ESTADO_PROYECTO.md](ESTADO_PROYECTO.md) cuando haya un hito o cambio
 
 ## 7. Proyecto de ChatGPT (opcional pero recomendado)
 
-Crear un **Proyecto privado** llamado «Plasma SmartBar — Desarrollo» dentro de ChatGPT. Agregar en sus instrucciones el texto de [PLANTILLA_INSTRUCCIONES_CHATGPT.md](PLANTILLA_INSTRUCCIONES_CHATGPT.md), y mover a él la conversación de diseño cuando el menú «Mover al proyecto» esté disponible.
+El usuario informó que creó un **Proyecto de ChatGPT llamado «Plasma Smart Bar»**, con instrucciones basadas en [PLANTILLA_INSTRUCCIONES_CHATGPT.md](PLANTILLA_INSTRUCCIONES_CHATGPT.md). Los cambios futuros de la plantilla **no se sincronizan solos** con las instrucciones de ese Proyecto. Si se modifica la plantilla, actualizar manualmente el texto de las instrucciones.
 
 El Proyecto de ChatGPT organiza conversaciones e instrucciones, pero **no es el repositorio GitHub**. Los archivos adjuntados al Proyecto pueden quedar desactualizados si se modifican en GitHub: consultar preferentemente las versiones vigentes del repositorio. No asumir que guardar un enlace GitHub sincroniza automáticamente los archivos.
 
