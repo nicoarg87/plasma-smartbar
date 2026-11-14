@@ -328,3 +328,27 @@ bash prototype/v0.1/probar_ancho.sh
 5. Probá una ventana más estrecha o mové Soledad para comprobar que el separador participa en el cálculo de espacio y que se contrae el grupo anterior si ya no entran ambos.
 
 **Pendiente:** ejecución en CachyOS, persistencia de preferencias y reemplazo de las fichas/menús ficticios por datos KDE reales. No se instaló ni fusionó la barra. [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue borrador.
+
+## Corrección: segundo clic en Malvina cierra su lanzador (14/11/2026)
+
+**BUG OBSERVADO EN CACHYOS POR EL MANTENEDOR:** tras hacer clic en **Malvina (isla 2)** para abrir el lanzador flotante, un **segundo clic en Malvina no lo cerraba**. El comportamiento esperado es apertura/cierre con clics alternados desde el mismo botón.
+
+**CAUSA IDENTIFICADA EN CÓDIGO:** la política `QQC2.Popup.CloseOnPressOutside` cerraba el popup ya al *presionar* Malvina (fuera del cuadro emergente). Luego el handler `onClicked` llamaba a `openInstalledLauncher()` y **lo reabría**. La falta de un caso explícito para cerrar el mismo lanzador agravaba el efecto.
+
+**CORRECCIÓN PUBLICADA, AÚN NO PROBADA EN CACHYOS:** `openInstalledLauncher(source)` distingue si el popup está visible **y fue abierto desde ese mismo origen**: en ese caso llama a `close()` y sale, sin abrirlo nuevamente. `closePolicy` pasa a `CloseOnEscape | CloseOnPressOutsideParent`: Malvina está dentro del padre `root`, así que su pulsación llega al botón; clic fuera del área de la barra y Esc siguen cerrando. El cambio conserva el único popup compartido con SO y sus dos posiciones ancladas.
+
+**Prueba (Fish):**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Clic Malvina → menú aparece **debajo de Malvina**.
+2. Segundo clic Malvina → **menú desaparece**. Tercer clic → reaparece.
+3. Con menú abierto desde Malvina, hacer clic fuera de la barra o pulsar Esc → se cierra; otro clic en Malvina debe abrirlo una sola vez.
+4. Mantener SO unos 400 ms con Soledad al centro → abre menú bajo Soledad como antes; cuando está abierto, clic en Malvina cambia el origen y muestra el menú bajo Malvina, sin cerrar fichas SO/bandeja por una acción no solicitada.
+5. Comprobar que el separador entre SO/bandeja, agarre y controles fijos no se alteren.
+
+**Alcance:** interfaz QML de simulación, sin ejecutar aplicaciones reales ni modificar panel de KDE. Código revisado estáticamente; **validación final pendiente del usuario**.
