@@ -472,7 +472,9 @@ Item {
                     }
 
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Soledad (isla 1) · clic: ventanas · mantener 0,4 s: apps · derecho: opciones"
+                    QQC2.ToolTip.text: root.launcherIslandVisible
+                        ? "Soledad · clic: ventanas · mantener 0,4 s: apps · derecho: opciones"
+                        : "Malvina oculta · seis puntos: Mostrar Malvina · mantener SO: apps"
                 }
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
@@ -510,7 +512,9 @@ Item {
                     }
                     onClicked: gripMenu.popup()
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Arrastrar isla 1 horizontalmente. Clic: opciones de prueba."
+                    QQC2.ToolTip.text: root.launcherIslandVisible
+                        ? "Arrastrar Soledad. Clic: opciones, incluida Malvina."
+                        : "Malvina oculta: clic aquí y elegí Mostrar Malvina."
 
                     // target=null: el gesto modifica el margen, nunca la
                     // geometría vertical ni el panel real de KDE.
@@ -542,7 +546,20 @@ Item {
 
                     QQC2.Menu {
                         id: gripMenu
-                        title: "Opciones de prueba"
+                        title: "Opciones de Soledad"
+                        // La recuperación de Malvina debe ser fácil de
+                        // descubrir aun si no queda ningún botón a la
+                        // izquierda. El agarre siempre sigue visible.
+                        QQC2.MenuItem {
+                            id: gripMalvinaVisibility
+                            text: root.launcherIslandVisible
+                                ? "Ocultar Malvina (isla 2)"
+                                : "Mostrar Malvina (isla 2)"
+                            onTriggered: root.setLauncherIslandVisible(
+                                !root.launcherIslandVisible
+                            )
+                        }
+                        QQC2.MenuSeparator {}
                         QQC2.MenuItem {
                             text: "Simular ventana maximizada"
                             checkable: true
