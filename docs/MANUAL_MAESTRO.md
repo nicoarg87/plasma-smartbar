@@ -1,8 +1,8 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.8 — Constitución técnica, gobernanza y publicación en GitHub  
-**Fecha de actualización:** 13 de noviembre de 2026  
+**Versión:** 0.9 — Diseño por islas y efecto de minimización opcional  
+**Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
 **Propósito adicional:** Este documento debe poder entregarse a otra conversación o a un desarrollador para continuar sin empezar de cero.
@@ -25,7 +25,7 @@ La idea evolucionó por correcciones sucesivas: primero el desplazamiento del bo
 
 ## 2. Términos y alcance
 
-- **Barra principal:** panel superior único, de grosor constante. Su altura se puede configurar globalmente, pero **no cambia automáticamente mientras el sistema opera**.
+- **Barra principal:** sistema superior lógico de grosor constante, representado por **islas visualmente independientes de forma predeterminada**, sin fondo continuo obligatorio. Su altura se puede configurar globalmente, pero **no cambia automáticamente mientras el sistema opera**.
 - **SO:** botón del extremo derecho que despliega **solo aplicaciones y ventanas abiertas**, incluidas las minimizadas. **Por defecto presenta una ficha por aplicación, agrupando sus ventanas**; puede configurarse para mostrar una ficha por ventana. No abre el catálogo de programas instalados. Su visibilidad puede configurarse: contraído, expandido o adaptativo, con contracción automática al abrir aplicaciones con pestañas cuando la opción esté activada.
 - **Lanzador izquierdo:** acceso siempre visible por defecto a **programas instalados**, mediante búsqueda y catálogo por categorías. Puede ocultarse o cambiar de icono mediante clic derecho.
 - **Bandeja del sistema:** grupo horizontal normalmente contraído que contiene sonido, red, Bluetooth, notificaciones y controles accesorios. Si se habilita multimedia en una versión futura, pertenece aquí.
@@ -66,6 +66,19 @@ La idea evolucionó por correcciones sucesivas: primero el desplazamiento del bo
 - Al pulsarlo, apertura de búsqueda rápida; posibilidad de desplegar un catálogo compacto de todas las aplicaciones instaladas y categorías (Sistema, Internet, Oficina, Multimedia, Juegos, Accesorios, etc.).
 - Su menú de búsqueda/catálogo **puede aparecer debajo de la barra** porque no es una expansión horizontal de fichas SO. No obliga a redimensionar el navegador.
 - Clic derecho sobre el lanzador, SO o flecha de bandeja puede mostrar opciones comunes: editar ícono, visibilidad, color/tema, efectos, orden, configuración general. Debe respetar la función propia de cada control.
+
+### Islas visuales superiores — CONFIRMADO (14/11/2026)
+
+La organización por islas distingue **componentes funcionales y superficies visuales separadas**. No obliga a mostrar una franja de fondo conectándolas. La geometría superior permanece alineada y de altura constante.
+
+- **Isla 1 (extremo derecho):** botón de identidad del sistema **SO**, con **logo configurable** (por ejemplo, la distribución que usa el usuario), y control horizontal de **bandeja expandible**. SO continúa mostrando exclusivamente las aplicaciones/ventanas **abiertas**. Si una ventana está maximizada, los botones `− □ ×` aparecen junto a SO **en esta zona derecha**, según el diseño previamente aprobado.
+- **Isla 2 (extremo izquierdo):** **lanzador de aplicaciones instaladas**, mediante logo o icono personalizable. La búsqueda sigue disponible al activar este lanzador, sin necesitar un campo visible permanentemente.
+- **Isla 3 (junto a la isla 2):** campo o acceso visual persistente a **«Buscar aplicaciones…»**, **opcional, oculto/no añadido por defecto**. El usuario puede habilitarlo desde la configuración. No sustituye la función de búsqueda de la isla 2.
+- **Fondo entre islas:** **transparente o ausente por defecto**. Es configurable una alternativa visual en la que el fondo parezca **continuo o entrelazado**, sin unir obligatoriamente las áreas funcionales ni alterar la altura.
+- **Al maximizar:** las islas ocupan la misma franja superior que la interfaz maximizada y conservan prioridad de capa. Las pestañas del navegador **no deben desplazarse ni redimensionarse**; la convivencia de superposición y sus áreas clicables sigue **PENDIENTE DE VALIDACIÓN** en KWin/Wayland.
+- **Al expandir SO o bandeja:** las fichas siguen expandiéndose solo **horizontalmente hacia la izquierda en una fila**, sin crear una fila nueva, cambiar el grosor ni abrir ambas a la vez.
+
+Los ejemplos gráficos sirven para comunicar la distribución, pero **no certifican el comportamiento en KWin** ni autorizan introducir controles que no hayan sido aprobados.
 
 ### Grupo derecho de controles
 
@@ -190,6 +203,8 @@ La primera entrega debe funcionar con movimientos **inmediatos**, sin blur, este
 ### Después
 
 Se podrán habilitar/deshabilitar deslizamientos, fundidos, blur, transparencias y estelas, reutilizando mecanismos de Qt Quick/KWin donde sea posible.
+
+**Efecto opcional confirmado para una fase posterior: «gaveta de SO» (inspiración Magic Lamp de KWin).** Al minimizar una ventana normal o maximizada, esta se reduce visualmente hacia SO; **SO abre brevemente hacia la izquierda una ranura/ficha de altura igual a la barra**, se muestra el **icono/nombre de la aplicación minimizada** y la ranura se cierra sola. El estado real de la ventana pasa a minimizada y sigue localizable en SO; el efecto es **puramente visual**, nunca bloquea la minimización. La intención es un movimiento **rápido, alrededor de medio segundo como referencia inicial**, no un tiempo definitivo: se ajustará según pruebas de fluidez y accesibilidad. Solo funciona si los efectos están habilitados y el usuario lo permite; sin efectos la minimización ocurre normalmente. **No se incluye en el MVP, no existe implementación ni está validada la integración KWin/Wayland.**
 
 El caso de **Nyan Cat** fue únicamente una ilustración del potencial de animaciones personalizadas. No se añade por defecto ni es un requisito para el núcleo; los paquetes futuros deben mantener áreas clicables, direcciones de flechas, rendimiento, seguridad y geometría inmutable.
 
@@ -400,7 +415,7 @@ No repetir preguntas ya contestadas: exclusividad SO/bandeja, prioridad sobre pe
 
 1. Reproductor multimedia vía MPRIS dentro de bandeja; subpanel al tocar carátula.
 2. Temas independientes, opacidad y blur opcionales, iconos modificables.
-3. Animaciones suaves opcionales, desactivadas inicialmente.
+3. Animaciones suaves opcionales, desactivadas inicialmente, incluida la futura «gaveta de SO» al minimizar ventanas (referencia de duración aproximada 0,5 s, pendiente de pruebas).
 4. Mejoras multimonitor, pruebas de monitores/escritorios y accesibilidad.
 
 ### Fase 4 — Ecosistema de efectos
@@ -477,3 +492,14 @@ La especificación funcional vigente es la de este Manual Maestro, bajo la direc
 **Evolución del manual:** registrar fecha, número de versión, requisito modificado, motivo y aprobación. No borrar la historia de decisiones cuando sea relevante para comprender el proyecto.
 
 **Nota de vigencia:** las referencias antiguas que describen a GitHub como no creado, MIT como preferencia, o la licencia como no elegida corresponden a versiones históricas; fueron sustituidas por esta actualización y la sección 14.1 actual.
+
+
+## 21. Historial de decisiones — 14 de noviembre de 2026 (v0.9)
+
+**CONFIRMADO:** la interfaz predeterminada se representa mediante **dos islas visibles**: isla 2 (lanzador izquierdo) e isla 1 (SO + bandeja, a la derecha). La **isla 3 (buscador visible)** es opcional y está oculta por defecto. El fondo que conecta las islas es transparente o inexistente por defecto, pero puede configurarse como **fondo continuo/entrelazado**. El logo de SO es configurable para identificar visualmente el sistema/distribución. Se mantienen todas las reglas de grosor constante, expansión a izquierda y fullscreen real.
+
+**CONFIRMADO COMO FUNCIÓN FUTURA:** animación de minimización tipo «gaveta de SO», inspirada en KWin Magic Lamp, con una ficha temporal que muestra el nombre/icono del programa y se repliega automáticamente; aproximadamente medio segundo es solo referencia de diseño. Debe poder desactivarse sin perder ninguna funcionalidad.
+
+**PENDIENTE TÉCNICO:** validar superposición frente a pestañas y coordinación del efecto con KWin; **no son funciones implementadas ni probadas**.
+
+**AUTORIDAD:** los bocetos conceptuales pueden mostrar componentes extra o posiciones de controles inexactas; solo lo escrito como CONFIRMADO en las secciones normativas constituye especificación. No se altera la constitución de control de decisiones del repositorio oficial.
