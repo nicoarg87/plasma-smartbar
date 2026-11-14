@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.10 (ancho adaptable del contenedor, sin modificar grosor; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.11 (compensación geométrica simétrica al maximizar/desmaximizar; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -102,6 +102,15 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Altura invariable:** cambios en el ancho no hacen que aparezcan segundas filas ni cambian el grosor de SmartBar. Al reducirse mucho el ancho, el comportamiento ante falta de espacio debe probarse y decidirse antes de sacrificar requisitos confirmados.
 - **Limitación de prueba:** `plasmoidviewer` puede agregar márgenes o restricciones propias. Esto no exime a SmartBar de redimensionarse correctamente cuando recibe nueva geometría. La integración de pantalla y KWin/Wayland **no está verificada** por la ventana de ensayo.
 - **Estado:** el QML del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) solicita `Layout.fillWidth` y registra cambios de anchura, pero **esta corrección no ha sido probada todavía en CachyOS**.
+
+## 2.9. Compensar reservas de controles en ambos sentidos (14/11/2026)
+
+**Aclaración técnica de reglas ya confirmadas, tras prueba del mantenedor en CachyOS:** cuando la isla 1 ha sido **desplazada manualmente** (casilla «Alinear a la derecha» destildada), **activar** la maximización no debe empujarla involuntariamente hacia la izquierda por el mero hecho de reservar espacio para los controles `− □ ×`. Del mismo modo, **desmaximizar** con retorno desactivado no debe moverla hacia la derecha por retirar esa reserva.
+
+- En ambas transiciones se debe conservar la **posición visual horizontal** elegida por el usuario, compensando el espacio que aparece o desaparece.
+- **Excepción de seguridad:** al maximizar, si la posición previa se superpondría al bloque fijo de controles, la isla se desplaza **únicamente lo necesario** para no taparlos. Los propios controles siguen fijos al extremo derecho.
+- Cuando la casilla «Alinear a la derecha» esté **tildada**, maximizar coloca isla 1 normalmente **inmediatamente a la izquierda** de los controles. La opción de retorno al **desmaximizar** conserva la conducta que ya fue aprobada y es independiente de la alineación contextual.
+- No modificar automáticamente el grosor, tamaño de ventanas reales ni sus controles originales. **Pendiente de verificar el parche en CachyOS; no probado con ventanas reales/KWin**.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
