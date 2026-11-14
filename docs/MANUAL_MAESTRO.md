@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.12 — Retorno automático configurable de isla 1 y prototipo v0.1  
+**Versión:** 0.13 — Agarre de seis puntos (2 × 3) y prototipo v0.1  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -94,7 +94,7 @@ Al maximizar, **la isla 1 se desplaza automáticamente hacia la izquierda lo nec
 
 **Necesidad funcional:** cuando una ventana maximizada (por ejemplo Steam) presenta botones o herramientas propias en la zona superior, el usuario debe poder **reubicar horizontalmente la isla 1 (zona derecha de la SmartBar)** mediante un agarre manual, sin cambiar la altura ni desplazar o redimensionar la ventana subyacente.
 
-**Posición inequívoca:** el agarre está **inmediatamente a la derecha del botón SO**, no a su izquierda ni en el extremo de la bandeja. En el estado compacto se representa funcionalmente así: `[ ◀ ] [ SO ] [ ⠿ ]` (el pictograma `⠿` es solo marcador de agarre punteado). Con una ventana maximizada, los controles de esa ventana continúan a la derecha del agarre: `[ ◀ ] [ SO ] [ ⠿ ] [ − ] [ □ ] [ × ]`. El usuario pidió **un signo discreto de tres o cuatro puntos**, o pequeño punteado que comunique que se puede **arrastrar**, nunca el control grande representado en una ilustración anterior. La cantidad exacta de puntos y su dibujo final quedan para la implementación, manteniendo un área accesible para agarrarlo.
+**Posición inequívoca:** el agarre está **inmediatamente a la derecha del botón SO**, no a su izquierda ni en el extremo de la bandeja. En el estado compacto se representa funcionalmente así: `[ ◀ ] [ SO ] [ ⠿ ]` (el pictograma `⠿` es solo marcador de agarre punteado). Con una ventana maximizada, los controles de esa ventana continúan a la derecha del agarre: `[ ◀ ] [ SO ] [ ⠿ ] [ − ] [ □ ] [ × ]`. Inicialmente se consideró un signo de tres o cuatro puntos; la **decisión vigente posterior es exactamente seis puntos, dispuestos en dos columnas de tres filas (2 × 3)**, discretos y claramente arrastrables. El diseño no debe convertirse en un botón grande, pero necesita un área accesible para agarrarlo.
 
 **Estabilidad al desplegar:** abrir/cerrar la **bandeja del sistema** o expandir/contraer **SO** revela contenidos **hacia la izquierda**, sin que el botón SO ni el agarre **salten de posición, cambien de lado, se oculten o se vuelvan difíciles de localizar**. Este agarre queda como referencia fija en el grupo derecho mientras el usuario no lo arrastra y no cambia el estado general de la ventana. No es un elemento del contenido expandible. Su posición relativa al botón SO no cambia.
 
@@ -432,7 +432,7 @@ No repetir preguntas ya contestadas: exclusividad SO/bandeja, prioridad sobre pe
 1. Mejorar las previsualizaciones de ventanas al posar cursor sobre fichas y el selector visual de ventanas agrupadas (usar mecanismos KDE); mantener la selección funcional mínima desde la fase 1.
 2. Escritorios virtuales: integración opcional dentro SO y/o icono discreto, con miniaturas.
 3. Configuración general básica, clic derecho y variación global de altura de barra sin autoajustes.
-4. Control de **arrastre horizontal compacto, de tres o cuatro puntos**, a la derecha de SO, con posición estable durante expansión de bandeja y SO; límites y coordinación con ventanas maximizadas por validar.
+4. Control de **arrastre horizontal compacto, de seis puntos (2 × 3)**, a la derecha de SO, con posición estable durante expansión de bandeja y SO; límites y coordinación con ventanas maximizadas por validar.
 4. Centro secundario bajo barra, con calendario/notas básicos, si el núcleo ya es estable.
 
 ### Fase 3 — Complementos y personalización
@@ -531,7 +531,7 @@ La especificación funcional vigente es la de este Manual Maestro, bajo la direc
 
 ## 22. Decisión confirmada — control de arrastre de la isla 1 (v0.10)
 
-**Aprobación funcional expresa (14/11/2026):** el control para reubicar horizontalmente la barra en su sector derecho pasa de **propuesta** a **requisito aprobado**. Se instala **justo a la derecha de SO** y tiene apariencia mínima **punteada (tres o cuatro puntos; diseño exacto abierto)**. No se coloca a la izquierda de SO ni se desplaza con la bandeja. Las expansiones se producen hacia la izquierda manteniendo SO y agarre anclados. Al maximizar, la isla puede correrse automáticamente para permitir los controles de la ventana y el agarre queda entre SO y esos controles. El usuario podrá desplazar horizontalmente esa isla mediante el agarre, con límites y reglas de persistencia pendientes de validar en KWin/Wayland. **No hay código ni pruebas todavía.**
+**Aprobación funcional expresa (14/11/2026):** el control para reubicar horizontalmente la barra en su sector derecho pasa de **propuesta** a **requisito aprobado**. Se instala **justo a la derecha de SO** y tiene apariencia mínima **punteada (seis puntos, dos columnas de tres; decisión posterior confirmada)**. No se coloca a la izquierda de SO ni se desplaza con la bandeja. Las expansiones se producen hacia la izquierda manteniendo SO y agarre anclados. Al maximizar, la isla puede correrse automáticamente para permitir los controles de la ventana y el agarre queda entre SO y esos controles. El usuario podrá desplazar horizontalmente esa isla mediante el agarre, con límites y reglas de persistencia pendientes de validar en KWin/Wayland. **No hay código ni pruebas todavía.**
 
 
 ## 23. Orientación horizontal superior e inferior — DECISIÓN CONFIRMADA (v0.11, 14/11/2026)
@@ -558,10 +558,15 @@ El **Manual Maestro anterior (secciones sobre «barra superior»)** describe el 
 
 ## 24. Retorno automático del agarre al desmaximizar — DECISIÓN CONFIRMADA (v0.12, 14/11/2026)
 
-**Requisito confirmado por el director funcional:** el agarre discreto de tres o cuatro puntos **a la derecha de SO** no es solamente una marca decorativa; debe permitir **arrastrar horizontalmente la isla 1**, especialmente cuando una ventana está maximizada y sus controles interfieren con la aplicación. El botón SO y el agarre permanecen juntos y **no saltan de lugar** al expandir o contraer SO/bandeja. La altura sigue invariable.
+**Requisito confirmado por el director funcional:** el agarre discreto de seis puntos (2 × 3) **a la derecha de SO** no es solamente una marca decorativa; debe permitir **arrastrar horizontalmente la isla 1**, especialmente cuando una ventana está maximizada y sus controles interfieren con la aplicación. El botón SO y el agarre permanecen juntos y **no saltan de lugar** al expandir o contraer SO/bandeja. La altura sigue invariable.
 
 **Comportamiento predeterminado:** cuando la ventana deja de estar maximizada, la isla 1 **regresa automáticamente a la posición original del extremo derecho**. Esto evita que quede desplazada sin necesidad. En la configuración de SmartBar habrá una preferencia **«Volver automáticamente a la derecha al desmaximizar»**, **activada por defecto** y **guardada** como opción del usuario. Si se desactiva, el desplazamiento elegido puede mantenerse al cambiar el estado de maximización.
 
 **Excepción y límites:** el usuario puede desplazar intencionalmente la isla cuando corresponda; se limitará el recorrido para no perder SO, bandeja, agarre ni controles fuera de la pantalla. La política de multimonitor, posiciones recordadas y relación con aplicaciones que se decoran a sí mismas es pendiente técnico.
 
 **Implementación provisional:** se incorporó en la rama experimental [`prototype/v0.1-islas-so`](https://github.com/nicoarg87/plasma-smartbar/tree/prototype/v0.1-islas-so/prototype/v0.1) un **agarre horizontal activo solo dentro de la maqueta QML**. El estado de ventana maximizada se **simula** desde un menú y los botones de control de ventana son ficticios. La opción de retorno se declaró con preferencia `autoReturnRight=true` en KConfig (se comprobará en CachyOS si se conserva entre sesiones). **Ni el arrastre ni la maximización se conectaron a ventanas reales de KWin y nada está probado ejecutándose en CachyOS todavía**. El [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue siendo borrador y no forma parte de `main`.
+
+
+## 25. Confirmación visual del agarre — v0.13 (14/11/2026)
+
+**DECISIÓN CONFIRMADA:** el botón de arrastre de la isla 1 representa **seis puntos pequeños y visibles, dispuestos en dos columnas de tres**. Sustituye las alternativas anteriores de tres o cuatro puntos. Su posición no cambia: **inmediatamente a la derecha de SO**; al maximizar, antes de los controles de ventana. Su funcionalidad tampoco cambia: arrastre horizontal, SO y agarre estables al desplegar bandeja, regreso automático a la derecha al desmaximizar como preferencia activada por defecto y configurable. El punteado gráfico se dibuja con **seis círculos** en el QML experimental, no con un carácter de fuente. **Código disponible únicamente en el PR #3, no probado ejecutándose en CachyOS ni conectado a KWin real.**
