@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.26](MANUAL_MAESTRO.md), [Constitución Técnica v1.17](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.27](MANUAL_MAESTRO.md), [Constitución Técnica v1.18](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -216,6 +216,14 @@
 - **CAUSA:** el código de `openInstalledLauncher(source)` contraía SO y bandeja en el caso de origen `so` por una decisión histórica ya sustituida.
 - **IMPLEMENTADO EN PR #3, PENDIENTE DE PRUEBA EN CACHYOS:** [9175734](https://github.com/nicoarg87/plasma-smartbar/commit/917573452335e979212a46dd84fb9c3813dd5f15) retiró `soExpanded = false` y `trayExpanded = false` de la apertura del popup. Mantiene el separador, la pulsación de ~400 ms y el anclaje a cada isla. Revisión estática pendiente de ejecución real del parche.
 - **SIGUIENTE PRUEBA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; abrir las dos expansiones en ventana ancha, mantener SO pulsado para mostrar el menú debajo de Soledad y verificar que las fichas SO y la bandeja **siguen abiertas** durante y después de cerrar el popup. Seguir sin alterar el panel instalado. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
+
+## Soledad: clic breve con popup visible cerraba además fichas SO (14/11/2026)
+
+- **PRUEBA ANTERIOR SUPERADA EN CACHYOS:** el mantenedor confirmó «Ahora sí, quedó genial» para la apertura del **lanzador de SO sin contraer fichas SO ni bandeja**. Esa interacción está **PROBADA en la maqueta**, no en ventanas reales.
+- **NUEVO BUG OBSERVADO:** luego de abrir el lanzador desde SO sostenido y con las fichas de ventanas abiertas, hacer **clic breve en SO** cerraba el popup, pero **también contraía las fichas de SO**, aunque el usuario pretendía dejarlas expandidas.
+- **REQUISITO CONFIRMADO:** si hay lanzador visible, clic breve en SO **lo cierra únicamente** y deja SO/bandeja intactos. Solo cuando no hay lanzador visible el clic breve alterna las fichas de ventanas abiertas.
+- **CAUSA Y PARCHE EXPERIMENTAL, PENDIENTE DE RETEST:** `toggleSO()` cerraba el popup y continuaba hacia la alternancia de `soExpanded`. [8a79f3f](https://github.com/nicoarg87/plasma-smartbar/commit/8a79f3fcad849ed252c284ba004bf88e173f00cb) ahora sale temprano tras cerrar `installedAppsPopup.visible`, sin modificar estados horizontales. El clic largo (~400 ms), Malvina y autocontracciones independientes permanecen como antes.
+- **PRÓXIMA PRUEBA EN CACHYOS:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh` → abrir SO y bandeja → sostener SO (abre flotante sin contraer) → **clic corto SO (cierra solo flotante)** → clic corto SO de nuevo (contrae fichas normalmente). Sin reemplazar panel KDE; [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
