@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.19](MANUAL_MAESTRO.md), [Constitución Técnica v1.11](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.20](MANUAL_MAESTRO.md), [Constitución Técnica v1.12](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -160,6 +160,14 @@
 - **CÓDIGO PUBLICADO EN RAMA EXPERIMENTAL:** `prototype/v0.1/preview_ventanas_reales.qml` (ventana de diagnóstico independiente y **solo lectura**) y `prototype/v0.1/probar_ventanas.sh`. La lista debe reaccionar a aplicaciones/ventanas abiertas sin acciones de activar, cerrar, minimizar ni modificar; la maqueta SmartBar original queda separada.
 - **PRUEBA PENDIENTE:** en Fish, `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ventanas.sh`. Verificar importación QML, lista de nombres reales y cambios al abrir/cerrar Dolphin/Konsole normalmente. Si falla, reunir errores exactos antes de tocar el panel o añadir dependencias.
 - **NO IMPLEMENTADO:** todavía no se conectó SO a ventanas reales; la ventana del diagnóstico no es el plasmoide definitivo. El ancho limitado en `plasmoidviewer` sigue pendiente. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) abiertos.
+
+## Nueva decisión: SO pulsación sostenida e isla 2 ocultable sin cambiar valor por defecto (14/11/2026)
+
+- **CONFIRMADO por el mantenedor:** SO con clic breve mantiene la lista de ventanas abiertas/minimizadas; pulsación sostenida algo menor que 0,5 s (umbral de demostración: **400 ms**) abre un lanzador de aplicaciones instaladas. El gesto largo no puede disparar simultáneamente el clic breve.
+- **CONFIRMADO:** isla 2 sigue **visible por defecto**, pero se puede ocultar mediante **clic derecho → «Ocultar isla 2»**. El menú de SO permite **«Mostrar isla 2»** de nuevo. No se elimina isla 2 ni se reubica SO; se mantiene la posibilidad de usar solo isla 1. El menú lanzador es flotante, sin incrementar la altura ni añadir filas.
+- **PROPUESTA A DEFINIR:** ocultación automática de isla 2. El usuario la sugirió como opción futura, pero **aún no confirmó disparador/recuperación**; no se ha implementado.
+- **IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL, NO PROBADO EN CACHYOS TRAS CAMBIO:** `SmartBarContent.qml`: temporizador de 400 ms sobre SO, Popup de aplicaciones **simuladas** (no se ejecutan ni son necesariamente instaladas), clic derecho en isla 2 y SO para ocultar/restaurar; `showLauncherIsland=true` en KConfig, conectado mediante el envoltorio del plasmoide, con ventana Qt independiente de solo sesión. **La persistencia KConfig en Plasma NO está comprobada.**
+- **PRUEBA PRÓXIMA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`. Verificar clic normal SO, pulsación larga para menú flotante, soltar sin abrir SO, clic derecho isla 2 para ocultar y clic derecho SO para restaurar. Confirmar ausencia de cambios en grosor, controles y arrastre. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
