@@ -420,3 +420,30 @@ bash prototype/v0.1/probar_ancho.sh
 5. Comprobá además que SO sostenido todavía abre el lanzador debajo de Soledad y que un clic breve en SO con el lanzador abierto solo cierra el flotante. El menú de Malvina sigue abriendo/cerrando con clics alternos.
 
 **Alcance:** solo maqueta de Qt Quick, con iconos y aplicaciones simulados. El estado de Malvina en la vista independiente dura una sesión; persistencia en el applet Plasma todavía no comprobada. No toca el panel original del usuario.
+
+## Gesto de los seis puntos: arrastrar con izquierdo, opciones con derecho (14/11/2026)
+
+**BUG DE INTERACCIÓN OBSERVADO POR EL MANTENEDOR EN CACHYOS:** al tocar los seis puntos para desplazar Soledad, se abría el menú de opciones. Repetir clic sobre el agarre podía cerrar/reabrir inmediatamente el menú, resultando molesto e impidiendo usar cómodamente el arrastre.
+
+**SOLUCIÓN FUNCIONAL CONFIRMADA:** el mantenedor prefirió **clic derecho para abrir las opciones** en vez de clic izquierdo; el doble clic izquierdo quedó como alternativa no elegida para esta prueba.
+
+**CÓDIGO EXPERIMENTAL IMPLEMENTADO, SIN RETEST EN CACHYOS:** se quitó `onClicked: gripMenu.popup()` del botón `moveGrip`. Ahora el agarre sólo usa **clic izquierdo para mover Soledad** a través de `DragHandler`; un `MouseArea` con `acceptedButtons: Qt.RightButton` **abre/cierra** `gripMenu` mediante función de alternancia. Se configuró `CloseOnPressOutsideParent` y `CloseOnEscape` para evitar la doble reapertura cuando se pulsa derecho dos veces. Tecla **Menú** o **Mayús+F10** sirven como alternativa por teclado. La ayuda emergente aparece con demora y no durante el arrastre.
+
+**IMPORTANTE:** «Mostrar Malvina (isla 2)» / «Ocultar Malvina (isla 2)» **sigue siendo la primera opción** del menú de los seis puntos, ahora accesible con clic derecho. También se conservan los accesos del menú contextual de SO y del lanzador flotante. Malvina sigue visible por defecto.
+
+**Prueba en Fish (sin instalar ni reemplazar paneles):**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Hacer **clic izquierdo** simple sobre los seis puntos: **NO debe abrirse ningún menú**.
+2. Arrastrar Soledad con botón izquierdo desde los seis puntos al centro y luego hacia un borde: **debe moverse sin abrir opciones** y conservar la posición elegida.
+3. Hacer **clic derecho** sobre los seis puntos: aparece «Opciones de Soledad». Repetir clic derecho sobre los puntos: **se cierra sin reabrirse**; tercer clic derecho vuelve a abrir.
+4. Cerrar el menú con **Esc** o clic fuera del agarre; reabrir desde el mismo botón con derecho.
+5. Ocultar Malvina desde el menú y **recuperarla usando nuevamente clic derecho sobre los seis puntos** → primera opción «Mostrar Malvina (isla 2)». También comprobar acceso contextual de SO si fuera necesario.
+6. Comprobar que clic breve/sostenido de SO, expansiones SO/bandeja, separador, simulación de ventana maximizada y controles fijos continúen sin cambios.
+
+**Estado:** corrección QML subida solo al PR #3 en borrador, **pendiente de probar en CachyOS**. No hay ventanas o bandeja reales y el panel KDE existente sigue intacto.
