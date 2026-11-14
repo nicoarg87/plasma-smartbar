@@ -527,3 +527,26 @@ La rama esperada es `prototype/v0.1-islas-so`. **No cambiar de rama automáticam
 6. **Regresión:** arrastrar Soledad, abrir SO y bandeja juntos, simular maximización y verificar que `− □ ×` permanece a la derecha y la altura no cambia.
 
 Si algo falla, **guardar la salida exacta de Konsole y una captura** e informar los pasos usados. Las pruebas QML y de compatibilidad visual deben hacerse en CachyOS; la revisión de código no las sustituye. Registrar resultados en los issues [#1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [#5](https://github.com/nicoarg87/plasma-smartbar/issues/5) antes de dar los bugs por cerrados.
+
+## Retest de posición del menú de seis puntos (reporte posterior, 14/11/2026)
+
+**REGRESIÓN OBSERVADA EN CACHYOS:** después del cambio que pretendía situar «Opciones de Soledad» debajo de isla 1, el mantenedor observó que **clic derecho sobre los seis puntos abría el menú debajo de Malvina (isla 2)**, lejos del puntero. Es un fallo real de posicionamiento de la rama experimental, no un cambio de diseño. El cálculo anterior `x: Math.max(0, Math.min(root.width - width, systemIsland.x + systemIsland.width - width))`, con `parent: root`, permitía que el menú acabara en el borde izquierdo en vez de mantener una relación directa con el control que lo invoca.
+
+**PARCHE EXPERIMENTAL (PENDIENTE DE RETEST):** `gripMenu` cambia a `parent: moveGrip`, define ancho explícito de 380 píxeles lógicos, alinea el **borde derecho del menú con el borde derecho del agarre** mediante `x: moveGrip.width - width` y lo sitúa debajo del botón con `y: moveGrip.height + 10`. Conserva `popupType: QQC2.Popup.Window` para no limitarlo a la altura de 48 unidades, y los gestos de apertura/cierre ya aprobados. Commit [30aebc0](https://github.com/nicoarg87/plasma-smartbar/commit/30aebc0f66aff9ff660b5e404c74ec8146efbbe8).
+
+**Retest seguro, sin instalar paneles:**
+
+```bash
+cd ~/plasma-smartbar
+git branch --show-current  # debería ser prototype/v0.1-islas-so
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+En la ventana Qt de prueba:
+1. Con Soledad a la derecha, **clic derecho en seis puntos**: «Opciones de Soledad» debe abrir **debajo del agarre y cerca del puntero**, no debajo de Malvina. Sin tapar el logo, fichas ni seis puntos.
+2. Cerrá con otro clic derecho, volvé a abrir; comprobá también izquierdo breve (cierra), Esc y arrastre izquierdo (mueve sin abrir).
+3. Desplazá Soledad al centro y repetí: el menú debe seguir a Soledad y no saltar al extremo izquierdo. Abrí SO y bandeja y repetí; sus expansiones no deben desplazar los seis puntos.
+4. Si el menú se abre cortado, fuera de pantalla o debajo de Malvina, adjuntá **captura** y salida de Konsole. El cálculo está revisado estáticamente, **todavía no validado en el CachyOS del mantenedor ni en Wayland**.
+
+Mantener [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) abierto y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. No fusionar ni modificar el panel instalado antes de validar la prueba.
