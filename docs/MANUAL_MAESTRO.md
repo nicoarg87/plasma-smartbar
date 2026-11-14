@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.19 — Sin saltos de isla 1 al maximizar o desmaximizar  
+**Versión:** 0.20 — SO con pulsación sostenida e isla 2 visible pero ocultable  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -649,3 +649,15 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Regla ya implícita en el diseño y ahora aclarada:** con la alineación contextual desmarcada, **mantener la misma posición visual de isla 1 al maximizar y al desmaximizar**, compensando el ancho de los controles fijos que aparecen o desaparecen. Al maximizar, **solo si la posición guardada invadiera los botones** es correcto mover la isla mínimamente hacia la izquierda para que estos permanezcan utilizables. Con «Alinear isla 1 a la derecha» marcada, la isla se ubica junto al bloque fijo en la posición normal. La preferencia independiente «Volver a la derecha al desmaximizar» sigue aplicándose al salir de maximizada si el usuario la mantiene activa.
 
 **Implementado solamente en la maqueta QML del PR #3:** se modificó `SmartBarContent.qml` para guardar el margen visual anterior y compensar la reserva de controles en las dos direcciones. **Revisión estática solamente, no validado aún en el CachyOS del usuario después del parche**. El grupo de controles sigue fijo al extremo derecho; no interactúa con ventanas reales. Ver [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## 32. SO con dos gestos y ocultación voluntaria de isla 2 — DECISIÓN CONFIRMADA (v0.20, 14/11/2026)
+
+**Función aprobada:** el botón **SO** de isla 1 mantiene su función de acceso a las **aplicaciones/ventanas abiertas** con un clic normal, y suma una **pulsación sostenida inferior a 0,5 segundos** (referencia inicial para ensayo: **400 ms**) para abrir un **lanzador de aplicaciones instaladas**. Después de un gesto largo, soltar el botón no debe provocar también el clic normal. El lanzador secundario será flotante hacia el interior del escritorio, sin ampliar el grosor constante de la barra, sin añadir filas y sin sustituir la lista de ventanas de SO.
+
+**Decisión expresa del mantenedor sobre isla 2:** seguir **visible por defecto** por ahora; permitir **clic derecho sobre isla 2 → «Ocultar isla 2»** de forma sencilla. La visibilidad se guarda como preferencia en Plasma, y, si está oculta, puede recuperarse desde **clic derecho en SO → «Mostrar isla 2»**. El lanzador accesible mediante SO debe servir para usar un diseño de una sola isla cuando el usuario no quiera el botón izquierdo. **Isla 2 no se elimina del proyecto ni cambia su estado predeterminado.**
+
+**Accesibilidad y exclusividad:** el menú contextual de SO ofrece también «Abrir lanzador», para que no dependa exclusivamente de mantener pulsado. Al desplegar este lanzador se cierra cualquier expansión abierta de SO o la bandeja. En modo inferior futuro el panel flotante se colocará hacia arriba. El agarre de seis puntos, el grupo fijo `− □ ×`, el retorno manual y la separación de islas no cambian.
+
+**Ocultación automática:** el usuario la mencionó como posibilidad adicional para el futuro. **PROPUESTA SIN DEFINICIÓN TÉCNICA NI APROBACIÓN PARA IMPLEMENTAR**: resta decidir si se oculta por inactividad, pérdida de foco u otra condición, y cómo reaparece. No activar por defecto ni diseñar ese comportamiento sin precisar su política.
+
+**Implementación en rama experimental — no probada en CachyOS después de este cambio:** `SmartBarContent.qml` añadió temporizador de 400 ms para SO, menú flotante **con apps de muestra que NO se ejecutan**, clic derecho en isla 2 para ocultarla y menú contextual en SO para mostrarla nuevamente. Se agregó la configuración KConfig `showLauncherIsland=true` y su conexión con el plasmoide; en la ventana Qt de ensayo la visibilidad se maneja únicamente durante esa sesión. **Persistencia efectiva en KDE pendiente de verificar**. Todavía no enumera apps realmente instaladas y no está enlazado con ventanas reales. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) / [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3).
