@@ -304,3 +304,27 @@ Se añadió **solo a `preview_redimensionable.qml`**, no a la barra que ejecutar
 **Qué verificar en CachyOS:** con ventana de prueba ancha, abrir SO y bandeja; el indicador debe decir «SO abierto · bandeja abierta», con ancho de Soledad **menor o igual** al disponible. Luego reducir el ancho de la ventana o arrastrar Soledad hasta que ambas no entren: el indicador debe mostrar únicamente el grupo más recientemente expandido. Mantener la autocontracción desactivada en ambas opciones para aislar esta prueba de la regla de falta de espacio.
 
 **Limitación:** es diagnóstico de la **maqueta con fichas de muestra**, todavía no comprobado después de publicarlo. No permite concluir compatibilidad con bandeja real, controles de KWin o contenido de Plasma. Si los números no cambian o aparece superposición, guardar captura o texto de Konsole. La banda de indicadores bajo la barra **no forma parte del diseño final**.
+
+## Separador entre SO/bandeja y lanzador bajo Malvina — nueva prueba (14/11/2026)
+
+**PRUEBA ANTERIOR SUPERADA EN CACHYOS:** el mantenedor confirmó que la simultaneidad de las expansiones **SO y bandeja** ya funciona como esperaba en la vista Qt. Reportó después dos detalles: faltaba una distinción visual entre sus iconos, y al pulsar **Malvina**, el lanzador aparecía lejos, bajo **Soledad**.
+
+**IMPLEMENTADO, SIN RETEST EN CACHYOS:** `SmartBarContent.qml` dibuja un **separador vertical fino** entre las fichas de bandeja y SO **solo cuando ambos grupos están expandidos**. El separador ocupa ancho real de la fila (entra en el cálculo de colisión), no modifica grosor ni el agarre.
+
+**Lanzador desde la isla correcta:** al pulsar Malvina (lado izquierdo), se abre **debajo de Malvina**; manteniendo SO ~400 ms o usando su menú contextual, aparece **debajo de Soledad**, incluso si se movió con los seis puntos. Ambos accesos usan un único popup compartido que cambia su **origen explícito** (`malvina` o `so`) y limita la posición a los bordes de la ventana. Abrirlo desde Malvina deja abiertas las expansiones de Soledad si la persona las había dejado desplegadas; abrirlo desde SO conserva la regla anterior de cerrar temporalmente las expansiones de ese sector.
+
+**Prueba sin riesgo para el panel instalado:**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. En ventana ancha, desplegá primero SO y luego bandeja. Debe aparecer **una línea delgada entre los iconos de bandeja y las fichas de SO**. Contraé uno: la línea debe desaparecer.
+2. **Clic en Malvina (M, extremo izquierdo):** el menú «Aplicaciones (simulación)» debe aparecer **abajo a la izquierda**, debajo de M, no debajo de SO. El menú es de muestra, no lanza aplicaciones.
+3. Cerrá el menú con Esc, mové **Soledad al centro** con los seis puntos y mantené SO ~400 ms: el lanzador debe aparecer debajo de Soledad, no debajo de Malvina ni del borde derecho original.
+4. Dejá SO y bandeja abiertos, hacé clic en Malvina: el menú flotante debe mostrarse **debajo de Malvina** sin cerrar inesperadamente las fichas de Soledad.
+5. Probá una ventana más estrecha o mové Soledad para comprobar que el separador participa en el cálculo de espacio y que se contrae el grupo anterior si ya no entran ambos.
+
+**Pendiente:** ejecución en CachyOS, persistencia de preferencias y reemplazo de las fichas/menús ficticios por datos KDE reales. No se instaló ni fusionó la barra. [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue borrador.
