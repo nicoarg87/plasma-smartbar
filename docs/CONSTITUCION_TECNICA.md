@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.24 (gestos de SO, menú bajo Soledad y marco único del logo; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.25 (centro unificado de configuración en pestañas; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -267,6 +267,19 @@ Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la 
 - **Encuadre:** mantener las opciones existentes de ajuste/zoom, centrado por desplazamiento, encajar/rellenar y restablecer, conservando el archivo original. El mantenedor todavía no informó de un fallo específico del editor; su usabilidad y funcionamiento deben probarse.
 
 **Estado de ingeniería:** correcciones redactadas en `SmartBarContent.qml` y `IslandButton.qml` del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), con guía de retest. Se usa un popup de Qt 6.8 para poder desplegar las opciones fuera de la altura fija de la barra; **comportamiento todavía no probado en CachyOS/KWin/Wayland** después de los parches. No se sustituye el panel KDE existente. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+
+## 2.23. Centro de configuración unificado de Soledad (14/11/2026)
+
+**DECISIÓN FUNCIONAL CONFIRMADA POR EL MANTENEDOR:** en la maqueta v0.1 las ventanas separadas para personalizar logo, colores/transparencia y contorno resultaron incómodas: algunas opciones requerían agrandar la ventana manualmente y el botón «Aplicar» la cerraba. La solución aprobada es **una sola ventana «Configuración de Soledad» con pestañas**, accesible desde el menú de clic derecho de los **seis puntos** mediante una única entrada. Reemplaza las tres entradas de editores separadas, sin quitar funciones existentes.
+
+- **Pestañas separadas:** **Logo SO** (imagen/GIF/zoom/recorte/encuadre); **Apariencia** (colores/transparencias de Soledad, Malvina y fondo opcional); **Contorno** (estilo, forma, intensidad/color y movimiento opcional); **Autocontracción** (SO y bandeja independientes, con defaults vigentes); **Islas y posición** (mostrar/ocultar Malvina, alineación, regreso al desmaximizar y acción inmediata de retorno a la derecha).
+- **Geometría usable:** dimensionar la ventana tomando como referencia la pestaña más exigente, no el tamaño del menú contextual del agarre. Adaptar a pantalla; cuando no alcance el espacio, **cada pestaña permite desplazarse**, mientras los botones de confirmación permanecen visibles. Nada de esto debe modificar la **altura fija** de SmartBar.
+- **Aplicar**: guarda los cambios elegidos, **sin cerrar la ventana** ni obligar a abrirla de nuevo; permite continuar con las otras pestañas. **Cerrar**: botón distinto, cierra la ventana. Si hubo ajustes no aplicados, abrir nuevamente debe recuperar los últimos valores aplicados. En vista Qt independiente el estado puede ser solo de sesión; la persistencia KConfig real debe probarse.
+- **Preferencias previas protegidas:** mantener por separado SO tras seleccionar ventana (activado por defecto) y bandeja tras usar icono (desactivado por defecto); sin temporizador de inactividad. La opción «Mostrar/Ocultar Malvina» sigue accesible como **primera acción rápida** del menú de los seis puntos; no se reintroduce como clic derecho de SO. Los controles de alineación/retorno y el comando **«Mover isla 1 a la derecha AHORA»** se conservan. No mover Soledad al pulsar Aplicar si la persona no modificó la alineación.
+- **Posible isla extra — DIFERIDA:** el mantenedor mencionó una opción futura para agregar otra isla, pero **ordenó no desarrollarla ahora**. No añadir botón operativo, isla nueva, cambio de numeración ni sustitución de la isla 3 buscadora sin nueva aprobación.
+
+**ESTADO:** implementado en el componente QML experimental SoledadSettings.qml y enlazado con SmartBarContent.qml en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin ejecución ni prueba en CachyOS/Wayland tras el cambio**. No se fusiona al plasmoide de uso diario. Seguimiento en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) e [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
