@@ -186,6 +186,13 @@
 - **IMPLEMENTADO EN RAMA EXPERIMENTAL, NO PROBADO AÚN TRAS CAMBIO:** `SmartBarContent.qml` calcula el ancho físico, conserva ambas expansiones si entran y contrae la anterior si no; incorpora recuperación visible de Malvina, controles independientes de autocontracción en el menú del agarre y clics de prueba de los iconos simulados. KConfig `autoCollapseSO=true`, `autoCollapseTray=false` conectado al envoltorio del plasmoide, sin validar persistencia.
 - **PRÓXIMA PRUEBA EN CACHYOS:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; abrir ambos conjuntos con ventana ancha (deben coexistir), estrechar o mover la isla para provocar falta de espacio (el último solicitado gana), cambiar cada autocontracción y tocar una ficha/icono de muestra, ocultar Malvina y recuperarla desde SO mantenido. No tocar panel actual. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
 
+## Prueba guiada: diagnóstico de espacio SO/bandeja en Qt (14/11/2026)
+
+- **CONFIRMADO VIGENTE:** Soledad y bandeja pueden permanecer expandidas simultáneamente si caben físicamente; si falta espacio, se contrae el grupo que estaba abierto antes. SO y bandeja tienen autocontracciones **configurables por separado**; Malvina es visible por defecto y se puede recuperar desde SO sostenido.
+- **NUEVO INSTRUMENTO IMPLEMENTADO, PENDIENTE DE PRUEBA EN CACHYOS:** en la rama [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) se agregó exclusivamente a la ventana de prueba Qt un indicador de estados SO/bandeja, visibilidad de Malvina, preferencias de autocontracción, ancho de Soledad versus espacio disponible y prioridad de última expansión. El componente QML expone `actualIslandWidth` solo para diagnosticar y registra números al faltar espacio.
+- **VALIDACIÓN SOLICITADA:** `git pull`; `bash prototype/v0.1/probar_ancho.sh`. Con ventana ancha abrir SO y bandeja y comprobar ambos abiertos; disminuir el ancho o desplazar Soledad hasta que falte espacio y verificar que solo la última expansión solicitada quede abierta. Probar opcionalmente autocontracción tras selección y recuperación de Malvina. **No se modificó el panel KDE actual y aún no se ha probado en el equipo del mantenedor.**
+- **PENDIENTE DESPUÉS:** revisar resultado de esta prueba en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); si es positivo, continuar con `probar_ventanas.sh` para validar detección real en modo solo lectura. Sin fusión a main.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
