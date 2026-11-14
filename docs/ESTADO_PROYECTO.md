@@ -119,6 +119,13 @@
 - **PARCHE PUBLICADO EN RAMA EXPERIMENTAL, AÚN NO PROBADO EN CACHYOS:** [057368a](https://github.com/nicoarg87/plasma-smartbar/commit/057368ace7d52e8db3b505b9e68a4de5d9ac05ac) incorpora `Layout.fillWidth: true` para usar el ancho disponible y `onWidthChanged` con mensaje `SmartBar v0.1: ancho del contenido = …`. El ancho inicial 960 es sugerencia, no ancho máximo. Se conservan islas visualmente separadas y grosor de 48 unidades en la demo.
 - **SIGUIENTE PRUEBA:** `git pull`, abrir el visor, agrandar/maximizar/restaurar y confirmar que isla 1 y controles siguen la derecha útil, y el lanzador la izquierda. Verificar que los valores de ancho registrados cambien; si no cambian, investigar restricciones propias de `plasmoidviewer`. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. No introducir fondo continuo ni instalar en panel real.
 
+## Undécima observación: Plasmoidviewer no expande el applet y prueba Qt independiente (14/11/2026)
+
+- **PROBADO / NEGATIVO:** el mantenedor volvió a probar la v0.1 en CachyOS tras agregar `Layout.fillWidth: true` y confirmó que **el applet NO se extiende hasta el borde derecho de Plasmoidviewer ni cuando se agranda/maximiza su ventana**. La corrección anterior no resolvió el visor.
+- **DIAGNÓSTICO ABIERTO:** no están disponibles todavía los números registrados en Konsole durante el redimensionado. KDE distingue el tamaño del contenedor del tamaño del widget, por lo que no podemos afirmar que el applet deba adoptar necesariamente el tamaño de toda la ventana de Plasmoidviewer.
+- **NUEVO CÓDIGO EN RAMA EXPERIMENTAL, AÚN NO PROBADO:** interfaz reutilizable `SmartBarContent.qml`; raíz de Plasma `main.qml` como envoltorio; nueva prueba de ancho `preview_redimensionable.qml` en ventana independiente Qt Quick; `probar_ancho.sh` para ejecutarla con `qml6`. Ambas vistas usan **exactamente el mismo componente de islas y lógica**. La interfaz Qt se ancla a ambos bordes de su propia ventana para aislar la prueba geométrica.
+- **SIGUIENTE PASO:** en Fish, `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`, cambiar el tamaño y verificar medida visible y anclajes; si funciona, investigar aparte el contenedor de Plasma. No usar el panel principal del usuario ni declarar resuelto el modo Plasma. Documentado en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
