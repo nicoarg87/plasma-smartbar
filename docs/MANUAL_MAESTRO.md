@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.25 — Segundo clic en Malvina cierra el lanzador  
+**Versión:** 0.26 — Lanzador SO no contrae bandeja ni fichas abiertas  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -656,7 +656,7 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 
 **Decisión expresa del mantenedor sobre isla 2:** seguir **visible por defecto** por ahora; permitir **clic derecho sobre isla 2 → «Ocultar isla 2»** de forma sencilla. La visibilidad se guarda como preferencia en Plasma, y, si está oculta, puede recuperarse desde **clic derecho en SO → «Mostrar isla 2»**. El lanzador accesible mediante SO debe servir para usar un diseño de una sola isla cuando el usuario no quiera el botón izquierdo. **Isla 2 no se elimina del proyecto ni cambia su estado predeterminado.**
 
-**Accesibilidad y exclusividad:** el menú contextual de SO ofrece también «Abrir lanzador», para que no dependa exclusivamente de mantener pulsado. Al desplegar este lanzador se cierra cualquier expansión abierta de SO o la bandeja. En modo inferior futuro el panel flotante se colocará hacia arriba. El agarre de seis puntos, el grupo fijo `− □ ×`, el retorno manual y la separación de islas no cambian.
+**Accesibilidad e independencia:** el menú contextual de SO ofrece también «Abrir lanzador», para que no dependa exclusivamente de mantener pulsado. Al desplegar este lanzador **permanecen visibles las expansiones de SO y bandeja que el usuario ya tenía abiertas**. En modo inferior futuro el panel flotante se colocará hacia arriba. El agarre de seis puntos, el grupo fijo `− □ ×`, el retorno manual y la separación de islas no cambian.
 
 **Ocultación automática:** el usuario la mencionó como posibilidad adicional para el futuro. **PROPUESTA SIN DEFINICIÓN TÉCNICA NI APROBACIÓN PARA IMPLEMENTAR**: resta decidir si se oculta por inactividad, pérdida de foco u otra condición, y cómo reaparece. No activar por defecto ni diseñar ese comportamiento sin precisar su política.
 
@@ -704,7 +704,7 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 
 **Segundo error observado:** al pulsar **Malvina (isla 2, izquierda)**, el lanzador de aplicaciones de muestra aparecía debajo de **Soledad (isla 1, derecha)** porque el único `QQC2.Popup` se ubicaba siempre en función de `systemIsland.x`. **DECISIÓN:** el lanzador debe abrirse **debajo de la isla que lo invoca**: clic en Malvina lo muestra en el extremo izquierdo, bajo Malvina; mantener pulsado SO unos 400 ms (o abrirlo desde su menú contextual) lo presenta bajo la posición actual de Soledad, incluso si fue arrastrada al centro.
 
-**Comportamiento de estados:** pulsar Malvina para desplegar su menú no debe contraer por sorpresa las fichas SO/bandeja de Soledad si estaban abiertas. Cuando el menú se invoca **desde Soledad**, se conserva la regla previa de cerrar esas dos expansiones para evitar superposiciones. Se reutiliza el mismo componente de menú flotante con un origen explícito (`malvina` o `so`), y sus coordenadas permanecen ligadas reactivamente a la isla correspondiente. En modo inferior futuro deberá abrirse **encima** de cada isla.
+**Comportamiento de estados (actualizado en v0.26):** abrir el lanzador desde **Malvina o Soledad** no debe contraer las fichas SO/bandeja que el usuario había dejado abiertas. La regla antigua de cerrarlas al abrir el menú desde Soledad **queda sustituida**. Se reutiliza el mismo componente de menú flotante con un origen explícito (`malvina` o `so`), y sus coordenadas permanecen ligadas reactivamente a la isla correspondiente. En modo inferior futuro deberá abrirse **encima** de cada isla.
 
 **Implementación en rama experimental:** `SmartBarContent.qml` añadió `traySOSeparator`, visible si `trayExpanded && soExpanded` (rectángulo vertical de 2 píxeles lógicos y 24 de alto en la demo), y `installedLauncherSource`, que determina si el popup se ubica debajo de `launcherIsland` o `systemIsland`. Las llamadas de Malvina y de SO ahora indican expresamente su origen. **NO PROBADO TODAVÍA EN CACHYOS** después de esta modificación. El menú sigue presentando aplicaciones ficticias y no ejecuta programas reales. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
 
@@ -717,3 +717,13 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Causa y parche de QML:** `Popup.CloseOnPressOutside` cerraba el menú en el momento de presionar Malvina, pero después `onClicked` lo volvía a abrir. La rama experimental cambió a `CloseOnPressOutsideParent`, que no cierra por un clic dentro del contenedor padre de los botones, y añadió comprobación de `installedAppsPopup.visible` y el origen actual antes de abrir el menú. **Código implementado, pendiente de prueba en CachyOS después del cambio.** Sin modificaciones a las islas, su grosor, SO/bandeja o los controles independientes.
 
 Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) y la guía de prueba en `prototype/v0.1/README.md` de la rama experimental.
+
+## 38. Soledad: pulsación sostenida abre lanzador sin contraer las expansiones (v0.26, 14/11/2026)
+
+**BUG OBSERVADO EN CACHYOS, NUEVA DECISIÓN CONFIRMADA:** el mantenedor abre el selector horizontal SO y la bandeja al mismo tiempo y, al **mantener presionado SO ~400 ms** para abrir el lanzador flotante de aplicaciones, la maqueta cerraba automáticamente ambos conjuntos. **Eso no debe suceder**: el lanzador es flotante e independiente, y ni SO ni bandeja deben contraerse simplemente por abrirlo.
+
+**Causa y corrección:** `SmartBarContent.qml` contenía en `openInstalledLauncher(source)` una condición para el origen `so` que ejecutaba `soExpanded = false` y `trayExpanded = false`. Las dos asignaciones se quitaron. El menú sigue apareciendo debajo de la posición actual de Soledad cuando lo invoca SO y debajo de Malvina cuando lo invoca Malvina. El cierre por clic corto, botón de bandeja o Escape y la conmutación de Malvina no se modifican.
+
+**Prioridades sin contradicción:** la regla de **falta de espacio entre SO y bandeja** continúa operando (última expansión horizontal abierta tiene prioridad); las preferencias independientes de autocontracción **SO al seleccionar ficha** y **bandeja tras usar icono** también. Pero **abrir el lanzador no equivale a seleccionar ninguna ficha o icono**, de modo que no dispara esas contracciones. Con suficiente ancho horizontal ambas expansiones pueden quedar visibles mientras también se muestra el menú flotante, sin aumentar grosor ni mover controles fijos.
+
+**Estado:** parche publicado en rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3); **no probado todavía en CachyOS** después de este ajuste. Comprobar con `probar_ancho.sh` que SO y bandeja continúan abiertos mientras se abre/cierra el lanzador con pulsación sostenida. El prototipo sigue usando aplicaciones ficticias y no controla ventanas reales. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
