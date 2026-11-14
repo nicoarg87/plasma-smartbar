@@ -23,6 +23,7 @@ Window {
     property string demoSoLogoMode: "default"
     property string demoSoLogoPath: ""
     property string demoSoLogoShape: "square"
+    property string demoSoLogoFitMode: "fit"
     property real demoSoLogoZoom: 1
     property real demoSoLogoPanX: 0
     property real demoSoLogoPanY: 0
@@ -53,6 +54,7 @@ Window {
         soLogoMode: previewWindow.demoSoLogoMode
         soLogoPath: previewWindow.demoSoLogoPath
         soLogoShape: previewWindow.demoSoLogoShape
+        soLogoFitMode: previewWindow.demoSoLogoFitMode
         soLogoZoom: previewWindow.demoSoLogoZoom
         soLogoPanX: previewWindow.demoSoLogoPanX
         soLogoPanY: previewWindow.demoSoLogoPanY
@@ -74,10 +76,11 @@ Window {
             previewWindow.demoSoActivityStroke = stroke
             previewWindow.demoSoActivityMotion = allowMotion
         }
-        onRequestSoLogoChange: function(mode, path, shape, zoom, panX, panY, allowGif) {
+        onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif) {
             previewWindow.demoSoLogoMode = mode
             previewWindow.demoSoLogoPath = path
             previewWindow.demoSoLogoShape = shape
+            previewWindow.demoSoLogoFitMode = fitMode
             previewWindow.demoSoLogoZoom = zoom
             previewWindow.demoSoLogoPanX = panX
             previewWindow.demoSoLogoPanY = panY
