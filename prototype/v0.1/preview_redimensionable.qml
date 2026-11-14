@@ -19,6 +19,21 @@ Window {
     property bool demoLauncherIslandVisible: true
     property bool demoAutoCollapseSO: true
     property bool demoAutoCollapseTray: false
+    // Estados de sesión de la maqueta (el panel KDE no se instala).
+    property string demoSoLogoMode: "default"
+    property string demoSoLogoPath: ""
+    property string demoSoLogoShape: "square"
+    property real demoSoLogoZoom: 1
+    property real demoSoLogoPanX: 0
+    property real demoSoLogoPanY: 0
+    property bool demoSoLogoAnimate: true
+    property color demoSoledadColor: "#101e31"
+    property color demoMalvinaColor: "#101e31"
+    property color demoBackgroundColor: "#202333"
+    property real demoSoledadOpacity: 1
+    property real demoMalvinaOpacity: 1
+    property real demoBackgroundOpacity: 0.5
+    property bool demoShowBackground: false
 
     SmartBarContent {
         id: bar
@@ -31,6 +46,38 @@ Window {
         launcherIslandVisible: previewWindow.demoLauncherIslandVisible
         autoCollapseSO: previewWindow.demoAutoCollapseSO
         autoCollapseTray: previewWindow.demoAutoCollapseTray
+        soLogoMode: previewWindow.demoSoLogoMode
+        soLogoPath: previewWindow.demoSoLogoPath
+        soLogoShape: previewWindow.demoSoLogoShape
+        soLogoZoom: previewWindow.demoSoLogoZoom
+        soLogoPanX: previewWindow.demoSoLogoPanX
+        soLogoPanY: previewWindow.demoSoLogoPanY
+        soLogoAnimate: previewWindow.demoSoLogoAnimate
+        soledadColor: previewWindow.demoSoledadColor
+        malvinaColor: previewWindow.demoMalvinaColor
+        backgroundColor: previewWindow.demoBackgroundColor
+        soledadOpacity: previewWindow.demoSoledadOpacity
+        malvinaOpacity: previewWindow.demoMalvinaOpacity
+        backgroundOpacity: previewWindow.demoBackgroundOpacity
+        showBackground: previewWindow.demoShowBackground
+        onRequestSoLogoChange: function(mode, path, shape, zoom, panX, panY, allowGif) {
+            previewWindow.demoSoLogoMode = mode
+            previewWindow.demoSoLogoPath = path
+            previewWindow.demoSoLogoShape = shape
+            previewWindow.demoSoLogoZoom = zoom
+            previewWindow.demoSoLogoPanX = panX
+            previewWindow.demoSoLogoPanY = panY
+            previewWindow.demoSoLogoAnimate = allowGif
+        }
+        onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
+            previewWindow.demoSoledadColor = a
+            previewWindow.demoSoledadOpacity = alphaA
+            previewWindow.demoMalvinaColor = b
+            previewWindow.demoMalvinaOpacity = alphaB
+            previewWindow.demoShowBackground = shown
+            previewWindow.demoBackgroundColor = bg
+            previewWindow.demoBackgroundOpacity = alphaBg
+        }
         onRequestAutoReturnRightChange: function(newValue) {
             previewWindow.demoAutoReturnRight = newValue
         }
