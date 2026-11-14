@@ -10,6 +10,7 @@ QQC2.Button {
     property bool iconAnimated: false
     property bool iconAnimationEnabled: true
     property string iconShape: "square"
+    property string iconFitMode: "fit"
     property real iconZoom: 1
     property real iconPanX: 0
     property real iconPanY: 0
@@ -56,6 +57,7 @@ QQC2.Button {
                     animateGif: control.iconAnimated
                     animationAllowed: control.iconAnimationEnabled
                     cropShape: control.iconShape
+                    fitMode: control.iconFitMode
                     zoom: control.iconZoom
                     panX: control.iconPanX
                     panY: control.iconPanY
