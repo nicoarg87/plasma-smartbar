@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.24 — Separación visual y lanzador flotante de Malvina en su propia isla  
+**Versión:** 0.25 — Segundo clic en Malvina cierra el lanzador  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -707,3 +707,13 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Comportamiento de estados:** pulsar Malvina para desplegar su menú no debe contraer por sorpresa las fichas SO/bandeja de Soledad si estaban abiertas. Cuando el menú se invoca **desde Soledad**, se conserva la regla previa de cerrar esas dos expansiones para evitar superposiciones. Se reutiliza el mismo componente de menú flotante con un origen explícito (`malvina` o `so`), y sus coordenadas permanecen ligadas reactivamente a la isla correspondiente. En modo inferior futuro deberá abrirse **encima** de cada isla.
 
 **Implementación en rama experimental:** `SmartBarContent.qml` añadió `traySOSeparator`, visible si `trayExpanded && soExpanded` (rectángulo vertical de 2 píxeles lógicos y 24 de alto en la demo), y `installedLauncherSource`, que determina si el popup se ubica debajo de `launcherIsland` o `systemIsland`. Las llamadas de Malvina y de SO ahora indican expresamente su origen. **NO PROBADO TODAVÍA EN CACHYOS** después de esta modificación. El menú sigue presentando aplicaciones ficticias y no ejecuta programas reales. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
+
+## 37. Malvina: alternancia de clic para abrir/cerrar su lanzador (v0.25, 14/11/2026)
+
+**ERROR DETECTADO EN CACHYOS:** el mantenedor comprobó que un clic en **Malvina (isla 2)** abría el lanzador de muestra bajo su isla, pero **el siguiente clic en ese mismo botón no lo cerraba**. Eso contradice la expectativa natural de un botón conmutador.
+
+**Comportamiento confirmado en esta corrección:** 1er clic en Malvina abre el lanzador flotante bajo Malvina; 2º clic en Malvina **lo cierra**; 3er clic vuelve a abrir. Pulsar **Esc** y hacer clic fuera de la barra siguen cerrándolo. Si el lanzador está abierto desde SO, pulsar Malvina lo traslada debajo de Malvina en lugar de cerrarlo por primera vez. Soledad mantiene su pulsación sostenida de ~400 ms para lanzar el menú debajo de su posición.
+
+**Causa y parche de QML:** `Popup.CloseOnPressOutside` cerraba el menú en el momento de presionar Malvina, pero después `onClicked` lo volvía a abrir. La rama experimental cambió a `CloseOnPressOutsideParent`, que no cierra por un clic dentro del contenedor padre de los botones, y añadió comprobación de `installedAppsPopup.visible` y el origen actual antes de abrir el menú. **Código implementado, pendiente de prueba en CachyOS después del cambio.** Sin modificaciones a las islas, su grosor, SO/bandeja o los controles independientes.
+
+Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) y la guía de prueba en `prototype/v0.1/README.md` de la rama experimental.
