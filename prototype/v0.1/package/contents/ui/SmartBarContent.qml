@@ -13,7 +13,10 @@ Item {
     readonly property int fixedHeight: 48
     implicitHeight: fixedHeight
     property bool autoReturnRight: true
+    // Isla 2 visible por defecto. Se oculta solo por elección del usuario.
+    property bool launcherIslandVisible: true
     signal requestAutoReturnRightChange(bool newValue)
+    signal requestLauncherIslandVisibilityChange(bool newValue)
     onWidthChanged: console.log("SmartBar v0.1: ancho útil de las islas =", width)
 
     property bool soExpanded: false
@@ -28,6 +31,9 @@ Item {
     property string lastDemoSelection: ""
     readonly property var demoApps: ["Dolphin", "Konsole", "Brave"]
     readonly property var demoTray: ["Wi-Fi", "Audio", "Bluetooth"]
+    // Menú de muestra: NO representa las aplicaciones instaladas todavía.
+    readonly property var demoInstalledApps: ["Dolphin", "Konsole", "Brave", "Firefox", "Configuración"]
+    property bool soHoldTriggered: false
 
     // Reservar siempre espacio para la expansión MÁS ancha; abrir bandeja o SO
     // no debe empujar el agarre ni SO, aun después de un arrastre.
@@ -102,13 +108,34 @@ Item {
     }
 
     function toggleSO() {
+        if (installedAppsPopup.opened) {
+            installedAppsPopup.close()
+        }
         soExpanded = !soExpanded
         if (soExpanded) {
             trayExpanded = false
         }
     }
 
+    function openInstalledLauncher() {
+        soExpanded = false
+        trayExpanded = false
+        installedAppsSearch.text = ""
+        installedAppsPopup.open()
+        installedAppsSearch.forceActiveFocus()
+        console.log("SmartBar v0.1: lanzador SO de muestra (sin abrir aplicaciones)")
+    }
+
+    function setLauncherIslandVisible(value) {
+        requestLauncherIslandVisibilityChange(value)
+        if (!value) {
+            launcherPreview = false
+        }
+        console.log("SmartBar v0.1: isla 2 visible =", value)
+    }
+
     function toggleTray() {
+        installedAppsPopup.close()
         trayExpanded = !trayExpanded
         if (trayExpanded) {
             soExpanded = false
@@ -123,12 +150,64 @@ Item {
 
     onMaxIslandOffsetChanged: setIslandOffset(islandOffset)
 
+    // Lanzador flotante de muestra, independiente del grosor de la barra.
+    // NO enumera ni inicia aplicaciones instaladas; eso sigue pendiente.
+    QQC2.Popup {
+        id: installedAppsPopup
+        parent: root
+        x: Math.max(0, Math.min(root.width - width,
+                    soButton.mapToItem(root, 0, 0).x + soButton.width - width))
+        y: root.fixedHeight + 5
+        width: 275
+        height: 265
+        padding: 10
+        modal: false
+        focus: true
+        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+        background: Rectangle {
+            radius: 12
+            color: "#102538"
+            border.color: "#4e8499"
+            border.width: 1
+        }
+        contentItem: Column {
+            spacing: 7
+            QQC2.Label {
+                text: "Aplicaciones (simulación)"
+                color: "#eaf7ff"
+                font.bold: true
+            }
+            QQC2.TextField {
+                id: installedAppsSearch
+                width: 248
+                placeholderText: "Buscar aplicación…"
+                focus: true
+            }
+            Repeater {
+                model: root.demoInstalledApps.filter(function(name) {
+                    return name.toLowerCase().indexOf(installedAppsSearch.text.toLowerCase()) >= 0
+                })
+                delegate: QQC2.Button {
+                    required property string modelData
+                    text: modelData + "  · muestra"
+                    width: 248
+                    height: 28
+                    onClicked: {
+                        console.log("SmartBar: app simulada", modelData, "(no se ejecuta)")
+                        installedAppsPopup.close()
+                    }
+                }
+            }
+        }
+    }
+
     Item {
         anchors.fill: parent
 
         // Isla 2: lanzador de ejemplo. Isla 3 sigue oculta por defecto.
         Rectangle {
             id: launcherIsland
+            visible: root.launcherIslandVisible
             width: launcherButton.implicitWidth + 12
             height: 44
             radius: 22
@@ -143,9 +222,22 @@ Item {
                 anchors.centerIn: parent
                 text: root.launcherPreview ? "Apps" : "◇"
                 accent: true
-                onClicked: root.launcherPreview = !root.launcherPreview
+                onClicked: root.openInstalledLauncher()
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: "Isla 2: lanzador de ejemplo, no inicia aplicaciones"
+                QQC2.ToolTip.text: "Isla 2: lanzador de muestra. Clic derecho: ocultar."
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: launcherContextMenu.popup()
+                }
+                QQC2.Menu {
+                    id: launcherContextMenu
+                    QQC2.MenuItem {
+                        text: "Ocultar isla 2"
+                        onTriggered: root.setLauncherIslandVisible(false)
+                    }
+                }
             }
         }
 
@@ -198,11 +290,60 @@ Item {
                     id: soButton
                     text: "SO"
                     accent: true
-                    onClicked: root.toggleSO()
+
+                    // Clic corto: ventanas abiertas. Mantener unos 400 ms:
+                    // lanzador de muestra. El clic de soltado NO debe activar
+                    // también SO después de una pulsación sostenida.
+                    onPressed: {
+                        root.soHoldTriggered = false
+                        soHoldTimer.restart()
+                    }
+                    onReleased: soHoldTimer.stop()
+                    onCanceled: soHoldTimer.stop()
+                    onClicked: {
+                        soHoldTimer.stop()
+                        if (!root.soHoldTriggered) {
+                            root.toggleSO()
+                        }
+                        root.soHoldTriggered = false
+                    }
+                    Timer {
+                        id: soHoldTimer
+                        interval: 400
+                        repeat: false
+                        onTriggered: {
+                            root.soHoldTriggered = true
+                            root.openInstalledLauncher()
+                        }
+                    }
+
+                    // Clic derecho / tecla Menú: acceso alternativo al
+                    // lanzador y opción para restaurar la isla 2 oculta.
+                    Keys.onPressed: function(event) {
+                        if (event.key === Qt.Key_Menu) {
+                            soContextMenu.popup()
+                            event.accepted = true
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+                        onClicked: soContextMenu.popup()
+                    }
+                    QQC2.Menu {
+                        id: soContextMenu
+                        QQC2.MenuItem {
+                            text: "Abrir lanzador de aplicaciones (muestra)"
+                            onTriggered: root.openInstalledLauncher()
+                        }
+                        QQC2.MenuItem {
+                            text: root.launcherIslandVisible ? "Ocultar isla 2" : "Mostrar isla 2"
+                            onTriggered: root.setLauncherIslandVisible(!root.launcherIslandVisible)
+                        }
+                    }
+
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: root.lastDemoSelection.length
-                        ? "SO · última prueba: " + root.lastDemoSelection
-                        : "SO · ventanas de ejemplo"
+                    QQC2.ToolTip.text: "Clic: ventanas de muestra · mantener 0,4 s: apps · derecho: opciones"
                 }
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
