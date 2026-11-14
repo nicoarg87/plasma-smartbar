@@ -126,6 +126,13 @@
 - **NUEVO CÓDIGO EN RAMA EXPERIMENTAL, AÚN NO PROBADO:** interfaz reutilizable `SmartBarContent.qml`; raíz de Plasma `main.qml` como envoltorio; nueva prueba de ancho `preview_redimensionable.qml` en ventana independiente Qt Quick; `probar_ancho.sh` para ejecutarla con `qml6`. Ambas vistas usan **exactamente el mismo componente de islas y lógica**. La interfaz Qt se ancla a ambos bordes de su propia ventana para aislar la prueba geométrica.
 - **SIGUIENTE PASO:** en Fish, `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`, cambiar el tamaño y verificar medida visible y anclajes; si funciona, investigar aparte el contenedor de Plasma. No usar el panel principal del usuario ni declarar resuelto el modo Plasma. Documentado en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
 
+## Duodécima prueba v0.1 — ancho completo en vista Qt maximizada (14/11/2026)
+
+- **PROBADO EN CACHYOS MEDIANTE CAPTURA:** el mantenedor ejecutó la vista Qt independiente de `probar_ancho.sh`. En ventana maximizada el indicador muestra **1920 píxeles lógicos de ancho**. La isla 2 aparece en el extremo izquierdo y la isla 1 con SO/agarre de seis puntos, junto al bloque de controles simulados, en el extremo derecho. **La superficie violeta pertenece a la ventana de prueba**; no significa que haya que dibujar fondo continuo entre las islas.
+- **COMPROBADO EN ESA CAPTURA:** el componente visual compartido `SmartBarContent.qml` recibe ancho completo y lo utiliza para distribuir islas en los extremos **en estado maximizado**.
+- **PENDIENTE:** comprobar redimensionado progresivo (restaurar y agrandar a varios anchos) y nueva interacción en el componente compartido tras refactorizar; comprobar persistencia real de preferencias y funcionamiento en el contenedor Plasmoidviewer (que seguía sin expandir). **No se comprobó integración con KWin, tareas reales, ni panel de uso diario**.
+- **PRÓXIMO PASO CONCRETO:** restaurar la ventana de prueba Qt, arrastrar el borde y observar si `Ancho del contenido` cambia inmediatamente, dejando las dos islas ancladas. Resultado registrado en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) aún en borrador.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
