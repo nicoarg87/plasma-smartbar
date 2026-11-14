@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.11 (compensación geométrica simétrica al maximizar/desmaximizar; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.12 (SO con pulsación sostenida y ocultación opcional de isla 2; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -111,6 +111,18 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Excepción de seguridad:** al maximizar, si la posición previa se superpondría al bloque fijo de controles, la isla se desplaza **únicamente lo necesario** para no taparlos. Los propios controles siguen fijos al extremo derecho.
 - Cuando la casilla «Alinear a la derecha» esté **tildada**, maximizar coloca isla 1 normalmente **inmediatamente a la izquierda** de los controles. La opción de retorno al **desmaximizar** conserva la conducta que ya fue aprobada y es independiente de la alineación contextual.
 - No modificar automáticamente el grosor, tamaño de ventanas reales ni sus controles originales. **Pendiente de verificar el parche en CachyOS; no probado con ventanas reales/KWin**.
+
+## 2.10. SO como acceso alternativo al lanzador, con isla 2 opcional (14/11/2026)
+
+**DECISIÓN CONFIRMADA:** se mantiene **isla 2 visible por defecto**, a la izquierda, como lanzador de aplicaciones instaladas, **pero el usuario puede ocultarla fácilmente** si prefiere una configuración simplificada con solo isla 1. La isla 2 no se elimina del diseño.
+
+- **SO, clic breve:** continúa abriendo/cerrando la lista de aplicaciones/ventanas **abiertas**, incluidas las minimizadas, agrupadas por aplicación. Esta función no se sustituye.
+- **SO, pulsación sostenida:** tras un intervalo inferior a medio segundo (referencia inicial para prueba **400 ms**), abre un **lanzador flotante de aplicaciones instaladas**. Al soltar después de una pulsación sostenida **NO** se ejecuta además el clic breve. Debe existir alternativa accesible por menú contextual/teclado.
+- **Isla 2, clic derecho:** muestra una acción directa **«Ocultar isla 2»**. Desde el menú contextual del botón SO debe poderse **«Mostrar isla 2»** de nuevo. La preferencia de visibilidad debe poder guardarse; estado inicial **visible**.
+- **Regla visual:** un lanzador flotante secundario sale hacia el interior de la pantalla, sin cambiar el grosor constante de las islas ni crear una segunda fila de SO/bandeja. En modo inferior el flotante deberá orientarse hacia arriba. SO, agarre de seis puntos y controles de ventana no cambian de posición por ello.
+- **Exclusividad:** abrir el lanzador desde SO cierra las listas desplegadas de SO y bandeja para evitar superposiciones; el menú del lanzador no reemplaza el listado de ventanas.
+- **Ocultación automática de isla 2:** **PROPUESTA EN ESTUDIO, NO APROBADA PARA IMPLEMENTAR TODAVÍA**. Deben especificarse el disparador, la recuperación accesible, la preferencia y compatibilidad con el foco antes de añadirla; no activar por defecto ni inventar temporizadores.
+- **Alcance actual:** el prototipo de prueba usa fichas de aplicaciones **simuladas**, con clic sostenido de 400 ms y opción de ocultación/restitución. **NO hay aún enumeración de aplicaciones instaladas ni lanzamiento real**, ni prueba posterior de esta nueva interacción en CachyOS. No se debe presentar la funcionalidad final como terminada.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
