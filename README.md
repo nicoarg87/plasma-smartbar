@@ -23,6 +23,9 @@ Plasma SmartBar busca concentrar la gestión de ventanas en una **barra superior
 - [Gobernanza](GOVERNANCE.md) — quién dirige y cómo se aprueban los cambios.
 - [Contribuir](CONTRIBUTING.md) — reportar bugs, discutir mejoras y enviar pull requests.
 - [Hoja de ruta](ROADMAP.md) — desarrollo por etapas.
+- [Continuidad entre conversaciones](docs/CONTINUIDAD_CHATGPT.md) — protocolo para retomar el proyecto sin perder decisiones.
+- [Instrucciones para Proyecto ChatGPT](docs/PLANTILLA_INSTRUCCIONES_CHATGPT.md) — texto listo para pegar en la configuración del proyecto.
+- [Estado actualizado](docs/ESTADO_PROYECTO.md) — avances realmente hechos y próximos pasos.
 
 ## Tecnología y prioridades
 Qt 6, QML/Qt Quick, KDE Plasma 6 y KWin. Prioridad: **rendimiento, estabilidad, compatibilidad y accesibilidad**. La primera versión se centrará en el núcleo funcional **sin animaciones complejas ni multimedia MPRIS**; los temas, efectos y herramientas llegarán más adelante.
