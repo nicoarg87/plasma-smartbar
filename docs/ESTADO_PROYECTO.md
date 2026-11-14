@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.25](MANUAL_MAESTRO.md), [Constitución Técnica v1.16](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.26](MANUAL_MAESTRO.md), [Constitución Técnica v1.17](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -207,6 +207,15 @@
 - **CAUSA IDENTIFICADA EN QML:** el menú tenía `Popup.CloseOnPressOutside`, que lo cerraba al presionar Malvina fuera del popup; después el mismo clic terminaba en `openInstalledLauncher()` y **lo reabría**.
 - **PARCHE PUBLICADO EN RAMA EXPERIMENTAL, PENDIENTE DE PRUEBA:** [304f33e](https://github.com/nicoarg87/plasma-smartbar/commit/304f33e89074fa57d71eadded58a461de5043a9d) usa `CloseOnPressOutsideParent` y cierre explícito si el popup ya está visible y fue abierto desde el mismo botón. Al hacer clic desde el otro origen cambia el anclaje bajo la isla correspondiente, sin abrir un segundo menú. Se conserva cierre mediante Esc o clic fuera de la barra.
 - **PRÓXIMA PRUEBA:** `git pull`; `bash prototype/v0.1/probar_ancho.sh`; clic M abre, segundo clic M cierra, tercero abre, Esc y clic fuera cierran, gesto sostenido de SO continúa mostrando menú bajo Soledad. Las fichas e iconos siguen siendo ficticios; la barra instalada del usuario no se modifica. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue borrador.
+
+## Regresión de SO sostenido: lanzador cerraba expansiones horizontales — parche (14/11/2026)
+
+- **PROBADO EN CACHYOS:** el mantenedor confirmó que el lanzador de **Malvina** ahora se abre y se cierra correctamente con clics alternos («Espectacular. Funciona como tiene que funcionar»). Esto valida el parche del segundo clic en la vista Qt independiente, no la integración de un lanzador real.
+- **NUEVO FALLO OBSERVADO:** después de abrir SO y bandeja a la vez, mantener pulsado SO para mostrar el lanzador flotante **cerraba ambas expansiones horizontales** sin elección del usuario.
+- **CORRECCIÓN FUNCIONAL CONFIRMADA:** el lanzador flotante se abre debajo de Soledad (o de Malvina según el origen) y **no modifica automáticamente ni SO ni bandeja**, que permanecen con su estado anterior. La regla de espacio horizontal y la autocontracción por selección de ficha/icono siguen siendo independientes.
+- **CAUSA:** el código de `openInstalledLauncher(source)` contraía SO y bandeja en el caso de origen `so` por una decisión histórica ya sustituida.
+- **IMPLEMENTADO EN PR #3, PENDIENTE DE PRUEBA EN CACHYOS:** [9175734](https://github.com/nicoarg87/plasma-smartbar/commit/917573452335e979212a46dd84fb9c3813dd5f15) retiró `soExpanded = false` y `trayExpanded = false` de la apertura del popup. Mantiene el separador, la pulsación de ~400 ms y el anclaje a cada isla. Revisión estática pendiente de ejecución real del parche.
+- **SIGUIENTE PRUEBA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; abrir las dos expansiones en ventana ancha, mantener SO pulsado para mostrar el menú debajo de Soledad y verificar que las fichas SO y la bandeja **siguen abiertas** durante y después de cerrar el popup. Seguir sin alterar el panel instalado. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
