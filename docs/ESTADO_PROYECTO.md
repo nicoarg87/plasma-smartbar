@@ -7,12 +7,12 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.13](MANUAL_MAESTRO.md), [Constitución Técnica v1.5](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.14](MANUAL_MAESTRO.md), [Constitución Técnica v1.6](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
 - [x] [Protocolo de continuidad](CONTINUIDAD_CHATGPT.md) y [plantilla de instrucciones](PLANTILLA_INSTRUCCIONES_CHATGPT.md) para conversaciones futuras.
-- [x] Diseño aprobado: **islas 1 y 2 visibles por defecto**, isla 3 oculta; controles de ventana a la derecha al maximizar, con viabilidad de solapamiento todavía no probada.
+- [x] Diseño aprobado: **islas 1 y 2 visibles por defecto**, isla 3 oculta; controles de ventana **fijos en el extremo derecho, independientes del arrastre de isla 1**, al maximizar. Viabilidad con KWin/Wayland real todavía no probada.
 - [x] Requisito aprobado: agarre pequeño de **seis puntos (2 × 3) a la derecha de SO**, que debe permanecer estable al abrir bandeja o SO. **Implementado solo como demo QML en rama experimental**, sin ejecutar en CachyOS ni conectarlo a ventanas reales.
 - [x] Aprobado: la isla 1 **vuelve automáticamente a la derecha al desmaximizar por defecto**, con casilla de configuración persistente para desactivarlo. En la demo se incluye simulación de maximización y preferencia KConfig `autoReturnRight=true`; **persistencia y conducta real pendientes de pruebas**.
 - [x] Efecto futuro de minimización «gaveta de SO» documentado; no implementado.
@@ -72,6 +72,13 @@
 - **COMPORTAMIENTO ESPERADO:** los controles ficticios de minimizar, restaurar y cerrar no realizaron acciones al pulsarlos; en la maqueta v0.1 están deshabilitados. Esto **no es un defecto de las funciones reales**, que todavía no existen.
 - **PENDIENTE:** comprobar desactivación y persistencia de la preferencia `autoReturnRight` tras reiniciar; probar exclusividad automática SO/bandeja, constancia geométrica con medidas, recarga del visor y futura integración KWin/Wayland.
 - **Estado:** v0.1 ha superado nuevas interacciones manuales de demostración, pero no está lista como barra de uso diario. Registro en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) continúa en borrador.
+
+## Quinta prueba v0.1 — detectado error de acoplamiento en controles de ventana (14/11/2026)
+
+- **PROBADO / FALLO OBSERVADO:** al simular maximización, los botones ficticios `− □ ×` se desplazaban al arrastrar el agarre de la isla 1 hacia el centro. El mantenedor aportó captura. Esta conducta contradice la necesidad de preservar la posición habitual de controles de ventana en el extremo derecho.
+- **NUEVO REQUISITO CONFIRMADO:** los controles SmartBar de ventanas maximizadas **permanecen fijos en el extremo derecho**, arriba o abajo según orientación. **No forman parte del grupo arrastrable de SO**. Al maximizar, la isla reserva su espacio; arrastrar isla 1 no mueve los controles.
+- **IMPLEMENTADO COMO PARCHE QML, SIN PRUEBA POSTERIOR:** en la rama `prototype/v0.1-islas-so` del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), los botones ficticios fueron extraídos de la fila de isla 1 y anclados de modo independiente al borde derecho, con reserva dinámica de ancho. Siguen deshabilitados y no controlan ventanas reales.
+- **PRÓXIMA PRUEBA:** `git pull`, ejecutar en `plasmoidviewer`, simular ventana maximizada y arrastrar isla 1. Verificar que SO se mueve pero `− □ ×` permanecen fijos en el extremo derecho. No afirmar todavía que el parche fue probado ni que KWin real usa esta posición.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
