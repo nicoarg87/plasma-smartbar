@@ -497,6 +497,17 @@ Item {
                     implicitHeight: 34
                     hoverEnabled: true
                     focusPolicy: Qt.StrongFocus
+                    property bool draggedDuringPress: false
+                    onPressed: draggedDuringPress = false
+                    // Clic izquierdo BREVE: si las opciones ya estaban
+                    // abiertas, cerrarlas sin reabrir. Si estaban cerradas,
+                    // no hacer nada: la apertura sigue siendo por derecho.
+                    // Si hubo arrastre, no interpretarlo como clic de cierre.
+                    onClicked: {
+                        if (gripMenu.visible && !draggedDuringPress) {
+                            gripMenu.close()
+                        }
+                    }
                     background: Rectangle {
                         radius: 17
                         color: moveGrip.hovered ? "#24425a" : "#14283d"
@@ -520,10 +531,9 @@ Item {
                             }
                         }
                     }
-                    // NO abrir el menú por clic izquierdo: ese botón sirve
-                    // exclusivamente para agarrar y mover Soledad.
-                    // Clic derecho alterna abrir/cerrar opciones. El handler
-                    // no acepta el botón izquierdo ni intercepta el arrastre.
+                    // El izquierdo solo puede CERRAR opciones ya abiertas.
+                    // El derecho alterna abrir/cerrar y no intercepta
+                    // el arrastre horizontal del botón izquierdo.
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton
@@ -541,8 +551,8 @@ Item {
                     QQC2.ToolTip.visible: hovered && !gripDrag.active
                     QQC2.ToolTip.delay: 850
                     QQC2.ToolTip.text: root.launcherIslandVisible
-                        ? "Arrastrar: botón izquierdo · Opciones: clic derecho"
-                        : "Malvina oculta · Clic derecho acá → Mostrar Malvina"
+                        ? "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
+                        : "Malvina oculta · Derecho: opciones → Mostrar Malvina"
 
                     // target=null: el gesto modifica el margen, nunca la
                     // geometría vertical ni el panel real de KDE.
@@ -556,6 +566,7 @@ Item {
                         cursorShape: Qt.SizeHorCursor
                         onActiveChanged: {
                             if (active) {
+                                moveGrip.draggedDuringPress = true
                                 root.offsetAtDragStart = root.islandOffset
                             }
                             // Al soltar la isla, mantenerla donde el usuario
