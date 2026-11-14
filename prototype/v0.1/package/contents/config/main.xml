@@ -24,6 +24,7 @@
     <entry name="soLogoMode" type="String"><default>default</default></entry>
     <entry name="soLogoPath" type="String"><default></default></entry>
     <entry name="soLogoShape" type="String"><default>square</default></entry>
+    <entry name="soLogoFitMode" type="String"><default>fit</default></entry>
     <entry name="soLogoZoom" type="Double"><default>1.0</default></entry>
     <entry name="soLogoPanX" type="Double"><default>0.0</default></entry>
     <entry name="soLogoPanY" type="Double"><default>0.0</default></entry>
