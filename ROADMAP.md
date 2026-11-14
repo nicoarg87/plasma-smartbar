@@ -12,7 +12,7 @@
 - [ ] Investigar qué piezas de Plasma/KWin/Qt pueden reutilizarse y bajo qué licencias.
 
 ## Fase 1 — MVP funcional y estable (sin animaciones)
-- [ ] Barra superior cuyo grosor configurado permanece **constante** durante cada interacción.
+- [ ] **Modo superior predeterminado**, con islas separadas, cuyo grosor configurado permanece **constante** durante cada interacción. Diseñar la base de estados y vistas para permitir cambiar de orientación más adelante sin reescribir la gestión de ventanas.
 - [ ] Detectar max/restauración y mostrar/ocultar controles de ventana según corresponda.
 - [ ] Lanzador izquierdo para apps instaladas, distinguible del selector SO.
 - [ ] Selector SO de una sola fila, expansión a izquierda, agrupación por aplicación y activación de ventanas.
@@ -20,6 +20,13 @@
 - [ ] Bandeja horizontal compacta, flechas correctas y exclusividad con SO.
 - [ ] Respetar fullscreen real; probar foco, maximización y pestañas de navegadores.
 - [ ] Pruebas en CachyOS con Dolphin, Konsole, Brave y Firefox.
+
+## Validación del segundo modo oficial — borde inferior
+- [ ] Investigar y desarrollar el **modo inferior** como opción configurada, conservando isla 2 a la izquierda, isla 1 a la derecha, expansión en una fila y grosor constante.
+- [ ] Mostrar los **controles SmartBar para la ventana maximizada en el borde inferior**, junto a isla 1, no en una barra separada arriba.
+- [ ] Investigar conflictos con controles originales de las aplicaciones (KWin, Brave/Firefox/Chrome, Steam, Qt/GTK). **No asumir que KWin puede trasladar universalmente las decoraciones originales**.
+- [ ] Subpaneles flotan hacia el interior: **hacia arriba** cuando la barra está abajo; fullscreen real oculta todo.
+- [ ] Validar en CachyOS sin reemplazar el panel principal ni alterar las ventanas. Issue de investigación: [#2](https://github.com/nicoarg87/plasma-smartbar/issues/2).
 
 ## Fase 2 — Navegación y ergonomía
 - [ ] Desagrupar ventanas opcionalmente.
@@ -34,6 +41,10 @@
 - [ ] Mejoras de accesibilidad y multi-monitor.
 - [ ] Multimedia mediante MPRIS **solo cuando el núcleo esté estable**.
 
+## Arquitectura extensible; laterales solo experimentales
+- [ ] Separar lógica de tareas, presentación, posicionamiento/anclaje y orientación. Evitar suposiciones de coordenadas superiores en la lógica compartida.
+- [ ] **No prometer soporte oficial vertical izquierdo/derecho en las versiones iniciales**. Mantener posibilidad de pruebas y forks futuros sin sobrecargar el MVP.
+
 ## Fase 4 — Temas y animaciones personalizables
 - [ ] Temas, transparencia, colores individuales, blur y transiciones opcionales.
 - [ ] Extensibilidad para animaciones decorativas sin bloquear controles, alterar foco o geometría.
@@ -43,4 +54,4 @@
 El diseño **por islas separadas** es el predeterminado; isla 3 (buscador visible) está oculta por defecto. La prueba v0.1 no incluye aún el agarre de desplazamiento, que se implementará por etapas. El código debe conservar acceso a SO, bandeja y controles de ventana y no alterar el alto de la barra.
 
 ## Criterio de aceptación continuo
-Las modificaciones nunca deben modificar la altura de la barra o de sus expansiones horizontales, reducir el espacio de la app para mostrar fichas, desplazar pestañas, violar fullscreen ni comprometer el control de ventanas.
+Las modificaciones nunca deben modificar el grosor de la barra o de sus expansiones horizontales, reducir el espacio de la app para mostrar fichas, desplazar pestañas, violar fullscreen ni comprometer el control de ventanas. En orientación inferior los controles propios de SmartBar deben ubicarse abajo, junto a SO; la interacción con decoraciones originales necesita comprobación técnica.
