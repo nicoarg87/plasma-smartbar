@@ -1,7 +1,7 @@
 # Estado actual de Plasma SmartBar
 
 **Fecha de corte:** 14 de noviembre de 2026  
-**Estado general:** documentación y organización del proyecto. **Prototipo v0.1 en rama experimental YA EJECUTADO EN CACHYOS Y VISIBLE EN UNA CAPTURA**, pero recarga inestable o fallida pendiente de diagnóstico, no incorporado a main y sin integración con ventanas reales. **No existe aún una barra funcional e instalable para uso diario.**
+**Estado general:** prototipo visual v0.1 de Plasma SmartBar **ejecutado en CachyOS con interacciones básicas comprobadas** (SO/bandeja, arrastre de isla 1, menú del agarre). Sigue en rama experimental, sin conexión a ventanas reales ni fusión a main; la anomalía de recarga del visor continúa sin diagnosticar. **No existe todavía una barra instalable y validada para uso diario.**
 
 ## Realmente completado
 
@@ -53,10 +53,23 @@
 - **NO PROBADO AÚN:** arrastre real de la maqueta de seis puntos, persistencia de `autoReturnRight`, exclusividad SO/bandeja, geometría constante durante interacción, integraciones reales de ventanas.
 - **SIGUIENTE PASO:** ejecutar desde Fish `cd ~/plasma-smartbar; bash prototype/v0.1/probar.sh 2>&1 | tee ~/plasma-smartbar-v01.log` y reunir la salida al reproducir el problema. Continuar la prueba en la rama experimental; no fusionar el PR #3 todavía.
 
+## Tercera prueba v0.1 — interacción básica verificada por el mantenedor (14/11/2026)
+
+**RESULTADO REAL EN CACHYOS (Plasma 6.8.2, maqueta `plasmoidviewer`):**
+- **PROBADO:** SO abre y contrae al volver a pulsar, mostrando fichas ficticias de aplicaciones.
+- **PROBADO:** bandeja simulada abre y cierra.
+- **PROBADO:** el **agarre de seis puntos (2 × 3)** permite arrastrar horizontalmente la isla 1 al centro.
+- **PROBADO:** con la isla desplazada, el mantenedor volvió a utilizar SO/bandeja y no observó fallos en esas acciones.
+- **PROBADO:** clic simple en el agarre muestra el menú, que incluye una opción de retorno automático a la derecha.
+
+**PENDIENTE DE VALIDACIÓN ESPECÍFICA:** exclusión SO/bandeja abriendo uno mientras el otro está activo; cierre automático al elegir una ficha; prueba de maximización simulada y retorno automático; desactivar la preferencia y comprobar que se guarda tras reiniciar; medición de altura invariable; repetición/diagnóstico de la recarga problemática del visor.
+
+**TODAVÍA NO IMPLEMENTADO:** selección de ventanas reales mediante KWin, estados de maximización reales y configuración de posición en un panel de uso diario. Los resultados no permiten todavía anunciar v0.1 terminada ni fusionar el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3). Pruebas detalladas en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
-**Siguiente paso inmediato:** recoger el registro de la recarga de `plasmoidviewer` y aislar cualquier fallo, **antes de considerar estable la maqueta**. Verificar interacción SO/bandeja/arrastre/retorno en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1). Integrar el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) únicamente tras revisión y aprobación funcional. Después, validar ventanas reales y KWin/Wayland.
+**Siguiente paso inmediato:** validar el **retorno automático** tras desmaximización simulada, probar la **preferencia desactivable/persistente**, y verificar exclusividad SO/bandeja y geometría fija. Si reaparece el problema del botón de recarga de `plasmoidviewer`, conservar el registro para diagnosticarlo. Revisar resultados en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) permanece borrador. Después, comenzar la investigación de ventanas reales y KWin/Wayland.
 
 ## Próximo hito organizativo
 Conservar la sincronía documental entre la Constitución, el Manual Maestro y la plantilla del Proyecto de ChatGPT. **Si la plantilla en GitHub cambia, copiar su versión actualizada a las instrucciones del Proyecto en ChatGPT; la sincronización no es automática.**
