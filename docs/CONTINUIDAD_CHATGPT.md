@@ -37,15 +37,16 @@ Ante «retomemos Plasma SmartBar», el asistente debe:
 ## 4. Resumen de diseño irrenunciable
 
 - Complemento para **Linux + KDE Plasma 6**, primero probado en **CachyOS / Wayland**; GNOME, Cinnamon, Windows y macOS no son objetivos.
-- Barra superior de **grosor invariable**. Al expandirse, ninguna lista crea una segunda fila, mueve pestañas ni redimensiona la aplicación.
+- Barra de **grosor invariable** con dos ubicaciones horizontales aprobadas: **superior (predeterminada)** e **inferior (configurable, no implementada)**. Al expandirse, ninguna lista crea una segunda fila, mueve pestañas ni redimensiona la aplicación.
 - Lanzador izquierdo: aplicaciones **instaladas**. Botón **SO** derecho: aplicaciones/ventanas **abiertas**.
 - **Islas visuales:** isla 1 derecha (SO y bandeja), isla 2 izquierda (lanzador), isla 3 (buscador visible) opcional y oculta por defecto; sin fondo continuo por defecto.
 - **Agarre horizontal aprobado:** tres o cuatro puntos discretos **inmediatamente a la derecha de SO**, antes de controles de ventana si está maximizada. **SO y agarre no se mueven al expandir/contraer bandeja o SO**. El agarre reubica horizontalmente la isla 1; implementación, límites y persistencia **pendientes**.
 - SO expande fichas hacia **la izquierda en una única fila**; agrupa ventanas por aplicación por defecto, con opción de desagrupar.
 - SO y bandeja son mutuamente excluyentes. Flecha de bandeja **◀ cerrada / ▶ expandida**.
 - SO se contrae tras seleccionar ventana por defecto; configuración alternativa de permanencia y modo de visibilidad adaptable a navegadores.
-- Con ventana maximizada, los controles minimizar/restaurar/cerrar están a la derecha; la barra prioriza su capa sobre pestañas **sin desplazarlas**. Viabilidad técnica por demostrar, no «función ya resuelta».
-- **Fullscreen real** oculta la barra. Los paneles secundarios flotan debajo; flecha vertical **↓ / ↑** dentro de bandeja.
+- Con ventana maximizada, los controles **propios de SmartBar** minimizar/restaurar/cerrar están a la derecha, **en el mismo borde elegido**: arriba en modo superior, **abajo en modo inferior**. No afirmar que los botones originales de cualquier aplicación pueden reubicarse: las decoraciones propias y KWin/Wayland requieren pruebas. En modo superior, la barra prioriza su capa sobre pestañas **sin desplazarlas**, viabilidad técnica por demostrar.
+- **Fullscreen real** oculta las islas. Los paneles secundarios flotan hacia el interior de la pantalla (**debajo** desde el modo superior, **encima** desde el inferior); la flecha vertical pertenece a la bandeja.
+- **Laterales verticales izquierdo/derecho:** experimentales, fuera del compromiso de versiones iniciales. Diseñar lógica de ventanas independiente de orientación y anclaje para facilitar futuras pruebas; no afirmar soporte vertical probado. El modo inferior se registró en el [issue #2](https://github.com/nicoarg87/plasma-smartbar/issues/2), posterior a la primera prueba [#1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
 - Primero rendimiento, estabilidad, accesibilidad y **sin animaciones**. MPRIS, temas avanzados, efectos decorativos y expansiones futuras solo después del MVP. La animación opcional «gaveta de SO» al minimizar queda para una fase posterior. El agarre aprobado también se implementará y probará después de la demostración v0.1.
 - No generar imágenes conceptuales salvo que el usuario las pida; los renders rechazados no son requisitos.
 
