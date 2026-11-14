@@ -155,8 +155,15 @@ Item {
     QQC2.Popup {
         id: installedAppsPopup
         parent: root
-        x: Math.max(0, Math.min(root.width - width,
-                    soButton.mapToItem(root, 0, 0).x + soButton.width - width))
+        // El popup pertenece a root, pero debe seguir el movimiento REAL
+        // de isla 1. mapToItem() no registra necesariamente la dependencia
+        // reactiva del anclaje desplazable: se quedaba con la coordenada
+        // antigua (extremo derecho) cuando se arrastraba la isla al centro.
+        // Usar systemIsland.x/width obliga a recalcular en cada arrastre,
+        // expansión o redimensionado. Centrar el menú debajo de la isla
+        // y acotarlo al ancho visible del contenedor.
+        x: Math.max(0, Math.min(Math.max(0, root.width - width),
+                               systemIsland.x + (systemIsland.width - width) / 2))
         y: root.fixedHeight + 5
         width: 275
         height: 265
