@@ -17,6 +17,21 @@
 - La isla 3 (buscador persistente) no aparece. La maximización **es una simulación**; aún no leemos el estado de ventanas reales mediante KWin.
 - El grosor visual de la franja sigue fijo; **sin animaciones ni MPRIS**.
 
+## Ancho adaptable del visor — parche en espera de prueba (14/11/2026)
+
+**Reporte del mantenedor:** la interfaz ocupaba aproximadamente el ancho inicial de la maqueta y **no llegaba al extremo derecho** de `plasmoidviewer`; al maximizar o redimensionar la ventana del visor, la isla derecha **no seguía el nuevo borde**. Es un comportamiento incorrecto para el diseño final; puede existir además un margen propio del visor, que aún hay que comprobar.
+
+**Corrección preliminar, NO PROBADA aún:** se agregó `Layout.fillWidth: true` a la raíz `PlasmoidItem`. `Layout.preferredWidth: 960` queda **solo como sugerencia de tamaño inicial**, no como ancho máximo. Los elementos de isla 2 se anclan a la izquierda; SO, agarre y controles a la derecha del **ancho real que el contenedor entregue al plasmoide**. La altura se mantiene fija en 48 unidades lógicas. Para diagnosticar, la consola imprime `SmartBar v0.1: ancho del contenido = …` cada vez que el plasmoide recibe una anchura distinta.
+
+**Prueba específica:**
+1. Abrir la demo con el script.
+2. Comprobar la posición de SO en el extremo derecho del **contenido disponible**, teniendo en cuenta posibles márgenes internos propios de Plasmoidviewer. **No hay que dibujar una barra de fondo que una visualmente las islas.**
+3. Cambiar varias veces el ancho del visor (agrandar, maximizar, restaurar). SO y controles deberían **seguir el borde derecho** e isla 2 conservar el izquierdo; la altura y el estado de SO/bandeja no deberían modificarse.
+4. Mirar Konsole: los mensajes `ancho del contenido` deberían cambiar con el redimensionamiento. Si **no cambian**, puede que Plasmoidviewer imponga un ancho fijo al applet. Compartir esa salida y una captura: no considerar resuelto el problema ni atribuirlo exclusivamente a QML.
+5. Probar el arrastre de seis puntos y la simulación de maximización tras cambiar ancho, comprobando que las islas no queden fuera de pantalla.
+
+`plasmoidviewer` **no equivale** a una barra de pantalla real y tiene controles y márgenes propios; este ensayo no demuestra todavía integración a pantalla completa ni KWin/Wayland. El panel de escritorio del usuario no debe reemplazarse.
+
 ## Cómo probarlo de manera reversible en CachyOS
 
 1. Abrí **Konsole** y, si todavía no lo tenés, instalá la herramienta oficial para probar widgets de Plasma 6:
