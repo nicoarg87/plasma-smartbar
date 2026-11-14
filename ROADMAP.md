@@ -7,7 +7,8 @@
 - [x] Abrir repositorio público para Linux con KDE Plasma.
 - [x] Establecer licencia GPL-3.0, constitución, Manual Maestro y gobernanza.
 - [x] Redactar reglas de contribución y visión inicial.
-- [ ] Activar en GitHub reglas de protección para main y revisar colaboradores autorizados.
+- [x] Activar regla de protección de rama main (bloqueo de borrado y force push; confirmado 14/11/2026).
+- [ ] Revisar periódicamente colaboradores autorizados y evaluar exigencia de PRs cuando haya equipo.
 - [ ] Investigar qué piezas de Plasma/KWin/Qt pueden reutilizarse y bajo qué licencias.
 
 ## Fase 1 — MVP funcional y estable (sin animaciones)
