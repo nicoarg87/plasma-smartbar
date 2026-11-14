@@ -80,3 +80,11 @@ El diseño **por islas separadas** es el predeterminado; isla 3 (buscador visibl
 
 ## Criterio de aceptación continuo
 Las modificaciones nunca deben modificar el grosor de la barra o de sus expansiones horizontales, reducir el espacio de la app para mostrar fichas, desplazar pestañas, violar fullscreen ni comprometer el control de ventanas. En orientación inferior los controles propios de SmartBar deben ubicarse abajo, junto a SO; la interacción con decoraciones originales necesita comprobación técnica.
+
+
+## Personalización visual de SO e islas — mejoras confirmadas (14/11/2026)
+
+- [ ] **Logo de SO personalizado:** huella PNG predeterminada o imagen fija/GIF elegida por usuario; modo texto SO, posibilidad de branding de distribuciones. Editor para escala, encuadre no destructivo y recorte **cuadrado/círculo/rombo/corazón/estrella**; aplicar el mismo recorte a GIF. **Implementado en código de PR #3, pendiente de prueba en CachyOS y persistencia en Plasma**. [Issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+- [ ] **Color y opacidad de cada isla:** Soledad y Malvina independientes; **fondo general opcional** con color/transparencia y desactivado por defecto. El fondo no cambia altura ni controles; la antigua isla 3 buscadora sigue reservada, numeración del fondo pendiente de decisión explícita.
+- [ ] **Contorno SO por ventanas abiertas:** **cero ventanas → sin trazo y sin temporizador**; una o más → efecto opcional off/fijo/luz recorriendo perímetro de la máscara, color ajustable, grosor 0,5–2 px, movimiento opcional. Brillo fijo predeterminado. Demo con alternancia 0/3 ventanas; **conexión al modelo KDE de ventanas reales pendiente de prueba**. Consumo/performance y accesibilidad pendientes.
+- [ ] **No introducir animaciones generales de barra:** GIF elegido y contorno SO animado optativo son excepciones explícitas limitadas; nada de MPRIS, animaciones de fichas ni de minimización en MVP.
