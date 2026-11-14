@@ -45,6 +45,22 @@ Item {
     property real malvinaOpacity: 1
     property real backgroundOpacity: 0.5
     property bool showBackground: false
+
+    // Indicador de actividad de SO: no simular "ventanas reales".
+    // La maqueta puede alternar 0/3 ventanas desde Opciones de Soledad.
+    // En versión real se conectará a TasksModel KWin/Plasma.
+    property bool demoHasRunningWindows: true
+    readonly property int soWindowCount: demoHasRunningWindows ? demoApps.length : 0
+    property string soActivityStyle: "steady"  // off, steady, orbit
+    property color soActivityColor: "#35d7ff"
+    property real soActivityStroke: 1.0
+    property bool soActivityMotion: true
+    onSoWindowCountChanged: {
+        if (soWindowCount === 0) soExpanded = false
+    }
+    signal requestSoActivityChange(string style, string color,
+                                   real stroke, bool allowMotion)
+
     signal requestSoLogoChange(string mode, string path, string shape,
                                real zoom, real panX, real panY, bool allowGif)
     signal requestAppearanceChange(string soledadColor, real soledadOpacity,
@@ -191,6 +207,7 @@ Item {
         if (soExpanded) {
             soExpanded = false
         } else {
+            if (soWindowCount === 0) return
             lastExpandedMode = "so"
             soExpanded = true
             // Si entra la bandeja junto a SO, conservar ambos.
@@ -286,6 +303,19 @@ Item {
         logoEditor.requestActivate()
     }
 
+    function editSoActivity() {
+        activityEditor.effectStyle = root.soActivityStyle
+        activityEditor.accentColor = root.soActivityColor
+        activityEditor.strokeSize = root.soActivityStroke
+        activityEditor.allowMotion = root.soActivityMotion
+        activityEditor.logoSource = root.activeSoLogo
+        activityEditor.logoAnimated = root.activeSoLogoIsGif && root.soLogoAnimate
+        activityEditor.logoShape = root.soLogoShape
+        activityEditor.show()
+        activityEditor.raise()
+        activityEditor.requestActivate()
+    }
+
     function editAppearance() {
         appearanceEditor.soledadColor = root.soledadColor
         appearanceEditor.malvinaColor = root.malvinaColor
@@ -304,6 +334,12 @@ Item {
         defaultImage: root.defaultSoLogo
         onSaveRequested: function(mode, path, shape, zoom, panX, panY, allowGif) {
             root.requestSoLogoChange(mode, path, shape, zoom, panX, panY, allowGif)
+        }
+    }
+    SoActivityEditor {
+        id: activityEditor
+        onSaveRequested: function(style, color, stroke, allowMotion) {
+            root.requestSoActivityChange(style, color, stroke, allowMotion)
         }
     }
     AppearanceEditor {
@@ -500,7 +536,7 @@ Item {
                 }
 
                 Repeater {
-                    model: root.soExpanded ? root.demoApps : []
+                    model: root.soExpanded && root.demoHasRunningWindows ? root.demoApps : []
                     delegate: IslandButton {
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
@@ -513,6 +549,11 @@ Item {
                     id: soButton
                     text: "SO"
                     accent: true
+                    activityCount: root.soWindowCount
+                    activityEffect: root.soActivityStyle
+                    activityColor: root.soActivityColor
+                    activityStroke: root.soActivityStroke
+                    activityMotionAllowed: root.soActivityMotion
                     iconSource: root.activeSoLogo
                     iconAnimated: root.activeSoLogoIsGif
                     iconAnimationEnabled: root.soLogoAnimate
@@ -574,7 +615,7 @@ Item {
 
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: root.launcherIslandVisible
-                        ? "Soledad · clic: ventanas · mantener 0,4 s: apps · derecho: opciones"
+                        ? "Soledad · " + root.soWindowCount + " aplicaciones de muestra · clic: ventanas · mantener 0,4 s: lanzador"
                         : "Malvina oculta · seis puntos: Mostrar Malvina · mantener SO: apps"
                 }
 
@@ -703,6 +744,17 @@ Item {
                         QQC2.MenuItem {
                             text: "Colores y transparencia de islas y fondo…"
                             onTriggered: root.editAppearance()
+                        }
+                        QQC2.MenuItem {
+                            text: "Contorno de actividad de SO…"
+                            onTriggered: root.editSoActivity()
+                        }
+                        QQC2.MenuSeparator {}
+                        QQC2.MenuItem {
+                            text: root.demoHasRunningWindows
+                                ? "Simular SO SIN ventanas (0)"
+                                : "Simular SO CON ventanas (3)"
+                            onTriggered: root.demoHasRunningWindows = !root.demoHasRunningWindows
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
