@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.18 — Ancho adaptable de las islas al contenedor  
+**Versión:** 0.19 — Sin saltos de isla 1 al maximizar o desmaximizar  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -640,3 +640,12 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Regla funcional:** las **posiciones** de las islas se calculan sobre **todo el ancho útil actual del contenedor**. Isla 2 se ancla a la izquierda; isla 1 y, cuando corresponda, el bloque independiente `− □ ×` se anclan a la derecha, teniendo en cuenta el movimiento deliberado de isla 1 y las posiciones guardadas por aplicación cuando esa función exista. Al crecer o reducirse el ancho, las referencias se reajustan sin reiniciar el plasmoide. **No significa dibujar un fondo o una barra continua entre islas:** por defecto su apariencia sigue siendo separada, sin franja conectiva. El **grosor se mantiene constante** y SO/bandeja expanden solamente en una fila hacia la izquierda.
 
 **Implementación y validación:** se agregó `Layout.fillWidth: true` al `PlasmoidItem` experimental, conservando `Layout.preferredWidth: 960` únicamente como sugerencia inicial, además del registro `SmartBar v0.1: ancho del contenido = …` en Konsole. **No se ha comprobado el resultado tras este parche en el CachyOS del mantenedor.** Es necesario agrandar/maximizar/restaurar `plasmoidviewer` y verificar si cambia el ancho reportado y si SO sigue el borde derecho. Si el contenido sigue con ancho fijo, investigar la geometría que proporciona el contenedor del visor antes de modificar paneles reales de KDE. Documentar posibles límites en ventanas demasiado estrechas o configuraciones multimonitor.
+
+
+## 31. Conservar posición manual al maximizar — corrección de la transición inversa (v0.19, 14/11/2026)
+
+**Fallo real descrito por el mantenedor en CachyOS:** estando la isla 1 desplazada manualmente, las opciones de alineación derecha y retorno al desmaximizar desmarcadas, activar «Simular ventana maximizada» hacía que la isla 1 se moviera hacia la izquierda sin una nueva orden. El código sumaba automáticamente la reserva de espacio para el grupo fijo `− □ ×` al margen de la isla. Es el error inverso del desplazamiento al desmaximizar previamente registrado.
+
+**Regla ya implícita en el diseño y ahora aclarada:** con la alineación contextual desmarcada, **mantener la misma posición visual de isla 1 al maximizar y al desmaximizar**, compensando el ancho de los controles fijos que aparecen o desaparecen. Al maximizar, **solo si la posición guardada invadiera los botones** es correcto mover la isla mínimamente hacia la izquierda para que estos permanezcan utilizables. Con «Alinear isla 1 a la derecha» marcada, la isla se ubica junto al bloque fijo en la posición normal. La preferencia independiente «Volver a la derecha al desmaximizar» sigue aplicándose al salir de maximizada si el usuario la mantiene activa.
+
+**Implementado solamente en la maqueta QML del PR #3:** se modificó `SmartBarContent.qml` para guardar el margen visual anterior y compensar la reserva de controles en las dos direcciones. **Revisión estática solamente, no validado aún en el CachyOS del usuario después del parche**. El grupo de controles sigue fijo al extremo derecho; no interactúa con ventanas reales. Ver [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
