@@ -42,6 +42,16 @@ PlasmoidItem {
         malvinaOpacity: Plasmoid.configuration.malvinaOpacity
         backgroundOpacity: Plasmoid.configuration.backgroundOpacity
         showBackground: Plasmoid.configuration.showBackground
+        soActivityStyle: Plasmoid.configuration.soActivityStyle
+        soActivityColor: Plasmoid.configuration.soActivityColor
+        soActivityStroke: Plasmoid.configuration.soActivityStroke
+        soActivityMotion: Plasmoid.configuration.soActivityMotion
+        onRequestSoActivityChange: function(style, color, stroke, allowMotion) {
+            Plasmoid.configuration.soActivityStyle = style
+            Plasmoid.configuration.soActivityColor = color
+            Plasmoid.configuration.soActivityStroke = stroke
+            Plasmoid.configuration.soActivityMotion = allowMotion
+        }
         onRequestSoLogoChange: function(mode, path, shape, zoom, panX, panY, allowGif) {
             Plasmoid.configuration.soLogoMode = mode
             Plasmoid.configuration.soLogoPath = path
