@@ -72,6 +72,14 @@ Ante «retomemos Plasma SmartBar», el asistente debe:
 - Primero rendimiento, estabilidad, accesibilidad y **sin animaciones**. MPRIS, temas avanzados, efectos decorativos y expansiones futuras solo después del MVP. La animación opcional «gaveta de SO» al minimizar queda para una fase posterior. El agarre se incluyó ya en la **demostración v0.1 no ejecutada**; la integración real con KWin se abordará más adelante.
 - No generar imágenes conceptuales salvo que el usuario las pida; los renders rechazados no son requisitos.
 
+## 4.1. Decisión posterior sobre SO y errores visuales (14/11/2026)
+
+**PRIORIDAD VIGENTE POR ENCIMA DE LAS REFERENCIAS HISTÓRICAS DE ESTE ARCHIVO:** el mantenedor corrigió la maqueta y aprobó **clic derecho en SO → abrir DIRECTAMENTE el lanzador de aplicaciones**, sin menú contextual intermedio; **clic izquierdo breve SO → ventanas abiertas**; **izquierdo sostenido ~400 ms → mismo lanzador**. «Mostrar/Ocultar Malvina» debe ser la **primera acción de Opciones de Soledad, accesibles por clic derecho en los seis puntos**, y deja de ofrecerse al hacer derecho en SO. Otras rutas específicas de Malvina (menú propio y botón de recuperación del lanzador) se conservan.
+
+El menú de los **seis puntos** debe abrir **debajo de la posición horizontal actual de Soledad**, sin taparla; botón izquierdo breve lo cierra si está abierto y el arrastre izquierdo mueve la isla como antes. En modo inferior futuro el menú abre hacia arriba. El logo SO debe presentar **una sola forma elegida** (cuadrado/círculo/rombo/corazón/estrella): no combinar fondo redondo de botón con borde luminoso de figura diferente. El contorno de actividad, si se activa, sigue la misma forma; con cero ventanas no aparece.
+
+**IMPLEMENTADO SOLO EN QML EXPERIMENTAL, NO PROBADO TRAS LOS PARCHES EN CACHYOS:** `SmartBarContent.qml` y `IslandButton.qml` modificados en PR #3 ([87ff742](https://github.com/nicoarg87/plasma-smartbar/commit/87ff74286db19a0e2a87b80411e98468a9886416), [715160e](https://github.com/nicoarg87/plasma-smartbar/commit/715160e105c0865eab403540f38fa61199a2d465), [dc5453a](https://github.com/nicoarg87/plasma-smartbar/commit/dc5453ab9a9d347e70bd477f8e3d29ed1cf912a4)). Menú con `QQC2.Popup.Window` requiere validar posición/cierre en KWin/Wayland. Editor de zoom, encuadre y GIF existe pero necesita pruebas. Guía actualizada `prototype/v0.1/README.md`. **Documentación rector vigente:** Constitución v1.24, Manual Maestro v0.33. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
 ## 5. Reglas del trabajo diario
 
 - Separar siempre **HECHO Y PROBADO**, **IMPLEMENTADO PERO NO PROBADO**, **PLANIFICADO** y **PROPUESTA**.
