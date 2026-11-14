@@ -374,3 +374,27 @@ bash prototype/v0.1/probar_ancho.sh
 5. Verificá aparte que **seleccionar una ficha SO** contraiga el selector solo si la opción `autoCollapseSO` está activada, que **usar un icono simulado de bandeja** lo contraiga solo si `autoCollapseTray` está activada, y que siga funcionando la exclusión **por falta de espacio real** cuando ambas expansiones horizontales no entren.
 
 **Estado de este parche:** revisión de código, pendiente de validación efectiva en CachyOS. No hay aplicaciones, controles ni bandeja reales y no se toca el panel instalado.
+
+## Clic breve SO con lanzador abierto: cerrar solo menú, conservar fichas (14/11/2026)
+
+**YA PROBADO EN CACHYOS:** abrir lanzador flotante desde SO sostenido **sin contraer las fichas SO ni la bandeja** funciona según el mantenedor.
+
+**BUG NUEVO OBSERVADO:** con lanzador flotante visible, un clic breve posterior sobre SO cerraba el menú pero **también contraía las fichas de ventanas abiertas**. **COMPORTAMIENTO CONFIRMADO:** ese clic cierra **solo el lanzador**; las fichas SO y la bandeja conservan exactamente su estado anterior.
+
+**PARCHE IMPLEMENTADO, PENDIENTE DE RETEST:** en `SmartBarContent.qml`, `toggleSO()` ahora hace `if (installedAppsPopup.visible) { installedAppsPopup.close(); return; }` antes de alternar `soExpanded`. Si no hay popup visible, el clic breve conserva su función normal de abrir/cerrar las fichas.
+
+**Prueba desde Fish (sin tocar panel KDE):**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. En ventana ancha, clic breve SO → fichas de ventanas de ejemplo desplegadas. Opcional: expandir además la bandeja.
+2. Mantener SO ~400 ms → aparece el lanzador flotante bajo Soledad; las fichas SO y la bandeja se mantienen.
+3. **Clic breve SO con el lanzador abierto** → debe desaparecer **solo el lanzador**; fichas SO y bandeja siguen visibles y el separador continúa si ambas expansiones están abiertas.
+4. **Otro clic breve SO**, ahora sin lanzador → contrae solo las fichas SO, como control manual habitual.
+5. Repetir con Malvina: clic M abre y siguiente clic M cierra, sin contraer fichas SO/bandeja. Confirmar que falta de espacio o preferencias de autocontracción por selección conservan sus reglas previas.
+
+**Estado:** código revisado, **no probado todavía en CachyOS después del parche**; apps ficticias; PR #3 borrador.
