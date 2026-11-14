@@ -38,6 +38,14 @@
 - Cualquier usuario puede copiar, bifurcar y proponer, conforme a GPL-3.0, pero no tiene escritura por defecto sobre el repo oficial.
 - La regla `Proteccion de main` **no exige actualmente revisión previa por pull request**. No afirmar que GitHub obliga a recibir aprobación para cada commit; eso todavía no está configurado.
 
+## Primera prueba en CachyOS (14/11/2026) — resultado real
+
+- **Probado:** el mantenedor ejecutó `git clone --branch prototype/v0.1-islas-so` y `bash prototype/v0.1/probar.sh`. En CachyOS, `plasmoidviewer` sí arrancó, pero **el applet no cargó**. Paquetes reportados: `plasma-sdk 6.8.2-1.1` y `git 2.56.0-1.1`.
+- **Error bloqueante observado:** `main.qml:10:14: Cannot assign to non-existent property "preferredRepresentation"`. Se había usado `Plasmoid.preferredRepresentation` indebidamente.
+- **Corrección redactada y publicada en rama experimental:** quitar la asignación; commit [04055cf](https://github.com/nicoarg87/plasma-smartbar/commit/04055cf1b65ce3403506cd782f73a79ea7030ab6). Actualizado también el [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) (borrador).
+- **Pendiente de prueba:** el usuario debe ejecutar `cd ~/plasma-smartbar && git pull && bash prototype/v0.1/probar.sh` para ver si el applet carga tras el parche. No afirmar que se ve la barra ni que el arrastre funciona todavía.
+- **No tocado:** panel actual del escritorio y rama principal `main`.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
