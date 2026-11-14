@@ -1,0 +1,15 @@
+{
+  "KPlugin": {
+    "Id": "org.github.nicoarg87.plasmasmartbar.preview",
+    "Name": "Plasma SmartBar — Vista previa v0.1",
+    "Description": "Prueba visual aislada de las islas y del selector SO, sin ventanas reales.",
+    "Icon": "preferences-system-windows",
+    "Category": "Windows and Tasks",
+    "Version": "0.1.0",
+    "License": "GPL-3.0-only",
+    "Website": "https://github.com/nicoarg87/plasma-smartbar",
+    "BugReportUrl": "https://github.com/nicoarg87/plasma-smartbar/issues"
+  },
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "KPackageStructure": "Plasma/Applet"
+}

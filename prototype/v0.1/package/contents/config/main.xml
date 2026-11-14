@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <entry name="autoReturnRight" type="Bool">
+      <label>Volver automaticamente a la derecha al desmaximizar</label>
+      <default>true</default>
+    </entry>
+    <entry name="showLauncherIsland" type="Bool">
+      <label>Mostrar Malvina (isla 2)</label>
+      <default>true</default>
+    </entry>
+    <entry name="autoCollapseSO" type="Bool">
+      <label>Contraer SO después de seleccionar una ventana</label>
+      <default>true</default>
+    </entry>
+    <entry name="autoCollapseTray" type="Bool">
+      <label>Contraer bandeja después de usar un icono</label>
+      <default>false</default>
+    </entry>
+    <!-- Sólo parámetros de visualización; el archivo del usuario no se edita. -->
+    <entry name="soLogoMode" type="String"><default>default</default></entry>
+    <entry name="soLogoPath" type="String"><default></default></entry>
+    <entry name="soLogoShape" type="String"><default>square</default></entry>
+    <entry name="soLogoFitMode" type="String"><default>fit</default></entry>
+    <entry name="soLogoZoom" type="Double"><default>1.0</default></entry>
+    <entry name="soLogoPanX" type="Double"><default>0.0</default></entry>
+    <entry name="soLogoPanY" type="Double"><default>0.0</default></entry>
+    <entry name="soLogoAnimate" type="Bool"><default>true</default></entry>
+    <entry name="soledadColor" type="String"><default>#101e31</default></entry>
+    <entry name="malvinaColor" type="String"><default>#101e31</default></entry>
+    <entry name="backgroundColor" type="String"><default>#202333</default></entry>
+    <entry name="soledadOpacity" type="Double"><default>1.0</default></entry>
+    <entry name="malvinaOpacity" type="Double"><default>1.0</default></entry>
+    <entry name="backgroundOpacity" type="Double"><default>0.5</default></entry>
+    <entry name="showBackground" type="Bool"><default>false</default></entry>
+    <!-- Indicador de ventanas abiertas: el efecto dinámico es optativo. -->
+    <entry name="soActivityStyle" type="String"><default>steady</default></entry>
+    <entry name="soActivityColor" type="String"><default>#35d7ff</default></entry>
+    <entry name="soActivityStroke" type="Double"><default>1.0</default></entry>
+    <entry name="soActivityMotion" type="Bool"><default>true</default></entry>
+  </group>
+</kcfg>
