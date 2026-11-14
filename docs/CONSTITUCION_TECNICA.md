@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.4 (retorno automático de isla 1 confirmado el 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.5 (agarre de seis puntos confirmado el 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -28,7 +28,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Separación visual por defecto:** solo las islas, sin fondo continuo entre ellas. El usuario puede activar un tema con **fondo continuo/entrelazado** sin modificar geometría ni conducta.
 - La minimización con animación tipo **gaveta/ranura temporal de SO** se contempla **únicamente como efecto optativo futuro**, no como requisito del MVP. Su duración objetivo inicial rondaría medio segundo, sujeto a pruebas. La ventana se minimiza igualmente sin efectos.
 - **La superposición sobre las pestañas de navegadores maximizados sigue pendiente de validación técnica** y no se considera resuelta por ninguna imagen conceptual.
-- **El agarre horizontal es un requisito de diseño confirmado, no una función probada.** Debe ser discreto (tres o cuatro puntos de aspecto arrastrable), pero tener un área de interacción utilizable. Sus límites de movimiento, posición guardada y coordinación con la maximización se validarán en KWin/Wayland; no será obligatorio en la primera prueba v0.1.
+- **El agarre horizontal es un requisito de diseño confirmado, no una función probada.** Debe tener **exactamente seis puntos en dos columnas de tres**, con apariencia discreta y arrastrable, pero tener un área de interacción utilizable. Sus límites de movimiento, posición guardada y coordinación con la maximización se validarán en KWin/Wayland; no será obligatorio en la primera prueba v0.1.
 
 ## 2.2. Orientación y preparación para extensibilidad — decisión confirmada (14/11/2026)
 
