@@ -163,7 +163,14 @@ Item {
     }
 
     function openInstalledLauncher(source) {
-        installedLauncherSource = source === "malvina" ? "malvina" : "so"
+        const requestedSource = source === "malvina" ? "malvina" : "so"
+        // Un segundo clic sobre Malvina debe cerrar el popup existente.
+        // Sólo cambiar la isla de origen cuando realmente cambia de botón.
+        if (installedAppsPopup.visible && installedLauncherSource === requestedSource) {
+            installedAppsPopup.close()
+            return
+        }
+        installedLauncherSource = requestedSource
         if (installedLauncherSource === "so") {
             // Regla vigente: el lanzador de Soledad reemplaza las fichas
             // abiertas de SO y bandeja, no crea otra fila.
@@ -241,7 +248,12 @@ Item {
         padding: 10
         modal: false
         focus: true
-        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+        // CloseOnPressOutside cerraba al PRESIONAR Malvina antes de que
+        // onClicked comprobara el estado. Luego onClicked lo reabría:
+        // parecía imposible cerrar el lanzador pulsando M de nuevo.
+        // El botón está DENTRO del padre root; preservar ese evento y
+        // cerrar por botón, Escape o clic fuera de la zona de la barra.
+        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
         background: Rectangle {
             radius: 12
             color: "#102538"
@@ -321,7 +333,7 @@ Item {
                 accent: true
                 onClicked: root.openInstalledLauncher("malvina")
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: "Malvina: clic abre lanzador debajo de esta isla; derecho: ocultar."
+                QQC2.ToolTip.text: "Malvina: clic abre/cierra lanzador; derecho: ocultar."
 
                 MouseArea {
                     anchors.fill: parent
