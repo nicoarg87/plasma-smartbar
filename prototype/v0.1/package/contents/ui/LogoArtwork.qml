@@ -10,7 +10,7 @@ Item {
     property bool animateGif: false
     property bool animationAllowed: true
     property string cropShape: "square" // square, circle, diamond, heart, star
-    property string fitMode: "crop" // crop=rellenar, fit=mostrar imagen completa
+    property string fitMode: "fit" // fit=mostrar imagen completa, crop=rellenar
     property real zoom: 1.0
     property real panX: 0.0 // -1 a 1
     property real panY: 0.0
