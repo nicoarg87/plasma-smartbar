@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.17 — Conservar la posición de isla 1 al desmaximizar sin retorno  
+**Versión:** 0.18 — Ancho adaptable de las islas al contenedor  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -631,3 +631,12 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Regla vigente:** si **«Volver a la derecha al desmaximizar» está desactivado**, conservar **la posición visual horizontal de isla 1** cuando se retiran los controles. No basta con conservar el número interno del desplazamiento: debe compensarse la variación del espacio reservado. Se permiten solo correcciones imprescindibles para no quedar fuera de pantalla. Si el retorno **está activado**, al desmaximizar la isla vuelve a su posición habitual como antes. Los controles de ventana siguen anclados al extremo derecho y nunca se mueven junto con la isla.
 
 **Parche, NO probado:** actualización de `setPreviewMaximized` en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) guarda el margen visual anterior y recalcula el desplazamiento al desmaximizar sin retorno. Falta verificar en CachyOS con la secuencia que figura en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1). No existe todavía integración con ventanas reales de KWin.
+
+
+## 30. Ancho adaptable y anclajes al redimensionar — criterio confirmado (v0.18, 14/11/2026)
+
+**Observación del mantenedor en CachyOS:** al usar `plasmoidviewer`, la representación de SmartBar no parecía llegar al extremo derecho de su ventana; después de agrandar o maximizar el visor, la barra seguía con un ancho aparentemente fijo. Aunque `plasmoidviewer` es un ambiente de ensayo con márgenes y controles propios, el **comportamiento final no puede depender de medidas fijas del visor**.
+
+**Regla funcional:** las **posiciones** de las islas se calculan sobre **todo el ancho útil actual del contenedor**. Isla 2 se ancla a la izquierda; isla 1 y, cuando corresponda, el bloque independiente `− □ ×` se anclan a la derecha, teniendo en cuenta el movimiento deliberado de isla 1 y las posiciones guardadas por aplicación cuando esa función exista. Al crecer o reducirse el ancho, las referencias se reajustan sin reiniciar el plasmoide. **No significa dibujar un fondo o una barra continua entre islas:** por defecto su apariencia sigue siendo separada, sin franja conectiva. El **grosor se mantiene constante** y SO/bandeja expanden solamente en una fila hacia la izquierda.
+
+**Implementación y validación:** se agregó `Layout.fillWidth: true` al `PlasmoidItem` experimental, conservando `Layout.preferredWidth: 960` únicamente como sugerencia inicial, además del registro `SmartBar v0.1: ancho del contenido = …` en Konsole. **No se ha comprobado el resultado tras este parche en el CachyOS del mantenedor.** Es necesario agrandar/maximizar/restaurar `plasmoidviewer` y verificar si cambia el ancho reportado y si SO sigue el borde derecho. Si el contenido sigue con ancho fijo, investigar la geometría que proporciona el contenedor del visor antes de modificar paneles reales de KDE. Documentar posibles límites en ventanas demasiado estrechas o configuraciones multimonitor.
