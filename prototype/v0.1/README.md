@@ -471,3 +471,28 @@ bash prototype/v0.1/probar_ancho.sh
 5. Abrir menú por derecho, ocultar Malvina, recuperar Malvina desde la primera opción. El menú de SO/bandeja, su separador y el lanzador flotante deben seguir intactos.
 
 **Estado:** código publicado únicamente en la rama experimental de PR #3; todavía falta ejecutar esta prueba en CachyOS. No hay apps/ventanas reales ni se toca el panel existente.
+
+## Personalización de SO y del aspecto — logo/GIF, recortes, colores y contorno de actividad (14/11/2026)
+
+**SOLICITADO Y CONFIRMADO:** la huella violeta/azul enviada por el mantenedor se agregó como imagen PNG predeterminada del botón SO. El botón admite foto o logo personalizado y GIF opcional, siempre dentro de Soledad y sin cambiar altura, controles ni clic breve/sostenido. Un editor visual permite **arrastrar la imagen, elegir encuadre, zoom/escala, pausar o reproducir GIF** y máscaras de **cuadrado, círculo, rombo ♦, corazón ♥ y estrella ★**. No se recorta ni guarda destructivamente el archivo original: solo parámetros de imagen.
+
+**APARIENCIA:** Soledad y Malvina tienen color/tonalidad y opacidad editables por separado. El fondo continuo opcional detrás de la barra se puede activar y colorear, con opacidad independiente. **Por defecto queda desactivado** para conservar la barra formada por islas independientes. La isla 3 de búsqueda que figuraba antes NO se ha eliminado, reemplazado ni renombrado; falta confirmar si el usuario quiere denominar al fondo «isla 3».
+
+**INDICADOR CONDICIONAL DE SO (nueva decisión):** si no hay ventanas para mostrar, botón SO **normal, sin brillo ni temporizador de contorno**. Cuando hay ventanas, su contorno respeta la forma del logo y puede estar **apagado**, **luminoso fijo** o **con un tramo luminoso que recorre suavemente el borde**. Color seleccionable, grosor **0,5–2 píxeles**, movimiento desactivable. El modo predeterminado de esta maqueta es **brillo fijo sin movimiento**. En la implementación real la condición debe depender del modelo de tareas de KDE/KWin, incluyendo minimizadas, **NO del estado del botón desplegado**. La maqueta permite simular tres ventanas o ninguna.
+
+**Cómo probar en CachyOS (Fish):**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. **Clic derecho en seis puntos** → «Personalizar logo de SO (imagen o GIF)…». Se abre el editor independiente. Elegí un PNG/JPG/WebP/SVG/GIF, hacé zoom, desplazá el encuadre y probá cuadrado, círculo, rombo, corazón y estrella. «Aplicar» debe actualizar el logo en SO. «Texto SO» devuelve el botón tradicional. GIF: tildar/destildar «Reproducir GIF animados». El archivo original no se altera.
+2. En el menú de los seis puntos → «Colores y transparencia de islas y fondo…»: elegí color y opacidad de Soledad y Malvina, luego «Fondo opcional». Activá/desactivá la capa de fondo para comprobar que la altura, la fila, el agarre y la bandeja no se alteran. Por defecto el fondo está **apagado**.
+3. En las mismas opciones → «Contorno de actividad de SO…». Se abre un editor con vista previa de brillo y forma actuales. Elegí modo desactivado/fijo/móvil, color y grosor 0,5–2 px. **Desmarcá «Simular ventanas abiertas en esta vista previa»**: contorno debe desaparecer aun si modo móvil está habilitado. Aplicá.
+4. Menú de los seis puntos → «Simular SO SIN ventanas (0)». SO debe quedar normal, sin contorno ni animación y sin fichas ficticias al abrirlo. Luego → «Simular SO CON ventanas (3)». El borde debe volver si el efecto está activado. Cambiar a modo móvil y comprobar recorrido suave, sin sacudir el logo ni la isla.
+5. Repetí con GIF personalizado, SO expandido/bandeja simultánea, Malvina oculta/visible y Soledad movida al centro. Confirmá que el botón sigue disponible, con el texto «SO» si el logo falla.
+6. Si aparece error Qt, guardá el texto exacto de la consola. **No instalar el plasmoide sobre el panel de uso diario**. El editor se cierra con «Cancelar» o «Aplicar» sin modificar archivos de imagen fuente.
+
+**ESTADO:** código implementado en PR #3, pero **NO PROBADO todavía por el mantenedor en CachyOS** tras este conjunto de cambios. `main.xml` y `main.qml` declaran preferencias para la integración Plasma, **persistencia real pendiente de prueba**. El recuento es ficticio: **NO** se detectaron aún ventanas de KDE. Priorizar rendimiento y accesibilidad; las únicas animaciones autorizadas en esta maqueta son GIF elegido y movimiento opcional del borde con ventanas. [Issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
