@@ -61,6 +61,8 @@ Window {
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
     property bool alignedRight: true
+    // No reinterpretar un arrastre posterior como una orden de alineación.
+    property bool alignmentEdited: false
 
     signal saveLogoRequested(string mode, string path, string shape,
                              string fitMode, real zoom, real panX,
@@ -73,7 +75,7 @@ Window {
                                  real stroke, bool motion)
     signal saveBehaviorRequested(bool collapseSO, bool collapseTray,
                                  bool returnRight, bool showMalvina,
-                                 bool alignRight)
+                                 bool alignRight, bool alignmentEdited)
     signal alignNowRequested()
 
     function toHex(c) {
@@ -99,7 +101,8 @@ Window {
                               strokeSize, allowMotion)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
-                              alignedRight)
+                              alignedRight, alignmentEdited)
+        alignmentEdited = false
         appliedLabel.text = "Cambios aplicados. Podés seguir configurando."
         // NO llamar settings.close(): Aplicar no debe cerrar la ventana.
     }
@@ -152,7 +155,6 @@ Window {
             QQC2.TabButton { text: "Contorno" }
             QQC2.TabButton { text: "Autocontracción" }
             QQC2.TabButton { text: "Islas y posición" }
-            onCurrentIndexChanged: appliedLabel.text = ""
         }
 
         StackLayout {
@@ -588,6 +590,7 @@ Window {
                         text: "Alinear isla 1 a la derecha"
                         checked: settings.alignedRight
                         onToggled: settings.alignedRight = checked
+                        onClicked: settings.alignmentEdited = true
                     }
                     QQC2.CheckBox {
                         text: "Volver a la derecha al desmaximizar"
@@ -605,6 +608,7 @@ Window {
                         onClicked: {
                             settings.alignNowRequested()
                             settings.alignedRight = true
+                            settings.alignmentEdited = false
                         }
                     }
                     QQC2.Label {
