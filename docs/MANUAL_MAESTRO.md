@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.9 — Diseño por islas y efecto de minimización opcional  
+**Versión:** 0.10 — Control de arrastre de isla 1 con posición estable  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -84,16 +84,29 @@ Los ejemplos gráficos sirven para comunicar la distribución, pero **no certifi
 
 **CONFIRMADO:** una ventana verdaderamente maximizada ocupa la pantalla disponible hasta sus bordes. **No debe aparecer una franja de título suplementaria creada por Plasma SmartBar encima de las pestañas del navegador.** Las islas se superponen en la misma franja superior de la ventana, no fuerzan una fila nueva ni empujan las pestañas hacia abajo.
 
-Al maximizar, **la isla 1 se desplaza automáticamente hacia la izquierda lo necesario para dejar sitio, en el extremo derecho, a los controles minimizar, restaurar/maximizar y cerrar de la ventana**. Es una adaptación contextual de posición horizontal de la isla, no un cambio de altura de la barra ni un botón manual para arrastrarla.
+Al maximizar, **la isla 1 se desplaza automáticamente hacia la izquierda lo necesario para dejar sitio, en el extremo derecho, a los controles minimizar, restaurar/maximizar y cerrar de la ventana**. Es una adaptación contextual de posición horizontal y **distinta del control de arrastre manual aprobado después**, que permite al usuario desplazar la zona derecha intencionalmente. Ninguno de esos mecanismos cambia la altura.
 
 **Isla 3:** sigue existiendo como opción de configuración, pero **no se muestra por defecto ni en conceptos visuales de navegadores** salvo pedido expreso de ilustrar su activación.
 
 **Límite técnico:** este resultado es una especificación visual y funcional deseada, no una integración demostrada en Brave/Firefox/Chrome bajo KWin/Wayland.
 
+### Control compacto de arrastre horizontal — CONFIRMADO (14/11/2026)
+
+**Necesidad funcional:** cuando una ventana maximizada (por ejemplo Steam) presenta botones o herramientas propias en la zona superior, el usuario debe poder **reubicar horizontalmente la isla 1 (zona derecha de la SmartBar)** mediante un agarre manual, sin cambiar la altura ni desplazar o redimensionar la ventana subyacente.
+
+**Posición inequívoca:** el agarre está **inmediatamente a la derecha del botón SO**, no a su izquierda ni en el extremo de la bandeja. En el estado compacto se representa funcionalmente así: `[ ◀ ] [ SO ] [ ⠿ ]` (el pictograma `⠿` es solo marcador de agarre punteado). Con una ventana maximizada, los controles de esa ventana continúan a la derecha del agarre: `[ ◀ ] [ SO ] [ ⠿ ] [ − ] [ □ ] [ × ]`. El usuario pidió **un signo discreto de tres o cuatro puntos**, o pequeño punteado que comunique que se puede **arrastrar**, nunca el control grande representado en una ilustración anterior. La cantidad exacta de puntos y su dibujo final quedan para la implementación, manteniendo un área accesible para agarrarlo.
+
+**Estabilidad al desplegar:** abrir/cerrar la **bandeja del sistema** o expandir/contraer **SO** revela contenidos **hacia la izquierda**, sin que el botón SO ni el agarre **salten de posición, cambien de lado, se oculten o se vuelvan difíciles de localizar**. Este agarre queda como referencia fija en el grupo derecho mientras el usuario no lo arrastra y no cambia el estado general de la ventana. No es un elemento del contenido expandible. Su posición relativa al botón SO no cambia.
+
+**Movimiento deliberado:** arrastrar el punteado reubica la isla 1 horizontalmente a voluntad del usuario. Esto es diferente del **reposicionamiento automático de la isla al maximizar/restaurar**, requerido para dejar sitio a controles de ventana. Debe conservar acceso a los controles de ventana, flecha de bandeja y botón SO, sin salir de la pantalla ni modificar áreas de trabajo del navegador. La política exacta de límites, persistencia de posición y coordinación entre desplazamiento manual y maximización **queda PENDIENTE DE DISEÑO TÉCNICO Y PRUEBAS EN KWin/Wayland**.
+
+**Etapa:** comportamiento funcional y diseño aprobados, **todavía NO IMPLEMENTADOS NI PROBADOS**. Incluirlo en la fase de mejoras de ergonomía/configuración, sin exigirlo para la prueba mínima v0.1. No activar animaciones de desplazamiento como requisito.
+
 ### Grupo derecho de controles
 
 - **Flecha de bandeja** horizontal.
 - **Botón SO** (aplicaciones actualmente abiertas).
+- **Agarre compacto punteado** inmediatamente a la derecha de SO, estable al abrir bandeja o SO; permite desplazar horizontalmente la isla 1 cuando se implemente.
 - **Minimizar, restaurar/maximizar y cerrar** de la ventana activa **cuando esté maximizada**.
 - Las apps abiertas no se listan persistentemente; sus fichas **solo existen cuando se abre SO**.
 - La bandeja contraída no muestra accesorios; en una fase futura, multimedia estará dentro de ella.
@@ -419,6 +432,7 @@ No repetir preguntas ya contestadas: exclusividad SO/bandeja, prioridad sobre pe
 1. Mejorar las previsualizaciones de ventanas al posar cursor sobre fichas y el selector visual de ventanas agrupadas (usar mecanismos KDE); mantener la selección funcional mínima desde la fase 1.
 2. Escritorios virtuales: integración opcional dentro SO y/o icono discreto, con miniaturas.
 3. Configuración general básica, clic derecho y variación global de altura de barra sin autoajustes.
+4. Control de **arrastre horizontal compacto, de tres o cuatro puntos**, a la derecha de SO, con posición estable durante expansión de bandeja y SO; límites y coordinación con ventanas maximizadas por validar.
 4. Centro secundario bajo barra, con calendario/notas básicos, si el núcleo ya es estable.
 
 ### Fase 3 — Complementos y personalización
@@ -513,3 +527,8 @@ La especificación funcional vigente es la de este Manual Maestro, bajo la direc
 **PENDIENTE TÉCNICO:** validar superposición frente a pestañas y coordinación del efecto con KWin; **no son funciones implementadas ni probadas**.
 
 **AUTORIDAD:** los bocetos conceptuales pueden mostrar componentes extra o posiciones de controles inexactas; solo lo escrito como CONFIRMADO en las secciones normativas constituye especificación. No se altera la constitución de control de decisiones del repositorio oficial.
+
+
+## 22. Decisión confirmada — control de arrastre de la isla 1 (v0.10)
+
+**Aprobación funcional expresa (14/11/2026):** el control para reubicar horizontalmente la barra en su sector derecho pasa de **propuesta** a **requisito aprobado**. Se instala **justo a la derecha de SO** y tiene apariencia mínima **punteada (tres o cuatro puntos; diseño exacto abierto)**. No se coloca a la izquierda de SO ni se desplaza con la bandeja. Las expansiones se producen hacia la izquierda manteniendo SO y agarre anclados. Al maximizar, la isla puede correrse automáticamente para permitir los controles de la ventana y el agarre queda entre SO y esos controles. El usuario podrá desplazar horizontalmente esa isla mediante el agarre, con límites y reglas de persistencia pendientes de validar en KWin/Wayland. **No hay código ni pruebas todavía.**
