@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.6 (controles de ventana anclados independientes de isla 1; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.7 (perfiles de posición de isla 1 por aplicación aprobados el 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -23,7 +23,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 ## 2.1. Distribución predeterminada en islas — confirmada
 
 - **Isla 1, derecha:** identidad del sistema (botón SO con logo configurable), flecha de bandeja y **agarre de seis puntos inmediatamente a la derecha de SO**. **Los controles de ventana forman un bloque separado, fijo en el extremo derecho**, no pertenecen al contenido arrastrable de isla 1. Al maximizar, la isla se coloca a la izquierda de esos controles; el agarre solo reubica la isla. **SO y agarre mantienen posición mientras bandeja/SO expanden su contenido hacia la izquierda**. El agarre no forma parte del menú expandible. No desplazar pestañas ni cambiar la altura.
-- **Isla 2, izquierda:** lanzador que busca programas instalados.
+- **Isla 2, izquierda:** lanzador que busca programas instalados; es un componente **secundario respecto de la isla 1**. Su presencia por defecto se mantiene; el usuario puede ocultarlo por configuración sin desactivar las funciones de SO.
 - **Isla 3, junto al lanzador:** campo de búsqueda visible **opcional y oculto por defecto**.
 - **Separación visual por defecto:** solo las islas, sin fondo continuo entre ellas. El usuario puede activar un tema con **fondo continuo/entrelazado** sin modificar geometría ni conducta.
 - La minimización con animación tipo **gaveta/ranura temporal de SO** se contempla **únicamente como efecto optativo futuro**, no como requisito del MVP. Su duración objetivo inicial rondaría medio segundo, sujeto a pruebas. La ventana se minimiza igualmente sin efectos.
@@ -60,6 +60,18 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Maximización:** al entrar en estado maximizado se reserva el espacio de controles en el borde; al salir desaparecen los controles SmartBar simulados y se aplica el retorno automático de isla 1 según la preferencia aprobada. Abrir SO o bandeja no modifica los controles.
 - **Prevención:** no desplazar ni redimensionar la ventana real, sus controles originales ni sus pestañas. **La viabilidad en ventanas reales de KWin/Wayland aún no está demostrada**; un boceto o simulador no la certifica.
 - **Origen:** el mantenedor detectó durante la prueba v0.1 en CachyOS que la maqueta arrastraba incorrectamente los tres controles junto con isla 1 y exigió mantenerlos en el extremo derecho. Esta corrección sustituye cualquier referencia anterior a controles que se desplazan junto al agarre.
+
+## 2.5. Posición recordada de isla 1 por aplicación — decisión confirmada (14/11/2026)
+
+- **Prioridad funcional:** **isla 1**, con SO, bandeja y agarre de seis puntos, es el elemento principal de Plasma SmartBar. **Isla 2** es el lanzador de programas instalados, secundario y ocultable por preferencia, **visible por defecto** hasta decisión diferente.
+- **Guardar por elección del usuario:** con una aplicación maximizada y activa (Steam, Dolphin, Brave u otra), el usuario **arrastra horizontalmente la isla 1** hasta el punto deseado y realiza **clic derecho sobre la isla 1** para acceder a «**Recordar esta posición para [aplicación]**». La posición queda guardada localmente para esa aplicación. Debe poder **modificarse o borrarse** luego mediante ajustes/contexto, sin obligar a editar archivos.
+- **Recuperación automática:** cuando vuelve a estar **activa y maximizada** la misma aplicación, Plasma SmartBar identifica su pertenencia y **recoloca isla 1 en el lugar guardado**, sin exigir un nuevo arrastre ni clic. Si se activa otra aplicación maximizada con su propia posición guardada, se usa la de esa otra aplicación. Con ninguna regla almacenada, se usa la ubicación general predeterminada.
+- **No basta con que una app siga abierta en segundo plano**: la aplicación **activa/maximizada** determina el perfil aplicable. Así pueden coexistir Steam y Dolphin sin órdenes contradictorias de posicionamiento.
+- **Precedencia con retorno global ya aprobado:** mientras una aplicación esté activa/maximizada, **su perfil guardado prevalece** sobre la ubicación general; al desmaximizar, continúa rigiendo «Volver automáticamente a la derecha» (activada por defecto), salvo que el usuario la desactive. Un desplazamiento manual **no modifica el perfil almacenado hasta que se elija guardar**.
+- **Controles independientes:** los botones propios de SmartBar `− □ ×` permanecen **fijos en el extremo derecho**, sin seguir a isla 1. Los perfiles no trasladan los controles originales de la aplicación, ni alteran pestañas, tamaño de ventana, grosor de SmartBar o fullscreen real.
+- **Persistencia y seguridad:** guardar la relación con un identificador estable de aplicación (no solo el título variable de la ventana), aplicar límites válidos en cada pantalla/escala y garantizar una forma de restaurar posiciones predeterminadas. Determinar compatibilidad con KWin/Wayland, Steam/XWayland, múltiples ventanas y varios monitores mediante pruebas.
+- **Estado de desarrollo:** **CONFIRMADO COMO REQUISITO FUNCIONAL, NO IMPLEMENTADO NI PROBADO**. Su construcción depende de poder identificar ventanas reales y su aplicación, todavía pendiente de la prueba v0.1. Se registra en [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4).
+- **Altura:** **no se autoriza** cambiar automáticamente el grosor según Steam u otra aplicación; permanece la altura común y constante aprobada. Medir o alinear visualmente títulos de aplicaciones será investigación separada, sin cambios de diseño hasta nueva aprobación.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
