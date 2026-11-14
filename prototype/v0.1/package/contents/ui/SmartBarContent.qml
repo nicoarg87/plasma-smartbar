@@ -248,12 +248,13 @@ Item {
     }
 
     function toggleGripMenu() {
-        // Abrir opciones solo por clic DERECHO o tecla de menú.
-        // El clic izquierdo queda libre para arrastrar Soledad.
+        // El menú se posiciona debajo de Soledad, NO en el cursor ni
+        // encima del agarre. "open()" respeta x/y definidos en gripMenu.
+        // Clic derecho o teclado lo alternan; izquierdo permite arrastrar.
         if (gripMenu.visible) {
             gripMenu.close()
         } else {
-            gripMenu.popup()
+            gripMenu.open()
         }
     }
 
@@ -593,35 +594,28 @@ Item {
                         }
                     }
 
-                    // Clic derecho / tecla Menú: acceso alternativo al
-                    // lanzador y opción para restaurar la isla 2 oculta.
+                    // Derecho sobre SO abre DIRECTAMENTE el lanzador
+                    // (en v0.1, aplicaciones de muestra). Las opciones,
+                    // incluida Mostrar/Ocultar Malvina, pertenecen SOLO
+                    // al menú de los seis puntos. Teclado conserva acceso.
                     Keys.onPressed: function(event) {
-                        if (event.key === Qt.Key_Menu) {
-                            soContextMenu.popup()
+                        if (event.key === Qt.Key_Menu ||
+                            (event.key === Qt.Key_F10 &&
+                             (event.modifiers & Qt.ShiftModifier))) {
+                            root.openInstalledLauncher("so")
                             event.accepted = true
                         }
                     }
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton
-                        onClicked: soContextMenu.popup()
-                    }
-                    QQC2.Menu {
-                        id: soContextMenu
-                        QQC2.MenuItem {
-                            text: "Abrir lanzador de aplicaciones (muestra)"
-                            onTriggered: root.openInstalledLauncher("so")
-                        }
-                        QQC2.MenuItem {
-                            text: root.launcherIslandVisible ? "Ocultar Malvina (isla 2)" : "Mostrar Malvina (isla 2)"
-                            onTriggered: root.setLauncherIslandVisible(!root.launcherIslandVisible)
-                        }
+                        onClicked: root.openInstalledLauncher("so")
                     }
 
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: root.launcherIslandVisible
-                        ? "Soledad · " + root.soWindowCount + " aplicaciones de muestra · clic: ventanas · mantener 0,4 s: lanzador"
-                        : "Malvina oculta · seis puntos: Mostrar Malvina · mantener SO: apps"
+                        ? "SO: izquierdo ventanas · derecho o mantener 0,4 s lanzador"
+                        : "SO: derecho o mantener pulsado abre apps · seis puntos: Mostrar Malvina"
                 }
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
@@ -725,6 +719,15 @@ Item {
                     QQC2.Menu {
                         id: gripMenu
                         title: "Opciones de Soledad"
+                        // Posición relativa a la raíz, NO al botón pequeño.
+                        // Seguir el borde derecho de la isla en su posición
+                        // ACTUAL (también al arrastrar o cambiar el ancho).
+                        // La parte superior queda por debajo de los 48 px
+                        // fijos: nunca cubrir Soledad ni crear otra fila.
+                        parent: root
+                        x: Math.max(0, Math.min(Math.max(0, root.width - width),
+                            systemIsland.x + systemIsland.width - width))
+                        y: root.fixedHeight + 5
                         // Sin cierre previo al presionar el mismo botón:
                         // el segundo clic derecho debe cerrar, no reabrir.
                         closePolicy: QQC2.Popup.CloseOnEscape
