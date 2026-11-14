@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.29](MANUAL_MAESTRO.md), [Constitución Técnica v1.20](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.30](MANUAL_MAESTRO.md), [Constitución Técnica v1.21](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -239,6 +239,13 @@
 - **RECUPERACIÓN DE MALVINA:** conserva primera opción visible «Mostrar Malvina (isla 2)» cuando oculta y «Ocultar Malvina» cuando visible, ahora accesible por clic derecho en el agarre; siguen alternativas del menú contextual de SO y lanzador SO sostenido. El texto de ayuda demora 850 ms y no aparece durante el arrastre.
 - **IMPLEMENTADO SOLO EN PR EXPERIMENTAL, PENDIENTE DE PRUEBA EN CACHYOS:** [12020b5](https://github.com/nicoarg87/plasma-smartbar/commit/12020b5b6cf9421054101b045d5c0bddfbba8dc2) quitó `moveGrip.onClicked`, agregó `MouseArea` con `Qt.RightButton`, `toggleGripMenu()`, teclado y política de cierre `CloseOnPressOutsideParent`; [9bd07e0](https://github.com/nicoarg87/plasma-smartbar/commit/9bd07e0d4e00b6ae8a5a3fb2ba5240e17ae20f0e) restringió explícitamente `DragHandler` a `Qt.LeftButton`. Código revisado estáticamente, sin prueba posterior del mantenedor.
 - **SIGUIENTE PRUEBA SEGURA EN CACHYOS:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`. Clic izquierdo sobre los puntos no abre menú; arrastre izquierdo desplaza isla; clic derecho abre opciones, segundo clic derecho cierra sin reabrir, Esc/clic afuera también cierra; ocultar/mostrar Malvina desde primera opción de menú. **Sin tocar panel instalado, PR #3 sigue borrador**, [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## Apertura con derecho validada; cierre con izquierdo breve añadido (14/11/2026)
+
+- **PROBADO EN CACHYOS:** el mantenedor confirmó que **clic derecho en los seis puntos abre correctamente las opciones** de Soledad. Esa apertura está validada en la ventana Qt independiente, no en el panel real.
+- **NUEVA DECISIÓN CONFIRMADA:** si el menú de opciones está abierto, un **clic izquierdo breve en el agarre lo cierra**. Con menú cerrado, el izquierdo no lo abre y sigue disponible para arrastrar Soledad. El clic derecho conserva apertura/cierre con clics sucesivos.
+- **IMPLEMENTADO EN CÓDIGO, NO PROBADO TODAVÍA EN CACHYOS:** [c083973](https://github.com/nicoarg87/plasma-smartbar/commit/c0839734bd79033d3059e90d1ad7f7a9cb81580c) agrega `draggedDuringPress` a `moveGrip`, lo limpia al presionar y lo marca al activarse `gripDrag`; `onClicked` cierra `gripMenu` únicamente si visible y sin arrastre previo. No modifica apertura por clic derecho/teclado, lista de opciones o recuperación de Malvina.
+- **PRÓXIMA PRUEBA EN CACHYOS:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`. Derecho abre, izquierdo corto cierra; izquierdo corto con menú cerrado no abre; arrastrar con izquierdo no dispara cierre accidental; derecho sigue alternando. Comprobar «Mostrar/Ocultar Malvina». [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador. Panel del usuario intacto.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
