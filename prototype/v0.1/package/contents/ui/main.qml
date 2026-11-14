@@ -148,13 +148,39 @@ PlasmoidItem {
                         : "SO · ventanas de ejemplo"
                 }
 
-                // ¡Agarre ACTIVO! Pequeño y siempre INMEDIATAMENTE a la
+                // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
                 // derecha de SO, antes de los controles de la ventana.
-                IslandButton {
+                QQC2.Button {
                     id: moveGrip
-                    text: "⋮"
+                    // Seis puntos reales, en dos columnas y tres filas;
+                    // no dependemos de un glifo de tipografía.
                     implicitWidth: 30
-                    accent: false
+                    implicitHeight: 34
+                    hoverEnabled: true
+                    focusPolicy: Qt.StrongFocus
+                    background: Rectangle {
+                        radius: 17
+                        color: moveGrip.hovered ? "#24425a" : "#14283d"
+                        border.width: 1
+                        border.color: "#45647a"
+                    }
+                    contentItem: Item {
+                        Grid {
+                            anchors.centerIn: parent
+                            columns: 2
+                            rowSpacing: 3
+                            columnSpacing: 3
+                            Repeater {
+                                model: 6
+                                delegate: Rectangle {
+                                    width: 4
+                                    height: 4
+                                    radius: 2
+                                    color: "#eaf7ff"
+                                }
+                            }
+                        }
+                    }
                     onClicked: gripMenu.popup()
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: "Arrastrar isla 1 horizontalmente. Clic: opciones de prueba."
