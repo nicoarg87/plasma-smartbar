@@ -8,9 +8,9 @@
 - Pulsar **SO**: aparecen fichas ficticias de Dolphin, Konsole y Brave **hacia la izquierda**, todas en una sola fila.
 - Pulsar una ficha: SO se contrae automáticamente (solo cambia el estado de la demo, **no activa ventanas reales**).
 - Pulsar **◀**: se expande una bandeja de **muestra** con Wi-Fi, Audio y Bluetooth; abrir bandeja cierra SO, y viceversa.
-- El botón **SO** y el agarre punteado **⋮** conservan su posición horizontal mientras crecen las fichas hacia la izquierda.
-- El **agarre `⋮` funciona en la demostración**: se puede arrastrar la isla 1 horizontalmente, con límites de desplazamiento. Está inmediatamente a la derecha de SO y no se mueve por desplegar bandeja/SO.
-- **Clic en el agarre** abre el menú de prueba. Activá «Simular ventana maximizada» para mostrar botones ficticios `− □ ×` a su derecha y probar el arrastre mientras el estado ficticio está maximizado.
+- El botón **SO** y el agarre de **seis puntos (2 × 3)** conservan su posición horizontal mientras crecen las fichas hacia la izquierda.
+- El **agarre de seis puntos funciona en la demostración**: se puede arrastrar la isla 1 horizontalmente, con límites de desplazamiento. Está inmediatamente a la derecha de SO y no se mueve por desplegar bandeja/SO.
+- **Clic en el agarre de seis puntos** abre el menú de prueba. Activá «Simular ventana maximizada» para mostrar botones ficticios `− □ ×` a su derecha y probar el arrastre mientras el estado ficticio está maximizado.
 - Al **desactivar la maximización simulada**, la isla 1 **vuelve automáticamente al extremo derecho por defecto**. La preferencia «Volver automáticamente a la derecha» se puede desactivar desde el menú o desde la configuración del widget. Se declara en la configuración KConfig de Plasma, aunque su persistencia efectiva en `plasmoidviewer` se comprobará en CachyOS.
 - Si arrastrás en modo no maximizado con retorno automático activado, la isla vuelve a la derecha cuando soltás el agarre.
 - La isla 3 (buscador persistente) no aparece. La maximización **es una simulación**; aún no leemos el estado de ventanas reales mediante KWin.
@@ -54,7 +54,7 @@
 | Abrir SO con bandeja expandida | Se contrae automáticamente la bandeja |
 | Repetir muchas veces | No aparece segunda fila ni cambia el grosor |
 | Arrastrar `⋮` horizontalmente | La isla 1 se mueve a izquierda/derecha dentro de límites seguros; SO y agarre permanecen juntos |
-| Clic en `⋮`, activar «Simular ventana maximizada» | Se ven botones ficticios `− □ ×` a la derecha; el agarre funciona sin cambiar la altura |
+| Clic en el agarre de seis puntos de seis puntos, activar «Simular ventana maximizada» | Se ven botones ficticios `− □ ×` a la derecha; el agarre funciona sin cambiar la altura |
 | Arrastrar en maximizada simulada y luego desactivar | Por defecto, la isla regresa al extremo derecho |
 | Desmarcar «Volver automáticamente a la derecha» | Al dejar de simular maximización, la isla mantiene el desplazamiento manual; al reactivar vuelve a la derecha |
 | Abrir SO/bandeja después de desplazar isla | SO y agarre no saltan de posición; solo aparecen fichas hacia la izquierda |
