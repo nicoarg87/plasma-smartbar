@@ -16,6 +16,7 @@ Window {
     color: "#242236"
 
     property bool demoAutoReturnRight: true
+    property bool demoLauncherIslandVisible: true
 
     SmartBarContent {
         id: bar
@@ -25,8 +26,12 @@ Window {
         height: fixedHeight
 
         autoReturnRight: previewWindow.demoAutoReturnRight
+        launcherIslandVisible: previewWindow.demoLauncherIslandVisible
         onRequestAutoReturnRightChange: function(newValue) {
             previewWindow.demoAutoReturnRight = newValue
+        }
+        onRequestLauncherIslandVisibilityChange: function(newValue) {
+            previewWindow.demoLauncherIslandVisible = newValue
         }
     }
 
