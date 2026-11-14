@@ -574,3 +574,36 @@ bash prototype/v0.1/probar_ancho.sh
 6. Si se reproduce bloqueo de arrastre, menú que queda visible, salto al extremo izquierdo o error de QML, compartí captura y mensajes de Konsole.
 
 **Estado:** comprobación de código únicamente; todavía falta validación del mantenedor en CachyOS/Wayland. No reemplazar el panel KDE habitual; PR #3 sigue en borrador.
+
+## Centro unificado de Configuración de Soledad (14/11/2026)
+
+**PEDIDO FUNCIONAL CONFIRMADO:** el mantenedor reportó que las tres ventanas de personalización requerían agrandarse manualmente y que pulsar Aplicar las cerraba. Se aprobó una **única ventana con pestañas**, donde **Aplicar no cierra** y **Cerrar es un botón separado**. La posibilidad de **añadir una isla extra** se registrará como idea futura; **no se implementa** ahora.
+
+**IMPLEMENTADO SOLO EN PR #3, PENDIENTE DE PRUEBA REAL:** componente nuevo SoledadSettings.qml; abierto con clic derecho en los seis puntos → **Configuración de Soledad…**. Incluye cinco pestañas: **Logo SO**, **Apariencia**, **Contorno**, **Autocontracción** e **Islas y posición**. Dimensiones iniciales de hasta 750 × 850 unidades lógicas según pantalla, suficientes como referencia para el editor de logo; cada pestaña ofrece desplazamiento propio si el espacio es menor. Aplicar y Cerrar están siempre en el pie de la ventana, fuera de las áreas desplazables.
+
+- **Logo SO:** huella, imagen personalizada, texto SO, GIF, cinco máscaras, encajar/rellenar, zoom y desplazamientos, restablecimiento sin editar el archivo original.
+- **Apariencia:** colores y opacidad independientes de Soledad, Malvina y fondo continuo opcional (apagado por defecto).
+- **Contorno:** vista previa de cero/tres ventanas, efecto off/fijo/recorrido, color, grosor y movimiento opcional.
+- **Autocontracción:** dos controles independientes: SO tras seleccionar ficha (activado por defecto); bandeja tras usar icono (desactivado por defecto). Sin temporizador por inactividad.
+- **Islas y posición:** visibilidad de Malvina, alineación a la derecha, retorno al desmaximizar y acción inmediata Mover isla 1 a la derecha AHORA. La entrada rápida de Mostrar/Ocultar Malvina sigue primera en el menú de los seis puntos.
+- **Aplicar** envía todos los valores a los eventos de configuración existentes y **NO cierra** la ventana. **Cerrar** cierra; al abrirla nuevamente se cargan los últimos valores aplicados. En la vista independiente Qt las preferencias solo duran la sesión; la persistencia KConfig del plasmoide aún no está validada.
+
+### Prueba segura en CachyOS
+~~~bash
+cd ~/plasma-smartbar
+git branch --show-current
+git pull
+bash prototype/v0.1/probar_ancho.sh
+~~~
+
+Confirmar que la rama es prototype/v0.1-islas-so. No sobrescribir modificaciones locales si Git informa conflictos.
+
+1. Derecho en seis puntos → Configuración de Soledad…: comprobar que se abre **una ventana** con las cinco pestañas y no tres diálogos separados.
+2. En Logo SO, probar imagen/GIF, formas, zoom, encuadre y restablecimiento; comprobar que cualquier control se alcanza sin agrandar la ventana manualmente (usar desplazamiento en pantallas pequeñas).
+3. En Apariencia y Contorno cambiar valores, pulsar **Aplicar**: la ventana debe seguir abierta y permitir seguir cambiando de pestaña. **Cerrar** sí debe cerrarla.
+4. En Autocontracción cambiar las dos preferencias, aplicar, tocar fichas SO y bandeja simuladas; volver a abrir configuración y verificar los estados de sesión.
+5. En Islas y posición ocultar/mostrar Malvina, aplicar, probar retorno, alineación y Mover a la derecha AHORA. No mover los controles de ventana simulados.
+6. Achicar la ventana de configuración: todas las pestañas deben poder recorrerse y **Aplicar/Cerrar** deben seguir visibles. Confirmar que SmartBar conserva su altura fija.
+7. Si aparece un fallo Qt, registrar salida de Konsole y captura. Mantener [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5) abiertos.
+
+**Estado:** implementación QML publicada en rama experimental; **NO probada todavía en CachyOS/Wayland** después de este cambio. PR #3 continúa en borrador; el panel KDE instalado permanece intacto.
