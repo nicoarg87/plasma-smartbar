@@ -8,5 +8,9 @@
       <label>Volver automaticamente a la derecha al desmaximizar</label>
       <default>true</default>
     </entry>
+    <entry name="showLauncherIsland" type="Bool">
+      <label>Mostrar isla 2 (lanzador izquierdo)</label>
+      <default>true</default>
+    </entry>
   </group>
 </kcfg>
