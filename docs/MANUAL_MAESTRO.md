@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.28 — Recuperar Malvina directamente desde los seis puntos de Soledad  
+**Versión:** 0.29 — Seis puntos: izquierdo para arrastrar, derecho para opciones  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -742,8 +742,20 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 
 **Error de descubribilidad reportado por el mantenedor en CachyOS:** después de ocultar **Malvina (isla 2)**, no encontró ninguna opción visible en Soledad que le permitiera volver a mostrarla. Aunque la maqueta incluía una acción de clic derecho en SO y una opción dentro del lanzador flotante de SO sostenido, esos accesos **no resultaron evidentes**.
 
-**DECISIÓN FUNCIONAL CONFIRMADA:** al hacer **clic normal en el agarre de seis puntos**, que permanece a la derecha del botón SO, se abre el menú de opciones de Soledad. La **primera acción visible y seleccionable** de ese menú es **«Mostrar Malvina (isla 2)»** si la isla izquierda está oculta, o **«Ocultar Malvina (isla 2)»** si está visible. Un clic ejecuta la acción y conserva la visibilidad elegida hasta una nueva orden del usuario. El valor predeterminado de Malvina sigue siendo **visible**.
+**DECISIÓN HISTÓRICA, CON GESTO SUSTITUIDO EN v0.29 (SECCIÓN 41):** el agarre de seis puntos sigue ofreciendo el menú de opciones de Soledad, pero se abre mediante **clic derecho** o menú de teclado, **NO con clic breve izquierdo**. La **primera acción visible y seleccionable** de ese menú es **«Mostrar Malvina (isla 2)»** si la isla izquierda está oculta, o **«Ocultar Malvina (isla 2)»** si está visible. Un clic ejecuta la acción y conserva la visibilidad elegida hasta una nueva orden del usuario. El valor predeterminado de Malvina sigue siendo **visible**.
 
 **Otros accesos:** el menú contextual de SO y el botón «Mostrar Malvina» del lanzador flotante siguen disponibles. Para hacer descubrible la nueva ruta, los textos de ayuda del agarre y SO indican cómo recuperar Malvina cuando está oculta. No se agrega un botón permanente ni se cambia el grosor, las posiciones confirmadas, las fichas SO, la bandeja ni las funciones de los seis puntos.
 
 **Implementación:** `SmartBarContent.qml` en la rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) incorporó un `MenuItem` de visibilidad de Malvina al principio de `gripMenu`, accionando el mismo evento `requestLauncherIslandVisibilityChange()` ya vinculado a KConfig `showLauncherIsland`. **Pendiente de test en CachyOS**, y persistencia en plasmoide real no comprobada. En `probar_ancho.sh` la elección dura solo durante esa ventana Qt. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## 41. Seis puntos: arrastrar con izquierdo y abrir/cerrar opciones con derecho (v0.29, 14/11/2026)
+
+**BUG CONFIRMADO POR EL MANTENEDOR EN CACHYOS:** al tocar el agarre de seis puntos para desplazar Soledad, se abre de forma molesta el menú «Opciones de Soledad». Al volver a pulsar sobre el mismo botón, el menú puede cerrarse y reabrirse inmediatamente. El mantenedor expresó preferencia por **clic derecho para abrir las opciones**, con doble clic izquierdo como otra posibilidad.
+
+**DECISIÓN ACTUAL:** el **botón izquierdo** sobre los seis puntos se reserva a **arrastrar horizontalmente Soledad** y no abre ningún menú con clic simple ni al soltar el agarre. El **clic derecho** abre «Opciones de Soledad», y **otro clic derecho lo cierra**. No se agregó doble clic izquierdo como disparador para no volver a mezclar gestos de mover y configurar.
+
+**Acceso inclusivo:** al enfocar el agarre, la tecla **Menú contextual** o **Mayús+F10** permite abrir/cerrar las opciones. Esc y clic fuera del agarre siguen cerrándolas. La ayuda flotante indica que el arrastre es con izquierdo y las opciones con derecho; no aparece durante el arrastre.
+
+**Recuperación de Malvina:** el menú de opciones conserva en primer lugar **«Mostrar Malvina (isla 2)»** si está oculta y «Ocultar Malvina» si está visible. El acceso contextual de SO y el botón del lanzador flotante no se eliminan, Malvina permanece visible por defecto. La sección 40 se mantiene como antecedente, pero su referencia a abrir el menú con clic normal izquierdo **queda sustituida por esta sección 41**.
+
+**Implementación experimental:** en el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), `moveGrip` ya no tiene `onClicked` que invoque el menú; un `MouseArea` acepta únicamente `Qt.RightButton`, con función para conmutar `gripMenu.popup()/close()`. La política de cierre del menú preserva el segundo clic derecho. Un manejador de teclado permite tecla Menú y Mayús+F10. **No probado todavía en CachyOS tras la corrección**, ni aplicado al panel real. Registro en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
