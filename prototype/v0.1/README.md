@@ -295,3 +295,12 @@ bash prototype/v0.1/probar_ancho.sh
 6. Comprobá el arrastre de los seis puntos, el menú flotante debajo de Soledad y los controles de ventana fijos.
 
 Si falla la ejecución, conservá el texto de Konsole. El prototipo es una ventana independiente y **no reemplaza el panel de KDE**.
+
+
+### Indicadores de diagnóstico para la prueba de convivencia (14/11/2026)
+
+Se añadió **solo a `preview_redimensionable.qml`**, no a la barra que ejecutará Plasma, una lectura en la parte inferior de la ventana Qt: estado de **SO**, **bandeja**, visibilidad de **Malvina**, preferencias de **autocontracción**, **ancho de Soledad** frente al **espacio horizontal disponible**, y **última expansión solicitada**. Los valores se actualizan con los estados QML y permiten identificar por qué la lógica decide contraer el grupo anterior cuando falta ancho.
+
+**Qué verificar en CachyOS:** con ventana de prueba ancha, abrir SO y bandeja; el indicador debe decir «SO abierto · bandeja abierta», con ancho de Soledad **menor o igual** al disponible. Luego reducir el ancho de la ventana o arrastrar Soledad hasta que ambas no entren: el indicador debe mostrar únicamente el grupo más recientemente expandido. Mantener la autocontracción desactivada en ambas opciones para aislar esta prueba de la regla de falta de espacio.
+
+**Limitación:** es diagnóstico de la **maqueta con fichas de muestra**, todavía no comprobado después de publicarlo. No permite concluir compatibilidad con bandeja real, controles de KWin o contenido de Plasma. Si los números no cambian o aparece superposición, guardar captura o texto de Konsole. La banda de indicadores bajo la barra **no forma parte del diseño final**.
