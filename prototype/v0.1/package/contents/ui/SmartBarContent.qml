@@ -53,26 +53,38 @@ Item {
             return
         }
 
-        // Posición física anterior respecto del borde derecho del visor:
-        // desplazamiento manual + espacio de los controles de ventana.
-        // Si no hay retorno automático, esa coordenada debe conservarse
-        // al desaparecer los controles; de otro modo la isla salta.
+        // Guardar la coordenada VISIBLE de la isla antes de modificar el
+        // espacio reservado al grupo de controles. Compensar en AMBOS
+        // sentidos (maximizar y desmaximizar), no solamente al quitarlo.
         const oldRightMargin = islandOffset + controlsReservation
+        const wasAligned = alignRightSelected
+        const nextReservation = value ? windowControls.width + 6 : 0
         previewMaximized = value
 
-        if (!previewMaximized) {
-            if (root.autoReturnRight) {
+        if (value) {
+            if (wasAligned) {
+                // «Alinear a la derecha» seleccionada: ubicar SO al lado
+                // de los controles fijos, tal como indica esa opción.
                 alignRightNow()
             } else {
-                // Respetar la posición que eligió el usuario. Solo mover
-                // si los límites de pantalla exigen corregir el margen.
-                setIslandOffset(oldRightMargin - controlsReservation)
-                alignRightSelected = islandOffset <= 0
+                // Alineación manual: preservar la coordenada visual previa.
+                // Si invadiría los controles, ajustar SOLO lo imprescindible.
+                setIslandOffset(oldRightMargin - nextReservation)
+                alignRightSelected = false
             }
+        } else if (root.autoReturnRight) {
+            // Retorno al DESMAXIMIZAR, si la preferencia está habilitada.
+            alignRightNow()
+        } else {
+            // Retorno desactivado: conservar la posición visual al quitar
+            // los controles (inverso exacto del caso de maximización).
+            setIslandOffset(oldRightMargin - nextReservation)
+            alignRightSelected = islandOffset <= 0
         }
-        // Al maximizar sí se reserva sitio para los controles fijos.
+
         console.log("SmartBar v0.1: maximizada simulada =", previewMaximized,
                     "retorno =", root.autoReturnRight,
+                    "alineación =", alignRightSelected,
                     "desplazamiento =", islandOffset,
                     "margen visual =", islandOffset + controlsReservation)
     }
