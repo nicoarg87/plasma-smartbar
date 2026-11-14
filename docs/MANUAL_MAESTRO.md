@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.21 — Lanzador flotante anclado a isla 1  
+**Versión:** 0.22 — Soledad/Malvina y expansiones SO-bandeja condicionadas al espacio  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -48,7 +48,7 @@ La idea evolucionó por correcciones sucesivas: primero el desplazamiento del bo
 3. Los controles `−`, `□`, `×`, el botón SO y la flecha de bandeja tienen regiones táctiles/clicables independientes, con tamaño y alineación vertical estables.
 4. **Ni las pestañas del navegador ni el resto de la ventana se desplazan o redimensionan** al expandir SO o la bandeja. Si ocupan esa zona, el menú desplegado **las cubre temporalmente**.
 5. La barra, el lanzador izquierdo, el botón SO, la flecha y los controles de ventana (cuando corresponden) tienen **prioridad de capa sobre una ventana maximizada y sus pestañas**; una pestaña no puede tapar al lanzador o bloquear el menú. Esto incluye **los botones permanentes** con menús contraídos.
-6. **SO y bandeja son mutuamente excluyentes:** abrir uno contrae el otro. Sus expansiones nunca compiten simultáneamente por el espacio.
+6. **SO y bandeja pueden permanecer expandidos al mismo tiempo si caben en una sola fila.** Si físicamente no hay espacio para ambos, el último que se abre queda visible y se contrae el anterior; véase sección 34 (regla actualizada).
 7. Los **subpaneles** (calendario, notas y, más adelante, reproductor) sí se despliegan hacia **abajo**, flotando sobre la aplicación y **sin alterar el panel**.
 8. El **modo fullscreen real** tiene prioridad sobre los controles del escritorio. Se ocultan en videojuegos y videos a pantalla completa; maximizada no es fullscreen.
 9. Ningún efecto decorativo, animación, variación de tema o módulo adicional puede modificar la prioridad de capas, secuencia de focos ni geometría acordada.
@@ -257,9 +257,9 @@ Indicadores permanentes **no son obligatorios** ni deben llenar la barra. Se con
 
 ## 9. Interacciones, vista previa y subpaneles
 
-### Exclusividad — CONFIRMADO
+### Coexistencia según espacio — CONFIRMADO EN SECCIÓN 34
 
-SO y bandeja no permanecen abiertos simultáneamente. Abrir uno contrae el otro. Contraer bandeja cierra sus subpaneles y oculta cualquier futuro controlador multimedia.
+SO y bandeja **pueden** permanecer abiertos simultáneamente cuando hay ancho útil suficiente. Si al abrir el segundo ya no caben ambos, se contrae el que estaba abierto y el recién solicitado queda visible. Contraer la bandeja sigue cerrando sus subpaneles y ocultando cualquier futuro controlador multimedia.
 
 ### Vista previa y selección de ventanas agrupadas — AGRUPACIÓN CONFIRMADA
 
@@ -356,7 +356,7 @@ La lógica exacta de foco y cierre se verificará con mouse, touchpad, teclado y
 - Menú SO **horizontal hacia la izquierda**, una sola fila. **Agrupación por aplicación como predeterminada**, una ficha por app, con clic para elegir entre sus múltiples ventanas. **Vista desagrupada configurable**, una ficha por ventana. Nunca cascada vertical del menú principal ni lista permanente.
 - Sobreposición de controles permanentes y desplegables encima de pestañas de un navegador maximizado; **no mover ni redimensionar** las pestañas ni el navegador.
 - Lanzador de aplicaciones instaladas **a la izquierda y visible por defecto**, por encima de pestañas. Puede ocultarse y cambiarse por icono de lupa u otro.
-- SO y bandeja **mutuamente excluyentes**.
+- SO y bandeja pueden mostrarse **simultáneamente si físicamente caben**; si no, prevalece la última expansión solicitada.
 - Flecha bandeja `◀` cerrado / `▶` abierto.
 - Flecha secundaria `↓` abrir popup bajo barra / `↑` cerrar, con icono personalizable.
 - Paneles bajo barra no cambian su grosor; pueden tener dimensiones acordes al contenido.
@@ -396,7 +396,7 @@ La lógica exacta de foco y cierre se verificará con mouse, touchpad, teclado y
 7. **Compatibilidad y seguridad de efectos personalizados:** se investigará después de que el núcleo esté estable; no exige una solución definida hoy.
 8. **Algunas interacciones de herramientas secundarias:** calendario, notas y reproductor podrán cerrarse al cerrar bandeja, seleccionar app, abrir otro subpanel o entrar en fullscreen; detalles finos a validar con prototipo.
 
-No repetir preguntas ya contestadas: exclusividad SO/bandeja, prioridad sobre pestañas, comportamiento fullscreen, posición de lanzador, flechas o necesidad de una altura fija.
+No repetir preguntas ya contestadas: coexistencia de SO/bandeja condicionada al ancho (sección 34), prioridad sobre pestañas, comportamiento fullscreen, posición de lanzador, flechas o necesidad de una altura fija.
 
 ## 14.1. Publicación libre y gobernanza — DECISIÓN ACTUAL
 **Repositorio oficial:** https://github.com/nicoarg87/plasma-smartbar, mantenido por su propietario. La documentación fundacional tiene valor normativo para el proyecto oficial; véase [CONSTITUCION_TECNICA.md](CONSTITUCION_TECNICA.md), [GOVERNANCE.md](../GOVERNANCE.md) y [CONTRIBUTING.md](../CONTRIBUTING.md).
@@ -422,7 +422,7 @@ No repetir preguntas ya contestadas: exclusividad SO/bandeja, prioridad sobre pe
 1. Panel superior de altura configurable y estable; lanzador a la izquierda; SO y flecha a la derecha.
 2. Detectar maximizada/restaurada; mostrar y manejar `− □ ×` de manera coherente.
 3. Selector SO horizontal hacia la izquierda para listar aplicaciones **agrupadas por defecto**, activar ventanas desde fichas individuales o desde el selector del grupo, y permitir **modo desagrupado** mediante configuración; probar también minimizadas.
-4. Bandeja horizontal que abre/cierra mediante `◀` y `▶`; exclusividad SO/bandeja. SO se contrae por defecto al activar una ventana, con preferencia de mantener abierto; preparar opciones de visibilidad adaptativa para probar en una etapa posterior sin comprometer el núcleo.
+4. Bandeja horizontal que abre/cierra mediante `◀` y `▶`; coexistencia con SO si cabe, con prioridad al último abierto si falta espacio. SO se contrae por defecto al activar una ventana, con preferencia de mantener abierto; preparar opciones de visibilidad adaptativa para probar en una etapa posterior sin comprometer el núcleo.
 5. Garantizar capas sobre navegadores maximizados y ocultación total en fullscreen real.
 6. Verificar estabilidad con Dolphin, Konsole, Brave y Firefox.
 7. Fichas con scroll horizontal/gestos de touchpad y controles discretos de navegación en caso de desbordamiento.
@@ -497,7 +497,7 @@ El proyecto tiene repositorio oficial público **https://github.com/nicoarg87/pl
 - **SO tras selección:** confirmado el cierre/contracción **por defecto** luego de activar ventana; opción de **mantener abierto** para cambios frecuentes.
 - **GitHub:** objetivo explícito de repositorio público abierto, con documentación previa al código y fork/redistribución permitidos; ya publicado como repositorio inicial.
 - **Licencias:** se distingue MIT (permisiva) y GPL-3.0-or-later (copyleft), y se aclara que ausencia de licencia no implica permiso general de reutilización. Licencia elegida posteriormente: GPL-3.0; esta frase pertenece al historial de la v0.7.
-- **Reglas que no cambian:** altura constante, ventanas y pestañas no desplazadas, SO agrupado por aplicación por defecto, bandeja y SO excluyentes, fullscreen oculta todo, multimedia y animaciones quedan para fases posteriores.
+- **Registro histórico v0.7 (exclusividad sustituida en v0.22):** altura constante, ventanas y pestañas no desplazadas, SO agrupado por aplicación por defecto, fullscreen oculta todo, multimedia y animaciones quedan para fases posteriores. La antigua exclusividad de SO/bandeja **ya no rige**: véase sección 34.
 
 ### Apéndice breve para el próximo chat
 
@@ -542,7 +542,7 @@ La especificación funcional vigente es la de este Manual Maestro, bajo la direc
 - **Inferior, configurable:** las dos islas se sitúan **en el borde inferior de la pantalla**, conservando en esa franja sus papeles, el orden izquierda/derecha, el agarre inmediatamente a la derecha de SO y el grosor fijo. Las expansiones de SO y bandeja siguen siendo **horizontales, en una sola fila y hacia la izquierda**; nunca se añade una segunda fila por activar ventanas.
 - **Controles de ventana con modo inferior:** al maximizar, los botones propios de **Plasma SmartBar** para minimizar, restaurar/maximizar y cerrar **deben verse abajo, anclados al extremo derecho de la ventana de manera independiente a isla 1**, en la parte baja de la ventana maximizada. No se deja un conjunto SmartBar arriba mientras el resto del proyecto está abajo. En modo superior, permanecen arriba. **No se presupone que se puedan trasladar o suprimir universalmente los botones originales que dibuja cada aplicación en su parte superior**: eso requiere investigación, compatibilidad comprobada y aprobación de alternativas si surge una limitación.
 - **Subpaneles:** se abren hacia el **interior de la pantalla**, hacia abajo desde la barra superior y **hacia arriba** desde la barra inferior. La indicación de flecha secundaria debe reflejar la dirección intuitivamente; su diseño concreto queda para las pruebas de usabilidad.
-- **Pantalla completa real:** oculta las islas independientemente de la orientación. **Bandeja y SO continúan siendo excluyentes**, el agarre mantiene su posición mientras se expanden y el logo SO es configurable.
+- **Pantalla completa real:** oculta las islas independientemente de la orientación. **Bandeja y SO coexisten si hay espacio físico suficiente (sección 34)**, el agarre mantiene su posición mientras se expanden y el logo SO es configurable.
 - **No alterar las aplicaciones:** el modo inferior no autoriza recolocar la barra de título real de navegadores u otras aplicaciones a la fuerza, duplicar controles peligrosamente, alterar su tamaño ni bloquear acciones indispensables. El resultado pretendido debe validarse en KWin/Wayland y aplicaciones con decoraciones propias.
 
 ### 23.2. Modos laterales: no incluidos en el compromiso inicial
@@ -553,7 +553,7 @@ Los bordes **izquierdo y derecho en orientación vertical** no son modos oficial
 
 **APROBADO COMO OBJETIVO:** tener ambos modos horizontales superior e inferior, con controles SmartBar junto a isla 1 en el borde elegido. **NO IMPLEMENTADO / NO PROBADO COMO SISTEMA FUNCIONAL:** existe una maqueta QML en la rama experimental v0.1, pero no se ha probado en KDE ni conectado a ventanas reales. El primer experimento v0.1 sigue concentrado en la base superior, sin reemplazar el panel existente del usuario. El modo inferior se validará después con un issue dedicado, especialmente por las decoraciones y botones originales de Brave, Firefox, Chrome, Steam, Qt y GTK.
 
-El **Manual Maestro anterior (secciones sobre «barra superior»)** describe el **modo superior**, no limita la posibilidad aprobada de la orientación inferior desde esta versión. Las invariantes generales —grosor inmutable, una fila, configuración, rendimiento, seguridad, bandeja/SO excluyentes— se aplican a **ambos modos**.
+El **Manual Maestro anterior (secciones sobre «barra superior»)** describe el **modo superior**, no limita la posibilidad aprobada de la orientación inferior desde esta versión. Las invariantes generales —grosor inmutable, una fila, configuración, rendimiento, seguridad, SO/bandeja coexistentes cuando caben, o prioridad al más reciente si falta espacio— se aplican a **ambos modos**.
 
 
 ## 24. Retorno automático del agarre al desmaximizar — DECISIÓN CONFIRMADA (v0.12, 14/11/2026)
@@ -670,4 +670,16 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 
 **Causa en la v0.1:** el cálculo del popup utilizaba una transformación `soButton.mapToItem()` que podía conservar una coordenada anterior al arrastre. **Parche en rama experimental** [51aad39](https://github.com/nicoarg87/plasma-smartbar/commit/51aad39b0b448074779d15fd131cc7a6ed0e5032): el popup usa las propiedades reactivas `systemIsland.x` y `systemIsland.width` para centrar el menú debajo de la isla y limitar su posición al ancho del contenedor. **Código revisado, pero NO se ha probado todavía el arreglo en CachyOS**.
 
-**Invariantes:** mantener clic corto SO para ventanas, pulsación larga SO para lanzador, altura inalterada, seis puntos junto a SO, isla 2 ocultable/visible por defecto, bandeja mutuamente excluyente y controles de ventana independientes. La lista sigue siendo **simulada**: no contiene aún el catálogo de programas instalados ni ejecuta apps. Registro de la prueba en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); PR #3 permanece borrador.
+**Invariantes:** mantener clic corto SO para ventanas, pulsación larga SO para lanzador, altura inalterada, seis puntos junto a SO, isla 2 ocultable/visible por defecto, bandeja coexistente según espacio y controles de ventana independientes. La lista sigue siendo **simulada**: no contiene aún el catálogo de programas instalados ni ejecuta apps. Registro de la prueba en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); PR #3 permanece borrador.
+
+## 34. Soledad, Malvina y convivencia condicional de SO y bandeja (v0.22, 14/11/2026)
+
+**CAMBIO CONFIRMADO por el mantenedor, con prioridad sobre las formulaciones antiguas de exclusividad:** las expansiones horizontales de SO y la bandeja de sistema **pueden quedar visibles a la vez**, siempre que quepan en el espacio real desde el borde izquierdo útil de **Soledad** hasta el límite de **Malvina** si está visible, preservando además el margen de los controles `− □ ×` cuando hay maximización. Abrir una expansión ya no contrae preventivamente la otra.
+
+**Regla de prioridad:** al pedir abrir SO si la bandeja está abierta, SO debe expandirse y la bandeja **continúa** si ambas entran. Si **no entran**, se contrae solo la bandeja para dar prioridad a SO. A la inversa, al abrir bandeja desde SO abierto, ambos permanecen si caben; si no, se contrae SO. Al reducir ancho o arrastrar Soledad cuando ambas están abiertas, aplicar el mismo criterio de prioridad a la expansión abierta más recientemente. La solución no puede crear otra fila, modificar altura, mover Soledad involuntariamente, desplazar ventanas/pestañas o tapar los controles fijos. Si una sola expansión tampoco cabe, falta una prueba aparte de desbordamiento y navegación sin degradar invariantes.
+
+**Nombres internos y de interfaz confirmados:** **Soledad** = isla 1 (bloque principal derecho con botón SO, bandeja y agarre de seis puntos); **Malvina** = isla 2 (lanzador izquierdo, visible por defecto, ocultable). El texto abreviado **SO** del botón se mantiene por ahora. El proyecto, su licencia y el repositorio oficial continúan con el nombre **Plasma SmartBar / `nicoarg87/plasma-smartbar`**; si el mantenedor quiso decir también que todo el producto pasa a llamarse «Malvina», ese **cambio global de marca/infraestructura queda pendiente de aclaración antes de renombrar nada**.
+
+**Corrección de accesibilidad de Malvina:** el mantenedor pudo ocultarla pero **no encontró cómo recuperarla**. Además del menú contextual de SO, al mantener pulsado SO y abrir el lanzador flotante debe aparecer, cuando esté oculta, un botón claramente visible **«Mostrar Malvina (isla 2)»**, que se activa con un solo clic. Esta ruta no requiere clic derecho ni se confunde con el gesto de abrir ventanas. La ocultación automática sigue siendo propuesta pendiente, NO implementada.
+
+**Estado técnico:** en el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) (borrador) la maqueta QML ya calcula un presupuesto de ancho disponible desde la posición actual de Soledad y el lugar ocupado por Malvina y controles. Mide el ancho real de las fichas al expandirse y solo cierra el conjunto anterior si ambas exceden el espacio. Agregó acceso «Mostrar Malvina» al lanzador flotante, mantuvo SO breve/largo e incorporó las etiquetas de nombres en menús y ayudas. **Código revisado, SIN prueba en CachyOS después de este cambio**, no es bandeja ni lista de ventanas reales. Se registró en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
