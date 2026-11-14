@@ -21,6 +21,8 @@
 - [ ] **Ocultación automática de isla 2 — PROPUESTA:** definir disparador, forma de recuperación y accesibilidad antes de aprobar/implementar. No activada por defecto.
 - [ ] Selector SO de una sola fila, expansión a izquierda, agrupación por aplicación y activación de ventanas.
 - [ ] Contracción automática de SO después de seleccionar por defecto y preferencia de permanecer abierto.
+- [ ] **Separador visual entre bandeja y SO:** línea vertical fina solo cuando ambas expansiones estén abiertas; sumarla a la medición horizontal y ocultarla al contraer un grupo. Implementada en maqueta QML, **pendiente de prueba**.
+- [ ] **Lanzador propio de Malvina:** clic en Malvina abre menú flotante **debajo de Malvina**, no de Soledad; SO sostenido mantiene su menú debajo de su posición actual. Implementado reutilizando popup con origen explícito, **pendiente de prueba**.
 - [ ] **Soledad y bandeja simultáneas según espacio:** SO y bandeja conservan sus fichas visibles juntos cuando caben, en una fila. Si no entran, al abrir uno se contrae el otro; si se estrecha la ventana o se mueve Soledad, conservar la última expansión solicitada. **Maqueta QML implementada, todavía no probada en CachyOS**.
 - [ ] **Autocontracción independiente por configuración:** SO al elegir ventana (predeterminado activado); bandeja al usar icono (predeterminado desactivado). Clic en seis puntos → Configuración de autocontracción. La v0.1 simula selección, y KConfig está declarado; **pendiente de prueba y de integrar comportamiento real seguro**.
 - [ ] **Recuperar Malvina fácilmente:** si se oculta la isla 2, mantener SO y pulsar una vez «Mostrar Malvina (isla 2)». Acceso agregado en maqueta QML, **pendiente de prueba**; se conserva el menú contextual de SO.
