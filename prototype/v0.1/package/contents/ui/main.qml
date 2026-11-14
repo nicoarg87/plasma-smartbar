@@ -23,6 +23,9 @@ PlasmoidItem {
     property bool trayExpanded: false
     property bool launcherPreview: false
     property bool previewMaximized: false  // ¡Simulación! No se consulta KWin.
+    // Indica la selección manual de «Alinear a la derecha», independiente
+    // de la preferencia de retorno al desmaximizar.
+    property bool alignRightSelected: true
     property real islandOffset: 0          // Distancia horizontal desde la derecha.
     property real offsetAtDragStart: 0
     property string lastDemoSelection: ""
@@ -42,11 +45,18 @@ PlasmoidItem {
         islandOffset = Math.max(0, Math.min(maxIslandOffset, offset))
     }
 
+    function alignRightNow() {
+        setIslandOffset(0)
+        alignRightSelected = true
+        console.log("SmartBar v0.1: isla 1 alineada a la derecha")
+    }
+
     function setPreviewMaximized(value) {
         previewMaximized = value
         if (!previewMaximized && Plasmoid.configuration.autoReturnRight) {
-            // Volver al borde derecho al salir del estado maximizado.
-            setIslandOffset(0)
+            // Solo al desmaximizar: no deshacer movimientos manuales
+            // cuando el usuario está arrastrando la isla.
+            alignRightNow()
         }
         console.log("SmartBar v0.1: maximizada simulada =", previewMaximized,
                     "retorno =", Plasmoid.configuration.autoReturnRight,
@@ -59,7 +69,7 @@ PlasmoidItem {
         // devolverla AHORA a su posición predeterminada (también si la
         // simulación sigue maximizada). Al desmaximizar volverá de nuevo.
         if (value) {
-            setIslandOffset(0)
+            alignRightNow()
         }
         console.log("SmartBar v0.1: retorno automático =", value,
                     "desplazamiento =", islandOffset)
@@ -217,13 +227,16 @@ PlasmoidItem {
                         onActiveChanged: {
                             if (active) {
                                 root.offsetAtDragStart = root.islandOffset
-                            } else if (!root.previewMaximized &&
-                                       Plasmoid.configuration.autoReturnRight) {
-                                root.setIslandOffset(0)
                             }
+                            // Al soltar la isla, mantenerla donde el usuario
+                            // la dejó; NO aplicar aquí el retorno automático.
                         }
                         onActiveTranslationChanged: {
-                            if (active) {
+                            if (active && Math.abs(activeTranslation.x) > 1) {
+                                // El gesto del usuario destilda de inmediato
+                                // «Alinear a la derecha» sin tocar el retorno
+                                // automático al desmaximizar.
+                                root.alignRightSelected = false
                                 root.setIslandOffset(
                                     root.offsetAtDragStart - activeTranslation.x
                                 )
@@ -241,6 +254,27 @@ PlasmoidItem {
                             onTriggered: root.setPreviewMaximized(!root.previewMaximized)
                         }
                         QQC2.MenuItem {
+                            id: alignRightMenuItem
+                            text: "Alinear isla 1 a la derecha"
+                            checkable: true
+                            // Binding dedicado: evita que el control conserve
+                            // un checked antiguo tras arrastrar el agarre.
+                            Binding {
+                                target: alignRightMenuItem
+                                property: "checked"
+                                value: root.alignRightSelected
+                            }
+                            onTriggered: {
+                                if (root.alignRightSelected) {
+                                    // El usuario destilda sin mover todavía.
+                                    root.alignRightSelected = false
+                                } else {
+                                    // Tildar vuelve a colocar la isla AHORA.
+                                    root.alignRightNow()
+                                }
+                            }
+                        }
+                        QQC2.MenuItem {
                             text: "Volver a la derecha al desmaximizar"
                             checkable: true
                             checked: Plasmoid.configuration.autoReturnRight
@@ -250,10 +284,7 @@ PlasmoidItem {
                         }
                         QQC2.MenuItem {
                             text: "Mover isla 1 a la derecha AHORA"
-                            onTriggered: {
-                                root.setIslandOffset(0)
-                                console.log("SmartBar v0.1: movimiento manual a la derecha")
-                            }
+                            onTriggered: root.alignRightNow()
                         }
                     }
                 }
