@@ -293,65 +293,74 @@ Item {
 
     onMaxIslandOffsetChanged: setIslandOffset(islandOffset)
 
-    function editSoLogo() {
-        logoEditor.logoMode = root.soLogoMode
-        logoEditor.filePath = root.soLogoPath
-        logoEditor.shape = root.soLogoShape
-        logoEditor.cropFitMode = root.soLogoFitMode
-        logoEditor.cropZoom = root.soLogoZoom
-        logoEditor.cropPanX = root.soLogoPanX
-        logoEditor.cropPanY = root.soLogoPanY
-        logoEditor.enableGif = root.soLogoAnimate
-        logoEditor.show()
-        logoEditor.raise()
-        logoEditor.requestActivate()
+    function openSoledadSettings(tabIndex) {
+        // Un solo centro. Leer valores guardados al abrir, no al cambiar
+        // pestaña ni al pulsar Aplicar: la ventana permanece visible.
+        if (!soledadSettings.visible) {
+            soledadSettings.logoMode = root.soLogoMode
+            soledadSettings.filePath = root.soLogoPath
+            soledadSettings.shape = root.soLogoShape
+            soledadSettings.cropFitMode = root.soLogoFitMode
+            soledadSettings.cropZoom = root.soLogoZoom
+            soledadSettings.cropPanX = root.soLogoPanX
+            soledadSettings.cropPanY = root.soLogoPanY
+            soledadSettings.enableGif = root.soLogoAnimate
+            soledadSettings.soledadColor = root.soledadColor
+            soledadSettings.malvinaColor = root.malvinaColor
+            soledadSettings.backgroundColor = root.backgroundColor
+            soledadSettings.soledadOpacity = root.soledadOpacity
+            soledadSettings.malvinaOpacity = root.malvinaOpacity
+            soledadSettings.backgroundOpacity = root.backgroundOpacity
+            soledadSettings.showBackground = root.showBackground
+            soledadSettings.effectStyle = root.soActivityStyle
+            soledadSettings.accentColor = root.soActivityColor
+            soledadSettings.strokeSize = root.soActivityStroke
+            soledadSettings.allowMotion = root.soActivityMotion
+            soledadSettings.autoCollapseSO = root.autoCollapseSO
+            soledadSettings.autoCollapseTray = root.autoCollapseTray
+            soledadSettings.autoReturnRight = root.autoReturnRight
+            soledadSettings.launcherIslandVisible = root.launcherIslandVisible
+            soledadSettings.alignedRight = root.alignRightSelected
+            soledadSettings.currentTab = tabIndex
+        }
+        soledadSettings.show()
+        soledadSettings.raise()
+        soledadSettings.requestActivate()
     }
 
-    function editSoActivity() {
-        activityEditor.effectStyle = root.soActivityStyle
-        activityEditor.accentColor = root.soActivityColor
-        activityEditor.strokeSize = root.soActivityStroke
-        activityEditor.allowMotion = root.soActivityMotion
-        activityEditor.logoSource = root.activeSoLogo
-        activityEditor.logoAnimated = root.activeSoLogoIsGif && root.soLogoAnimate
-        activityEditor.logoShape = root.soLogoShape
-        activityEditor.show()
-        activityEditor.raise()
-        activityEditor.requestActivate()
-    }
-
-    function editAppearance() {
-        appearanceEditor.soledadColor = root.soledadColor
-        appearanceEditor.malvinaColor = root.malvinaColor
-        appearanceEditor.backgroundColor = root.backgroundColor
-        appearanceEditor.soledadOpacity = root.soledadOpacity
-        appearanceEditor.malvinaOpacity = root.malvinaOpacity
-        appearanceEditor.backgroundOpacity = root.backgroundOpacity
-        appearanceEditor.showBackground = root.showBackground
-        appearanceEditor.show()
-        appearanceEditor.raise()
-        appearanceEditor.requestActivate()
-    }
-
-    LogoEditor {
-        id: logoEditor
+    SoledadSettings {
+        id: soledadSettings
         defaultImage: root.defaultSoLogo
-        onSaveRequested: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif) {
+        onSaveLogoRequested: function(mode, path, shape, fitMode, zoom, panX, panY, animate) {
             root.requestSoLogoChange(mode, path, shape, fitMode,
-                                     zoom, panX, panY, allowGif)
+                                     zoom, panX, panY, animate)
         }
-    }
-    SoActivityEditor {
-        id: activityEditor
-        onSaveRequested: function(style, color, stroke, allowMotion) {
-            root.requestSoActivityChange(style, color, stroke, allowMotion)
+        onSaveAppearanceRequested: function(soColor, soOpacity, malColor,
+                                             malOpacity, backgroundShown,
+                                             bgColor, bgOpacity) {
+            root.requestAppearanceChange(soColor, soOpacity, malColor,
+                                         malOpacity, backgroundShown, bgColor,
+                                         bgOpacity)
         }
-    }
-    AppearanceEditor {
-        id: appearanceEditor
-        onSaveRequested: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
-            root.requestAppearanceChange(a, alphaA, b, alphaB, shown, bg, alphaBg)
+        onSaveActivityRequested: function(style, color, stroke, motion) {
+            root.requestSoActivityChange(style, color, stroke, motion)
         }
+        onSaveBehaviorRequested: function(collapseSO, collapseTray,
+                                          returnRight, showMalvina, alignRight) {
+            if (collapseSO !== root.autoCollapseSO)
+                root.requestAutoCollapseSOChange(collapseSO)
+            if (collapseTray !== root.autoCollapseTray)
+                root.requestAutoCollapseTrayChange(collapseTray)
+            if (showMalvina !== root.launcherIslandVisible)
+                root.setLauncherIslandVisible(showMalvina)
+            if (returnRight !== root.autoReturnRight)
+                root.setAutoReturnRight(returnRight)
+            if (alignRight !== root.alignRightSelected) {
+                if (alignRight) root.alignRightNow()
+                else root.alignRightSelected = false
+            }
+        }
+        onAlignNowRequested: root.alignRightNow()
     }
 
     // Lanzador flotante de muestra, independiente del grosor de la barra.
@@ -778,16 +787,10 @@ Item {
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
-                            text: "Personalizar logo de SO (imagen o GIF)…"
-                            onTriggered: root.editSoLogo()
-                        }
-                        QQC2.MenuItem {
-                            text: "Colores y transparencia de islas y fondo…"
-                            onTriggered: root.editAppearance()
-                        }
-                        QQC2.MenuItem {
-                            text: "Contorno de actividad de SO…"
-                            onTriggered: root.editSoActivity()
+                            text: "Configuración de Soledad…"
+                            // Logo, colores, contorno, autocontracción,
+                            // islas y posición comparten ventana con pestañas.
+                            onTriggered: root.openSoledadSettings(0)
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
@@ -836,31 +839,7 @@ Item {
                             text: "Mover isla 1 a la derecha AHORA"
                             onTriggered: root.alignRightNow()
                         }
-                        QQC2.Menu {
-                            title: "Configuración de autocontracción"
-                            QQC2.MenuItem {
-                                id: autoCollapseSOMenu
-                                text: "SO: contraer tras elegir ventana"
-                                checkable: true
-                                Binding {
-                                    target: autoCollapseSOMenu
-                                    property: "checked"
-                                    value: root.autoCollapseSO
-                                }
-                                onTriggered: root.requestAutoCollapseSOChange(!root.autoCollapseSO)
-                            }
-                            QQC2.MenuItem {
-                                id: autoCollapseTrayMenu
-                                text: "Bandeja: contraer tras usar icono"
-                                checkable: true
-                                Binding {
-                                    target: autoCollapseTrayMenu
-                                    property: "checked"
-                                    value: root.autoCollapseTray
-                                }
-                                onTriggered: root.requestAutoCollapseTrayChange(!root.autoCollapseTray)
-                            }
-                        }
+
                     }
                 }
 
