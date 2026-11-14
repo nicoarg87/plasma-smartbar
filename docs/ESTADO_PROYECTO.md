@@ -91,6 +91,13 @@
 - **PENDIENTE:** actualización local (`git pull`) y repetición de ambos casos: (a) activar la preferencia mientras la simulación maximizada está activa, y (b) desmaximizar con la preferencia activada. Revisar que los controles ficticios `− □ ×` se mantengan fijos a la derecha y SO no cambie altura. No cerrar el issue #1 ni fusionar el PR sin comprobación.
 - **SIN CAMBIOS DE ALCANCE:** perfiles reales por aplicación aprobados en [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) siguen **sin programar**. Aún no se detectan ni controlan ventanas reales de KWin.
 
+## Séptima observación v0.1 — casilla activa y arrastre con maximización simulada (14/11/2026)
+
+- **OBSERVADO por el mantenedor:** al arrastrar isla 1 al centro estando marcada «Simular ventana maximizada» y activado «Volver a la derecha al desmaximizar», la isla permanece desplazada; destildar y volver a tildar el retorno sí la lleva inmediatamente a la derecha.
+- **INSPECCIÓN DEL CÓDIGO:** con maximización simulada activa, el diseño permite mover y conservar la posición; la casilla de retorno debe aplicarse **cuando se desmarca la maximización**, no continuamente al soltar el agarre. Reactivar la casilla ejecuta un regreso instantáneo añadido en un parche anterior. **No hay evidencia todavía de que el regreso al desmaximizar falle.**
+- **PRUEBA PENDIENTE:** arrastrar al centro manteniendo ambas casillas activas; desactivar solo «Simular ventana maximizada» y comprobar si la isla vuelve a la derecha. Si no vuelve, registrar error y corregir. Cambiar a retorno automático al soltar el agarre incluso maximizada **requeriría aprobación funcional**, por conflicto con la reubicación deliberada de SO para Steam y perfiles por aplicación.
+- Documentado en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), sin modificar `main` ni la lógica de la rama experimental.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
