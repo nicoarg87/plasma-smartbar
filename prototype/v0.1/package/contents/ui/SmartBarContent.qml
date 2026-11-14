@@ -57,6 +57,9 @@ Item {
         0, root.width - islandOffset - controlsReservation
            - (launcherIslandVisible ? launcherIsland.width + 12 : 12)
     )
+    // Sólo lectura para el visor Qt de pruebas: mostrar cuánto ocupa
+    // Soledad frente al espacio real disponible, sin alterar su aspecto.
+    readonly property real actualIslandWidth: systemIsland.width
     onAvailableIslandWidthChanged: ensureExpansionFits()
 
     function setIslandOffset(offset) {
@@ -135,7 +138,10 @@ Item {
             } else {
                 trayExpanded = false
             }
-            console.log("Soledad: espacio insuficiente, contraer expansión anterior")
+            console.log("Soledad: falta espacio para ambas",
+                        "ancho requerido =", actualIslandWidth,
+                        "disponible =", availableIslandWidth,
+                        "se conserva =", lastExpandedMode)
         }
     }
 
