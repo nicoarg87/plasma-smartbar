@@ -281,6 +281,14 @@
 
 **Estado del cierre:** cambios de código y documentación **publicados**, bugs todavía **abiertos hasta que el mantenedor valide el resultado en CachyOS**. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
 
+## Regresión de anclaje del menú: se abría bajo Malvina (14/11/2026)
+
+- **ERROR PROBADO POR EL MANTENEDOR EN CACHYOS (vista Qt independiente):** tras la corrección anterior, el **clic derecho en los seis puntos de Soledad** abrió «Opciones de Soledad» **debajo de Malvina, al extremo izquierdo de la ventana**, lejos del puntero. La intención de la corrección previa **no se logró** y no debe figurar como bug resuelto.
+- **DIAGNÓSTICO DEL CÓDIGO (hipótesis plausible, NO medición runtime):** la versión anterior configuraba `gripMenu.parent: root` y calculaba `x` con una fórmula limitada por `root.width - width`. Esa fórmula podía terminar en `x=0` en ciertos tamaños/estados de medida del menú y no anclaba el popup directamente al control que lo invocó. Las coordenadas de `Popup` en Qt son relativas a su `parent`.
+- **PARCHE EXPERIMENTAL PUBLICADO, PENDIENTE DE RETEST EN CACHYOS:** [commit 30aebc0](https://github.com/nicoarg87/plasma-smartbar/commit/30aebc0f66aff9ff660b5e404c74ec8146efbbe8) en rama `prototype/v0.1-islas-so`: `gripMenu.parent = moveGrip`, ancho explícito 380, `x = moveGrip.width - width` y `y = moveGrip.height + 10`. El menú se debe abrir **debajo del agarre, alineado por su borde derecho**, siguiendo el desplazamiento horizontal de Soledad sin enviar el popup al lado de Malvina. Se conserva `QQC2.Popup.Window` y las acciones/gestos previos.
+- **GUÍA ACTUALIZADA:** [commit 4cf89b6](https://github.com/nicoarg87/plasma-smartbar/commit/4cf89b6400c0515f3fea9b819484af1dcca0d0c3) agrega retest con Soledad a derecha y centro, cierre por derecho/izquierdo/Esc, y comprobación de SO/bandeja.
+- **PENDIENTE:** ejecutar `cd ~/plasma-smartbar && git pull && bash prototype/v0.1/probar_ancho.sh` en CachyOS para comprobar ubicación real con KWin/Wayland, que el menú no se recorte, y que el segundo clic derecho no cierre/reabra. La versión experimental sigue sin instalarse en paneles; [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) continúa borrador. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) debe seguir abierto.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
