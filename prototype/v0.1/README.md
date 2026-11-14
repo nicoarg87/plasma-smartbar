@@ -496,3 +496,34 @@ bash prototype/v0.1/probar_ancho.sh
 6. Si aparece error Qt, guardá el texto exacto de la consola. **No instalar el plasmoide sobre el panel de uso diario**. El editor se cierra con «Cancelar» o «Aplicar» sin modificar archivos de imagen fuente.
 
 **ESTADO:** código implementado en PR #3, pero **NO PROBADO todavía por el mantenedor en CachyOS** tras este conjunto de cambios. `main.xml` y `main.qml` declaran preferencias para la integración Plasma, **persistencia real pendiente de prueba**. El recuento es ficticio: **NO** se detectaron aún ventanas de KDE. Priorizar rendimiento y accesibilidad; las únicas animaciones autorizadas en esta maqueta son GIF elegido y movimiento opcional del borde con ventanas. [Issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+## Retest de menús y logo tras reporte visual — 14/11/2026
+
+**Estado: correcciones QML publicadas en la rama experimental, todavía NO probadas en CachyOS tras estos cambios.** Esta sección reemplaza cualquier instrucción histórica anterior que indique «clic derecho SO → menú contextual» o «clic en agarre → menú» con botón izquierdo. El panel KDE instalado no se cambia.
+
+**Cambios implementados:**
+- `SmartBarContent.qml`: **clic derecho SO** abre directamente «Aplicaciones (simulación)», sin menú intermedio ni «Mostrar/Ocultar Malvina». **Clic izquierdo breve SO** conserva fichas de ventanas abiertas; pulsación sostenida izquierda ~400 ms sigue abriendo el lanzador. Las listas de esta versión **siguen siendo ficticias**, no son ventanas ni programas reales.
+- **Clic derecho en los seis puntos** abre/cierra «Opciones de Soledad» **debajo de la isla**. El menú se calcula desde la posición horizontal actual de Soledad y se limita al ancho de la ventana. Usa `QQC2.Popup.Window` (Qt 6.8+) para poder aparecer fuera del alto de 48 unidades de la barra; esto **necesita retest en KWin/Wayland**, incluido el cierre con segundo clic derecho. Con opciones abiertas, izquierdo breve sobre agarre cierra; arrastrar con izquierdo desplaza la isla.
+- **Primera opción de los seis puntos:** «Mostrar/Ocultar Malvina (isla 2)». Las preferencias de logo, colores, actividad y autocontracción también permanecen allí.
+- `IslandButton.qml`: si el botón tiene imagen, se oculta su **marco de botón redondeado adicional**. La máscara seleccionada y su contorno opcional de actividad mantienen la **misma forma** (cuadrado/círculo/rombo/corazón/estrella). Fichas sin imagen conservan su aspecto. No se quita el indicador configurable.
+- `LogoEditor.qml`: ya contenía zoom, desplazamiento horizontal y vertical, encajar/rellenar y «Restablecer encuadre»; **no se afirma que estén probados**. Los archivos originales no deben alterarse.
+
+### Prueba segura con la ventana independiente
+
+```fish
+cd ~/plasma-smartbar
+git branch --show-current
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+La rama esperada es `prototype/v0.1-islas-so`. **No cambiar de rama automáticamente si tu carpeta local tiene modificaciones pendientes**; en ese caso, revisar la salida de Git antes de continuar.
+
+1. **Posición del menú:** clic derecho en los seis puntos: el menú debe abrir **debajo de Soledad**, sin taparla y sin perder opciones. Segundo clic derecho debe cerrarlo. Mover Soledad hacia el centro y repetir; probar Esc e izquierdo breve para cerrar y comprobar que el arrastre no abre menús.
+2. **Gestos de SO:** clic izquierdo breve muestra/oculta las fichas de Dolphin/Konsole/Brave; clic derecho muestra directamente «Aplicaciones (simulación)», sin opciones de Malvina; pulsación izquierda sostenida sigue abriendo ese mismo lanzador. Comprobar que abrir el flotante no cierra fichas SO ni bandeja ya desplegadas.
+3. **Malvina:** «Mostrar/Ocultar Malvina» aparece como primera entrada **solo en las opciones de los seis puntos**, y sigue funcionando. Verificar también su acceso desde el botón del lanzador flotante cuando está oculta, si corresponde.
+4. **Logo:** observar la huella antes/después y probar en «Personalizar logo de SO» las cinco máscaras. No debe aparecer un segundo marco redondeado ajeno a la forma seleccionada. En «Contorno de actividad» alternar apagado/fijo/recorrido y simular 0/3 ventanas; el indicador solo corresponde a la figura elegida y debe desaparecer con 0 ventanas.
+5. **Editor:** cambiar zoom, horizontal, vertical, encajar/rellenar y «Restablecer encuadre», con una foto y un GIF (si se dispone). Comprobar centrado y que no se modifique el archivo original.
+6. **Regresión:** arrastrar Soledad, abrir SO y bandeja juntos, simular maximización y verificar que `− □ ×` permanece a la derecha y la altura no cambia.
+
+Si algo falla, **guardar la salida exacta de Konsole y una captura** e informar los pasos usados. Las pruebas QML y de compatibilidad visual deben hacerse en CachyOS; la revisión de código no las sustituye. Registrar resultados en los issues [#1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [#5](https://github.com/nicoarg87/plasma-smartbar/issues/5) antes de dar los bugs por cerrados.
