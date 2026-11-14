@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.22 (personalización logo SO/GIF, máscara y colores por isla; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.23 (contorno luminoso de SO condicionado a ventanas abiertas; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -238,6 +238,20 @@ Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la 
 **ESTADO DE IMPLEMENTACIÓN:** se publicó solo en la rama `prototype/v0.1-islas-so`, [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. La huella está incluida como PNG predeterminado (copia de 200×200 con paleta optimizada). `LogoArtwork.qml` usa `QtQuick.Effects.MultiEffect` con máscara y `AnimatedImage`; `LogoEditor.qml` presenta vista previa y encuadre no destructivo; `AppearanceEditor.qml` permite tintes y opacidad; `main.xml` guarda claves y `main.qml` las conecta a KConfig. `preview_redimensionable.qml` conserva las preferencias solo en esa sesión. **Todavía sin prueba ejecutada en CachyOS después de estos cambios**, ni validación de persistencia con plasmoide instalado. Se requiere verificar rendimiento en KWin/Wayland y en hardware real. [Issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
 
 **Esta decisión posterior constituye una excepción explícita y limitada para GIF de logo respecto a la prioridad sin animaciones generales.**
+
+## 2.21. Indicador luminoso de SO solo cuando hay ventanas abiertas (14/11/2026)
+
+**NUEVA DECISIÓN FUNCIONAL CONFIRMADA POR EL MANTENEDOR:** el logo del botón SO dentro de Soledad debe ser **normal y sin contorno animado cuando no existan ventanas para mostrar**. Cuando hay una o más ventanas abiertas —incluidas minimizadas, según el modelo real de tareas aprobado—, puede identificarse el estado con un **contorno fino luminoso** alrededor del recorte elegido (cuadrado, círculo, rombo, corazón o estrella), llamativo pero sin desplazar ni alterar el logo.
+
+- **Condición de activación:** el efecto depende de la **existencia de ventanas/aplicaciones activas en el modelo SO**, NO del estado expandido/contraído de las fichas ni de una simulación fija cuando se implemente Plasma. Si el recuento es cero, el indicador queda **completamente apagado** y no debe ejecutar temporizadores de animación. El logo/GIF personalizado tiene su propia preferencia de reproducción; el indicador es independiente.
+- **Modos configurables:** **desactivado**, **borde luminoso fijo**, **tramo de luz que recorre el contorno**. El modo fijo, sin movimiento, es el predeterminado de esta prueba; el recorrido es opcional. También se configura **color/tonalidad** (por defecto cian), **grosor de 0,5 a 2 píxeles** y habilitación del movimiento. Se evita centelleo fuerte, parpadeos y animar el propio logo solo por tener ventanas.
+- **Forma y geometría:** el contorno sigue la forma visual del logo elegida por el usuario; está contenido dentro del botón existente, **sin alterar la altura fija, el ancho de Soledad, la fila SO/bandeja ni los controles**. El efecto puede ser reducido o desactivado por accesibilidad, ahorro de recursos o preferencia personal.
+- **Rendimiento:** cargar el pequeño lienzo únicamente cuando el indicador está activado **y hay ventanas**; el recorrido opcional usa temporizador moderado (~15 fotogramas/s en la prueba), desactivado si no hay ventanas. Optimizar/validar con KWin/Wayland y equipos reales antes de incorporarlo a una versión instalable.
+- **Vinculación:** la maqueta v0.1 tiene **tres ventanas FICTICIAS** por defecto y un control de prueba «Simular SO SIN ventanas (0)»/«CON ventanas (3)». **Esto NO equivale a detectar ventanas reales**: ese paso sigue pendiente con el modelo de tareas KDE.
+- **Acceso:** menú de los seis puntos de Soledad **con clic derecho** → «Contorno de actividad de SO…». Editor con vista previa de ambos estados, modo, color, grosor y movimiento; configuración conectada de forma experimental a KConfig (`soActivityStyle`, `soActivityColor`, `soActivityStroke`, `soActivityMotion`). Persistencia en plasmoide real todavía sin prueba.
+- **Estado:** `SoActivityOutline.qml`, `SoActivityEditor.qml` y `IslandButton.qml` implementados en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin validación en CachyOS después de este cambio**. No se toca el panel existente.
+
+**Esta excepción posterior amplía la autorización de efectos opcionales del botón SO** (antes solo GIF personalizable, sección 2.20), pero NO autoriza animar automáticamente islas, ventana, apertura de bandeja ni minimización. La propuesta queda sujeta a rendimiento y accesibilidad reales.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
