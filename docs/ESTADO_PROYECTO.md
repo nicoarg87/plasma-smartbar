@@ -147,6 +147,13 @@
 - **CORRECCIÓN EN RAMA EXPERIMENTAL, NO PROBADA AÚN:** [93f119a](https://github.com/nicoarg87/plasma-smartbar/commit/93f119a4663c1ea818d4f16f100d74b522546be2) hace simétrica la compensación del margen visible **al maximizar y al desmaximizar**, siempre que la alineación derecha esté desmarcada. Solo desplaza la isla si es necesario para no tapar el grupo de botones fijos. Con alineación marcada, mantiene la posición normal junto a controles. **No se cambió la altura ni la posición de los botones**.
 - **SIGUIENTE PRUEBA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; mover isla 1 al centro con casillas desmarcadas, activar/desactivar simulación y comprobar que no salta; repetir junto al extremo derecho, donde es aceptable un desplazamiento mínimo para liberar los controles. La rama principal y panel de KDE no se modificaron. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
 
+## Decimoquinta prueba v0.1 — salto de isla 1 al maximizar CORREGIDO y probado (14/11/2026)
+
+- **PROBADO EN CACHYOS:** el mantenedor repitió el escenario de fallo de la isla 1 (arrastre manual hacia el centro, sin alineación, seguida de maximización simulada) después del parche en `SmartBarContent.qml` y confirmó expresamente que **«ya no sucede»**. El salto involuntario hacia la izquierda **dejó de reproducirse en esa prueba**.
+- **CORRECCIÓN VALIDADA PARA ESE CASO:** [93f119a](https://github.com/nicoarg87/plasma-smartbar/commit/93f119a4663c1ea818d4f16f100d74b522546be2) en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), aún en borrador. Registrado en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+- **AÚN PENDIENTE:** probar colisión cerca del extremo derecho, demás combinaciones de alineación/retorno al desmaximizar, persistencia de preferencias, restricción de ancho en Plasmoidviewer y conexión con ventanas reales/KWin. **No instalado ni probado en panel de uso diario**.
+- **SIGUIENTE PASO RECOMENDADO:** diagnóstico de geometría de contención de Plasma y luego detección de ventanas reales sin actuar sobre ellas, manteniendo aisladas las pruebas.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
