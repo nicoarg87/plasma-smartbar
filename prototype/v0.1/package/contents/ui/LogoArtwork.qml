@@ -10,6 +10,7 @@ Item {
     property bool animateGif: false
     property bool animationAllowed: true
     property string cropShape: "square" // square, circle, diamond, heart, star
+    property string fitMode: "crop" // crop=rellenar, fit=mostrar imagen completa
     property real zoom: 1.0
     property real panX: 0.0 // -1 a 1
     property real panY: 0.0
@@ -36,7 +37,7 @@ Item {
                artwork.panX * Math.max(0, width - imageStage.width) / 2
             y: (imageStage.height - height) / 2 +
                artwork.panY * Math.max(0, height - imageStage.height) / 2
-            fillMode: Image.PreserveAspectCrop
+            fillMode: artwork.fitMode === "fit" ? Image.PreserveAspectFit : Image.PreserveAspectCrop
             smooth: true
             asynchronous: true
         }
@@ -51,7 +52,7 @@ Item {
                artwork.panX * Math.max(0, width - imageStage.width) / 2
             y: (imageStage.height - height) / 2 +
                artwork.panY * Math.max(0, height - imageStage.height) / 2
-            fillMode: Image.PreserveAspectCrop
+            fillMode: artwork.fitMode === "fit" ? Image.PreserveAspectFit : Image.PreserveAspectCrop
             smooth: true
             cache: false
             playing: visible && artwork.visible && artwork.animationAllowed
