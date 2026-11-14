@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.14 (expansiones condicionales de Soledad y Malvina, 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.15 (autocontracción independiente SO/bandeja, 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -147,6 +147,17 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Estado:** la demostración QML del PR #3 implementa la lógica de capacidad y la recuperación directa de Malvina, **pendiente de prueba en CachyOS**. Sigue usando aplicaciones y bandeja ficticias. No implica integración con bandeja/ventanas reales ni prueba definitiva de todos los anchos.
 
 Esta sección más reciente **prevalece sobre cualquier formulación anterior de «SO y bandeja mutuamente excluyentes»** en este documento o manuales históricos.
+
+## 2.13. Autocontracción opcional e independiente de SO y bandeja (14/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** la configuración de Plasma SmartBar debe permitir activar o desactivar la **autocontracción de la expansión de SO y de la bandeja por separado**, mediante acciones accesibles de configuración.
+
+- **SO — predeterminado activado:** luego de seleccionar una aplicación/ventana desde las fichas de SO, la expansión se contrae, como ya estaba aprobado. Si el usuario desmarca la preferencia, SO permanece abierto después de seleccionar. El clic breve sobre SO sigue pudiendo cerrarlo manualmente.
+- **Bandeja — predeterminado desactivado:** en la primera prueba funcional la autocontracción se dispara **después de utilizar un icono**. Si la opción se activa, la bandeja se contrae luego de esa acción; si no, permanece abierta. Esto no autoriza cerrar subpaneles antes de que el usuario haya terminado una interacción real; los casos de iconos de bandeja que abren menús o subpaneles necesitan validación posterior.
+- **Independencia:** las dos casillas no se afectan mutuamente. Tampoco se activan por abrir otra expansión cuando ambas caben. La **regla de capacidad horizontal de la sección 2.12 siempre tiene prioridad cuando falta espacio**, aun si ambas autocontracciones están desactivadas.
+- **Acceso:** menú del agarre de seis puntos → «Configuración de autocontracción». Las preferencias deben ser persistentes en el plasmoide real y accesibles sin editar archivos. La maqueta Qt independiente puede usar estado de sesión.
+- **Sin autocontracción por tiempo:** no se ha aprobado ninguna duración, pérdida de foco ni temporizador de inactividad como disparador. No introducirlo por inferencia. SO y bandeja deben permitir permanecer abiertos de forma intencional.
+- **Estado:** casillas y acciones implementadas **solo en QML de muestra de PR #3**, pendientes de prueba en CachyOS, de persistencia y de integración con los iconos/ventanas reales.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
