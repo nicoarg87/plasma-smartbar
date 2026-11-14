@@ -33,19 +33,27 @@ QQC2.Button {
         implicitWidth: 30
         implicitHeight: 28
 
-        LogoArtwork {
-            id: icon
+        // Cargar efectos de máscara/animación solo si realmente hay logo.
+        // Las fichas de ventanas y bandeja siguen siendo botones livianos.
+        Loader {
+            id: iconLoader
+            anchors.centerIn: parent
             width: 28
             height: 28
-            anchors.centerIn: parent
-            visible: control.iconSource.toString().length > 0
-            imageUrl: control.iconSource
-            animateGif: control.iconAnimated
-            animationAllowed: control.iconAnimationEnabled
-            cropShape: control.iconShape
-            zoom: control.iconZoom
-            panX: control.iconPanX
-            panY: control.iconPanY
+            active: control.iconSource.toString().length > 0
+            sourceComponent: Component {
+                LogoArtwork {
+                    width: 28
+                    height: 28
+                    imageUrl: control.iconSource
+                    animateGif: control.iconAnimated
+                    animationAllowed: control.iconAnimationEnabled
+                    cropShape: control.iconShape
+                    zoom: control.iconZoom
+                    panX: control.iconPanX
+                    panY: control.iconPanY
+                }
+            }
         }
 
         Text {
@@ -54,7 +62,7 @@ QQC2.Button {
             text: control.text
             // Si la imagen no existe, nunca perder el control SO.
             visible: control.iconSource.toString().length === 0 ||
-                     icon.loadError
+                     (iconLoader.item && iconLoader.item.loadError)
             color: control.enabled ? "#eaf7ff" : "#91a8b8"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
