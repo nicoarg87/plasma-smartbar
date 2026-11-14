@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.16 — Alineación derecha auto-destildada al arrastrar isla 1  
+**Versión:** 0.17 — Conservar la posición de isla 1 al desmaximizar sin retorno  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -620,3 +620,14 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Composición inmutable:** mover isla 1 **NO mueve** `− □ ×`, que siguen fijos al extremo derecho. Las fichas se expanden horizontalmente a la izquierda, el grosor es constante y la isla 2 sigue independiente.
 
 **Estado técnico:** en la rama de prueba [`prototype/v0.1-islas-so`](https://github.com/nicoarg87/plasma-smartbar/tree/prototype/v0.1-islas-so), QML incorpora estado `alignRightSelected`, destildado al arrastrar y alineación inmediata al activar la casilla. Se eliminó el retorno al **soltar** el agarre para no impedir que el usuario conserve el desplazamiento manual. **NO PROBADO AÚN en la instalación de CachyOS tras este cambio**, y no detecta ventanas reales. Mantener [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. Las reglas del presente apartado, posteriores, prevalecen sobre formulaciones anteriores de este manual que puedan sugerir que la casilla de alineación es un bloqueo permanente del arrastre.
+
+
+## 29. Sin desplazamiento involuntario al desmaximizar — observación en CachyOS (v0.17, 14/11/2026)
+
+**Probado y confirmado por el mantenedor:** el arrastre de isla 1 destilda la casilla de alineación derecha, y los botones ficticios `− □ ×` permanecen separados y fijos al extremo derecho del visor. La captura muestra la maximización simulada activada, la alineación destildada y la opción de retorno al desmaximizar disponible.
+
+**Fallo observado:** con el retorno automático **desactivado**, desmarcar «Simular ventana maximizada» quitaba los controles ficticios y la isla 1 se desplazaba ligeramente hacia la derecha sin que el usuario la arrastrara. El motivo es geométrico: la maqueta posicionaba isla 1 respecto a un margen formado por el desplazamiento manual **más** la reserva de ancho para controles, y al desaparecer estos últimos eliminaba esa reserva sin compensarla.
+
+**Regla vigente:** si **«Volver a la derecha al desmaximizar» está desactivado**, conservar **la posición visual horizontal de isla 1** cuando se retiran los controles. No basta con conservar el número interno del desplazamiento: debe compensarse la variación del espacio reservado. Se permiten solo correcciones imprescindibles para no quedar fuera de pantalla. Si el retorno **está activado**, al desmaximizar la isla vuelve a su posición habitual como antes. Los controles de ventana siguen anclados al extremo derecho y nunca se mueven junto con la isla.
+
+**Parche, NO probado:** actualización de `setPreviewMaximized` en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) guarda el margen visual anterior y recalcula el desplazamiento al desmaximizar sin retorno. Falta verificar en CachyOS con la secuencia que figura en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1). No existe todavía integración con ventanas reales de KWin.
