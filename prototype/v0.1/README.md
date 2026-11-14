@@ -211,3 +211,33 @@ bash prototype/v0.1/probar_ventanas.sh
 **Alcance:** solamente detecta y enumera. La ventana independiente de Qt no es todavía SO con fichas reales, ni demuestra coexistencia con las islas dentro del panel Plasma. El siguiente paso, **solo si esta prueba funciona**, es alimentar las fichas de SO con el modelo de tareas, manteniendo las acciones de control deshabilitadas al principio.
 
 **Referencias:** https://github.com/KDE/plasma-workspace/blob/master/libtaskmanager/tasksmodel.h , https://github.com/KDE/plasma-workspace/blob/master/libtaskmanager/abstracttasksmodel.h , y [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+
+## SO de dos gestos e isla 2 ocultable — PRUEBA NUEVA (14/11/2026)
+
+**Decisión funcional confirmada por el mantenedor:** isla 2 **visible por defecto**, pero se puede ocultar con clic derecho. SO permite usar un lanzador desde isla 1 mediante pulsación sostenida (< 0,5 s). La ocultación automática quedó **como idea futura sin comportamiento aprobado**.
+
+**Implementado solo como demostración QML, aún sin probar en CachyOS después de estos cambios:**
+
+- **Clic breve en SO:** abre/cierra las **ventanas ficticias** de Dolphin, Konsole, Brave, como antes.
+- **Mantener SO ~400 ms:** abre un **lanzador flotante de muestra** con búsqueda y nombres de ejemplo. **NO enumera ni ejecuta apps instaladas**; no equivale al lanzador real de KDE. La pulsación sostenida no debe generar un clic breve al soltar.
+- **Clic derecho sobre isla 2 (diamante a la izquierda):** menú «Ocultar isla 2». No hay autocierre ni autohide temporal.
+- **Con isla 2 oculta, clic derecho en SO:** «Mostrar isla 2» para recuperarla. Ese mismo menú incluye «Abrir lanzador de aplicaciones (muestra)» como alternativa al gesto sostenido. La tecla Menú contextual enfocando SO debe ofrecer acceso alternativo.
+- **Persistencia:** `showLauncherIsland=true` en KConfig para el plasmoide; **sin comprobar aún** si el visor conserva la elección entre sesiones. En `probar_ancho.sh` la preferencia es **solo de la sesión**, no se guarda en disco.
+- **Exclusividad:** abrir el lanzador cierra SO y bandeja; grosor y anclajes siguen fijos. La isla 2 oculta no reserva espacio para los límites de desplazamiento del agarre.
+
+**Prueba sin instalar paneles:**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Clic corto SO → observar fichas de ventanas **simuladas**. Clic SO para contraer.
+2. Mantener SO unos 0,4 s → debe aparecer el menú **«Aplicaciones (simulación)»** debajo de la barra. Soltar → no deben abrirse las fichas de ventanas.
+3. Clic derecho sobre isla 2 → «Ocultar isla 2». Debe desaparecer solo esa isla; SO y agarre no se mueven.
+4. Clic derecho en SO → «Abrir lanzador de aplicaciones (muestra)» y «Mostrar isla 2». Seleccionar «Mostrar isla 2» debe restaurar el botón izquierdo.
+5. Verificar que el menú flotante no aumente la altura de las islas y que bandeja/SO sigan excluyéndose. Si aparece un error de QML, conservar el texto de Konsole.
+
+**Pendiente:** sustituir las apps de ejemplo por la lista real de aplicaciones **instaladas** e implementar el lanzamiento efectivo (en una etapa posterior, con pruebas seguras). La prueba de ventanas **reales** en `probar_ventanas.sh` sigue disponible, separada de esta demostración.
