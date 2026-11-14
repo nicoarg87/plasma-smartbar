@@ -241,3 +241,27 @@ bash prototype/v0.1/probar_ancho.sh
 5. Verificar que el menú flotante no aumente la altura de las islas y que bandeja/SO sigan excluyéndose. Si aparece un error de QML, conservar el texto de Konsole.
 
 **Pendiente:** sustituir las apps de ejemplo por la lista real de aplicaciones **instaladas** e implementar el lanzamiento efectivo (en una etapa posterior, con pruebas seguras). La prueba de ventanas **reales** en `probar_ventanas.sh` sigue disponible, separada de esta demostración.
+
+## Corrección: el lanzador flotante sigue a isla 1 (14/11/2026)
+
+**FALLO OBSERVADO por el mantenedor en CachyOS (con captura):** tras arrastrar **isla 1 al centro** y mantener presionado SO, el menú «Aplicaciones (simulación)» aparecía cerca del extremo derecho de la ventana, **desconectado de isla 1**. La interacción de pulsación sostenida sí abrió el menú, pero su posición horizontal no siguió el arrastre.
+
+**CAUSA identificada:** la posición `x` del `QQC2.Popup` se calculaba mediante `soButton.mapToItem(root, 0, 0).x` dentro de un enlace QML. Ese cálculo no hacía explícita la dependencia de la coordenada horizontal del contenedor arrastrable, por lo que la posición del menú podía quedar desactualizada después de mover la isla.
+
+**PARCHE EN CÓDIGO (no probado aún en CachyOS):** ahora el menú se centra **debajo de la posición actual de isla 1** mediante `systemIsland.x` y `systemIsland.width`, propiedades que reaccionan a arrastre y cambios de tamaño. Se limita su `x` al ancho útil de la ventana, evitando que quede fuera de pantalla. No se modifican el largo de la pulsación (400 ms), la lógica del clic corto, la altura constante ni los botones fijos.
+
+**PRUEBA:**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Con la ventana Qt abierta, mantené SO 0,4 s **sin mover isla 1**: el menú debe aparecer justo debajo de esa isla a la derecha.
+2. Cerrá el menú (Esc), arrastrá **isla 1 al centro** con los seis puntos y mantené SO: el menú debe abrirse **debajo de la isla en el centro**, no en el extremo derecho.
+3. Con el menú visible, mové la isla con los seis puntos si la interacción lo permite: el menú debe acompañarla horizontalmente. Si el foco o un clic fuera cierra el menú, no confundir ese cierre con el error de anclaje.
+4. Probá también con isla 1 cerca del extremo izquierdo y después ampliá/restaurá la ventana Qt: el menú no debe quedar fuera del área visible.
+5. Verificá que clic corto SO sigue mostrando ventanas de muestra y que el grupo de controles de ventana no acompaña al agarre.
+
+**Estado:** el parche existe únicamente en PR #3 (borrador), **pendiente de retest en CachyOS**. El menú aún presenta aplicaciones ficticias y no ejecuta programas. No tocar el panel KDE instalado.
