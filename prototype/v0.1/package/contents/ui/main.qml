@@ -52,15 +52,32 @@ PlasmoidItem {
     }
 
     function setPreviewMaximized(value) {
-        previewMaximized = value
-        if (!previewMaximized && Plasmoid.configuration.autoReturnRight) {
-            // Solo al desmaximizar: no deshacer movimientos manuales
-            // cuando el usuario está arrastrando la isla.
-            alignRightNow()
+        if (previewMaximized === value) {
+            return
         }
+
+        // Posición física anterior respecto del borde derecho del visor:
+        // desplazamiento manual + espacio de los controles de ventana.
+        // Si no hay retorno automático, esa coordenada debe conservarse
+        // al desaparecer los controles; de otro modo la isla salta.
+        const oldRightMargin = islandOffset + controlsReservation
+        previewMaximized = value
+
+        if (!previewMaximized) {
+            if (Plasmoid.configuration.autoReturnRight) {
+                alignRightNow()
+            } else {
+                // Respetar la posición que eligió el usuario. Solo mover
+                // si los límites de pantalla exigen corregir el margen.
+                setIslandOffset(oldRightMargin - controlsReservation)
+                alignRightSelected = islandOffset <= 0
+            }
+        }
+        // Al maximizar sí se reserva sitio para los controles fijos.
         console.log("SmartBar v0.1: maximizada simulada =", previewMaximized,
                     "retorno =", Plasmoid.configuration.autoReturnRight,
-                    "desplazamiento =", islandOffset)
+                    "desplazamiento =", islandOffset,
+                    "margen visual =", islandOffset + controlsReservation)
     }
 
     function setAutoReturnRight(value) {
