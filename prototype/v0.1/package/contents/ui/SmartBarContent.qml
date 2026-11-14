@@ -195,6 +195,16 @@ Item {
         console.log("SmartBar v0.1: isla 2 visible =", value)
     }
 
+    function toggleGripMenu() {
+        // Abrir opciones solo por clic DERECHO o tecla de menú.
+        // El clic izquierdo queda libre para arrastrar Soledad.
+        if (gripMenu.visible) {
+            gripMenu.close()
+        } else {
+            gripMenu.popup()
+        }
+    }
+
     function toggleTray() {
         installedAppsPopup.close()
         if (trayExpanded) {
@@ -510,11 +520,29 @@ Item {
                             }
                         }
                     }
-                    onClicked: gripMenu.popup()
-                    QQC2.ToolTip.visible: hovered
+                    // NO abrir el menú por clic izquierdo: ese botón sirve
+                    // exclusivamente para agarrar y mover Soledad.
+                    // Clic derecho alterna abrir/cerrar opciones. El handler
+                    // no acepta el botón izquierdo ni intercepta el arrastre.
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+                        onClicked: root.toggleGripMenu()
+                    }
+                    Keys.onPressed: function(event) {
+                        // Acceso de teclado: tecla Menú o Mayús+F10.
+                        if (event.key === Qt.Key_Menu ||
+                            (event.key === Qt.Key_F10 &&
+                             (event.modifiers & Qt.ShiftModifier))) {
+                            root.toggleGripMenu()
+                            event.accepted = true
+                        }
+                    }
+                    QQC2.ToolTip.visible: hovered && !gripDrag.active
+                    QQC2.ToolTip.delay: 850
                     QQC2.ToolTip.text: root.launcherIslandVisible
-                        ? "Arrastrar Soledad. Clic: opciones, incluida Malvina."
-                        : "Malvina oculta: clic aquí y elegí Mostrar Malvina."
+                        ? "Arrastrar: botón izquierdo · Opciones: clic derecho"
+                        : "Malvina oculta · Clic derecho acá → Mostrar Malvina"
 
                     // target=null: el gesto modifica el margen, nunca la
                     // geometría vertical ni el panel real de KDE.
@@ -547,6 +575,10 @@ Item {
                     QQC2.Menu {
                         id: gripMenu
                         title: "Opciones de Soledad"
+                        // Sin cierre previo al presionar el mismo botón:
+                        // el segundo clic derecho debe cerrar, no reabrir.
+                        closePolicy: QQC2.Popup.CloseOnEscape
+                            | QQC2.Popup.CloseOnPressOutsideParent
                         // La recuperación de Malvina debe ser fácil de
                         // descubrir aun si no queda ningún botón a la
                         // izquierda. El agarre siempre sigue visible.
