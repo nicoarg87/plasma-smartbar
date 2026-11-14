@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.8 (alineación derecha automática del check al arrastrar aprobada el 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.9 (conservación de posición física al desmaximizar sin retorno; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -84,6 +84,15 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Perfiles por aplicación:** si Steam, Dolphin u otra aplicación tiene una posición guardada, debe poder recuperarse sin tener que modificar a mano la casilla. Un movimiento manual destilda la alineación, **pero no guarda ni sobrescribe perfiles**; el guardado requiere la acción contextual «Recordar esta posición para [aplicación]» ya aprobada.
 - **Invariantes:** no alterar altura, expansión en una sola fila, bandeja/SO excluyentes, fullscreen real, compatibilidad de aplicaciones ni el posicionamiento fijo de controles de ventana.
 - **Estado:** lógica de alineación incorporada **solo a la maqueta QML en la rama v0.1**, **todavía sin repetir pruebas en CachyOS**; integración con ventanas reales/KWin pendiente. La persistencia de preferencias globales continúa por validar.
+
+## 2.7. Mantener la posición física al retirar los controles de ventana (14/11/2026)
+
+**CONFIRMADO por comportamiento ya aprobado:** cuando la opción «Volver a la derecha al desmaximizar» está **desactivada** y una ventana deja de estar maximizada, la isla 1 debe **permanecer en la misma coordenada visual horizontal**, en vez de correrse hacia la derecha por la mera desaparición de los controles `− □ ×`.
+
+- El bloque de controles está fijo a la derecha y deja libre un ancho al desaparecer. Si el desplazamiento se mide respecto al espacio disponible a la izquierda de los controles, ese cambio **NO debe arrastrar la isla**: el posicionamiento debe compensar la diferencia geométrica.
+- **Retorno activado:** al desmaximizar, sigue rigiendo el regreso al extremo derecho. **Retorno desactivado:** conservar posición visual salvo ajuste mínimo imprescindible por límites físicos de pantalla.
+- La casilla contextual «Alinear isla 1 a la derecha» mantiene su independencia: al arrastrar se destilda, al tildar retorna inmediatamente. Un perfil de posición por aplicación guardado mediante clic derecho no se modifica solo por desmaximizar.
+- **Estado:** la corrección existe **solo en QML experimental del PR #3, no probada aún en CachyOS tras ese parche**. El posicionamiento con ventanas reales y varios monitores sigue pendiente. No cambia el grosor ni la separación de controles.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
