@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.27 — Clic breve SO cierra solo el lanzador si está abierto  
+**Versión:** 0.28 — Recuperar Malvina directamente desde los seis puntos de Soledad  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -737,3 +737,13 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 **Regla confirmada:** cuando el lanzador está visible, un clic breve en SO cierra **solo ese menú** y termina el procesamiento del clic, sin modificar `soExpanded` ni `trayExpanded`. Cuando no hay lanzador visible, un clic breve en SO sí alterna normalmente las fichas de ventanas. Las preferencias de autocontracción al seleccionar fichas o usar iconos siguen independientes; no se cambian la altura, el agarre, el separador ni los controles fijos.
 
 **Corrección en QML:** `toggleSO()` ahora comprueba `installedAppsPopup.visible`, llama a `installedAppsPopup.close()` y retorna inmediatamente en esa rama. El código se publicó en el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendiente de prueba posterior en CachyOS**. No hay integración con ventanas reales ni instalación del panel. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## 40. Acceso visible para recuperar Malvina desde el agarre de Soledad (v0.28, 14/11/2026)
+
+**Error de descubribilidad reportado por el mantenedor en CachyOS:** después de ocultar **Malvina (isla 2)**, no encontró ninguna opción visible en Soledad que le permitiera volver a mostrarla. Aunque la maqueta incluía una acción de clic derecho en SO y una opción dentro del lanzador flotante de SO sostenido, esos accesos **no resultaron evidentes**.
+
+**DECISIÓN FUNCIONAL CONFIRMADA:** al hacer **clic normal en el agarre de seis puntos**, que permanece a la derecha del botón SO, se abre el menú de opciones de Soledad. La **primera acción visible y seleccionable** de ese menú es **«Mostrar Malvina (isla 2)»** si la isla izquierda está oculta, o **«Ocultar Malvina (isla 2)»** si está visible. Un clic ejecuta la acción y conserva la visibilidad elegida hasta una nueva orden del usuario. El valor predeterminado de Malvina sigue siendo **visible**.
+
+**Otros accesos:** el menú contextual de SO y el botón «Mostrar Malvina» del lanzador flotante siguen disponibles. Para hacer descubrible la nueva ruta, los textos de ayuda del agarre y SO indican cómo recuperar Malvina cuando está oculta. No se agrega un botón permanente ni se cambia el grosor, las posiciones confirmadas, las fichas SO, la bandeja ni las funciones de los seis puntos.
+
+**Implementación:** `SmartBarContent.qml` en la rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) incorporó un `MenuItem` de visibilidad de Malvina al principio de `gripMenu`, accionando el mismo evento `requestLauncherIslandVisibilityChange()` ya vinculado a KConfig `showLauncherIsland`. **Pendiente de test en CachyOS**, y persistencia en plasmoide real no comprobada. En `probar_ancho.sh` la elección dura solo durante esa ventana Qt. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
