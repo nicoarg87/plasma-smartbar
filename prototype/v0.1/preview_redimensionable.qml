@@ -76,7 +76,7 @@ Window {
               " · Malvina: " + (bar.launcherIslandVisible ? "visible" : "oculta") +
               " · SO autocierre: " + (bar.autoCollapseSO ? "sí" : "no") +
               " · bandeja autocierre: " + (bar.autoCollapseTray ? "sí" : "no") +
-              "\\nAncho Soledad: " + Math.round(bar.actualIslandWidth) +
+              "\nAncho Soledad: " + Math.round(bar.actualIslandWidth) +
               " / espacio disponible: " + Math.round(bar.availableIslandWidth) +
               " px lógicos · prioridad: " + (bar.lastExpandedMode === "so" ? "SO" : "bandeja")
     }
