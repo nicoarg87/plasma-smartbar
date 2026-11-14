@@ -59,7 +59,30 @@ Window {
               "muestra siguen el borde derecho. El fondo es solamente de la ventana de prueba."
     }
 
+    // Diagnóstico visible EXCLUSIVAMENTE en esta ventana de prueba;
+    // no es parte de la barra ni del plasmoide final.
     QQC2.Label {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: widthLabel.top
+        anchors.leftMargin: 18
+        anchors.rightMargin: 18
+        anchors.bottomMargin: 8
+        color: "#c7bad8"
+        font.pixelSize: 11
+        wrapMode: Text.WordWrap
+        text: "Soledad: " + (bar.soExpanded ? "SO abierto" : "SO cerrado") +
+              " · " + (bar.trayExpanded ? "bandeja abierta" : "bandeja cerrada") +
+              " · Malvina: " + (bar.launcherIslandVisible ? "visible" : "oculta") +
+              " · SO autocierre: " + (bar.autoCollapseSO ? "sí" : "no") +
+              " · bandeja autocierre: " + (bar.autoCollapseTray ? "sí" : "no") +
+              "\\nAncho Soledad: " + Math.round(bar.actualIslandWidth) +
+              " / espacio disponible: " + Math.round(bar.availableIslandWidth) +
+              " px lógicos · prioridad: " + (bar.lastExpandedMode === "so" ? "SO" : "bandeja")
+    }
+
+    QQC2.Label {
+        id: widthLabel
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.leftMargin: 18
