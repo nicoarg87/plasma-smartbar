@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.18](MANUAL_MAESTRO.md), [Constitución Técnica v1.10](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.19](MANUAL_MAESTRO.md), [Constitución Técnica v1.11](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -139,6 +139,13 @@
 - **VALIDADO PARA EL COMPONENTE VISUAL Qt:** los extremos izquierdo/derecho reaccionan al ancho de ventana en la vista independiente. **No se requiere seguir corrigiendo a ciegas el ancho de `SmartBarContent.qml`** por este síntoma.
 - **NO RESUELTO EN PLASMA:** en `plasmoidviewer`, el contenedor seguía sin conceder al plasmoide todo el ancho al agrandar la ventana. La prueba Qt no verifica el tamaño asignado al applet Plasma ni integración con KWin/Wayland, ventanas reales, controles reales o un panel de escritorio.
 - **PRÓXIMO PASO:** investigar la geometría que asigna `plasmoidviewer`/Plasma al plasmoide de manera aislada, sin reemplazar el panel existente; después enlazar el selector SO a la lista real de ventanas abiertas. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
+
+## Decimocuarta prueba v0.1 — salto izquierdo al maximizar isla 1 (14/11/2026)
+
+- **FALLO REPORTADO POR EL MANTENEDOR:** con alineación derecha y retorno al desmaximizar desactivados, arrastró **isla 1** manualmente; al marcar «Simular ventana maximizada», la isla se desplazó a la izquierda automáticamente. El usuario corrigió que se refiere a la **isla 1 principal**, nunca isla 2.
+- **DIAGNÓSTICO DEL CÓDIGO:** la compensación del margen de los controles `− □ ×` estaba programada solo al **desmaximizar**. Al **maximizar**, agregar `controlsReservation` modificaba la posición visible de la isla sin que el usuario la moviera.
+- **CORRECCIÓN EN RAMA EXPERIMENTAL, NO PROBADA AÚN:** [93f119a](https://github.com/nicoarg87/plasma-smartbar/commit/93f119a4663c1ea818d4f16f100d74b522546be2) hace simétrica la compensación del margen visible **al maximizar y al desmaximizar**, siempre que la alineación derecha esté desmarcada. Solo desplaza la isla si es necesario para no tapar el grupo de botones fijos. Con alineación marcada, mantiene la posición normal junto a controles. **No se cambió la altura ni la posición de los botones**.
+- **SIGUIENTE PRUEBA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; mover isla 1 al centro con casillas desmarcadas, activar/desactivar simulación y comprobar que no salta; repetir junto al extremo derecho, donde es aceptable un desplazamiento mínimo para liberar los controles. La rama principal y panel de KDE no se modificaron. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
