@@ -171,14 +171,11 @@ Item {
             return
         }
         installedLauncherSource = requestedSource
-        if (installedLauncherSource === "so") {
-            // Regla vigente: el lanzador de Soledad reemplaza las fichas
-            // abiertas de SO y bandeja, no crea otra fila.
-            soExpanded = false
-            trayExpanded = false
-        }
-        // Malvina abre desde la izquierda sin contraer preventivamente
-        // lo que la persona dejó desplegado en Soledad.
+        // El lanzador es un panel FLOTANTE independiente de las fichas de
+        // SO y los iconos de bandeja: abrirlo desde cualquiera de las islas
+        // NO debe modificar soExpanded ni trayExpanded.
+        // Sólo la selección, el cierre manual y la falta real de espacio
+        // pueden contraer las expansiones según sus reglas propias.
         installedAppsSearch.text = ""
         installedAppsPopup.open()
         installedAppsSearch.forceActiveFocus()
