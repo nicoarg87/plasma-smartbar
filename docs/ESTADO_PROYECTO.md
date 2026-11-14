@@ -7,14 +7,16 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.14](MANUAL_MAESTRO.md), [Constitución Técnica v1.6](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.15](MANUAL_MAESTRO.md), [Constitución Técnica v1.7](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
 - [x] [Protocolo de continuidad](CONTINUIDAD_CHATGPT.md) y [plantilla de instrucciones](PLANTILLA_INSTRUCCIONES_CHATGPT.md) para conversaciones futuras.
-- [x] Diseño aprobado: **islas 1 y 2 visibles por defecto**, isla 3 oculta; controles de ventana **fijos en el extremo derecho, independientes del arrastre de isla 1**, al maximizar. Viabilidad con KWin/Wayland real todavía no probada.
+- [x] Diseño aprobado: **isla 1 principal**, isla 2 (lanzador secundario) visible por defecto pero ocultable, isla 3 oculta; controles de ventana **fijos en el extremo derecho, independientes del arrastre de isla 1**, al maximizar. Viabilidad con KWin/Wayland real todavía no probada.
 - [x] Requisito aprobado: agarre pequeño de **seis puntos (2 × 3) a la derecha de SO**, que debe permanecer estable al abrir bandeja o SO. **Implementado solo como demo QML en rama experimental**, sin ejecutar en CachyOS ni conectarlo a ventanas reales.
 - [x] Aprobado: la isla 1 **vuelve automáticamente a la derecha al desmaximizar por defecto**, con casilla de configuración persistente para desactivarlo. En la demo se incluye simulación de maximización y preferencia KConfig `autoReturnRight=true`; **persistencia y conducta real pendientes de pruebas**.
+- [x] **NUEVA decisión funcional aprobada, NO implementada:** posición horizontal guardada **por aplicación activa/maximizada**. Usuario arrastra isla 1 y hace **clic derecho → «Recordar esta posición para [aplicación]»**. Al volver a esa app maximizada, reaplicar la ubicación; al cambiar de app, cargar su perfil; al desmaximizar, retorno global predeterminado. Mover sin guardar no cambia perfiles. [Issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) abierto.
+- [x] La adaptación automática de altura según la barra de Steam **NO está aprobada**; sigue en estudio técnico, manteniendo grosor global fijo.
 - [x] Efecto futuro de minimización «gaveta de SO» documentado; no implementado.
 - [x] **Nueva decisión aprobada, no implementada:** modos horizontales **superior (por defecto)** e **inferior (configurable)**. Los controles SmartBar para ventanas maximizadas deben ubicarse en el **mismo borde** elegido, **abajo cuando la barra esté abajo**. La posibilidad de trasladar decoraciones originales es técnicamente incierta. Los bordes verticales izquierdo/derecho se reservan para experimentación futura, no como compromiso de entrega.
 - [x] Issue técnico [#2](https://github.com/nicoarg87/plasma-smartbar/issues/2) abierto para investigar/validar el modo inferior y controles abajo.
@@ -28,6 +30,7 @@
 - [ ] No hay modo vertical experimental funcional; dejar arquitectura preparada no equivale a ofrecerlo.
 - [ ] No se ha ejecutado `plasmoidviewer` ni `plasmawindowed` en CachyOS; no se ha instalado Plasma SmartBar como barra o panel.
 - [ ] No se ha demostrado detección/activación de ventanas o pestañas con KWin.
+- [ ] No existe reconocimiento real de la aplicación activa/maximizada ni **perfiles de posición por aplicación**, interfaz de clic derecho o persistencia de esos perfiles.
 - [ ] No se ha probado superposición horizontal en navegadores maximizados ni fullscreen.
 - [ ] No se han ejecutado pruebas de consumo de CPU/RAM, rendimiento o compatibilidad entre distribuciones.
 - [ ] No hay lanzamiento, paquete, Release ni instalador.
@@ -83,7 +86,7 @@
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
-**Siguiente paso inmediato:** validar la **preferencia de retorno desactivable/persistente** (el retorno activado por defecto ya fue probado), y verificar exclusividad SO/bandeja y geometría fija. Si reaparece el problema del botón de recarga de `plasmoidviewer`, conservar el registro para diagnosticarlo. Revisar resultados en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) permanece borrador. Después, comenzar la investigación de ventanas reales y KWin/Wayland.
+**Siguiente paso inmediato:** validar el **parche que separa controles fijos de isla 1** en CachyOS; luego la **preferencia de retorno desactivable/persistente** (el retorno activado por defecto ya fue probado) y exclusividad SO/bandeja/geometría fija. El nuevo [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) de memoria por aplicación se abordará después de obtener datos reales de ventanas. Si reaparece el problema del botón de recarga de `plasmoidviewer`, conservar el registro para diagnosticarlo. Revisar resultados en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) permanece borrador. Después, comenzar la investigación de ventanas reales y KWin/Wayland.
 
 ## Próximo hito organizativo
 Conservar la sincronía documental entre la Constitución, el Manual Maestro y la plantilla del Proyecto de ChatGPT. **Si la plantilla en GitHub cambia, copiar su versión actualizada a las instrucciones del Proyecto en ChatGPT; la sincronización no es automática.**
