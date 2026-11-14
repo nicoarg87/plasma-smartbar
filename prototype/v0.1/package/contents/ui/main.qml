@@ -28,6 +28,38 @@ PlasmoidItem {
         launcherIslandVisible: Plasmoid.configuration.showLauncherIsland
         autoCollapseSO: Plasmoid.configuration.autoCollapseSO
         autoCollapseTray: Plasmoid.configuration.autoCollapseTray
+        soLogoMode: Plasmoid.configuration.soLogoMode
+        soLogoPath: Plasmoid.configuration.soLogoPath
+        soLogoShape: Plasmoid.configuration.soLogoShape
+        soLogoZoom: Plasmoid.configuration.soLogoZoom
+        soLogoPanX: Plasmoid.configuration.soLogoPanX
+        soLogoPanY: Plasmoid.configuration.soLogoPanY
+        soLogoAnimate: Plasmoid.configuration.soLogoAnimate
+        soledadColor: Plasmoid.configuration.soledadColor
+        malvinaColor: Plasmoid.configuration.malvinaColor
+        backgroundColor: Plasmoid.configuration.backgroundColor
+        soledadOpacity: Plasmoid.configuration.soledadOpacity
+        malvinaOpacity: Plasmoid.configuration.malvinaOpacity
+        backgroundOpacity: Plasmoid.configuration.backgroundOpacity
+        showBackground: Plasmoid.configuration.showBackground
+        onRequestSoLogoChange: function(mode, path, shape, zoom, panX, panY, allowGif) {
+            Plasmoid.configuration.soLogoMode = mode
+            Plasmoid.configuration.soLogoPath = path
+            Plasmoid.configuration.soLogoShape = shape
+            Plasmoid.configuration.soLogoZoom = zoom
+            Plasmoid.configuration.soLogoPanX = panX
+            Plasmoid.configuration.soLogoPanY = panY
+            Plasmoid.configuration.soLogoAnimate = allowGif
+        }
+        onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
+            Plasmoid.configuration.soledadColor = a
+            Plasmoid.configuration.soledadOpacity = alphaA
+            Plasmoid.configuration.malvinaColor = b
+            Plasmoid.configuration.malvinaOpacity = alphaB
+            Plasmoid.configuration.showBackground = shown
+            Plasmoid.configuration.backgroundColor = bg
+            Plasmoid.configuration.backgroundOpacity = alphaBg
+        }
         onRequestAutoReturnRightChange: function(newValue) {
             Plasmoid.configuration.autoReturnRight = newValue
         }
