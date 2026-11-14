@@ -25,6 +25,7 @@ Item {
     property string soLogoMode: "default"  // default/custom/text
     property string soLogoPath: ""
     property string soLogoShape: "square"
+    property string soLogoFitMode: "fit"
     property real soLogoZoom: 1
     property real soLogoPanX: 0
     property real soLogoPanY: 0
@@ -62,7 +63,8 @@ Item {
                                    real stroke, bool allowMotion)
 
     signal requestSoLogoChange(string mode, string path, string shape,
-                               real zoom, real panX, real panY, bool allowGif)
+                               string fitMode, real zoom, real panX, real panY,
+                               bool allowGif)
     signal requestAppearanceChange(string soledadColor, real soledadOpacity,
                                    string malvinaColor, real malvinaOpacity,
                                    bool showBackground, string backgroundColor,
@@ -294,6 +296,7 @@ Item {
         logoEditor.logoMode = root.soLogoMode
         logoEditor.filePath = root.soLogoPath
         logoEditor.shape = root.soLogoShape
+        logoEditor.cropFitMode = root.soLogoFitMode
         logoEditor.cropZoom = root.soLogoZoom
         logoEditor.cropPanX = root.soLogoPanX
         logoEditor.cropPanY = root.soLogoPanY
@@ -332,8 +335,9 @@ Item {
     LogoEditor {
         id: logoEditor
         defaultImage: root.defaultSoLogo
-        onSaveRequested: function(mode, path, shape, zoom, panX, panY, allowGif) {
-            root.requestSoLogoChange(mode, path, shape, zoom, panX, panY, allowGif)
+        onSaveRequested: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif) {
+            root.requestSoLogoChange(mode, path, shape, fitMode,
+                                     zoom, panX, panY, allowGif)
         }
     }
     SoActivityEditor {
@@ -558,6 +562,7 @@ Item {
                     iconAnimated: root.activeSoLogoIsGif
                     iconAnimationEnabled: root.soLogoAnimate
                     iconShape: root.soLogoShape
+                    iconFitMode: root.soLogoFitMode
                     iconZoom: root.soLogoZoom
                     iconPanX: root.soLogoPanX
                     iconPanY: root.soLogoPanY
