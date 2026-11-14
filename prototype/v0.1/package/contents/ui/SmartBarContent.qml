@@ -42,6 +42,8 @@ Item {
     // Menú de muestra: NO representa las aplicaciones instaladas todavía.
     readonly property var demoInstalledApps: ["Dolphin", "Konsole", "Brave", "Firefox", "Configuración"]
     property bool soHoldTriggered: false
+    // Origen del lanzador compartido: cada isla lo abre debajo de sí misma.
+    property string installedLauncherSource: "so"
 
     // Reservar siempre espacio para la expansión MÁS ancha; abrir bandeja o SO
     // no debe empujar el agarre ni SO, aun después de un arrastre.
@@ -160,13 +162,21 @@ Item {
         }
     }
 
-    function openInstalledLauncher() {
-        soExpanded = false
-        trayExpanded = false
+    function openInstalledLauncher(source) {
+        installedLauncherSource = source === "malvina" ? "malvina" : "so"
+        if (installedLauncherSource === "so") {
+            // Regla vigente: el lanzador de Soledad reemplaza las fichas
+            // abiertas de SO y bandeja, no crea otra fila.
+            soExpanded = false
+            trayExpanded = false
+        }
+        // Malvina abre desde la izquierda sin contraer preventivamente
+        // lo que la persona dejó desplegado en Soledad.
         installedAppsSearch.text = ""
         installedAppsPopup.open()
         installedAppsSearch.forceActiveFocus()
-        console.log("SmartBar v0.1: lanzador SO de muestra (sin abrir aplicaciones)")
+        console.log("SmartBar v0.1: lanzador simulado desde",
+                    installedLauncherSource, "(sin iniciar aplicaciones)")
     }
 
     function setLauncherIslandVisible(value) {
@@ -217,15 +227,14 @@ Item {
     QQC2.Popup {
         id: installedAppsPopup
         parent: root
-        // El popup pertenece a root, pero debe seguir el movimiento REAL
-        // de isla 1. mapToItem() no registra necesariamente la dependencia
-        // reactiva del anclaje desplazable: se quedaba con la coordenada
-        // antigua (extremo derecho) cuando se arrastraba la isla al centro.
-        // Usar systemIsland.x/width obliga a recalcular en cada arrastre,
-        // expansión o redimensionado. Centrar el menú debajo de la isla
-        // y acotarlo al ancho visible del contenedor.
+        // Un solo lanzador, dos puntos de apertura. El origen es reactivo
+        // tanto al arrastre de Soledad como al ancho del contenedor.
+        // Malvina queda a la izquierda: el popup abre DEBAJO de Malvina,
+        // no bajo SO a la derecha. Los bordes siempre se respetan.
         x: Math.max(0, Math.min(Math.max(0, root.width - width),
-                               systemIsland.x + (systemIsland.width - width) / 2))
+               root.installedLauncherSource === "malvina" && root.launcherIslandVisible
+               ? launcherIsland.x + (launcherIsland.width - width) / 2
+               : systemIsland.x + (systemIsland.width - width) / 2))
         y: root.fixedHeight + 5
         width: 275
         height: 265
@@ -310,9 +319,9 @@ Item {
                 anchors.centerIn: parent
                 text: root.launcherPreview ? "Apps" : "M"
                 accent: true
-                onClicked: root.openInstalledLauncher()
+                onClicked: root.openInstalledLauncher("malvina")
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: "Malvina (isla 2): lanzador de muestra. Clic derecho: ocultar."
+                QQC2.ToolTip.text: "Malvina: clic abre lanzador debajo de esta isla; derecho: ocultar."
 
                 MouseArea {
                     anchors.fill: parent
@@ -370,6 +379,19 @@ Item {
                     }
                 }
 
+                // Separación mínima y legible entre iconos de bandeja y
+                // fichas SO, solamente cuando ambas expansiones están
+                // visibles. Se incluye naturalmente en el ancho medido.
+                Rectangle {
+                    id: traySOSeparator
+                    visible: root.trayExpanded && root.soExpanded
+                    width: 2
+                    height: 24
+                    radius: 1
+                    color: "#7594a8"
+                    y: (systemRow.height - height) / 2
+                }
+
                 Repeater {
                     model: root.soExpanded ? root.demoApps : []
                     delegate: IslandButton {
@@ -407,7 +429,7 @@ Item {
                         repeat: false
                         onTriggered: {
                             root.soHoldTriggered = true
-                            root.openInstalledLauncher()
+                            root.openInstalledLauncher("so")
                         }
                     }
 
@@ -428,7 +450,7 @@ Item {
                         id: soContextMenu
                         QQC2.MenuItem {
                             text: "Abrir lanzador de aplicaciones (muestra)"
-                            onTriggered: root.openInstalledLauncher()
+                            onTriggered: root.openInstalledLauncher("so")
                         }
                         QQC2.MenuItem {
                             text: root.launcherIslandVisible ? "Ocultar Malvina (isla 2)" : "Mostrar Malvina (isla 2)"
