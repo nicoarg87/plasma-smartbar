@@ -550,3 +550,27 @@ En la ventana Qt de prueba:
 4. Si el menú se abre cortado, fuera de pantalla o debajo de Malvina, adjuntá **captura** y salida de Konsole. El cálculo está revisado estáticamente, **todavía no validado en el CachyOS del mantenedor ni en Wayland**.
 
 Mantener [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) abierto y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. No fusionar ni modificar el panel instalado antes de validar la prueba.
+
+## Retest: arrastre con opciones abiertas y ayuda emergente (14/11/2026)
+
+**FALLO REPORTADO EN CACHYOS:** luego de abrir «Opciones de Soledad», al usar el botón izquierdo sobre los seis puntos para mover isla 1 hacia la izquierda, el menú/ayuda podía permanecer en su posición anterior y el arrastre de regreso hacia la derecha dejaba de funcionar correctamente. El usuario observó que la isla podía terminar desplazada hacia el extremo izquierdo. **No hay evidencia de un crash**: no se ejecutaron todavía pruebas con más menús abiertos. El resultado de abrir el menú **debajo** de Soledad sí fue confirmado.
+
+**PARCHE EXPERIMENTAL (AÚN NO PROBADO):** [752be30](https://github.com/nicoarg87/plasma-smartbar/commit/752be306abde9db5b329008ec4ac4474ff8aef01) en `SmartBarContent.qml` cierra el menú al **presionar con izquierdo el agarre**, antes de empezar el arrastre, y vuelve a garantizar el cierre cuando `DragHandler` se activa. También inhibe el `ToolTip` mientras el menú está abierto, se pulsa o se arrastra el agarre, y hasta que el puntero sale del botón. Conserva la casilla de alineación y el cálculo de movimiento existentes; no reubica la isla automáticamente por cerrar un popup.
+
+**Prueba segura (solo ventana Qt):**
+
+```bash
+cd ~/plasma-smartbar
+git branch --show-current  # debe mostrar prototype/v0.1-islas-so
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Abrí opciones con **derecho** sobre los seis puntos: tienen que aparecer **debajo de Soledad**.
+2. Sin cerrar las opciones manualmente, **presioná y arrastrá con izquierdo** los seis puntos de Soledad hacia el centro/izquierda: las opciones y la ayuda deben **desaparecer de inmediato**; no deben quedarse visibles en la ubicación anterior.
+3. **Sin volver a abrir el menú**, arrastrá los seis puntos hacia la derecha y comprobá que Soledad **puede recuperar su posición original**. Soltar no debe provocar un nuevo salto horizontal.
+4. Reabrí opciones con derecho, cerralas con **izquierdo breve** y repetí el arrastre; verificá también Esc y segundo derecho. Si cambia la posición sin arrastrar, anotá exactamente en qué paso.
+5. Con SO y bandeja de muestra abiertos, repetí a ancho grande y reducido. Verificá que el grosor no cambie, los seis puntos queden junto a SO y los controles de maximización simulada permanezcan fijos.
+6. Si se reproduce bloqueo de arrastre, menú que queda visible, salto al extremo izquierdo o error de QML, compartí captura y mensajes de Konsole.
+
+**Estado:** comprobación de código únicamente; todavía falta validación del mantenedor en CachyOS/Wayland. No reemplazar el panel KDE habitual; PR #3 sigue en borrador.
