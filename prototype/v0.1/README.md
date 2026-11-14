@@ -265,3 +265,33 @@ bash prototype/v0.1/probar_ancho.sh
 5. Verificá que clic corto SO sigue mostrando ventanas de muestra y que el grupo de controles de ventana no acompaña al agarre.
 
 **Estado:** el parche existe únicamente en PR #3 (borrador), **pendiente de retest en CachyOS**. El menú aún presenta aplicaciones ficticias y no ejecuta programas. No tocar el panel KDE instalado.
+
+## Soledad y Malvina: coexistencia de expansiones y autocontracción independiente (14/11/2026)
+
+**CAMBIO CONFIRMADO POR EL MANTENEDOR:** isla 1 se llama **Soledad**, isla 2 **Malvina** (por ahora se conserva el texto «SO» del botón). El renombrado de todo el repositorio/producto sigue pendiente de confirmación. **SO y bandeja ya NO deben excluirse automáticamente**: si las dos expansiones caben horizontalmente, permanecen visibles las dos hasta que el usuario decida cerrarlas. Si falta espacio, la expansión pedida más recientemente prevalece y se contrae la anterior. El ancho se mide respecto del lugar actual de Soledad, la visibilidad de Malvina y la reserva de controles `− □ ×`.
+
+**Recuperación accesible:** si ocultaste Malvina por clic derecho, mantené pulsado **SO** para abrir el menú flotante. Verás un botón **«Mostrar Malvina (isla 2)»**. Un clic la restaura, sin necesidad de abrir el menú de clic derecho de SO.
+
+**Dos ajustes separados de autocontracción:** en el **menú de los seis puntos → «Configuración de autocontracción»**:
+- **«SO: contraer tras elegir ventana»**, activado por defecto (respeta la conducta que ya estaba confirmada). Si lo desactivás, tocar una ficha simulada de SO deja las fichas abiertas.
+- **«Bandeja: contraer tras usar icono»**, desactivado por defecto. Si lo activás, tocar cualquier icono **de muestra** de bandeja hace que esa expansión se contraiga. No se cambia Wi-Fi, audio ni Bluetooth del equipo.
+Las opciones se configuran por separado. La **selección de una ficha/icono** es el disparador de esta primera prueba: no se introducen temporizadores ni cierre por inactividad. Abrir una expansión no dispara la autocontracción de la otra mientras haya lugar. Si no entra todo, la regla de espacio manda.
+
+**Estado del código:** lógica programada en `SmartBarContent.qml`, KConfig `autoCollapseSO=true` y `autoCollapseTray=false` declarados para la vista plasmoide; en la vista Qt independiente se mantienen solo durante la sesión. **Todavía NO probado en CachyOS después de estas modificaciones.** No se probó con ventanas o bandeja reales.
+
+### Prueba segura en Fish
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. En una ventana Qt suficientemente ancha, clic breve SO para desplegar fichas; después flecha para desplegar la bandeja. **Deben verse ambas** en una sola fila, sin que el agarre ni SO se desplacen.
+2. Reducí el ancho o mové Soledad hacia la izquierda hasta que no quepan ambas y repetí. **La última expansión solicitada debe permanecer abierta y la anterior contraerse**, sin salirse de pantalla.
+3. Abrí con SO las fichas; tocá Dolphin de muestra con la autocontracción SO tildada (se contrae), desmarcá la opción en el menú de los seis puntos y repetí (no se contrae).
+4. Abrí la bandeja, tocá Wi-Fi de muestra con autocontracción desactivada (permanece); activá su opción y repetí (se contrae). **No hay acciones reales**.
+5. Ocultá Malvina con clic derecho en su botón. Mantené SO unos 400 ms; desde el menú flotante elegí **«Mostrar Malvina (isla 2)»** y comprobá que reaparece de inmediato.
+6. Comprobá el arrastre de los seis puntos, el menú flotante debajo de Soledad y los controles de ventana fijos.
+
+Si falla la ejecución, conservá el texto de Konsole. El prototipo es una ventana independiente y **no reemplaza el panel de KDE**.
