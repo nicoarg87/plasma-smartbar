@@ -9,8 +9,16 @@
       <default>true</default>
     </entry>
     <entry name="showLauncherIsland" type="Bool">
-      <label>Mostrar isla 2 (lanzador izquierdo)</label>
+      <label>Mostrar Malvina (isla 2)</label>
       <default>true</default>
+    </entry>
+    <entry name="autoCollapseSO" type="Bool">
+      <label>Contraer SO después de seleccionar una ventana</label>
+      <default>true</default>
+    </entry>
+    <entry name="autoCollapseTray" type="Bool">
+      <label>Contraer bandeja después de usar un icono</label>
+      <default>false</default>
     </entry>
   </group>
 </kcfg>
