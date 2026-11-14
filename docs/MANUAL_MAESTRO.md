@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.26 — Lanzador SO no contrae bandeja ni fichas abiertas  
+**Versión:** 0.27 — Clic breve SO cierra solo el lanzador si está abierto  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -727,3 +727,13 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 **Prioridades sin contradicción:** la regla de **falta de espacio entre SO y bandeja** continúa operando (última expansión horizontal abierta tiene prioridad); las preferencias independientes de autocontracción **SO al seleccionar ficha** y **bandeja tras usar icono** también. Pero **abrir el lanzador no equivale a seleccionar ninguna ficha o icono**, de modo que no dispara esas contracciones. Con suficiente ancho horizontal ambas expansiones pueden quedar visibles mientras también se muestra el menú flotante, sin aumentar grosor ni mover controles fijos.
 
 **Estado:** parche publicado en rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3); **no probado todavía en CachyOS** después de este ajuste. Comprobar con `probar_ancho.sh` que SO y bandeja continúan abiertos mientras se abre/cierra el lanzador con pulsación sostenida. El prototipo sigue usando aplicaciones ficticias y no controla ventanas reales. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## 39. Clic breve en SO con lanzador abierto: cerrar solo el flotante (v0.27, 14/11/2026)
+
+**PRUEBA ANTERIOR VALIDADA POR EL MANTENEDOR EN CACHYOS:** tras el parche que evitó que la pulsación sostenida de SO cerrara las fichas horizontales y la bandeja, confirmó «Ahora sí, quedó genial». El caso de **apertura de lanzador sin contraer las expansiones** pasó a PROBADO en la ventana Qt independiente.
+
+**NUEVO BUG DETECTADO:** con el lanzador flotante de aplicaciones visible y las fichas de ventanas abiertas todavía expandidas, hacer **clic breve sobre SO** cerraba el lanzador, pero además **contraía las fichas SO**. El mantenedor desea que las fichas de las aplicaciones en funcionamiento **sigan desplegadas** después de cerrar el menú flotante.
+
+**Regla confirmada:** cuando el lanzador está visible, un clic breve en SO cierra **solo ese menú** y termina el procesamiento del clic, sin modificar `soExpanded` ni `trayExpanded`. Cuando no hay lanzador visible, un clic breve en SO sí alterna normalmente las fichas de ventanas. Las preferencias de autocontracción al seleccionar fichas o usar iconos siguen independientes; no se cambian la altura, el agarre, el separador ni los controles fijos.
+
+**Corrección en QML:** `toggleSO()` ahora comprueba `installedAppsPopup.visible`, llama a `installedAppsPopup.close()` y retorna inmediatamente en esa rama. El código se publicó en el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendiente de prueba posterior en CachyOS**. No hay integración con ventanas reales ni instalación del panel. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
