@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.15](MANUAL_MAESTRO.md), [Constitución Técnica v1.7](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.16](MANUAL_MAESTRO.md), [Constitución Técnica v1.8](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -98,10 +98,17 @@
 - **PRUEBA PENDIENTE:** arrastrar al centro manteniendo ambas casillas activas; desactivar solo «Simular ventana maximizada» y comprobar si la isla vuelve a la derecha. Si no vuelve, registrar error y corregir. Cambiar a retorno automático al soltar el agarre incluso maximizada **requeriría aprobación funcional**, por conflicto con la reubicación deliberada de SO para Steam y perfiles por aplicación.
 - Documentado en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), sin modificar `main` ni la lógica de la rama experimental.
 
+## Octava observación v0.1 — alineación manual separada del retorno al desmaximizar (14/11/2026)
+
+- **REQUISITO NUEVO CONFIRMADO:** la casilla contextual «Alinear isla 1 a la derecha» comienza tildada; **arrastrar isla 1 hacia el centro la destilda automáticamente** y el desplazamiento permanece al soltar los seis puntos. Para regresar, **tildar la casilla** alinea la isla inmediatamente, a la izquierda de los controles fijos `− □ ×` si están visibles. Destildarla manualmente no mueve nada.
+- **SIN CAMBIO:** la preferencia independiente «Volver a la derecha al desmaximizar» sigue activada por defecto y se aplica solo al pasar de maximizada a no maximizada. No bloquea movimientos manuales y no sobrescribe los perfiles por aplicación (issue #4).
+- **IMPLEMENTACIÓN EN RAMA EXPERIMENTAL, AÚN NO PROBADA:** [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) contiene estado `alignRightSelected`, casilla contextual de alineación y eliminación del retorno al soltar el agarre. No controla ventanas reales, no se ha modificado `main` ni el panel activo del usuario.
+- **PRÓXIMA PRUEBA:** en CachyOS `git pull`, abrir `plasmoidviewer`, activar «Simular ventana maximizada», arrastrar isla 1 hacia el centro **sin destildar antes**, abrir menú y verificar que **«Alinear isla 1 a la derecha»** está desmarcada; marcarla y verificar retorno instantáneo junto a los controles fijos. Comprobar también la preferencia independiente y el retorno al desmaximizar.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
-**Siguiente paso inmediato:** validar en CachyOS el **parche del retorno automático y la separación de controles fijos** en la v0.1 experimental; después comprobar que la preferencia se conserve tras reiniciar, así como exclusividad SO/bandeja y geometría fija. El nuevo [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) de memoria por aplicación se abordará después de obtener datos reales de ventanas. Si reaparece el problema del botón de recarga de `plasmoidviewer`, conservar el registro para diagnosticarlo. Revisar resultados en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) permanece borrador. Después, comenzar la investigación de ventanas reales y KWin/Wayland.
+**Siguiente paso inmediato:** validar en CachyOS la **casilla de alineación auto-destildada al arrastrar**, el retorno al tildarla y el bloque de controles fijo en la v0.1 experimental; después comprobar que la preferencia se conserve tras reiniciar, así como exclusividad SO/bandeja y geometría fija. El nuevo [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) de memoria por aplicación se abordará después de obtener datos reales de ventanas. Si reaparece el problema del botón de recarga de `plasmoidviewer`, conservar el registro para diagnosticarlo. Revisar resultados en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) permanece borrador. Después, comenzar la investigación de ventanas reales y KWin/Wayland.
 
 ## Próximo hito organizativo
 Conservar la sincronía documental entre la Constitución, el Manual Maestro y la plantilla del Proyecto de ChatGPT. **Si la plantilla en GitHub cambia, copiar su versión actualizada a las instrucciones del Proyecto en ChatGPT; la sincronización no es automática.**
