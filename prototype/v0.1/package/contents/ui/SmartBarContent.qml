@@ -40,7 +40,7 @@ Item {
     readonly property real controlsReservation: root.previewMaximized
         ? windowControls.width + 6 : 0
     readonly property real maxIslandOffset: Math.max(
-        0, root.width - launcherIsland.width - 460 - 12
+        0, root.width - (root.launcherIslandVisible ? launcherIsland.width : 0) - 460 - 12
            - controlsReservation
     )
 
