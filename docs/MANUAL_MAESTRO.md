@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.29 — Seis puntos: izquierdo para arrastrar, derecho para opciones  
+**Versión:** 0.30 — Clic izquierdo breve cierra opciones si ya estaban abiertas  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -759,3 +759,13 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 **Recuperación de Malvina:** el menú de opciones conserva en primer lugar **«Mostrar Malvina (isla 2)»** si está oculta y «Ocultar Malvina» si está visible. El acceso contextual de SO y el botón del lanzador flotante no se eliminan, Malvina permanece visible por defecto. La sección 40 se mantiene como antecedente, pero su referencia a abrir el menú con clic normal izquierdo **queda sustituida por esta sección 41**.
 
 **Implementación experimental:** en el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), `moveGrip` ya no tiene `onClicked` que invoque el menú; un `MouseArea` acepta únicamente `Qt.RightButton`, con función para conmutar `gripMenu.popup()/close()`. La política de cierre del menú preserva el segundo clic derecho. Un manejador de teclado permite tecla Menú y Mayús+F10. **No probado todavía en CachyOS tras la corrección**, ni aplicado al panel real. Registro en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## 42. Cerrar opciones del agarre también con clic izquierdo breve (v0.30, 14/11/2026)
+
+**PRUEBA POSITIVA EN CACHYOS:** el mantenedor confirmó «Excelente, ahí pude con un clic derecho abrir y ver las opciones» tras separar el gesto de configuración y el arrastre. Detectó un detalle adicional: para cerrar las opciones debía volver a usar el botón derecho. Pidió **poder cerrarlas también con un clic izquierdo breve**.
+
+**REGLA CONFIRMADA:** clic derecho en los seis puntos de Soledad **abre y cierra** el menú. Si está abierto, **clic izquierdo breve también lo cierra**. Si está cerrado, el clic izquierdo breve **NO lo abre**. Al **arrastrar con el izquierdo** se mueve Soledad sin tratar ese arrastre como un clic de cierre del menú; no se añaden nuevas formas de apertura, ni se cambia grosor, controles, separación entre islas o el estado de SO/bandeja.
+
+**Accesibilidad y Malvina:** tecla Menú contextual, Mayús+F10 y Esc siguen disponibles. La primera opción del menú «Opciones de Soledad» continúa siendo «Mostrar Malvina (isla 2)» cuando Malvina está oculta, «Ocultar Malvina» cuando está visible. El doble clic izquierdo sigue sin ser gesto de apertura.
+
+**Código de prueba, pendiente de validar en CachyOS:** `moveGrip` tiene un `onClicked` que únicamente hace `gripMenu.close()` si el menú está visible y **no hubo arrastre**. El inicio de la pulsación limpia el marcador `draggedDuringPress`; al activarse `gripDrag` se marca el gesto como arrastre para evitar cerrar. El `MouseArea` del derecho y el menú existente no cambian. Registro en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), sin instalar barra definitiva.
