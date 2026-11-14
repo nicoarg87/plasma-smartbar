@@ -629,7 +629,20 @@ Item {
                     hoverEnabled: true
                     focusPolicy: Qt.StrongFocus
                     property bool draggedDuringPress: false
-                    onPressed: draggedDuringPress = false
+                    // Evitar que la ayuda quede flotando en la posición vieja
+                    // cuando el agarre se desplaza o hay un menú abierto.
+                    property bool suppressGripTooltip: false
+                    onHoveredChanged: {
+                        if (!hovered) suppressGripTooltip = false
+                    }
+                    onPressed: {
+                        draggedDuringPress = false
+                        suppressGripTooltip = true
+                        // Cerrar ANTES de iniciar el arrastre. Si el menú
+                        // sigue como ventana separada puede capturar el ratón
+                        // o permanecer atrás en su coordenada original.
+                        if (gripMenu.visible) gripMenu.close()
+                    }
                     // Clic izquierdo BREVE: si las opciones ya estaban
                     // abiertas, cerrarlas sin reabrir. Si estaban cerradas,
                     // no hacer nada: la apertura sigue siendo por derecho.
@@ -679,7 +692,9 @@ Item {
                             event.accepted = true
                         }
                     }
-                    QQC2.ToolTip.visible: hovered && !gripDrag.active
+                    QQC2.ToolTip.visible: hovered && !moveGrip.pressed &&
+                        !gripDrag.active && !gripMenu.visible &&
+                        !moveGrip.suppressGripTooltip
                     QQC2.ToolTip.delay: 850
                     QQC2.ToolTip.text: root.launcherIslandVisible
                         ? "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
@@ -698,6 +713,12 @@ Item {
                         onActiveChanged: {
                             if (active) {
                                 moveGrip.draggedDuringPress = true
+                                moveGrip.suppressGripTooltip = true
+                                // Resguardo para los casos en que Qt entregue
+                                // el gesto directamente al DragHandler.
+                                if (gripMenu.visible) gripMenu.close()
+                                // Tomar el margen actual justo al iniciar
+                                // el gesto; no volver a una posición antigua.
                                 root.offsetAtDragStart = root.islandOffset
                             }
                             // Al soltar la isla, mantenerla donde el usuario
@@ -727,6 +748,9 @@ Item {
                         // Qt 6.8+: ventana flotante para no recortar el menú
                         // al superar la altura de la ventana de ensayo.
                         popupType: QQC2.Popup.Window
+                        // Si cambia la posición horizontal por arrastre, el
+                        // Popup de ventana se cierra antes de mover Soledad.
+                        // No queda desacoplado en su ubicación anterior.
                         // El borde derecho del menú coincide con el agarre,
                         // por lo que aparece cerca del puntero incluso cuando
                         // Soledad se arrastra. Ancho explícito: no depender de
