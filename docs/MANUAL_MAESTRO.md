@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.14 — Controles de ventana independientes y fijos en borde derecho  
+**Versión:** 0.15 — Memoria de posición de isla 1 por aplicación activa  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -583,3 +583,29 @@ El **Manual Maestro anterior (secciones sobre «barra superior»)** describe el 
 **Estado técnico:** se corrigió el **QML de la rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3)** separando los botones de muestra en un grupo propio con anclaje derecho. **Todavía NO probado tras esta corrección en CachyOS**. Esos tres botones siguen deshabilitados y no actúan sobre ventanas reales. La coordinación con KWin/Wayland y las decoraciones originales de cada aplicación sigue pendiente de investigación y validación.
 
 **Autoridad y precedencia:** esta decisión posterior sustituye cualquier frase histórica del manual que pueda interpretarse como que los controles de ventana forman parte de la isla arrastrable o deben seguir a SO cuando éste se mueve.
+
+
+## 27. Memoria de ubicación de isla 1 por aplicación — decisión confirmada (v0.15, 14/11/2026)
+
+**Autoridad de diseño:** el mantenedor confirma que **isla 1 es la principal** (SO, bandeja y agarre de seis puntos). Isla 2, lanzador izquierdo, es secundaria: puede ocultarse por preferencia sin suprimir isla 1. La visibilidad predeterminada de isla 2 se mantiene **activada**, sin introducir cambios nuevos de apariencia.
+
+### 27.1. Secuencia que debe experimentar el usuario
+
+1. El usuario abre Steam, Dolphin, Brave u otro programa y **maximiza y activa** su ventana.
+2. Desplaza **solo isla 1** hacia la izquierda hasta evitar cubrir herramientas importantes del programa (por ejemplo, iconos de correo en Steam). Los controles de SmartBar `− □ ×` **permanecen fijos** a la derecha.
+3. Hace **clic derecho sobre isla 1** y selecciona **«Recordar esta posición para Steam»** (el nombre se ajusta al programa activo). El ajuste se guarda localmente por aplicación, no automáticamente por cada arrastre.
+4. Al volver a activar una **ventana maximizada** de Steam, isla 1 adopta **automáticamente su posición recordada**; al activar Dolphin, Brave u otro programa maximizado, utiliza la posición específica de ese programa si existe, o el valor general por defecto si no se configuró nada.
+5. El usuario puede **volver a guardar**, **eliminar** la posición de esa aplicación y **restaurar valores predeterminados** sin modificar archivos manualmente.
+
+**Regla de contexto:** no mover isla 1 únicamente porque Steam esté **abierto en segundo plano**. Cuando varias ventanas están abiertas, el perfil corresponde a la **aplicación de la ventana activa y maximizada**; esto evita conflictos entre Steam y Dolphin. La posición no se guarda sin la orden explícita del usuario.
+
+### 27.2. Convivencia con reglas existentes
+
+- La posición por aplicación **tiene prioridad mientras esa aplicación esté activa/maximizada**. Al desmaximizar, sigue la preferencia global ya aprobada **«Volver automáticamente a la derecha»**, activada por defecto. Si se desactiva, puede conservarse el último desplazamiento manual; detalles de restauración de sesión y varios monitores quedan para el desarrollo.
+- El movimiento es **horizontal**, en los modos superior/inferior, sin cambiar el alto común de las dos islas ni el tamaño de las ventanas y pestañas. Las fichas de SO y bandeja siguen expandiéndose a la izquierda, sin alterar el lugar de SO ni del agarre mientras permanecen abiertas.
+- Los botones propios `− □ ×` de SmartBar **permanecen fijos en el extremo derecho**; una posición guardada **no mueve esos botones ni los controles originales** de Steam/otras aplicaciones. Su posible superposición continúa siendo una limitación técnica a probar.
+- **El grosor global permanece fijo y configurable.** La idea separada de detectar el alto de la barra de Steam para ajustar automáticamente las islas **NO está aprobada**, pues cambiar de alto al alternar apps contradiría las invariantes vigentes. Puede investigarse alineación visual sin redimensionar ventanas.
+
+### 27.3. Estado de implementación
+
+**CONFIRMADO FUNCIONALMENTE; TODAVÍA NO IMPLEMENTADO, NO PROBADO.** Investigar en KDE Plasma 6/KWin/Wayland identificadores estables de aplicaciones, reconocimiento de ventana activa/maximizada, guardado local persistente y límites de pantalla/multimonitor. Steam puede tener comportamientos particulares por XWayland o decoraciones propias: no afirmar compatibilidad hasta una prueba. Consultar [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) para el desarrollo posterior a la primera prueba v0.1. **No reemplazar el panel actual del usuario.**
