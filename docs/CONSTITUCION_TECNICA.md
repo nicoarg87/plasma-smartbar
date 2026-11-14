@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.7 (perfiles de posición de isla 1 por aplicación aprobados el 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.8 (alineación derecha automática del check al arrastrar aprobada el 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -72,6 +72,18 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Persistencia y seguridad:** guardar la relación con un identificador estable de aplicación (no solo el título variable de la ventana), aplicar límites válidos en cada pantalla/escala y garantizar una forma de restaurar posiciones predeterminadas. Determinar compatibilidad con KWin/Wayland, Steam/XWayland, múltiples ventanas y varios monitores mediante pruebas.
 - **Estado de desarrollo:** **CONFIRMADO COMO REQUISITO FUNCIONAL, NO IMPLEMENTADO NI PROBADO**. Su construcción depende de poder identificar ventanas reales y su aplicación, todavía pendiente de la prueba v0.1. Se registra en [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4).
 - **Altura:** **no se autoriza** cambiar automáticamente el grosor según Steam u otra aplicación; permanece la altura común y constante aprobada. Medir o alinear visualmente títulos de aplicaciones será investigación separada, sin cambios de diseño hasta nueva aprobación.
+
+## 2.6. Alineación derecha de isla 1 — control de estado y arrastre (14/11/2026)
+
+**CONFIRMADO:** la casilla contextual **«Alinear isla 1 a la derecha»** representa la alineación **actual** y comienza marcada en la posición predeterminada. No es la misma opción que la preferencia persistente «Volver automáticamente a la derecha al desmaximizar».
+
+- **Arrastre directo:** cuando el usuario mueve isla 1 mediante los seis puntos, **la casilla «Alinear a la derecha» se destilda automáticamente**. La isla permanece en la posición horizontal elegida cuando se suelta el agarre. No se exige destildar manualmente nada antes de arrastrar.
+- **Activar alineación:** al tildar **«Alinear isla 1 a la derecha»**, la isla regresa **inmediatamente** a su posición predeterminada: a la izquierda del bloque de controles `− □ ×` si hay ventana maximizada y esos controles están visibles, o al extremo derecho si no están. Los controles de ventana permanecen en el borde derecho y **no se desplazan**.
+- **Desactivar alineación manualmente:** simplemente deja libre el posicionamiento; no mueve la isla por sí sola.
+- **Retorno al desmaximizar:** la preferencia independiente, configurada **activada por defecto**, conserva su regla anterior: cuando una ventana deja de estar maximizada, la isla regresa a la derecha si el usuario no la desactivó. **No se aplica al soltar el agarre.**
+- **Perfiles por aplicación:** si Steam, Dolphin u otra aplicación tiene una posición guardada, debe poder recuperarse sin tener que modificar a mano la casilla. Un movimiento manual destilda la alineación, **pero no guarda ni sobrescribe perfiles**; el guardado requiere la acción contextual «Recordar esta posición para [aplicación]» ya aprobada.
+- **Invariantes:** no alterar altura, expansión en una sola fila, bandeja/SO excluyentes, fullscreen real, compatibilidad de aplicaciones ni el posicionamiento fijo de controles de ventana.
+- **Estado:** lógica de alineación incorporada **solo a la maqueta QML en la rama v0.1**, **todavía sin repetir pruebas en CachyOS**; integración con ventanas reales/KWin pendiente. La persistencia de preferencias globales continúa por validar.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
