@@ -719,20 +719,23 @@ Item {
                     QQC2.Menu {
                         id: gripMenu
                         title: "Opciones de Soledad"
-                        // Posición relativa a la raíz, NO al botón pequeño.
-                        // Seguir el borde derecho de la isla en su posición
-                        // ACTUAL (también al arrastrar o cambiar el ancho).
-                        // La parte superior queda por debajo de los 48 px
-                        // fijos: nunca cubrir Soledad ni crear otra fila.
-                        parent: root
-                        // Qt 6.8+: mostrar el menu en una ventana emergente
-                        // permite desplegarlo completo bajo la barra incluso
-                        // si la ventana Qt de ensayo tiene poca altura.
-                        // Requiere comprobación en KWin/Wayland.
+                        // Anclar el menú directamente al agarre que lo abrió,
+                        // NO a root: el cálculo anterior con root.width - width
+                        // podía desplazarlo hasta Malvina (extremo izquierdo).
+                        // En Qt, x/y son relativos al parent del Popup.
+                        parent: moveGrip
+                        // Qt 6.8+: ventana flotante para no recortar el menú
+                        // al superar la altura de la ventana de ensayo.
                         popupType: QQC2.Popup.Window
-                        x: Math.max(0, Math.min(Math.max(0, root.width - width),
-                            systemIsland.x + systemIsland.width - width))
-                        y: root.fixedHeight + 5
+                        // El borde derecho del menú coincide con el agarre,
+                        // por lo que aparece cerca del puntero incluso cuando
+                        // Soledad se arrastra. Ancho explícito: no depender de
+                        // la medida inicial del popup al abrirse.
+                        width: 380
+                        x: moveGrip.width - width
+                        // El botón está centrado verticalmente en la isla;
+                        // sumar su alto y un margen deja el menú DEBAJO.
+                        y: moveGrip.height + 10
                         // Sin cierre previo al presionar el mismo botón:
                         // el segundo clic derecho debe cerrar, no reabrir.
                         closePolicy: QQC2.Popup.CloseOnEscape
