@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.16](MANUAL_MAESTRO.md), [Constitución Técnica v1.8](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.17](MANUAL_MAESTRO.md), [Constitución Técnica v1.9](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -104,6 +104,13 @@
 - **SIN CAMBIO:** la preferencia independiente «Volver a la derecha al desmaximizar» sigue activada por defecto y se aplica solo al pasar de maximizada a no maximizada. No bloquea movimientos manuales y no sobrescribe los perfiles por aplicación (issue #4).
 - **IMPLEMENTACIÓN EN RAMA EXPERIMENTAL, AÚN NO PROBADA:** [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) contiene estado `alignRightSelected`, casilla contextual de alineación y eliminación del retorno al soltar el agarre. No controla ventanas reales, no se ha modificado `main` ni el panel activo del usuario.
 - **PRÓXIMA PRUEBA:** en CachyOS `git pull`, abrir `plasmoidviewer`, activar «Simular ventana maximizada», arrastrar isla 1 hacia el centro **sin destildar antes**, abrir menú y verificar que **«Alinear isla 1 a la derecha»** está desmarcada; marcarla y verificar retorno instantáneo junto a los controles fijos. Comprobar también la preferencia independiente y el retorno al desmaximizar.
+
+## Novena prueba v0.1 — salto al quitar controles sin retorno (14/11/2026)
+
+- **PROBADO EN CACHYOS:** según el último ensayo del mantenedor, **arrastrar isla 1 destilda la alineación derecha**; la casilla contextual y los controles de ventana ficticios separados responden visualmente. La captura anterior muestra isla 1 desplazada con casilla de alineación destildada y controles `− □ ×` fijos a la derecha.
+- **ERROR NUEVO OBSERVADO:** al **desactivar «Volver a la derecha al desmaximizar»** y luego **desactivar «Simular ventana maximizada»**, isla 1 se desplaza ligeramente a la derecha por la desaparición del ancho reservado a controles. Esto contradice la conservación de posición manual con retorno desactivado.
+- **DIAGNÓSTICO Y PARCHE EN RAMA EXPERIMENTAL:** `anchors.rightMargin = islandOffset + controlsReservation`. El parche [2301eaa](https://github.com/nicoarg87/plasma-smartbar/commit/2301eaad4cd38c8c7d38a6d2276b7076433eb241) guarda el margen visual antes de la transición y compensa la reserva al desaparecer los botones si el retorno está desactivado. **Código revisado, SIN prueba posterior en CachyOS**. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
+- **PRÓXIMA PRUEBA:** `git pull`; maximizar simulación, arrastrar isla, desactivar retorno y desmaximizar. La isla debe permanecer en la misma posición visual. Con retorno activado debe volver normalmente a la derecha. La integración con ventanas reales aún no existe.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
