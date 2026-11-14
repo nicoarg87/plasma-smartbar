@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.23 — Autocontracción de SO y bandeja configurables por separado  
+**Versión:** 0.24 — Separación visual y lanzador flotante de Malvina en su propia isla  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -695,3 +695,15 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Interfaz de prueba:** clic en los **seis puntos → «Configuración de autocontracción»** permite tildar/destildar individualmente «SO: contraer tras elegir ventana» y «Bandeja: contraer tras usar icono». La configuración del plasmoide declara KConfig `autoCollapseSO=true` y `autoCollapseTray=false` (pendiente de probar persistencia real); la ventana Qt independiente conserva los estados solo durante esa sesión.
 
 **Estado de validación:** el código se publicó exclusivamente en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), con fichas de SO y bandeja **simuladas**, y **todavía no fue ejecutado en CachyOS tras este cambio**. No se afirma que ya reconozca ventanas, bandeja ni catálogo de apps reales. La prueba completa y la recuperación de Malvina se documentan en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## 36. Separador visual y lanzador de Malvina bajo su propio botón — DECISIÓN CONFIRMADA (v0.24, 14/11/2026)
+
+**PRUEBA POSITIVA comunicada por el mantenedor en CachyOS:** al abrir SO y después la bandeja, confirmó que **«está funcionando como se esperaba»** la convivencia de ambas expansiones. Esto valida ese escenario en la **vista Qt independiente**, no constituye integración de ventanas o bandeja reales.
+
+**Primer detalle visual corregido:** al quedar simultáneamente visibles las fichas de SO y los iconos de bandeja, no se distinguían con claridad. **DECISIÓN:** una **línea vertical fina y discreta** separa ambos conjuntos cuando están abiertos a la vez, en medio de la misma fila. Se oculta si alguno se contrae. Se incluye en el cálculo de ancho para que no empeore la superposición ni cause saltos de SO, del agarre o de los controles fijos. No se altera el grosor constante, ni aparece una superficie continua entre islas.
+
+**Segundo error observado:** al pulsar **Malvina (isla 2, izquierda)**, el lanzador de aplicaciones de muestra aparecía debajo de **Soledad (isla 1, derecha)** porque el único `QQC2.Popup` se ubicaba siempre en función de `systemIsland.x`. **DECISIÓN:** el lanzador debe abrirse **debajo de la isla que lo invoca**: clic en Malvina lo muestra en el extremo izquierdo, bajo Malvina; mantener pulsado SO unos 400 ms (o abrirlo desde su menú contextual) lo presenta bajo la posición actual de Soledad, incluso si fue arrastrada al centro.
+
+**Comportamiento de estados:** pulsar Malvina para desplegar su menú no debe contraer por sorpresa las fichas SO/bandeja de Soledad si estaban abiertas. Cuando el menú se invoca **desde Soledad**, se conserva la regla previa de cerrar esas dos expansiones para evitar superposiciones. Se reutiliza el mismo componente de menú flotante con un origen explícito (`malvina` o `so`), y sus coordenadas permanecen ligadas reactivamente a la isla correspondiente. En modo inferior futuro deberá abrirse **encima** de cada isla.
+
+**Implementación en rama experimental:** `SmartBarContent.qml` añadió `traySOSeparator`, visible si `trayExpanded && soExpanded` (rectángulo vertical de 2 píxeles lógicos y 24 de alto en la demo), y `installedLauncherSource`, que determina si el popup se ubica debajo de `launcherIsland` o `systemIsland`. Las llamadas de Malvina y de SO ahora indican expresamente su origen. **NO PROBADO TODAVÍA EN CACHYOS** después de esta modificación. El menú sigue presentando aplicaciones ficticias y no ejecuta programas reales. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
