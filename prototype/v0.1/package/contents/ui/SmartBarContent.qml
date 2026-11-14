@@ -15,8 +15,14 @@ Item {
     property bool autoReturnRight: true
     // Isla 2 visible por defecto. Se oculta solo por elección del usuario.
     property bool launcherIslandVisible: true
+    // Preferencias independientes: no contraer por abrir la otra sección
+    // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
+    property bool autoCollapseSO: true
+    property bool autoCollapseTray: false
     signal requestAutoReturnRightChange(bool newValue)
     signal requestLauncherIslandVisibilityChange(bool newValue)
+    signal requestAutoCollapseSOChange(bool newValue)
+    signal requestAutoCollapseTrayChange(bool newValue)
     onWidthChanged: console.log("SmartBar v0.1: ancho útil de las islas =", width)
 
     property bool soExpanded: false
@@ -179,8 +185,23 @@ Item {
 
     function selectDemoApp(appName) {
         lastDemoSelection = appName
-        soExpanded = false
-        console.log("SO simulado:", appName, "(sin controlar ventanas reales)")
+        // Elegir ficha: mantener abierto solo si la preferencia lo pide.
+        if (autoCollapseSO) {
+            soExpanded = false
+        }
+        console.log("Soledad: ficha simulada", appName,
+                    "autocontraer SO =", autoCollapseSO,
+                    "(sin controlar ventanas reales)")
+    }
+
+    function selectDemoTray(iconName) {
+        // La bandeja sigue siendo SIMULADA; ninguna acción del sistema.
+        if (autoCollapseTray) {
+            trayExpanded = false
+        }
+        console.log("Soledad: icono de bandeja simulado", iconName,
+                    "autocontraer bandeja =", autoCollapseTray,
+                    "(sin acciones reales)")
     }
 
     onMaxIslandOffsetChanged: setIslandOffset(islandOffset)
@@ -336,7 +357,10 @@ Item {
                     model: root.trayExpanded ? root.demoTray : []
                     delegate: IslandButton {
                         text: modelData
-                        enabled: false
+                        onClicked: root.selectDemoTray(modelData)
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Bandeja simulada: " + modelData
+                             + " (no modifica el sistema)"
                     }
                 }
 
@@ -516,6 +540,31 @@ Item {
                         QQC2.MenuItem {
                             text: "Mover isla 1 a la derecha AHORA"
                             onTriggered: root.alignRightNow()
+                        }
+                        QQC2.Menu {
+                            title: "Configuración de autocontracción"
+                            QQC2.MenuItem {
+                                id: autoCollapseSOMenu
+                                text: "SO: contraer tras elegir ventana"
+                                checkable: true
+                                Binding {
+                                    target: autoCollapseSOMenu
+                                    property: "checked"
+                                    value: root.autoCollapseSO
+                                }
+                                onTriggered: root.requestAutoCollapseSOChange(!root.autoCollapseSO)
+                            }
+                            QQC2.MenuItem {
+                                id: autoCollapseTrayMenu
+                                text: "Bandeja: contraer tras usar icono"
+                                checkable: true
+                                Binding {
+                                    target: autoCollapseTrayMenu
+                                    property: "checked"
+                                    value: root.autoCollapseTray
+                                }
+                                onTriggered: root.requestAutoCollapseTrayChange(!root.autoCollapseTray)
+                            }
                         }
                     }
                 }
