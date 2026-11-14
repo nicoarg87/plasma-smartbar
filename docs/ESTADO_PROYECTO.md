@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.17](MANUAL_MAESTRO.md), [Constitución Técnica v1.9](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.18](MANUAL_MAESTRO.md), [Constitución Técnica v1.10](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -111,6 +111,13 @@
 - **ERROR NUEVO OBSERVADO:** al **desactivar «Volver a la derecha al desmaximizar»** y luego **desactivar «Simular ventana maximizada»**, isla 1 se desplaza ligeramente a la derecha por la desaparición del ancho reservado a controles. Esto contradice la conservación de posición manual con retorno desactivado.
 - **DIAGNÓSTICO Y PARCHE EN RAMA EXPERIMENTAL:** `anchors.rightMargin = islandOffset + controlsReservation`. El parche [2301eaa](https://github.com/nicoarg87/plasma-smartbar/commit/2301eaad4cd38c8c7d38a6d2276b7076433eb241) guarda el margen visual antes de la transición y compensa la reserva al desaparecer los botones si el retorno está desactivado. **Código revisado, SIN prueba posterior en CachyOS**. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
 - **PRÓXIMA PRUEBA:** `git pull`; maximizar simulación, arrastrar isla, desactivar retorno y desmaximizar. La isla debe permanecer en la misma posición visual. Con retorno activado debe volver normalmente a la derecha. La integración con ventanas reales aún no existe.
+
+## Décima observación v0.1 — ancho del contenido no acompaña al visor (14/11/2026)
+
+- **REPORTADO por el mantenedor en CachyOS:** la interfaz de SmartBar no llega al extremo derecho de `plasmoidviewer` y tampoco se extiende automáticamente cuando el usuario agranda/maximiza la ventana del visor.
+- **REVISADO:** el QML solicitaba `Layout.preferredWidth: 960`, `implicitWidth: 960`, sin `Layout.fillWidth`, mientras `probar.sh` abre el visor con `-s 1000x80`. El visor también tiene sus propias márgenes y restricciones: no se atribuye todo el problema exclusivamente al QML todavía.
+- **PARCHE PUBLICADO EN RAMA EXPERIMENTAL, AÚN NO PROBADO EN CACHYOS:** [057368a](https://github.com/nicoarg87/plasma-smartbar/commit/057368ace7d52e8db3b505b9e68a4de5d9ac05ac) incorpora `Layout.fillWidth: true` para usar el ancho disponible y `onWidthChanged` con mensaje `SmartBar v0.1: ancho del contenido = …`. El ancho inicial 960 es sugerencia, no ancho máximo. Se conservan islas visualmente separadas y grosor de 48 unidades en la demo.
+- **SIGUIENTE PRUEBA:** `git pull`, abrir el visor, agrandar/maximizar/restaurar y confirmar que isla 1 y controles siguen la derecha útil, y el lanzador la izquierda. Verificar que los valores de ancho registrados cambien; si no cambian, investigar restricciones propias de `plasmoidviewer`. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. No introducir fondo continuo ni instalar en panel real.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
