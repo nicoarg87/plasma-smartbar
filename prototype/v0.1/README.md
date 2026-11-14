@@ -167,3 +167,27 @@ El mantenedor observó en CachyOS que, con **«Simular ventana maximizada»** y 
 **Corrección aplicada solo en la rama experimental:** antes de modificar la simulación, guardar la posición horizontal visible (margen derecho = desplazamiento manual + espacio de controles); cuando desaparecen los controles con **retorno desactivado**, recalcular el desplazamiento interno para mantener ese margen visible. Si el usuario activó el retorno al desmaximizar, conservar la conducta aprobada de regresar a la derecha. En cualquier caso, respetar los límites de pantalla.
 
 **Prueba pendiente en CachyOS:** con ventana simulada maximizada, mover isla 1 al centro, **destildar «Volver a la derecha al desmaximizar»** y después **destildar «Simular ventana maximizada»**. Los botones ficticios deben desaparecer **sin que isla 1 cambie de lugar**. Repetir con el retorno tildado: isla 1 debe regresar a la derecha. Esta prueba no demuestra compatibilidad con ventanas reales de KWin.
+
+
+## Corrección inversa al maximizar sin alineación manual (14/11/2026)
+
+**Fallo comunicado por el mantenedor:** con todas las casillas desmarcadas, desplaza isla 1 hacia el centro o un poco a la derecha y activa «Simular ventana maximizada». Isla 1 se corre a la izquierda sin que se haya arrastrado: se sumaba el espacio reservado para los controles `− □ ×` al margen visual, sin compensar el desplazamiento manual. Es el inverso del salto al desmaximizar detectado antes.
+
+**Parche en `SmartBarContent.qml`, aún sin probar en CachyOS:** `setPreviewMaximized()` guarda el margen derecho visual anterior y recalcula el desplazamiento en **ambas** transiciones. Si «Alinear isla 1 a la derecha» está **desmarcada**, conserva la posición visual al maximizar **si deja suficiente espacio para los controles**. Si la isla invadiría `− □ ×`, se la aparta **solo lo necesario**, nunca se mueve el grupo de controles fijos. Si «Alinear» está marcada, se ubica normalmente junto a esos controles. Al desmaximizar, se sigue respetando la preferencia separada de retorno.
+
+**Prueba recomendada usando la ventana Qt independiente:**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Con «Simular ventana maximizada» desactivada, mover **isla 1** manualmente hacia el centro.
+2. Comprobar que «Alinear isla 1 a la derecha» quedó desmarcada. Desactivar también «Volver a la derecha al desmaximizar».
+3. Activar «Simular ventana maximizada»; **isla 1 debe quedarse en el mismo lugar visual** si no invade los controles; los botones aparecen fijos a la derecha.
+4. Desactivar la simulación: la isla debe seguir en el mismo lugar.
+5. Como control, poner la isla **muy cerca** de la derecha antes de maximizar: solo allí es correcto que se mueva mínimamente a la izquierda para dejar libres los controles.
+6. Repetir con «Alinear isla 1 a la derecha» marcada: debe quedar contigua al grupo fijo.
+
+**Estado:** código corregido y revisión estática pendiente de validación real. No se administran ventanas reales ni se altera el panel instalado.
