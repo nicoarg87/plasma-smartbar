@@ -19,6 +19,39 @@ Item {
     // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
     property bool autoCollapseSO: true
     property bool autoCollapseTray: false
+
+    // Identidad visual configurable del botón SO. El archivo original nunca
+    // se recorta ni se sobrescribe: guardar sólo encuadre/forma/escala.
+    property string soLogoMode: "default"  // default/custom/text
+    property string soLogoPath: ""
+    property string soLogoShape: "square"
+    property real soLogoZoom: 1
+    property real soLogoPanX: 0
+    property real soLogoPanY: 0
+    property bool soLogoAnimate: true
+    readonly property url defaultSoLogo: Qt.resolvedUrl("assets/so-paw.png")
+    readonly property url activeSoLogo: soLogoMode === "text" ? "" :
+        (soLogoMode === "custom" && soLogoPath.length > 0
+         ? soLogoPath : defaultSoLogo)
+    readonly property bool activeSoLogoIsGif: soLogoMode === "custom" &&
+        soLogoPath.toLowerCase().endsWith(".gif")
+
+    // Colores y opacidad por isla; fondo continuo opcional y APAGADO.
+    // Es una capa de fondo y no sustituye la isla 3 buscadora pendiente.
+    property color soledadColor: "#101e31"
+    property color malvinaColor: "#101e31"
+    property color backgroundColor: "#202333"
+    property real soledadOpacity: 1
+    property real malvinaOpacity: 1
+    property real backgroundOpacity: 0.5
+    property bool showBackground: false
+    signal requestSoLogoChange(string mode, string path, string shape,
+                               real zoom, real panX, real panY, bool allowGif)
+    signal requestAppearanceChange(string soledadColor, real soledadOpacity,
+                                   string malvinaColor, real malvinaOpacity,
+                                   bool showBackground, string backgroundColor,
+                                   real backgroundOpacity)
+
     signal requestAutoReturnRightChange(bool newValue)
     signal requestLauncherIslandVisibilityChange(bool newValue)
     signal requestAutoCollapseSOChange(bool newValue)
@@ -240,6 +273,46 @@ Item {
 
     onMaxIslandOffsetChanged: setIslandOffset(islandOffset)
 
+    function editSoLogo() {
+        logoEditor.logoMode = root.soLogoMode
+        logoEditor.filePath = root.soLogoPath
+        logoEditor.shape = root.soLogoShape
+        logoEditor.cropZoom = root.soLogoZoom
+        logoEditor.cropPanX = root.soLogoPanX
+        logoEditor.cropPanY = root.soLogoPanY
+        logoEditor.enableGif = root.soLogoAnimate
+        logoEditor.show()
+        logoEditor.raise()
+        logoEditor.requestActivate()
+    }
+
+    function editAppearance() {
+        appearanceEditor.soledadColor = root.soledadColor
+        appearanceEditor.malvinaColor = root.malvinaColor
+        appearanceEditor.backgroundColor = root.backgroundColor
+        appearanceEditor.soledadOpacity = root.soledadOpacity
+        appearanceEditor.malvinaOpacity = root.malvinaOpacity
+        appearanceEditor.backgroundOpacity = root.backgroundOpacity
+        appearanceEditor.showBackground = root.showBackground
+        appearanceEditor.show()
+        appearanceEditor.raise()
+        appearanceEditor.requestActivate()
+    }
+
+    LogoEditor {
+        id: logoEditor
+        defaultImage: root.defaultSoLogo
+        onSaveRequested: function(mode, path, shape, zoom, panX, panY, allowGif) {
+            root.requestSoLogoChange(mode, path, shape, zoom, panX, panY, allowGif)
+        }
+    }
+    AppearanceEditor {
+        id: appearanceEditor
+        onSaveRequested: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
+            root.requestAppearanceChange(a, alphaA, b, alphaB, shown, bg, alphaBg)
+        }
+    }
+
     // Lanzador flotante de muestra, independiente del grosor de la barra.
     // NO enumera ni inicia aplicaciones instaladas; eso sigue pendiente.
     QQC2.Popup {
@@ -324,6 +397,15 @@ Item {
     Item {
         anchors.fill: parent
 
+        // Capa decorativa opcional, siempre detrás de las islas.
+        // No crea una nueva fila ni modifica su grosor constante.
+        Rectangle {
+            anchors.fill: parent
+            visible: root.showBackground
+            color: Qt.rgba(root.backgroundColor.r, root.backgroundColor.g,
+                           root.backgroundColor.b, root.backgroundOpacity)
+        }
+
         // Isla 2: lanzador de ejemplo. Isla 3 sigue oculta por defecto.
         Rectangle {
             id: launcherIsland
@@ -331,7 +413,8 @@ Item {
             width: launcherButton.implicitWidth + 12
             height: 44
             radius: 22
-            color: "#101e31"
+            color: Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
+                           root.malvinaColor.b, root.malvinaOpacity)
             border.color: "#4e8499"
             border.width: 1
             anchors.left: parent.left
@@ -370,7 +453,8 @@ Item {
             // expansiones salvo que realmente dejen de caber.
             onWidthChanged: root.ensureExpansionFits()
             radius: 22
-            color: "#101e31"
+            color: Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+                           root.soledadColor.b, root.soledadOpacity)
             border.color: "#4e8499"
             border.width: 1
             anchors.right: parent.right
@@ -429,6 +513,13 @@ Item {
                     id: soButton
                     text: "SO"
                     accent: true
+                    iconSource: root.activeSoLogo
+                    iconAnimated: root.activeSoLogoIsGif
+                    iconAnimationEnabled: root.soLogoAnimate
+                    iconShape: root.soLogoShape
+                    iconZoom: root.soLogoZoom
+                    iconPanX: root.soLogoPanX
+                    iconPanY: root.soLogoPanY
 
                     // Clic corto: ventanas abiertas. Mantener unos 400 ms:
                     // lanzador de muestra. El clic de soltado NO debe activar
@@ -603,6 +694,15 @@ Item {
                             onTriggered: root.setLauncherIslandVisible(
                                 !root.launcherIslandVisible
                             )
+                        }
+                        QQC2.MenuSeparator {}
+                        QQC2.MenuItem {
+                            text: "Personalizar logo de SO (imagen o GIF)…"
+                            onTriggered: root.editSoLogo()
+                        }
+                        QQC2.MenuItem {
+                            text: "Colores y transparencia de islas y fondo…"
+                            onTriggered: root.editAppearance()
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
