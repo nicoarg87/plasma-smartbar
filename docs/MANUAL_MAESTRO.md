@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.10 — Control de arrastre de isla 1 con posición estable  
+**Versión:** 0.11 — Modos horizontales superior/inferior y extensibilidad vertical experimental  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -25,17 +25,17 @@ La idea evolucionó por correcciones sucesivas: primero el desplazamiento del bo
 
 ## 2. Términos y alcance
 
-- **Barra principal:** sistema superior lógico de grosor constante, representado por **islas visualmente independientes de forma predeterminada**, sin fondo continuo obligatorio. Su altura se puede configurar globalmente, pero **no cambia automáticamente mientras el sistema opera**.
+- **Barra principal:** sistema lógico de **islas visualmente independientes** y **grosor constante**, instalado **arriba (predeterminado) o abajo (configurable)**. La distribución tradicional superior sigue siendo la primera a desarrollar. Entre islas no hay fondo continuo obligatorio; su altura en cualquiera de los dos modos horizontales se puede configurar globalmente, pero **no cambia automáticamente mientras el sistema opera**.
 - **SO:** botón del extremo derecho que despliega **solo aplicaciones y ventanas abiertas**, incluidas las minimizadas. **Por defecto presenta una ficha por aplicación, agrupando sus ventanas**; puede configurarse para mostrar una ficha por ventana. No abre el catálogo de programas instalados. Su visibilidad puede configurarse: contraído, expandido o adaptativo, con contracción automática al abrir aplicaciones con pestañas cuando la opción esté activada.
 - **Lanzador izquierdo:** acceso siempre visible por defecto a **programas instalados**, mediante búsqueda y catálogo por categorías. Puede ocultarse o cambiar de icono mediante clic derecho.
 - **Bandeja del sistema:** grupo horizontal normalmente contraído que contiene sonido, red, Bluetooth, notificaciones y controles accesorios. Si se habilita multimedia en una versión futura, pertenece aquí.
 - **Flecha horizontal:** `◀` para **abrir la bandeja a la izquierda**, `▶` para **contraerla a la derecha**.
-- **Flecha vertical:** `↓` abre herramientas secundarias bajo la barra; `↑` las cierra. Es el símbolo por defecto pero puede personalizarse.
+- **Flecha vertical:** en **modo superior**, `↓` abre herramientas secundarias bajo la barra y `↑` las cierra. En **modo inferior**, esos paneles deben abrir **hacia arriba**, con iconografía adaptada (a validar en usabilidad). El símbolo es personalizable y sigue dentro de la bandeja.
 - **Subpanel/panel secundario:** **ventanita flotante bajo la barra**, como un calendario o panel de notas. No es otra fila de la barra ni un reemplazo de la pantalla de la aplicación.
 - **Centro de control secundario:** subpanel con microiconos de herramientas: notas, calendario, adhesivas, clima, etc.
 - **Centro general de configuración:** preferencias del propio proyecto; distinto del centro de control secundario.
 - **Reproductor multimedia:** posible módulo FUTURO dentro de la bandeja, con interfaz compacta y subpanel al tocar carátula. El protocolo MPRIS **no es prioridad para la primera versión**.
-- **Maximizada:** ventana grande integrada visualmente con el panel superior. Conserva la barra visible y los tres controles de ventana arriba.
+- **Maximizada:** ventana grande integrada visualmente con la barra en el borde seleccionado. Los **controles SmartBar** de ventana se sitúan **arriba en modo superior y abajo en modo inferior**. El comportamiento de las decoraciones originales de las aplicaciones requiere validación; no se da por resuelto su traslado.
 - **Pantalla completa real (fullscreen):** videojuego o video a pantalla completa; la barra y sus controles **no deben mostrarse sobre ese contenido**.
 - **Escritorios virtuales:** espacios de trabajo lógicos; **no** son lo mismo que **monitores físicos**.
 
@@ -532,3 +532,25 @@ La especificación funcional vigente es la de este Manual Maestro, bajo la direc
 ## 22. Decisión confirmada — control de arrastre de la isla 1 (v0.10)
 
 **Aprobación funcional expresa (14/11/2026):** el control para reubicar horizontalmente la barra en su sector derecho pasa de **propuesta** a **requisito aprobado**. Se instala **justo a la derecha de SO** y tiene apariencia mínima **punteada (tres o cuatro puntos; diseño exacto abierto)**. No se coloca a la izquierda de SO ni se desplaza con la bandeja. Las expansiones se producen hacia la izquierda manteniendo SO y agarre anclados. Al maximizar, la isla puede correrse automáticamente para permitir los controles de la ventana y el agarre queda entre SO y esos controles. El usuario podrá desplazar horizontalmente esa isla mediante el agarre, con límites y reglas de persistencia pendientes de validar en KWin/Wayland. **No hay código ni pruebas todavía.**
+
+
+## 23. Orientación horizontal superior e inferior — DECISIÓN CONFIRMADA (v0.11, 14/11/2026)
+
+### 23.1. Modos oficiales
+
+- **Superior, predeterminado:** Isla 2 (lanzador de instaladas) a la izquierda; Isla 1 (bandeja, botón SO, agarre punteado y controles SmartBar de ventana maximizada) a la derecha. Mantiene la integración con la franja superior de la ventana que se ha diseñado hasta ahora. La Isla 3 de buscador visible continúa **oculta por defecto**.
+- **Inferior, configurable:** las dos islas se sitúan **en el borde inferior de la pantalla**, conservando en esa franja sus papeles, el orden izquierda/derecha, el agarre inmediatamente a la derecha de SO y el grosor fijo. Las expansiones de SO y bandeja siguen siendo **horizontales, en una sola fila y hacia la izquierda**; nunca se añade una segunda fila por activar ventanas.
+- **Controles de ventana con modo inferior:** al maximizar, los botones propios de **Plasma SmartBar** para minimizar, restaurar/maximizar y cerrar **deben verse abajo, al lado derecho de la isla 1**, en la parte baja de la ventana maximizada. No se deja un conjunto SmartBar arriba mientras el resto del proyecto está abajo. En modo superior, permanecen arriba. **No se presupone que se puedan trasladar o suprimir universalmente los botones originales que dibuja cada aplicación en su parte superior**: eso requiere investigación, compatibilidad comprobada y aprobación de alternativas si surge una limitación.
+- **Subpaneles:** se abren hacia el **interior de la pantalla**, hacia abajo desde la barra superior y **hacia arriba** desde la barra inferior. La indicación de flecha secundaria debe reflejar la dirección intuitivamente; su diseño concreto queda para las pruebas de usabilidad.
+- **Pantalla completa real:** oculta las islas independientemente de la orientación. **Bandeja y SO continúan siendo excluyentes**, el agarre mantiene su posición mientras se expanden y el logo SO es configurable.
+- **No alterar las aplicaciones:** el modo inferior no autoriza recolocar la barra de título real de navegadores u otras aplicaciones a la fuerza, duplicar controles peligrosamente, alterar su tamaño ni bloquear acciones indispensables. El resultado pretendido debe validarse en KWin/Wayland y aplicaciones con decoraciones propias.
+
+### 23.2. Modos laterales: no incluidos en el compromiso inicial
+
+Los bordes **izquierdo y derecho en orientación vertical** no son modos oficiales de las primeras versiones. No hay obligación de entregarlos o resolver cómo se distribuirían las fichas SO verticales. **Se deja la puerta abierta a experimentos futuros y a forks**, sin imponer su diseño ahora. La arquitectura debe evitar un acoplamiento innecesario al borde superior: separar **lógica de gestión de aplicaciones/ventanas**, **estado de expansiones**, **posicionamiento/anclaje**, **orientación**, **vista de fichas** y **efectos**, para que una futura orientación vertical pueda investigarse sin reescribir todo. Esta previsión **no demuestra** compatibilidad con un panel vertical.
+
+### 23.3. Etapas y riesgos
+
+**APROBADO COMO OBJETIVO:** tener ambos modos horizontales superior e inferior, con controles SmartBar junto a isla 1 en el borde elegido. **NO IMPLEMENTADO / NO PROBADO:** ningún modo de SmartBar está construido todavía. El primer experimento v0.1 sigue concentrado en la base superior, sin reemplazar el panel existente del usuario. El modo inferior se validará después con un issue dedicado, especialmente por las decoraciones y botones originales de Brave, Firefox, Chrome, Steam, Qt y GTK.
+
+El **Manual Maestro anterior (secciones sobre «barra superior»)** describe el **modo superior**, no limita la posibilidad aprobada de la orientación inferior desde esta versión. Las invariantes generales —grosor inmutable, una fila, configuración, rendimiento, seguridad, bandeja/SO excluyentes— se aplican a **ambos modos**.
