@@ -31,8 +31,11 @@ PlasmoidItem {
 
     // Reservar siempre espacio para la expansión MÁS ancha; abrir bandeja o SO
     // no debe empujar el agarre ni SO, aun después de un arrastre.
+    readonly property real controlsReservation: root.previewMaximized
+        ? windowControls.width + 6 : 0
     readonly property real maxIslandOffset: Math.max(
         0, root.width - launcherIsland.width - 460 - 12
+           - controlsReservation
     )
 
     function setIslandOffset(offset) {
@@ -104,7 +107,9 @@ PlasmoidItem {
             border.color: "#4e8499"
             border.width: 1
             anchors.right: parent.right
-            anchors.rightMargin: root.islandOffset
+            // Los controles de ventana quedan en el extremo derecho INMÓVILES.
+            // La isla 1 se arrastra solo a la izquierda del espacio reservado.
+            anchors.rightMargin: root.islandOffset + root.controlsReservation
             anchors.verticalCenter: parent.verticalCenter
 
             Row {
@@ -239,14 +244,35 @@ PlasmoidItem {
                     }
                 }
 
-                // Los botones aparecen solo al SIMULAR maximización.
-                // Aún NO hay integración con controles de ventanas reales.
+            }
+        }
+
+        // Independientes de la isla 1: NO acompañan el arrastre del agarre.
+        // El margen derecho es cero en cualquier posición de SO y bandeja.
+        // Esto es solo la simulación: no controla ventanas reales de KDE.
+        Rectangle {
+            id: windowControls
+            visible: root.previewMaximized
+            width: windowControlsRow.implicitWidth + 12
+            height: 44
+            radius: 22
+            color: "#101e31"
+            border.color: "#4e8499"
+            border.width: 1
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+
+            Row {
+                id: windowControlsRow
+                anchors.centerIn: parent
+                spacing: 4
+
                 Repeater {
-                    model: root.previewMaximized ? ["−", "□", "×"] : []
+                    model: ["−", "□", "×"]
                     delegate: IslandButton {
                         text: modelData
                         enabled: false
-                        QQC2.ToolTip.text: "Control de ventana simulado"
+                        QQC2.ToolTip.text: "Control ficticio anclado a la derecha"
                     }
                 }
             }
