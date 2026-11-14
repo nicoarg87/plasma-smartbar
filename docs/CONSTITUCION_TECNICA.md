@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.18 (clic breve SO prioriza cerrar lanzador flotante sin contraer fichas, 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.19 (recuperación directa de Malvina desde menú del agarre de Soledad, 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -191,6 +191,15 @@ Esta decisión sustituye las reglas previas que hacían cerrar SO y bandeja al a
 - **Independencia:** la selección de una ficha de ventana real/simulada y la interacción con un icono de bandeja siguen sujetas a sus dos preferencias independientes de autocontracción. La falta física de espacio entre expansiones también se conserva como regla distinta. Ninguna se dispara por cerrar el lanzador.
 - **Accesos sin cambios:** SO sostenido (~400 ms) abre lanzador bajo Soledad; Malvina abre/cierra lanzador bajo Malvina con clics alternos; posición de islas, agarre de seis puntos, separador, controles fijos y altura permanecen invariantes.
 - **Estado:** corrección en la maqueta QML de [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendiente de retest en CachyOS** tras el nuevo cambio. No controla ventanas reales ni toca el panel instalado.
+
+## 2.17. Recuperación de Malvina mediante el agarre de Soledad (14/11/2026)
+
+**PROBLEMA COMPROBADO POR EL MANTENEDOR:** después de ocultar **Malvina (isla 2)** en la maqueta de CachyOS, no encontró una opción accesible dentro de Soledad que le permitiera volver a mostrarla. Los accesos ya existentes —menú contextual de SO y botón del lanzador flotante tras sostener SO— **no resultaron fáciles de descubrir**, por lo que la recuperación debe tener una entrada visible en la configuración usual.
+
+- **CONFIRMADO:** el agarre de **seis puntos** de **Soledad (isla 1)** conserva el menú de opciones que se abre mediante **clic breve**, y ese menú debe tener como primera acción, siempre disponible, **«Mostrar Malvina (isla 2)»** si Malvina está oculta. La acción reaparece como **«Ocultar Malvina (isla 2)»** cuando está visible. La opción es seleccionable con un clic y no exige recordar una pulsación larga ni un clic derecho.
+- **No se rediseña el panel:** no se agrega otra isla, no cambia el orden de SO/agarre, la altura constante, el movimiento horizontal, las expansiones, los controles de ventana ni la visibilidad predeterminada (**Malvina sigue visible de inicio**).
+- **Rutas adicionales conservadas:** menú contextual de SO y botón «Mostrar Malvina» dentro del lanzador flotante permanecen disponibles. El estado de visibilidad debe sincronizarse con `showLauncherIsland=true` en la configuración KConfig del plasmoide real; en la vista Qt independiente rige el estado de sesión.
+- **IMPLEMENTADO SOLO EN MAQUETA QML EXPERIMENTAL:** `gripMenu` ahora presenta la acción en su primera posición, y las ayudas de SO/agarre indican cómo recuperarla cuando está oculta. **PENDIENTE de prueba en CachyOS**. La persistencia de KConfig real no está validada.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
