@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.12 (SO con pulsación sostenida y ocultación opcional de isla 2; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.13 (anclaje del lanzador SO al desplazamiento de isla 1; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -123,6 +123,15 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Exclusividad:** abrir el lanzador desde SO cierra las listas desplegadas de SO y bandeja para evitar superposiciones; el menú del lanzador no reemplaza el listado de ventanas.
 - **Ocultación automática de isla 2:** **PROPUESTA EN ESTUDIO, NO APROBADA PARA IMPLEMENTAR TODAVÍA**. Deben especificarse el disparador, la recuperación accesible, la preferencia y compatibilidad con el foco antes de añadirla; no activar por defecto ni inventar temporizadores.
 - **Alcance actual:** el prototipo de prueba usa fichas de aplicaciones **simuladas**, con clic sostenido de 400 ms y opción de ocultación/restitución. **NO hay aún enumeración de aplicaciones instaladas ni lanzamiento real**, ni prueba posterior de esta nueva interacción en CachyOS. No se debe presentar la funcionalidad final como terminada.
+
+## 2.11. Anclaje del lanzador flotante a la isla 1 desplazable (14/11/2026)
+
+**CONFIRMADO POR OBSERVACIÓN DEL MANTENEDOR:** el menú flotante que abre una pulsación sostenida sobre **SO** pertenece a **isla 1**, y debe aparecer **inmediatamente debajo de su posición actual en el modo superior**, incluso si la isla fue arrastrada manualmente hacia el centro o hacia la izquierda. No debe reaparecer en el extremo derecho predeterminado mientras la isla permanezca desplazada.
+
+- **Geometría reactiva:** el lanzador sigue horizontalmente la posición de **isla 1** al arrastrarla o al redimensionar el contenedor. En modo superior se muestra **debajo** de la isla; en el modo inferior futuro debe abrirse **por encima** (según el diseño aprobado de los paneles secundarios).
+- **Límites:** el popup permanece dentro de los márgenes útiles de la pantalla/contenedor, incluso cerca de los bordes. El ajuste por límites no mueve isla 1 ni los controles independientes de ventana.
+- **No cambia:** clic breve SO para ventanas abiertas, pulsación de prueba ~400 ms para lanzador, islas separadas, bandeja/SO excluyentes, grosor fijo, agarre de seis puntos ni controles anclados a la derecha.
+- **Estado técnico:** parche únicamente en la maqueta QML de [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), pasando a usar `systemIsland.x` y `systemIsland.width` como dependencias reactivas del popup. **Todavía no probado en CachyOS tras la corrección**, ni conectado al catálogo real de aplicaciones.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
