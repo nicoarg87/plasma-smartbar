@@ -17,6 +17,8 @@ Window {
 
     property bool demoAutoReturnRight: true
     property bool demoLauncherIslandVisible: true
+    property bool demoAutoCollapseSO: true
+    property bool demoAutoCollapseTray: false
 
     SmartBarContent {
         id: bar
@@ -27,11 +29,19 @@ Window {
 
         autoReturnRight: previewWindow.demoAutoReturnRight
         launcherIslandVisible: previewWindow.demoLauncherIslandVisible
+        autoCollapseSO: previewWindow.demoAutoCollapseSO
+        autoCollapseTray: previewWindow.demoAutoCollapseTray
         onRequestAutoReturnRightChange: function(newValue) {
             previewWindow.demoAutoReturnRight = newValue
         }
         onRequestLauncherIslandVisibilityChange: function(newValue) {
             previewWindow.demoLauncherIslandVisible = newValue
+        }
+        onRequestAutoCollapseSOChange: function(newValue) {
+            previewWindow.demoAutoCollapseSO = newValue
+        }
+        onRequestAutoCollapseTrayChange: function(newValue) {
+            previewWindow.demoAutoCollapseTray = newValue
         }
     }
 
