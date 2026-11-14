@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls as QQC2
+import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 
 Kirigami.FormLayout {
@@ -9,7 +10,6 @@ Kirigami.FormLayout {
     QQC2.CheckBox {
         id: resetRight
         text: "Volver automáticamente a la derecha al desmaximizar"
-        checked: true
     }
 
     QQC2.Label {
