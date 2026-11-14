@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.15 — Memoria de posición de isla 1 por aplicación activa  
+**Versión:** 0.16 — Alineación derecha auto-destildada al arrastrar isla 1  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -609,3 +609,14 @@ El **Manual Maestro anterior (secciones sobre «barra superior»)** describe el 
 ### 27.3. Estado de implementación
 
 **CONFIRMADO FUNCIONALMENTE; TODAVÍA NO IMPLEMENTADO, NO PROBADO.** Investigar en KDE Plasma 6/KWin/Wayland identificadores estables de aplicaciones, reconocimiento de ventana activa/maximizada, guardado local persistente y límites de pantalla/multimonitor. Steam puede tener comportamientos particulares por XWayland o decoraciones propias: no afirmar compatibilidad hasta una prueba. Consultar [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) para el desarrollo posterior a la primera prueba v0.1. **No reemplazar el panel actual del usuario.**
+
+
+## 28. Casilla de alineación derecha e interacción sin pasos previos — DECISIÓN CONFIRMADA (v0.16, 14/11/2026)
+
+**Solicitud expresa del mantenedor:** si isla 1 está normalmente al lado izquierdo de los controles fijos `− □ ×` y el usuario la arrastra hacia el centro con los **seis puntos**, **«Alinear isla 1 a la derecha» debe destildarse sola**. La isla queda en el nuevo lugar sin necesidad de abrir antes el menú ni desmarcar la opción. Cuando el usuario **tilda «Alinear isla 1 a la derecha»**, isla 1 vuelve de inmediato junto a los controles fijos o, sin ventana maximizada, al borde derecho. Destildar la opción manualmente no fuerza un movimiento.
+
+Esta casilla es un **indicador/control de alineación actual**, distinto de la preferencia global **«Volver a la derecha al desmaximizar»**, que sigue **activada por defecto** y guarda la opción del usuario. El retorno al desmaximizar se dispara en el **cambio de estado de maximizada a no maximizada**, no al terminar de arrastrar. Con una ventana maximizada, la isla puede permanecer desplazada libremente para no cubrir accesos de Steam. La casilla de alineación no guarda automáticamente perfiles por aplicación; esto exige **clic derecho → «Recordar esta posición para [aplicación]»** conforme a la sección 27.
+
+**Composición inmutable:** mover isla 1 **NO mueve** `− □ ×`, que siguen fijos al extremo derecho. Las fichas se expanden horizontalmente a la izquierda, el grosor es constante y la isla 2 sigue independiente.
+
+**Estado técnico:** en la rama de prueba [`prototype/v0.1-islas-so`](https://github.com/nicoarg87/plasma-smartbar/tree/prototype/v0.1-islas-so), QML incorpora estado `alignRightSelected`, destildado al arrastrar y alineación inmediata al activar la casilla. Se eliminó el retorno al **soltar** el agarre para no impedir que el usuario conserve el desplazamiento manual. **NO PROBADO AÚN en la instalación de CachyOS tras este cambio**, y no detecta ventanas reales. Mantener [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. Las reglas del presente apartado, posteriores, prevalecen sobre formulaciones anteriores de este manual que puedan sugerir que la casilla de alineación es un bloqueo permanente del arrastre.
