@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.23 (contorno luminoso de SO condicionado a ventanas abiertas; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.24 (gestos de SO, menú bajo Soledad y marco único del logo; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -254,6 +254,19 @@ Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la 
 - **Estado:** `SoActivityOutline.qml`, `SoActivityEditor.qml` y `IslandButton.qml` implementados en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin validación en CachyOS después de este cambio**. No se toca el panel existente.
 
 **Esta excepción posterior amplía la autorización de efectos opcionales del botón SO** (antes solo GIF personalizable, sección 2.20), pero NO autoriza animar automáticamente islas, ventana, apertura de bandeja ni minimización. La propuesta queda sujeta a rendimiento y accesibilidad reales.
+
+## 2.22. Gestos de SO, ubicación del menú de Soledad y marco único de imagen (14/11/2026)
+
+**DECISIONES FUNCIONALES CONFIRMADAS POR EL MANTENEDOR TRAS OBSERVAR LA V0.1 EN CACHYOS.** Estas instrucciones **sustituyen expresamente** las indicaciones históricas de las secciones 2.10, 2.11, 2.17 y 2.18 que permitían abrir un menú contextual intermedio con **clic derecho en SO** para gestionar Malvina. Se mantienen las demás reglas no contradictorias.
+
+- **SO — clic izquierdo breve:** abre/contrae las fichas de **ventanas/aplicaciones abiertas**. Cuando un lanzador flotante está visible, se conserva la prioridad de cerrar únicamente ese flotante sin alterar las expansiones horizontales de SO/bandeja (sección 2.16).
+- **SO — clic derecho:** abre **directamente** el lanzador flotante de **aplicaciones instaladas**, sin paso intermedio ni menú de preferencias. **SO — izquierdo sostenido ~400 ms:** conserva su acceso alternativo al mismo lanzador. El acceso por teclado debe seguir siendo posible. En v0.1 el lanzador **solo contiene aplicaciones de muestra**, no detecta ni ejecuta programas instalados reales.
+- **Malvina y opciones:** «Mostrar/Ocultar Malvina (isla 2)» deja de figurar en el clic derecho de SO. Es la **primera acción del menú de los seis puntos** de Soledad, que mantiene las restantes preferencias. Siguen admitidos el acceso contextual del propio botón Malvina y el botón «Mostrar Malvina» en el lanzador flotante al estar oculta: esta decisión no elimina rutas alternativas ya aprobadas en otros controles.
+- **Menú del agarre de seis puntos:** clic derecho lo abre y cierra, pero debe aparecer **debajo de la posición horizontal ACTUAL de Soledad** en modo superior, sin tapar ninguna parte de la isla ni moverla. Debe limitarse al área útil y acompañar las reubicaciones de Soledad; en modo inferior futuro, abrir hacia arriba. Izquierdo breve solo lo cierra si estaba abierto; arrastre izquierdo desplaza la isla sin abrir opciones, como ya estaba aprobado.
+- **Una sola forma visual del logo:** la máscara elegida (cuadrado, círculo, rombo, corazón o estrella) determina la forma principal. **No superponer un marco redondeado de botón y otro contorno geométrico diferente**. El indicador opcional de actividad debe seguir la misma forma elegida; si no hay ventanas, no debe mostrar contorno ni usar temporizador, según sección 2.21.
+- **Encuadre:** mantener las opciones existentes de ajuste/zoom, centrado por desplazamiento, encajar/rellenar y restablecer, conservando el archivo original. El mantenedor todavía no informó de un fallo específico del editor; su usabilidad y funcionamiento deben probarse.
+
+**Estado de ingeniería:** correcciones redactadas en `SmartBarContent.qml` y `IslandButton.qml` del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), con guía de retest. Se usa un popup de Qt 6.8 para poder desplegar las opciones fuera de la altura fija de la barra; **comportamiento todavía no probado en CachyOS/KWin/Wayland** después de los parches. No se sustituye el panel KDE existente. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
