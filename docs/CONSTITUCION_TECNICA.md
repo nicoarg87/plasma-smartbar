@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.0 (fase conceptual).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.1 (fase conceptual, islas visuales confirmadas el 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -19,6 +19,15 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 10. Elementos accesorios no deben interferir con el cambio de aplicaciones. El reproductor **MPRIS es futuro, no MVP**; cuando exista pertenecerá a la bandeja y se ocultará al contraerla.
 11. Los indicadores de escritorios virtuales/monitores son **configurables**, sin ocupar espacio obligatorio permanente.
 12. El primer prototipo debe funcionar **sin animaciones**. Los efectos opcionales jamás podrán alterar geometría, foco, accesibilidad ni estabilidad.
+
+## 2.1. Distribución predeterminada en islas — confirmada
+
+- **Isla 1, derecha:** identidad del sistema (botón SO con logo configurable) y flecha de bandeja; controles de ventana de la zona derecha al maximizar, sin desplazar pestañas.
+- **Isla 2, izquierda:** lanzador que busca programas instalados.
+- **Isla 3, junto al lanzador:** campo de búsqueda visible **opcional y oculto por defecto**.
+- **Separación visual por defecto:** solo las islas, sin fondo continuo entre ellas. El usuario puede activar un tema con **fondo continuo/entrelazado** sin modificar geometría ni conducta.
+- La minimización con animación tipo **gaveta/ranura temporal de SO** se contempla **únicamente como efecto optativo futuro**, no como requisito del MVP. Su duración objetivo inicial rondaría medio segundo, sujeto a pruebas. La ventana se minimiza igualmente sin efectos.
+- **La superposición sobre las pestañas de navegadores maximizados sigue pendiente de validación técnica** y no se considera resuelta por ninguna imagen conceptual.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
