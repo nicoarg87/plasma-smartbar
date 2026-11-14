@@ -16,11 +16,14 @@
 - [ ] Detectar max/restauración y mostrar/ocultar controles de ventana según corresponda; **anclarlos al extremo derecho de manera independiente de isla 1**, sin seguir el arrastre de SO.
 - [ ] Lanzador izquierdo para apps instaladas, distinguible del selector SO.
 - [ ] **SO doble gesto:** clic breve ventanas abiertas; pulsación sostenida de ~400 ms abre lanzador flotante de **apps instaladas**, sin clic corto al soltar. La v0.1 solo simula este menú. Pendiente de prueba en CachyOS y de usar catálogo real de apps.
+- [ ] **Nombres de islas confirmados:** Soledad = isla 1 principal, Malvina = isla 2; evaluar con autorización explícita antes de renombrar el proyecto entero o repositorio. El botón SO mantiene su etiqueta actual.
 - [ ] **Isla 2 opcional:** permanece visible por defecto; clic derecho para ocultar y menú contextual de SO para mostrar de nuevo, con preferencia KConfig `showLauncherIsland=true`. Código de maqueta publicado, pendientes persistencia y prueba.
 - [ ] **Ocultación automática de isla 2 — PROPUESTA:** definir disparador, forma de recuperación y accesibilidad antes de aprobar/implementar. No activada por defecto.
 - [ ] Selector SO de una sola fila, expansión a izquierda, agrupación por aplicación y activación de ventanas.
 - [ ] Contracción automática de SO después de seleccionar por defecto y preferencia de permanecer abierto.
-- [ ] Bandeja horizontal compacta, flechas correctas y exclusividad con SO.
+- [ ] **Soledad y bandeja simultáneas según espacio:** SO y bandeja conservan sus fichas visibles juntos cuando caben, en una fila. Si no entran, al abrir uno se contrae el otro; si se estrecha la ventana o se mueve Soledad, conservar la última expansión solicitada. **Maqueta QML implementada, todavía no probada en CachyOS**.
+- [ ] **Autocontracción independiente por configuración:** SO al elegir ventana (predeterminado activado); bandeja al usar icono (predeterminado desactivado). Clic en seis puntos → Configuración de autocontracción. La v0.1 simula selección, y KConfig está declarado; **pendiente de prueba y de integrar comportamiento real seguro**.
+- [ ] **Recuperar Malvina fácilmente:** si se oculta la isla 2, mantener SO y pulsar una vez «Mostrar Malvina (isla 2)». Acceso agregado en maqueta QML, **pendiente de prueba**; se conserva el menú contextual de SO.
 - [ ] Respetar fullscreen real; probar foco, maximización y pestañas de navegadores.
 - [ ] Pruebas en CachyOS con Dolphin, Konsole, Brave y Firefox.
 
