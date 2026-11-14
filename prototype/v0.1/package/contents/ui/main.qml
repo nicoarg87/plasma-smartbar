@@ -26,11 +26,19 @@ PlasmoidItem {
         // SmartBarContent no depende de Plasmoid y es reutilizable.
         autoReturnRight: Plasmoid.configuration.autoReturnRight
         launcherIslandVisible: Plasmoid.configuration.showLauncherIsland
+        autoCollapseSO: Plasmoid.configuration.autoCollapseSO
+        autoCollapseTray: Plasmoid.configuration.autoCollapseTray
         onRequestAutoReturnRightChange: function(newValue) {
             Plasmoid.configuration.autoReturnRight = newValue
         }
         onRequestLauncherIslandVisibilityChange: function(newValue) {
             Plasmoid.configuration.showLauncherIsland = newValue
+        }
+        onRequestAutoCollapseSOChange: function(newValue) {
+            Plasmoid.configuration.autoCollapseSO = newValue
+        }
+        onRequestAutoCollapseTrayChange: function(newValue) {
+            Plasmoid.configuration.autoCollapseTray = newValue
         }
     }
 }
