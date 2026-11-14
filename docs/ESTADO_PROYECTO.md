@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.20](MANUAL_MAESTRO.md), [Constitución Técnica v1.12](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.21](MANUAL_MAESTRO.md), [Constitución Técnica v1.13](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -168,6 +168,13 @@
 - **PROPUESTA A DEFINIR:** ocultación automática de isla 2. El usuario la sugirió como opción futura, pero **aún no confirmó disparador/recuperación**; no se ha implementado.
 - **IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL, NO PROBADO EN CACHYOS TRAS CAMBIO:** `SmartBarContent.qml`: temporizador de 400 ms sobre SO, Popup de aplicaciones **simuladas** (no se ejecutan ni son necesariamente instaladas), clic derecho en isla 2 y SO para ocultar/restaurar; `showLauncherIsland=true` en KConfig, conectado mediante el envoltorio del plasmoide, con ventana Qt independiente de solo sesión. **La persistencia KConfig en Plasma NO está comprobada.**
 - **PRUEBA PRÓXIMA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`. Verificar clic normal SO, pulsación larga para menú flotante, soltar sin abrir SO, clic derecho isla 2 para ocultar y clic derecho SO para restaurar. Confirmar ausencia de cambios en grosor, controles y arrastre. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
+
+## Prueba v0.1 — lanzador SO aparecía lejos de isla 1 arrastrada (14/11/2026)
+
+- **FALLO OBSERVADO EN CACHYOS CON CAPTURA:** en la ventana Qt independiente, el mantenedor movió **isla 1** al centro y mantuvo SO presionado; el popup «Aplicaciones (simulación)» apareció en el **extremo derecho**, separado de isla 1. La pulsación sostenida sí abrió el lanzador, pero su anclaje horizontal quedó obsoleto.
+- **DIAGNÓSTICO QML:** el `QQC2.Popup.x` utilizaba `soButton.mapToItem(root, 0, 0).x` en lugar de referirse directamente a las propiedades reactivas del contenedor desplazable. El valor del menú podía mantenerse en la ubicación original tras el arrastre.
+- **CORREGIDO EN CÓDIGO, NO PROBADO TODAVÍA EN CACHYOS:** [51aad39](https://github.com/nicoarg87/plasma-smartbar/commit/51aad39b0b448074779d15fd131cc7a6ed0e5032) calcula el anclaje con `systemIsland.x` y `systemIsland.width`, centra el popup **debajo de la ubicación actual de isla 1** y limita el margen dentro del ancho útil. Al mover o redimensionar la isla, el popup debe recalcular su posición automáticamente. No se cambia SO clic breve, pulsación sostenida 400 ms, altura, agarre ni controles fijos.
+- **RETEST PRÓXIMO:** `git pull` y `bash prototype/v0.1/probar_ancho.sh`; arrastrar isla 1 al centro, mantener SO, verificar popup debajo de isla 1. Repetir a izquierda/derecha y tras redimensionar. Seguir sin actuar sobre ventanas reales. Registrar resultado en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
