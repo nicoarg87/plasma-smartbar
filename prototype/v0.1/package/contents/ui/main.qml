@@ -45,8 +45,24 @@ PlasmoidItem {
     function setPreviewMaximized(value) {
         previewMaximized = value
         if (!previewMaximized && Plasmoid.configuration.autoReturnRight) {
+            // Volver al borde derecho al salir del estado maximizado.
             setIslandOffset(0)
         }
+        console.log("SmartBar v0.1: maximizada simulada =", previewMaximized,
+                    "retorno =", Plasmoid.configuration.autoReturnRight,
+                    "desplazamiento =", islandOffset)
+    }
+
+    function setAutoReturnRight(value) {
+        Plasmoid.configuration.autoReturnRight = value
+        // Si la persona activa esta preferencia con la isla desplazada,
+        // devolverla AHORA a su posición predeterminada (también si la
+        // simulación sigue maximizada). Al desmaximizar volverá de nuevo.
+        if (value) {
+            setIslandOffset(0)
+        }
+        console.log("SmartBar v0.1: retorno automático =", value,
+                    "desplazamiento =", islandOffset)
     }
 
     function toggleSO() {
@@ -225,21 +241,19 @@ PlasmoidItem {
                             onTriggered: root.setPreviewMaximized(!root.previewMaximized)
                         }
                         QQC2.MenuItem {
-                            text: "Volver automáticamente a la derecha"
+                            text: "Volver a la derecha al desmaximizar"
                             checkable: true
                             checked: Plasmoid.configuration.autoReturnRight
-                            onTriggered: {
-                                Plasmoid.configuration.autoReturnRight =
-                                    !Plasmoid.configuration.autoReturnRight
-                                if (Plasmoid.configuration.autoReturnRight &&
-                                    !root.previewMaximized) {
-                                    root.setIslandOffset(0)
-                                }
-                            }
+                            onTriggered: root.setAutoReturnRight(
+                                !Plasmoid.configuration.autoReturnRight
+                            )
                         }
                         QQC2.MenuItem {
-                            text: "Restablecer isla a la derecha ahora"
-                            onTriggered: root.setIslandOffset(0)
+                            text: "Mover isla 1 a la derecha AHORA"
+                            onTriggered: {
+                                root.setIslandOffset(0)
+                                console.log("SmartBar v0.1: movimiento manual a la derecha")
+                            }
                         }
                     }
                 }
