@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.20 (agarre izquierdo solo arrastra; opciones por clic derecho/teclado, 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.21 (clic izquierdo breve también cierra opciones abiertas; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -211,6 +211,18 @@ Esta decisión sustituye las reglas previas que hacían cerrar SO y bandeja al a
 - **Recuperación de Malvina sin pérdida:** al abrir el menú por derecho o teclado, la primera opción sigue siendo «Mostrar Malvina (isla 2)» si está oculta, «Ocultar Malvina (isla 2)» si está visible. También siguen disponibles las rutas de menú contextual SO y lanzador flotante SO. Malvina sigue visible por defecto.
 - **Invariantes:** no cambian el agarre de seis puntos, la altura constante, la distancia entre islas, los controles fijos, el cálculo de espacio SO/bandeja ni el lanzamiento flotante de Malvina/Soledad.
 - **IMPLEMENTADO EN RAMA EXPERIMENTAL, PENDIENTE DE PRUEBA EN CACHYOS:** `SmartBarContent.qml` desactiva la acción del clic izquierdo en `moveGrip`, añade `MouseArea` que acepta solo botón derecho y una alternativa de teclado; `gripMenu` usa una política de cierre que no interfiere con el segundo clic derecho. Sin tocar el panel de KDE instalado.
+
+## 2.19. Cierre de opciones con clic izquierdo breve sin interferir con arrastre (14/11/2026)
+
+**CONFIRMADO Y OBSERVADO POR EL MANTENEDOR EN CACHYOS:** abrir las opciones de Soledad mediante clic derecho en el agarre funciona correctamente. A partir de esa prueba, el usuario pidió que un **clic izquierdo breve sobre el mismo agarre también cierre el menú si ya está abierto**. No pretende que el izquierdo abra opciones desde el estado cerrado.
+
+- **Menú cerrado:** clic izquierdo breve en los seis puntos **no lo abre**; el izquierdo permite **arrastrar horizontalmente** Soledad.
+- **Menú abierto:** clic izquierdo breve en el mismo agarre **lo cierra**, sin volver a abrirlo ni desplazar Soledad. Clic derecho continúa alternando abrir/cerrar opciones.
+- **Arrastre ≠ clic:** si el gesto izquierdo activó el arrastre, no debe interpretarse después como un clic de cierre del menú, para conservar la funcionalidad de mover Soledad. El arrastre permanece restringido a `Qt.LeftButton`; el menú contextual, a `Qt.RightButton`.
+- **Accesibilidad:** siguen disponibles tecla Menú, Mayús+F10 y Esc. Las opciones **«Mostrar/Ocultar Malvina (isla 2)»** se mantienen en primer lugar. No se añade otro botón ni se altera altura, controles, bandeja o SO.
+- **IMPLEMENTADO EN QML EXPERIMENTAL, PENDIENTE DE RETEST EN CACHYOS:** el `moveGrip.onClicked` ejecuta `gripMenu.close()` **solo** si el menú está visible y no hubo arrastre. El `DragHandler` marca cuándo se activó el desplazamiento. No se modificó el panel KDE existente.
+
+Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la sección 2.18: **no abre opciones, pero sí permite cerrarlas cuando están visibles**, sin interferir con el arrastre.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
