@@ -447,3 +447,27 @@ bash prototype/v0.1/probar_ancho.sh
 6. Comprobar que clic breve/sostenido de SO, expansiones SO/bandeja, separador, simulación de ventana maximizada y controles fijos continúen sin cambios.
 
 **Estado:** corrección QML subida solo al PR #3 en borrador, **pendiente de probar en CachyOS**. No hay ventanas o bandeja reales y el panel KDE existente sigue intacto.
+
+## Segundo cierre del menú de los seis puntos: clic izquierdo breve (14/11/2026)
+
+**PRUEBA POSITIVA REPORTADA:** en CachyOS, el mantenedor comprobó que el clic derecho **ya abre el menú de opciones del agarre** como se esperaba. Ahora quiere poder **cerrarlo también con clic izquierdo simple**, sin necesidad de otro derecho.
+
+**COMPORTAMIENTO CONFIRMADO EN ESTA MODIFICACIÓN:** clic derecho abre/cierra opciones; clic izquierdo corto, **solo cuando hay menú abierto**, cierra ese menú, sin reabrirlo; clic izquierdo con menú cerrado no abre nada; arrastrar con izquierdo continúa desplazando Soledad sin generar un cierre accidental tras el gesto.
+
+**IMPLEMENTACIÓN QML, PENDIENTE DE PRUEBA EN CACHYOS:** `moveGrip` tiene un indicador `draggedDuringPress` que se limpia al pulsar y se activa si comienza `gripDrag`. El `onClicked` cierra `gripMenu` únicamente cuando `visible && !draggedDuringPress`. Menú por derecho, teclas de accesibilidad y primera opción «Mostrar Malvina» permanecen.
+
+**Prueba Fish sin tocar panel:**
+
+```fish
+cd ~/plasma-smartbar
+git pull
+bash prototype/v0.1/probar_ancho.sh
+```
+
+1. Clic derecho en seis puntos → se abre «Opciones de Soledad». **Clic izquierdo corto** en seis puntos → se cierra y no reaparece.
+2. Clic izquierdo corto con menú cerrado → **no se abre** ninguna opción.
+3. Clic derecho abre, otro derecho cierra; seguir verificando que no reabra inesperadamente.
+4. Con menú abierto, **arrastrar** los seis puntos hacia el centro: mover Soledad, sin que la acción de arrastre se confunda con un clic simple.
+5. Abrir menú por derecho, ocultar Malvina, recuperar Malvina desde la primera opción. El menú de SO/bandeja, su separador y el lanzador flotante deben seguir intactos.
+
+**Estado:** código publicado únicamente en la rama experimental de PR #3; todavía falta ejecutar esta prueba en CachyOS. No hay apps/ventanas reales ni se toca el panel existente.
