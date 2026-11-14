@@ -1,7 +1,7 @@
 # Estado actual de Plasma SmartBar
 
 **Fecha de corte:** 14 de noviembre de 2026  
-**Estado general:** documentación y organización del proyecto. **NO existe todavía código funcional de la barra, aplicación instalable ni pruebas ejecutadas en CachyOS.**
+**Estado general:** documentación y organización del proyecto. **Primera prueba visual v0.1 ESCRITA en rama experimental**, todavía no ejecutada en KDE/CachyOS, no incorporada a main ni probada con ventanas reales. **No existe aún una barra funcional e instalable para uso diario.**
 
 ## Realmente completado
 
@@ -9,7 +9,8 @@
 - [x] Licencia en el repositorio: GNU GPL-3.0.
 - [x] [Manual Maestro v0.11](MANUAL_MAESTRO.md), [Constitución Técnica v1.3](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
-- [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, sin ejecución todavía).
+- [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
+- [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
 - [x] [Protocolo de continuidad](CONTINUIDAD_CHATGPT.md) y [plantilla de instrucciones](PLANTILLA_INSTRUCCIONES_CHATGPT.md) para conversaciones futuras.
 - [x] Diseño aprobado: **islas 1 y 2 visibles por defecto**, isla 3 oculta; controles de ventana a la derecha al maximizar, con viabilidad de solapamiento todavía no probada.
 - [x] Requisito funcional aprobado **solo en documentación**: agarre pequeño punteado **a la derecha de SO**, que no se mueve al abrir bandeja o SO, para desplazar horizontalmente la isla 1. **Todavía NO implementado NI probado**.
@@ -18,11 +19,11 @@
 - [x] Issue técnico [#2](https://github.com/nicoarg87/plasma-smartbar/issues/2) abierto para investigar/validar el modo inferior y controles abajo.
 
 ## Lo que NO se ha hecho
-- [ ] No se ha creado el primer plasmoide QML/Qt.
+- [x] Primer plasmoide QML/Qt **redactado en rama experimental, NO probado**. Pendiente ejecutar en `plasmoidviewer` y corregir posibles errores.
 - [ ] No existe botón de arrastre funcional, ni pruebas de que se mantenga fijo durante las expansiones.
 - [ ] **Ningún modo inferior** está implementado/probado; no se verificó integración de sus controles inferiores con la ventana activa ni decoraciones originales.
 - [ ] No hay modo vertical experimental funcional; dejar arquitectura preparada no equivale a ofrecerlo.
-- [ ] No se ha ejecutado `plasmawindowed` ni instalado Plasma SmartBar.
+- [ ] No se ha ejecutado `plasmoidviewer` ni `plasmawindowed` en CachyOS; no se ha instalado Plasma SmartBar como barra o panel.
 - [ ] No se ha demostrado detección/activación de ventanas o pestañas con KWin.
 - [ ] No se ha probado superposición horizontal en navegadores maximizados ni fullscreen.
 - [ ] No se han ejecutado pruebas de consumo de CPU/RAM, rendimiento o compatibilidad entre distribuciones.
@@ -37,7 +38,7 @@
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
-Objetivo inicial seguro: componente mínimo de interfaz que se abra en una ventana de pruebas (sin sustituir panel de usuario), botón SO, fichas ficticias horizontales y altura constante; después, validar modelo de ventanas reales y arquitectura posible de integración con KWin/Wayland.
+**Siguiente paso inmediato:** abrir y probar localmente el [prototipo de la rama experimental](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/README.md) mediante `plasmoidviewer`, sin sustituir el panel de usuario. Revisar en #1 qué funciona y qué falla; luego integrar el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) únicamente tras revisión y aprobación funcional. Posteriormente, validar modelo de ventanas reales y arquitectura KWin/Wayland.
 
 ## Próximo hito organizativo
 Conservar la sincronía documental entre la Constitución, el Manual Maestro y la plantilla del Proyecto de ChatGPT. **Si la plantilla en GitHub cambia, copiar su versión actualizada a las instrucciones del Proyecto en ChatGPT; la sincronización no es automática.**
