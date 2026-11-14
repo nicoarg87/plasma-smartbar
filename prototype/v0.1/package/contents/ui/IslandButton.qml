@@ -29,11 +29,18 @@ QQC2.Button {
     focusPolicy: Qt.StrongFocus
 
     background: Rectangle {
+        // Al mostrar imagen, la mascara y el indicador opcional de
+        // actividad comparten la forma elegida. No dibujar ADEMAS
+        // un borde redondo del boton: aparecian dos geometrías
+        // superpuestas (círculo + cuadrado/rombo) sobre la huella.
+        // Las fichas sin imagen mantienen su aspecto habitual.
+        readonly property bool showsLogo: control.iconSource.toString().length > 0
         radius: 17
-        color: control.down ? "#254c61" :
-               (control.hovered ? "#24425a" :
-                (control.accent ? "#1f4e65" : "#14283d"))
-        border.width: 1
+        color: showsLogo ? "transparent" :
+               (control.down ? "#254c61" :
+                (control.hovered ? "#24425a" :
+                 (control.accent ? "#1f4e65" : "#14283d")))
+        border.width: showsLogo ? 0 : 1
         border.color: control.accent ? "#3dc6d4" : "#45647a"
     }
 
