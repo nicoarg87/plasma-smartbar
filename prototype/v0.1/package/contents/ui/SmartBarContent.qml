@@ -549,6 +549,8 @@ Item {
                     DragHandler {
                         id: gripDrag
                         target: null
+                        // Reservar el botón derecho a las opciones.
+                        acceptedButtons: Qt.LeftButton
                         xAxis.enabled: true
                         yAxis.enabled: false
                         cursorShape: Qt.SizeHorCursor
