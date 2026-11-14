@@ -34,6 +34,10 @@ Window {
     property real demoMalvinaOpacity: 1
     property real demoBackgroundOpacity: 0.5
     property bool demoShowBackground: false
+    property string demoSoActivityStyle: "steady"
+    property color demoSoActivityColor: "#35d7ff"
+    property real demoSoActivityStroke: 1.0
+    property bool demoSoActivityMotion: true
 
     SmartBarContent {
         id: bar
@@ -60,6 +64,16 @@ Window {
         malvinaOpacity: previewWindow.demoMalvinaOpacity
         backgroundOpacity: previewWindow.demoBackgroundOpacity
         showBackground: previewWindow.demoShowBackground
+        soActivityStyle: previewWindow.demoSoActivityStyle
+        soActivityColor: previewWindow.demoSoActivityColor
+        soActivityStroke: previewWindow.demoSoActivityStroke
+        soActivityMotion: previewWindow.demoSoActivityMotion
+        onRequestSoActivityChange: function(style, color, stroke, allowMotion) {
+            previewWindow.demoSoActivityStyle = style
+            previewWindow.demoSoActivityColor = color
+            previewWindow.demoSoActivityStroke = stroke
+            previewWindow.demoSoActivityMotion = allowMotion
+        }
         onRequestSoLogoChange: function(mode, path, shape, zoom, panX, panY, allowGif) {
             previewWindow.demoSoLogoMode = mode
             previewWindow.demoSoLogoPath = path
@@ -118,7 +132,9 @@ Window {
         color: "#c7bad8"
         font.pixelSize: 11
         wrapMode: Text.WordWrap
-        text: "Soledad: " + (bar.soExpanded ? "SO abierto" : "SO cerrado") +
+        text: "Ventanas de muestra: " + bar.soWindowCount +
+              " · efecto SO: " + bar.soActivityStyle +
+              " · " + (bar.soExpanded ? "SO abierto" : "SO cerrado") +
               " · " + (bar.trayExpanded ? "bandeja abierta" : "bandeja cerrada") +
               " · Malvina: " + (bar.launcherIslandVisible ? "visible" : "oculta") +
               " · SO autocierre: " + (bar.autoCollapseSO ? "sí" : "no") +
