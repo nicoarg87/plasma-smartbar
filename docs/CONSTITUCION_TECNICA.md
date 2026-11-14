@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.3 (orientación superior/inferior aprobada el 14/11/2026; sin implementación).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.4 (retorno automático de isla 1 confirmado el 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -43,6 +43,15 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 **Lados izquierdo/derecho:** quedan **fuera de los modos oficiales iniciales**. Se permite investigación/experimentación posterior y forks que lo implementen, sin compromiso de que el diseño vertical funcione de inmediato. La arquitectura debe **separar orientación, anclaje y disposición de la lógica de tareas/ventanas**, evitando codificar exclusivamente coordenadas superiores; no sacrificar estabilidad ni rendimiento del modo horizontal por esto.
 
 **Orden de ejecución:** implementar y probar primero el modo superior y sus reglas vigentes; planificar la compatibilidad inferior desde el diseño del código, habilitarla tras pruebas específicas. No introducir modo inferior o lateral como funcionalidad «probada» solo por existir en Plasma una opción de mover paneles.
+
+
+## 2.3. Retorno horizontal automático de isla 1 — decisión confirmada
+
+- **Al maximizar una ventana**, el agarre punteado inmediatamente a la derecha de SO debe permitir **mover manualmente la isla 1 en el eje horizontal**, sin modificar la altura. El agarre siempre acompaña SO, sin saltar por las expansiones de SO o bandeja.
+- **Al dejar de estar maximizada la ventana**, la isla 1 **vuelve automáticamente a su posición predeterminada en el extremo derecho**, salvo que el usuario haya desactivado expresamente la opción.
+- La preferencia «**Volver automáticamente a la derecha al desmaximizar**» está **activada por defecto** y debe ser **configurable y persistente** en las opciones de Plasma SmartBar. Si está desactivada, puede conservarse el desplazamiento manual al dejar de estar maximizada.
+- La coordinación con los controles de ventana, los márgenes válidos, el tratamiento de múltiples monitores y la lectura real del estado de KWin/Wayland deben investigarse y probarse. No se permite que el agarre o la isla queden fuera de pantalla o tapen controles indispensables de forma irreversible.
+- La **v0.1 experimental** puede simular el estado maximizado para probar el movimiento y los ajustes, **sin afirmar que ya se detectan las ventanas reales**.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
