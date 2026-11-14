@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.11 — Modos horizontales superior/inferior y extensibilidad vertical experimental  
+**Versión:** 0.12 — Retorno automático configurable de isla 1 y prototipo v0.1  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -551,6 +551,17 @@ Los bordes **izquierdo y derecho en orientación vertical** no son modos oficial
 
 ### 23.3. Etapas y riesgos
 
-**APROBADO COMO OBJETIVO:** tener ambos modos horizontales superior e inferior, con controles SmartBar junto a isla 1 en el borde elegido. **NO IMPLEMENTADO / NO PROBADO:** ningún modo de SmartBar está construido todavía. El primer experimento v0.1 sigue concentrado en la base superior, sin reemplazar el panel existente del usuario. El modo inferior se validará después con un issue dedicado, especialmente por las decoraciones y botones originales de Brave, Firefox, Chrome, Steam, Qt y GTK.
+**APROBADO COMO OBJETIVO:** tener ambos modos horizontales superior e inferior, con controles SmartBar junto a isla 1 en el borde elegido. **NO IMPLEMENTADO / NO PROBADO COMO SISTEMA FUNCIONAL:** existe una maqueta QML en la rama experimental v0.1, pero no se ha probado en KDE ni conectado a ventanas reales. El primer experimento v0.1 sigue concentrado en la base superior, sin reemplazar el panel existente del usuario. El modo inferior se validará después con un issue dedicado, especialmente por las decoraciones y botones originales de Brave, Firefox, Chrome, Steam, Qt y GTK.
 
 El **Manual Maestro anterior (secciones sobre «barra superior»)** describe el **modo superior**, no limita la posibilidad aprobada de la orientación inferior desde esta versión. Las invariantes generales —grosor inmutable, una fila, configuración, rendimiento, seguridad, bandeja/SO excluyentes— se aplican a **ambos modos**.
+
+
+## 24. Retorno automático del agarre al desmaximizar — DECISIÓN CONFIRMADA (v0.12, 14/11/2026)
+
+**Requisito confirmado por el director funcional:** el agarre discreto de tres o cuatro puntos **a la derecha de SO** no es solamente una marca decorativa; debe permitir **arrastrar horizontalmente la isla 1**, especialmente cuando una ventana está maximizada y sus controles interfieren con la aplicación. El botón SO y el agarre permanecen juntos y **no saltan de lugar** al expandir o contraer SO/bandeja. La altura sigue invariable.
+
+**Comportamiento predeterminado:** cuando la ventana deja de estar maximizada, la isla 1 **regresa automáticamente a la posición original del extremo derecho**. Esto evita que quede desplazada sin necesidad. En la configuración de SmartBar habrá una preferencia **«Volver automáticamente a la derecha al desmaximizar»**, **activada por defecto** y **guardada** como opción del usuario. Si se desactiva, el desplazamiento elegido puede mantenerse al cambiar el estado de maximización.
+
+**Excepción y límites:** el usuario puede desplazar intencionalmente la isla cuando corresponda; se limitará el recorrido para no perder SO, bandeja, agarre ni controles fuera de la pantalla. La política de multimonitor, posiciones recordadas y relación con aplicaciones que se decoran a sí mismas es pendiente técnico.
+
+**Implementación provisional:** se incorporó en la rama experimental [`prototype/v0.1-islas-so`](https://github.com/nicoarg87/plasma-smartbar/tree/prototype/v0.1-islas-so/prototype/v0.1) un **agarre horizontal activo solo dentro de la maqueta QML**. El estado de ventana maximizada se **simula** desde un menú y los botones de control de ventana son ficticios. La opción de retorno se declaró con preferencia `autoReturnRight=true` en KConfig (se comprobará en CachyOS si se conserva entre sesiones). **Ni el arrastre ni la maximización se conectaron a ventanas reales de KWin y nada está probado ejecutándose en CachyOS todavía**. El [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue siendo borrador y no forma parte de `main`.
