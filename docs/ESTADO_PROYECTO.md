@@ -1,7 +1,7 @@
 # Estado actual de Plasma SmartBar
 
 **Fecha de corte:** 14 de noviembre de 2026  
-**Estado general:** documentación y organización del proyecto. **Primera prueba visual v0.1 ESCRITA en rama experimental**, todavía no ejecutada en KDE/CachyOS, no incorporada a main ni probada con ventanas reales. **No existe aún una barra funcional e instalable para uso diario.**
+**Estado general:** documentación y organización del proyecto. **Prototipo v0.1 en rama experimental YA EJECUTADO EN CACHYOS Y VISIBLE EN UNA CAPTURA**, pero recarga inestable o fallida pendiente de diagnóstico, no incorporado a main y sin integración con ventanas reales. **No existe aún una barra funcional e instalable para uso diario.**
 
 ## Realmente completado
 
@@ -46,10 +46,17 @@
 - **Pendiente de prueba:** el usuario debe ejecutar `cd ~/plasma-smartbar && git pull && bash prototype/v0.1/probar.sh` para ver si el applet carga tras el parche. No afirmar que se ve la barra ni que el arrastre funciona todavía.
 - **No tocado:** panel actual del escritorio y rama principal `main`.
 
+## Segunda ejecución de v0.1 — carga visual confirmada; fallo de recarga pendiente (14/11/2026)
+
+- **PROBADO en CachyOS:** tras el parche QML, el visor `plasmoidviewer` **mostró por primera vez el contenido de la demo**: isla de lanzador a la izquierda, parte de la isla SO a la derecha y un tooltip de SO. Captura aportada en la conversación del mantenedor. La interfaz `Formatos visuales / Ubicación / Configurar contenedor` pertenece al propio visor de Plasma, no a SmartBar.
+- **INCIDENTE SIN DIAGNÓSTICO:** al pulsar «actualizar» en `plasmoidviewer`, el usuario informó que el contenido de SmartBar desapareció o dejó de responder; después reinició la prueba. **No se ha recogido todavía el registro del proceso en ese momento**. No atribuirlo a un bug de KWin ni anunciar un crash confirmado.
+- **NO PROBADO AÚN:** arrastre real de la maqueta de seis puntos, persistencia de `autoReturnRight`, exclusividad SO/bandeja, geometría constante durante interacción, integraciones reales de ventanas.
+- **SIGUIENTE PASO:** ejecutar desde Fish `cd ~/plasma-smartbar; bash prototype/v0.1/probar.sh 2>&1 | tee ~/plasma-smartbar-v01.log` y reunir la salida al reproducir el problema. Continuar la prueba en la rama experimental; no fusionar el PR #3 todavía.
+
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
-**Siguiente paso inmediato:** abrir y probar localmente el [prototipo de la rama experimental](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/README.md) mediante `plasmoidviewer`, sin sustituir el panel de usuario. Revisar en #1 qué funciona y qué falla; luego integrar el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) únicamente tras revisión y aprobación funcional. Posteriormente, validar modelo de ventanas reales y arquitectura KWin/Wayland.
+**Siguiente paso inmediato:** recoger el registro de la recarga de `plasmoidviewer` y aislar cualquier fallo, **antes de considerar estable la maqueta**. Verificar interacción SO/bandeja/arrastre/retorno en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1). Integrar el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) únicamente tras revisión y aprobación funcional. Después, validar ventanas reales y KWin/Wayland.
 
 ## Próximo hito organizativo
 Conservar la sincronía documental entre la Constitución, el Manual Maestro y la plantilla del Proyecto de ChatGPT. **Si la plantilla en GitHub cambia, copiar su versión actualizada a las instrucciones del Proyecto en ChatGPT; la sincronización no es automática.**
