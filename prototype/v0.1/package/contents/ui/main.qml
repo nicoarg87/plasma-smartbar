@@ -11,13 +11,20 @@ PlasmoidItem {
 
     // Una sola franja de alto fijo, tanto con SO como con la bandeja abiertos.
     readonly property int fixedHeight: 48
-    Layout.minimumWidth: 750
-    Layout.preferredWidth: 960
+    // El visor/panel administra el ancho disponible. Nunca limitar la barra
+    // a un valor fijo: las islas se anclan al ancho EFECTIVO de este item.
+    Layout.fillWidth: true
+    Layout.minimumWidth: 750   // Solo límite de seguridad para esta demo.
+    Layout.preferredWidth: 960 // Tamaño inicial sugerido, NO máximo.
     Layout.minimumHeight: fixedHeight
     Layout.preferredHeight: fixedHeight
     Layout.maximumHeight: fixedHeight
-    implicitWidth: 960
+    implicitWidth: 960        // Sugerencia inicial para el contenedor.
     implicitHeight: fixedHeight
+
+    // Diagnóstico: permite comprobar si el visor realmente cambia el ancho
+    // del plasmoide cuando se redimensiona su ventana.
+    onWidthChanged: console.log("SmartBar v0.1: ancho del contenido =", width)
 
     property bool soExpanded: false
     property bool trayExpanded: false
