@@ -35,5 +35,10 @@
     <entry name="malvinaOpacity" type="Double"><default>1.0</default></entry>
     <entry name="backgroundOpacity" type="Double"><default>0.5</default></entry>
     <entry name="showBackground" type="Bool"><default>false</default></entry>
+    <!-- Indicador de ventanas abiertas: el efecto dinámico es optativo. -->
+    <entry name="soActivityStyle" type="String"><default>steady</default></entry>
+    <entry name="soActivityColor" type="String"><default>#35d7ff</default></entry>
+    <entry name="soActivityStroke" type="Double"><default>1.0</default></entry>
+    <entry name="soActivityMotion" type="Bool"><default>true</default></entry>
   </group>
 </kcfg>
