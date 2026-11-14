@@ -7,17 +7,21 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.10](MANUAL_MAESTRO.md), [Constitución Técnica v1.2](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.11](MANUAL_MAESTRO.md), [Constitución Técnica v1.3](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, sin ejecución todavía).
 - [x] [Protocolo de continuidad](CONTINUIDAD_CHATGPT.md) y [plantilla de instrucciones](PLANTILLA_INSTRUCCIONES_CHATGPT.md) para conversaciones futuras.
 - [x] Diseño aprobado: **islas 1 y 2 visibles por defecto**, isla 3 oculta; controles de ventana a la derecha al maximizar, con viabilidad de solapamiento todavía no probada.
 - [x] Requisito funcional aprobado **solo en documentación**: agarre pequeño punteado **a la derecha de SO**, que no se mueve al abrir bandeja o SO, para desplazar horizontalmente la isla 1. **Todavía NO implementado NI probado**.
 - [x] Efecto futuro de minimización «gaveta de SO» documentado; no implementado.
+- [x] **Nueva decisión aprobada, no implementada:** modos horizontales **superior (por defecto)** e **inferior (configurable)**. Los controles SmartBar para ventanas maximizadas deben ubicarse en el **mismo borde** elegido, **abajo cuando la barra esté abajo**. La posibilidad de trasladar decoraciones originales es técnicamente incierta. Los bordes verticales izquierdo/derecho se reservan para experimentación futura, no como compromiso de entrega.
+- [x] Issue técnico [#2](https://github.com/nicoarg87/plasma-smartbar/issues/2) abierto para investigar/validar el modo inferior y controles abajo.
 
 ## Lo que NO se ha hecho
 - [ ] No se ha creado el primer plasmoide QML/Qt.
 - [ ] No existe botón de arrastre funcional, ni pruebas de que se mantenga fijo durante las expansiones.
+- [ ] **Ningún modo inferior** está implementado/probado; no se verificó integración de sus controles inferiores con la ventana activa ni decoraciones originales.
+- [ ] No hay modo vertical experimental funcional; dejar arquitectura preparada no equivale a ofrecerlo.
 - [ ] No se ha ejecutado `plasmawindowed` ni instalado Plasma SmartBar.
 - [ ] No se ha demostrado detección/activación de ventanas o pestañas con KWin.
 - [ ] No se ha probado superposición horizontal en navegadores maximizados ni fullscreen.
@@ -31,7 +35,7 @@
 - La regla `Proteccion de main` **no exige actualmente revisión previa por pull request**. No afirmar que GitHub obliga a recibir aprobación para cada commit; eso todavía no está configurado.
 
 ## Próximo hito técnico
-**Issue #1 — Prueba de concepto v0.1.**
+**Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
 
 Objetivo inicial seguro: componente mínimo de interfaz que se abra en una ventana de pruebas (sin sustituir panel de usuario), botón SO, fichas ficticias horizontales y altura constante; después, validar modelo de ventanas reales y arquitectura posible de integración con KWin/Wayland.
 
