@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.33 — Gestos de SO, menú de opciones bajo Soledad y forma única de logo  
+**Versión:** 0.34 — Centro de configuración de Soledad en pestañas, Aplicar sin cerrar  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -814,3 +814,25 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 **IMPLEMENTADO SOLO EN LA RAMA EXPERIMENTAL DEL [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), PENDIENTE DE EJECUCIÓN DESPUÉS DEL PARCHE.** Se modificaron `SmartBarContent.qml` (menú anclado a la raíz, `QQC2.Popup.Window` en Qt 6.8+, apertura directa del lanzador por derecho y ausencia de `soContextMenu`) e `IslandButton.qml` (marco redondeado oculto únicamente para botones con imagen). El resto de las fichas no cambia de aspecto. Actualizada la guía `prototype/v0.1/README.md`.
 
 Se debe verificar en **CachyOS, sin sustituir el panel habitual**, apertura bajo Soledad con seis puntos, seguimiento del desplazamiento, cierre correcto con derecho/izquierdo/Esc; clic derecho SO directo al lanzador, izquierdo SO para ventanas, SO sostenido, conservación de expansiones; forma única de imagen con y sin efecto de actividad y los cinco recortes; usabilidad del editor, rendimiento y posibles avisos QML. Una lectura estática de código **no equivale a prueba ejecutada**. Seguimiento: [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+## 45. Una sola ventana de configuración de Soledad, con pestañas y Apply independiente (v0.34, 14/11/2026)
+
+**PROBLEMAS OBSERVADOS POR EL MANTENEDOR:** las tres ventanas experimentales para logo, colores y contorno exigían agrandarse manualmente para alcanzar opciones; «Aplicar» cerraba la ventana e interrumpía la configuración. Se pidió sintetizar estas funciones sin modificar el diseño ni la altura de la isla.
+
+**COMPORTAMIENTO FUNCIONAL CONFIRMADO:**
+
+- Desde **clic derecho en los seis puntos → «Configuración de Soledad…»** abrir **una sola ventana**. Las antiguas tres entradas individuales de los editores se sustituyen por una única entrada, no por controles permanentes adicionales.
+- La ventana se divide en cinco pestañas de contenido independiente:
+  1. **Logo SO:** fuente predeterminada o elegida, imagen/GIF, forma cuadrada/circular/rombo/corazón/estrella, encajar/rellenar, zoom y desplazamientos con vista previa, restablecimiento sin editar archivos originales.
+  2. **Apariencia:** Soledad/Malvina/fondo, con colores, tonalidades, transparencia y capa de fondo opcional inicialmente apagada.
+  3. **Contorno:** desactivado, brillo fijo o luminosidad móvil, color, grosor, permiso de movimiento y vista previa de estado con/sin ventanas.
+  4. **Autocontracción:** controles independientes de SO (al elegir ventana, predeterminado activado) y bandeja (tras usar icono, predeterminado desactivado). La apertura del lanzador no es un disparador; no se añade temporizador.
+  5. **Islas y posición:** mostrar/ocultar Malvina, alinear isla 1 a la derecha, volver a la derecha al desmaximizar (preferencia distinta), y **«Mover isla 1 a la derecha AHORA»** como acción inmediata. Las alternativas rápidas que ya existían en el menú de seis puntos se mantienen donde corresponda; la primera opción de ese menú sigue siendo Mostrar/Ocultar Malvina.
+- Tamaño inicial suficiente para el contenido más amplio (editor de logo), limitado por el área disponible en pantalla. Cuando una pestaña necesita más espacio, ofrece **desplazamiento interno**, evitando tener que ampliar la ventana para ver opciones. Los botones «Aplicar» y «Cerrar» permanecen visibles **fuera del área desplazable**, al pie.
+- **Aplicar** procesa los cambios de las pestañas y deja la ventana abierta, con posibilidad de seguir configurando. **Cerrar** sale del diálogo. Las modificaciones no aplicadas se descartan al abrir otra vez la ventana. La acción «Mover… AHORA» se ejecuta en el acto y no espera Aplicar.
+- Si la persona mueve Soledad mientras configuración está abierta, pulsar Aplicar **no la vuelve a alinear sin consentimiento**: la casilla de alineación solo puede producir ese efecto si fue editada expresamente.
+- **Isla adicional:** se mencionó como idea futura de interfaz, **pero no está aprobada su implementación ni su comportamiento**. No mostrar todavía botón operativo «Añadir isla», ni añadir isla real, ni renumerar la isla 3 buscadora.
+
+**IMPLEMENTACIÓN EN PR #3 BORRADOR (pendiente de prueba real):** componente nuevo SoledadSettings.qml con TabBar/StackLayout y cinco ScrollView; SmartBarContent.qml centraliza la apertura, transmite las preferencias existentes a los handlers de Qt independiente o KConfig prevista. Las ventanas LogoEditor.qml, AppearanceEditor.qml y SoActivityEditor.qml siguen en el árbol como fuentes anteriores, pero **ya no se abren desde el menú de los seis puntos** ni se instancian en SmartBarContent. La ventana nueva no llama a close() al aplicar. Se debe revisar particularmente que los diálogos de elegir imagen y color funcionen, que las pestañas quepan en distintas resoluciones y que las preferencias se apliquen y conserven.
+
+**VALIDACIÓN PENDIENTE:** probar en CachyOS/KWin/Wayland, siguiendo la guía de prototype/v0.1/README.md. La ventana Qt de prueba no modifica el panel KDE del usuario ni acredita persistencia KConfig real. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) (borrador).
