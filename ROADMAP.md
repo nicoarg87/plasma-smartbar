@@ -34,7 +34,9 @@
 - [ ] Navegación de desbordamiento con rueda/touchpad/flechas.
 - [ ] Modos SO contraído, expandido y adaptativo.
 - [ ] Escritorios virtuales, configuraciones de clic derecho y preferencias.
-- [ ] **Agarre horizontal compacto (tres/cuatro puntos) a la derecha de SO** para mover la isla 1. No cambia de posición al expandir/contraer bandeja o SO; validar límites, posición guardada y relación con los controles de ventana maximizada.
+- [x] **Agarre horizontal compacto (tres/cuatro puntos) a la derecha de SO** redactado en la maqueta QML de la rama experimental v0.1; permite arrastrar la isla 1 **solo dentro de la vista previa**, aún sin ejecutar ni verificar en CachyOS.
+- [ ] Conectar el agarre al estado **real** de maximización en KWin/Wayland, validar límites, compatibilidad, varios monitores, y estabilidad al expandir SO/bandeja.
+- [ ] **Retorno automático a la derecha al desmaximizar**, activado y guardado por defecto con opción de desactivarlo. La maqueta simula la transición y declara KConfig; verificar persistencia real en Plasma.
 
 ## Fase 3 — Herramientas secundarias
 - [ ] Panel de calendario/notas y otras herramientas opcionales, flotantes debajo de la barra.
@@ -51,7 +53,7 @@
 - [ ] Pruebas de rendimiento y estabilidad entre distribuciones Plasma.
 
 ## Aclaración de alcance
-El diseño **por islas separadas** es el predeterminado; isla 3 (buscador visible) está oculta por defecto. La prueba v0.1 no incluye aún el agarre de desplazamiento, que se implementará por etapas. El código debe conservar acceso a SO, bandeja y controles de ventana y no alterar el alto de la barra.
+El diseño **por islas separadas** es el predeterminado; isla 3 (buscador visible) está oculta por defecto. La prueba v0.1 **incluye ya un agarre arrastrable de demostración**, sin conexión a las ventanas de KWin; el movimiento real y sus pruebas siguen pendientes. El código debe conservar acceso a SO, bandeja y controles de ventana y no alterar el alto de la barra.
 
 ## Criterio de aceptación continuo
 Las modificaciones nunca deben modificar el grosor de la barra o de sus expansiones horizontales, reducir el espacio de la app para mostrar fichas, desplazar pestañas, violar fullscreen ni comprometer el control de ventanas. En orientación inferior los controles propios de SmartBar deben ubicarse abajo, junto a SO; la interacción con decoraciones originales necesita comprobación técnica.
