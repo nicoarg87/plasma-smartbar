@@ -20,6 +20,7 @@ Window {
     property string logoMode: "default" // default | custom | text
     property string filePath: ""
     property string shape: "square"
+    property string cropFitMode: "fit"
     property real cropZoom: 1
     property real cropPanX: 0
     property real cropPanY: 0
@@ -31,7 +32,7 @@ Window {
     readonly property bool isGif: logoMode === "custom" &&
         filePath.toLowerCase().endsWith(".gif")
 
-    signal saveRequested(string mode, string path, string shape,
+    signal saveRequested(string mode, string path, string shape, string fitMode,
                          real zoom, real panX, real panY, bool allowGif)
 
     FileDialog {
@@ -73,6 +74,7 @@ Window {
                 animateGif: editor.isGif
                 animationAllowed: editor.enableGif
                 cropShape: editor.shape
+                fitMode: editor.cropFitMode
                 zoom: editor.cropZoom
                 panX: editor.cropPanX
                 panY: editor.cropPanY
@@ -139,6 +141,12 @@ Window {
             }
         }
 
+        QQC2.ComboBox {
+            Layout.fillWidth: true
+            model: ["Imagen completa (encajar)", "Rellenar forma (recortar)"]
+            currentIndex: editor.cropFitMode === "crop" ? 1 : 0
+            onActivated: function(i) { editor.cropFitMode = i === 1 ? "crop" : "fit" }
+        }
         RowLayout {
             QQC2.Label { text: "Escala"; color: "white"; Layout.preferredWidth: 72 }
             QQC2.Slider {
@@ -183,6 +191,7 @@ Window {
                     editor.cropPanX = 0
                     editor.cropPanY = 0
                     editor.shape = "square"
+                    editor.cropFitMode = "fit"
                 }
             }
             Item { Layout.fillWidth: true }
@@ -192,7 +201,8 @@ Window {
                 highlighted: true
                 onClicked: {
                     editor.saveRequested(editor.logoMode, editor.filePath, editor.shape,
-                        editor.cropZoom, editor.cropPanX, editor.cropPanY, editor.enableGif)
+                        editor.cropFitMode, editor.cropZoom, editor.cropPanX,
+                        editor.cropPanY, editor.enableGif)
                     editor.close()
                 }
             }
