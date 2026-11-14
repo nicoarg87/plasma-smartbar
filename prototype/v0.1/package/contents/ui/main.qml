@@ -1,4 +1,4 @@
-// Prototipo VISUAL. NO administra ventanas reales ni sustituye paneles.
+// Prototipo VISUAL: los controles NO modifican ventanas reales.
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
@@ -9,7 +9,7 @@ PlasmoidItem {
 
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
 
-    // El área de prueba es una sola franja. Abrir SO/bandeja NO cambia su altura.
+    // Una sola franja de alto fijo, tanto con SO como con la bandeja abiertos.
     readonly property int fixedHeight: 48
     Layout.minimumWidth: 750
     Layout.preferredWidth: 960
@@ -22,9 +22,29 @@ PlasmoidItem {
     property bool soExpanded: false
     property bool trayExpanded: false
     property bool launcherPreview: false
+    property bool previewMaximized: false  // ¡Simulación! No se consulta KWin.
+    property real islandOffset: 0          // Distancia horizontal desde la derecha.
+    property real offsetAtDragStart: 0
     property string lastDemoSelection: ""
     readonly property var demoApps: ["Dolphin", "Konsole", "Brave"]
     readonly property var demoTray: ["Wi-Fi", "Audio", "Bluetooth"]
+
+    // Reservar siempre espacio para la expansión MÁS ancha; abrir bandeja o SO
+    // no debe empujar el agarre ni SO, aun después de un arrastre.
+    readonly property real maxIslandOffset: Math.max(
+        0, root.width - launcherIsland.width - 460 - 12
+    )
+
+    function setIslandOffset(offset) {
+        islandOffset = Math.max(0, Math.min(maxIslandOffset, offset))
+    }
+
+    function setPreviewMaximized(value) {
+        previewMaximized = value
+        if (!previewMaximized && Plasmoid.configuration.autoReturnRight) {
+            setIslandOffset(0)
+        }
+    }
 
     function toggleSO() {
         soExpanded = !soExpanded
@@ -42,14 +62,16 @@ PlasmoidItem {
 
     function selectDemoApp(appName) {
         lastDemoSelection = appName
-        soExpanded = false // Comportamiento confirmado por defecto.
-        console.log("Simulación: selección de", appName, "(no se activa ninguna ventana real)")
+        soExpanded = false
+        console.log("SO simulado:", appName, "(sin controlar ventanas reales)")
     }
+
+    onMaxIslandOffsetChanged: setIslandOffset(islandOffset)
 
     Item {
         anchors.fill: parent
 
-        // Isla 2: lanzador izquierdo. La búsqueda real aún no está conectada.
+        // Isla 2: lanzador de ejemplo. Isla 3 sigue oculta por defecto.
         Rectangle {
             id: launcherIsland
             width: launcherButton.implicitWidth + 12
@@ -68,12 +90,11 @@ PlasmoidItem {
                 accent: true
                 onClicked: root.launcherPreview = !root.launcherPreview
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: "Isla 2 — lanzador de muestra (no inicia programas)"
+                QQC2.ToolTip.text: "Isla 2: lanzador de ejemplo, no inicia aplicaciones"
             }
         }
 
-        // Isla 1: anclada a la derecha. Los elementos nuevos crecen a la
-        // izquierda, mientras SO y el pequeño agarre permanecen en su lugar.
+        // Isla 1: anclaje propio desplazable, independiente de su expansión.
         Rectangle {
             id: systemIsland
             height: 44
@@ -83,6 +104,7 @@ PlasmoidItem {
             border.color: "#4e8499"
             border.width: 1
             anchors.right: parent.right
+            anchors.rightMargin: root.islandOffset
             anchors.verticalCenter: parent.verticalCenter
 
             Row {
@@ -94,27 +116,24 @@ PlasmoidItem {
                     text: root.trayExpanded ? "▶" : "◀"
                     onClicked: root.toggleTray()
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Bandeja de muestra: abrir/cerrar a la izquierda"
+                    QQC2.ToolTip.text: "Abrir/cerrar bandeja simulada"
                 }
 
-                // Simulación de contenidos de bandeja, no controles reales.
                 Repeater {
                     model: root.trayExpanded ? root.demoTray : []
                     delegate: IslandButton {
                         text: modelData
                         enabled: false
-                        QQC2.ToolTip.text: "Elemento simulado de bandeja"
                     }
                 }
 
-                // Simulación de una ficha por aplicación abierta.
                 Repeater {
                     model: root.soExpanded ? root.demoApps : []
                     delegate: IslandButton {
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.text: "Simulación: seleccionar " + modelData
+                        QQC2.ToolTip.text: "Ficha ficticia: " + modelData
                     }
                 }
 
@@ -125,15 +144,84 @@ PlasmoidItem {
                     onClicked: root.toggleSO()
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: root.lastDemoSelection.length
-                                           ? "SO · última simulación: " + root.lastDemoSelection
-                                           : "SO · aplicaciones de ejemplo"
+                        ? "SO · última prueba: " + root.lastDemoSelection
+                        : "SO · ventanas de ejemplo"
                 }
 
-                // Solo reserva visual. El arrastre real será otra etapa.
+                // ¡Agarre ACTIVO! Pequeño y siempre INMEDIATAMENTE a la
+                // derecha de SO, antes de los controles de la ventana.
                 IslandButton {
+                    id: moveGrip
                     text: "⋮"
-                    enabled: false
-                    QQC2.ToolTip.text: "Agarre de arrastre pendiente de implementar"
+                    implicitWidth: 30
+                    accent: false
+                    onClicked: gripMenu.popup()
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.text: "Arrastrar isla 1 horizontalmente. Clic: opciones de prueba."
+
+                    // target=null: el gesto modifica el margen, nunca la
+                    // geometría vertical ni el panel real de KDE.
+                    DragHandler {
+                        id: gripDrag
+                        target: null
+                        xAxis.enabled: true
+                        yAxis.enabled: false
+                        cursorShape: Qt.SizeHorCursor
+                        onActiveChanged: {
+                            if (active) {
+                                root.offsetAtDragStart = root.islandOffset
+                            } else if (!root.previewMaximized &&
+                                       Plasmoid.configuration.autoReturnRight) {
+                                root.setIslandOffset(0)
+                            }
+                        }
+                        onActiveTranslationChanged: {
+                            if (active) {
+                                root.setIslandOffset(
+                                    root.offsetAtDragStart - activeTranslation.x
+                                )
+                            }
+                        }
+                    }
+
+                    QQC2.Menu {
+                        id: gripMenu
+                        title: "Opciones de prueba"
+                        QQC2.MenuItem {
+                            text: "Simular ventana maximizada"
+                            checkable: true
+                            checked: root.previewMaximized
+                            onTriggered: root.setPreviewMaximized(!root.previewMaximized)
+                        }
+                        QQC2.MenuItem {
+                            text: "Volver automáticamente a la derecha"
+                            checkable: true
+                            checked: Plasmoid.configuration.autoReturnRight
+                            onTriggered: {
+                                Plasmoid.configuration.autoReturnRight =
+                                    !Plasmoid.configuration.autoReturnRight
+                                if (Plasmoid.configuration.autoReturnRight &&
+                                    !root.previewMaximized) {
+                                    root.setIslandOffset(0)
+                                }
+                            }
+                        }
+                        QQC2.MenuItem {
+                            text: "Restablecer isla a la derecha ahora"
+                            onTriggered: root.setIslandOffset(0)
+                        }
+                    }
+                }
+
+                // Los botones aparecen solo al SIMULAR maximización.
+                // Aún NO hay integración con controles de ventanas reales.
+                Repeater {
+                    model: root.previewMaximized ? ["−", "□", "×"] : []
+                    delegate: IslandButton {
+                        text: modelData
+                        enabled: false
+                        QQC2.ToolTip.text: "Control de ventana simulado"
+                    }
                 }
             }
         }
