@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.15 (autocontracción independiente SO/bandeja, 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.16 (separador SO/bandeja y lanzador propio de Malvina, 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -158,6 +158,19 @@ Esta sección más reciente **prevalece sobre cualquier formulación anterior de
 - **Acceso:** menú del agarre de seis puntos → «Configuración de autocontracción». Las preferencias deben ser persistentes en el plasmoide real y accesibles sin editar archivos. La maqueta Qt independiente puede usar estado de sesión.
 - **Sin autocontracción por tiempo:** no se ha aprobado ninguna duración, pérdida de foco ni temporizador de inactividad como disparador. No introducirlo por inferencia. SO y bandeja deben permitir permanecer abiertos de forma intencional.
 - **Estado:** casillas y acciones implementadas **solo en QML de muestra de PR #3**, pendientes de prueba en CachyOS, de persistencia y de integración con los iconos/ventanas reales.
+
+## 2.14. Separación visual de expansiones y origen del lanzador de Malvina (14/11/2026)
+
+**CAMBIOS FUNCIONALES CONFIRMADOS POR EL MANTENEDOR TRAS PROBAR LA CONVIVENCIA SO/BANDEJA EN CACHYOS:**
+
+- **Separador:** cuando **SO y bandeja están expandidos simultáneamente**, debe aparecer una **línea vertical discreta** entre los iconos de la bandeja y las fichas de ventanas abiertas de SO, para que sea claro a qué sección pertenece cada icono. Si se contrae uno de los dos conjuntos, el separador desaparece. No es una isla nueva ni cambia altura, anclajes, fondo transparente entre islas o la expansión en una sola fila; su anchura debe contarse al verificar el espacio disponible.
+- **Malvina abre su propio lanzador bajo su isla:** al hacer clic en **Malvina (isla 2, lado izquierdo)** el menú flotante de aplicaciones instaladas debe aparecer **directamente debajo de Malvina**, ajustado al borde izquierdo útil, y **NO junto a Soledad (isla 1)**. El usuario debe poder identificar intuitivamente qué botón abrió el menú.
+- **Soledad mantiene su acceso alternativo:** mantener SO presionado ~400 ms o usar su menú contextual abre el **mismo tipo de lanzador**, pero debajo de la **posición horizontal actual de Soledad**, incluso arrastrada; no se elimina ese acceso al permitir abrirlo desde Malvina.
+- **Coexistencia sin interrupciones gratuitas:** abrir el lanzador desde Malvina no debe contraer automáticamente SO o bandeja que el usuario dejó abiertos en Soledad. La regla anterior de cerrar ambas expansiones al abrir el lanzador **desde SO** se conserva para ese origen. El menú flotante puede usar el mismo componente reutilizable, con posición definida por el botón de origen; no es obligatorio mantener dos menús flotantes simultáneos.
+- **Modo inferior futuro:** cada lanzador deberá desplegarse hacia el interior, **encima de la isla que lo abrió**, conservando el anclaje horizontal respectivo.
+- **Estado:** ya programado en `SmartBarContent.qml` de la rama experimental [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin prueba en CachyOS tras este cambio**. Las fichas/menús siguen siendo de muestra y no se lanzan aplicaciones instaladas reales.
+
+**PRUEBA ANTERIOR CONFIRMADA:** el mantenedor comunicó que el despliegue y coexistencia de SO y bandeja funcionaron como esperaba en la ventana Qt experimental; la incorporación de una línea divisoria y del anclaje correcto de Malvina es una mejora visual/funcional posterior a esa prueba.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
