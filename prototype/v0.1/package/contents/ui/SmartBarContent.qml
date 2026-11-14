@@ -321,6 +321,7 @@ Item {
             soledadSettings.autoReturnRight = root.autoReturnRight
             soledadSettings.launcherIslandVisible = root.launcherIslandVisible
             soledadSettings.alignedRight = root.alignRightSelected
+            soledadSettings.alignmentEdited = false
             soledadSettings.currentTab = tabIndex
         }
         soledadSettings.show()
@@ -346,7 +347,8 @@ Item {
             root.requestSoActivityChange(style, color, stroke, motion)
         }
         onSaveBehaviorRequested: function(collapseSO, collapseTray,
-                                          returnRight, showMalvina, alignRight) {
+                                          returnRight, showMalvina, alignRight,
+                                          alignmentEdited) {
             if (collapseSO !== root.autoCollapseSO)
                 root.requestAutoCollapseSOChange(collapseSO)
             if (collapseTray !== root.autoCollapseTray)
@@ -355,7 +357,9 @@ Item {
                 root.setLauncherIslandVisible(showMalvina)
             if (returnRight !== root.autoReturnRight)
                 root.setAutoReturnRight(returnRight)
-            if (alignRight !== root.alignRightSelected) {
+            // El usuario puede haber movido Soledad mientras el diálogo
+            // está abierto. No forzar un retorno si no tocó esta casilla.
+            if (alignmentEdited && alignRight !== root.alignRightSelected) {
                 if (alignRight) root.alignRightNow()
                 else root.alignRightSelected = false
             }
