@@ -27,6 +27,7 @@
 - [ ] Navegación de desbordamiento con rueda/touchpad/flechas.
 - [ ] Modos SO contraído, expandido y adaptativo.
 - [ ] Escritorios virtuales, configuraciones de clic derecho y preferencias.
+- [ ] **Agarre horizontal compacto (tres/cuatro puntos) a la derecha de SO** para mover la isla 1. No cambia de posición al expandir/contraer bandeja o SO; validar límites, posición guardada y relación con los controles de ventana maximizada.
 
 ## Fase 3 — Herramientas secundarias
 - [ ] Panel de calendario/notas y otras herramientas opcionales, flotantes debajo de la barra.
@@ -37,6 +38,9 @@
 - [ ] Temas, transparencia, colores individuales, blur y transiciones opcionales.
 - [ ] Extensibilidad para animaciones decorativas sin bloquear controles, alterar foco o geometría.
 - [ ] Pruebas de rendimiento y estabilidad entre distribuciones Plasma.
+
+## Aclaración de alcance
+El diseño **por islas separadas** es el predeterminado; isla 3 (buscador visible) está oculta por defecto. La prueba v0.1 no incluye aún el agarre de desplazamiento, que se implementará por etapas. El código debe conservar acceso a SO, bandeja y controles de ventana y no alterar el alto de la barra.
 
 ## Criterio de aceptación continuo
 Las modificaciones nunca deben modificar la altura de la barra o de sus expansiones horizontales, reducir el espacio de la app para mostrar fichas, desplazar pestañas, violar fullscreen ni comprometer el control de ventanas.
