@@ -150,11 +150,11 @@ Window {
         QQC2.TabBar {
             id: tabs
             Layout.fillWidth: true
-            QQC2.TabButton { text: "Logo SO" }
-            QQC2.TabButton { text: "Apariencia" }
-            QQC2.TabButton { text: "Contorno" }
-            QQC2.TabButton { text: "Autocontracción" }
-            QQC2.TabButton { text: "Islas y posición" }
+            QQC2.TabButton { text: "Logo SO"; width: implicitWidth }
+            QQC2.TabButton { text: "Apariencia"; width: implicitWidth }
+            QQC2.TabButton { text: "Contorno"; width: implicitWidth }
+            QQC2.TabButton { text: "Autocontracción"; width: implicitWidth }
+            QQC2.TabButton { text: "Islas y posición"; width: implicitWidth }
         }
 
         StackLayout {
