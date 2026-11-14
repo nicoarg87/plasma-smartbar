@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.21 (clic izquierdo breve también cierra opciones abiertas; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.22 (personalización logo SO/GIF, máscara y colores por isla; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -223,6 +223,21 @@ Esta decisión sustituye las reglas previas que hacían cerrar SO y bandeja al a
 - **IMPLEMENTADO EN QML EXPERIMENTAL, PENDIENTE DE RETEST EN CACHYOS:** el `moveGrip.onClicked` ejecuta `gripMenu.close()` **solo** si el menú está visible y no hubo arrastre. El `DragHandler` marca cuándo se activó el desplazamiento. No se modificó el panel KDE existente.
 
 Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la sección 2.18: **no abre opciones, pero sí permite cerrarlas cuando están visibles**, sin interferir con el arrastre.
+
+## 2.20. Logo personalizable de SO, GIF, formas y colores de islas (14/11/2026)
+
+**DECISIONES FUNCIONALES CONFIRMADAS DIRECTAMENTE POR EL MANTENEDOR:**
+
+1. **Logo de SO dentro de Soledad:** el botón «SO» puede mostrar la huella violeta/azul proporcionada, un icono estático o un **GIF animado personalizado**, o volver al texto «SO». El empaquetador de una distribución podrá reemplazar el logo predeterminado por el suyo, sin obligar al usuario a mantenerlo. La detección automática de la distro y logos de terceros **no está implementada**.
+2. **Editor visual de encuadre y escala:** al elegir una imagen/GIF, abrir una vista previa interactiva que permita **mover, agrandar o reducir (respetando el encuadre) y elegir la zona visible**, ajustándola a la forma del logo. Máscaras confirmadas: **cuadrado, círculo, rombo ♦ (cuadrado girado), corazón ♥ y estrella ★**. Para GIF, el mismo recorte fijo se aplica a todos los cuadros animados. Cambiar máscara o zoom **no debe modificar ni comprimir destructivamente** el archivo original; guardar escala/desplazamiento/forma como preferencias. La nitidez depende de la resolución del origen: ampliar imágenes de pocos píxeles no genera detalle nuevo.
+3. **GIF como excepción opcional:** la regla MVP general de **no agregar animaciones** sigue vigente para desplazamientos, apertura de islas, controles y fichas; **solo el logo escogido expresamente por el usuario** puede reproducir GIF. Debe existir interruptor para pausar animación, y la imagen estática predeterminada no debe consumir recursos de animación.
+4. **Colores, tonalidades y transparencias:** cada isla existente (Soledad y Malvina) admite color y opacidad independientes. Puede activarse **una capa de fondo continuo de toda la barra**, también con color/tono y transparencia independientes, pero **desactivada por defecto**; con ella apagada se conserva el diseño de islas separadas sin fondo general. La capa es únicamente decorativa: no modifica altura constante, reserva de espacio, ventanas, controles ni la expansión horizontal.
+5. **Nomenclatura «isla 3»: pendiente de resolución funcional:** ya se había aprobado una **isla 3 buscadora opcional, oculta por defecto**. El mantenedor llamó «como una isla 3, de fondo» a la nueva capa. **Se implementa provisionalmente como fondo opcional, sin eliminar ni renombrar la isla buscadora anterior.** Antes de numerarla como isla 3 o desplazar la buscadora, pedir decisión explícita para evitar contradicción.
+6. **Acceso a preferencias:** menú de opciones de los **seis puntos, por clic derecho o teclado** → «Personalizar logo de SO…» o «Colores y transparencia de islas y fondo…». Seguir mostrando «Mostrar/Ocultar Malvina» en primer lugar. Cambios de apariencia no alteran clic breve SO (ventanas), pulsación sostenida ~400 ms (lanzador), arrastre, bandeja, fullscreen ni controles.
+
+**ESTADO DE IMPLEMENTACIÓN:** se publicó solo en la rama `prototype/v0.1-islas-so`, [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. La huella está incluida como PNG predeterminado (copia de 200×200 con paleta optimizada). `LogoArtwork.qml` usa `QtQuick.Effects.MultiEffect` con máscara y `AnimatedImage`; `LogoEditor.qml` presenta vista previa y encuadre no destructivo; `AppearanceEditor.qml` permite tintes y opacidad; `main.xml` guarda claves y `main.qml` las conecta a KConfig. `preview_redimensionable.qml` conserva las preferencias solo en esa sesión. **Todavía sin prueba ejecutada en CachyOS después de estos cambios**, ni validación de persistencia con plasmoide instalado. Se requiere verificar rendimiento en KWin/Wayland y en hardware real. [Issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+**Esta decisión posterior constituye una excepción explícita y limitada para GIF de logo respecto a la prioridad sin animaciones generales.**
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
