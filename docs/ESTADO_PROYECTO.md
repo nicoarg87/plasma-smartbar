@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.24](MANUAL_MAESTRO.md), [Constitución Técnica v1.16](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.25](MANUAL_MAESTRO.md), [Constitución Técnica v1.16](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -200,6 +200,13 @@
 - **BUG CONFIRMADO:** al hacer clic en Malvina (isla 2 izquierda) el lanzador flotante de prueba aparecía debajo de Soledad (isla 1). **COMPORTAMIENTO CONFIRMADO:** cada origen abre su lanzador inmediatamente debajo de su isla: Malvina a la izquierda; SO sostenido o menú contextual SO bajo la posición actual de Soledad. El menú de Malvina no debe contraer innecesariamente SO/bandeja que estén abiertos.
 - **IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL, NO PROBADO DESPUÉS:** [commit d2edf83](https://github.com/nicoarg87/plasma-smartbar/commit/d2edf8327ba764dfba646a7b817bf70f805a0aa2) incorpora `traySOSeparator`, origen `installedLauncherSource` y posicionamiento reactivo respecto de `launcherIsland` o `systemIsland`, con límites de ventana; se mantiene el temporizador de SO de ~400 ms.
 - **PRÓXIMA PRUEBA:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; abrir ambas expansiones y comprobar la línea; cerrarlas por separado y comprobar que desaparece; clic en Malvina para verificar menú bajo la isla izquierda; mover Soledad al centro y sostener SO para verificar menú bajo esa isla. No modifica panel actual. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue borrador.
+
+## Bug de Malvina: segundo clic no cerraba el lanzador — corrección experimental (14/11/2026)
+
+- **OBSERVADO EN CACHYOS:** clic en Malvina abría el lanzador bajo Malvina, pero un segundo clic en Malvina **no lo cerraba**.
+- **CAUSA IDENTIFICADA EN QML:** el menú tenía `Popup.CloseOnPressOutside`, que lo cerraba al presionar Malvina fuera del popup; después el mismo clic terminaba en `openInstalledLauncher()` y **lo reabría**.
+- **PARCHE PUBLICADO EN RAMA EXPERIMENTAL, PENDIENTE DE PRUEBA:** [304f33e](https://github.com/nicoarg87/plasma-smartbar/commit/304f33e89074fa57d71eadded58a461de5043a9d) usa `CloseOnPressOutsideParent` y cierre explícito si el popup ya está visible y fue abierto desde el mismo botón. Al hacer clic desde el otro origen cambia el anclaje bajo la isla correspondiente, sin abrir un segundo menú. Se conserva cierre mediante Esc o clic fuera de la barra.
+- **PRÓXIMA PRUEBA:** `git pull`; `bash prototype/v0.1/probar_ancho.sh`; clic M abre, segundo clic M cierra, tercero abre, Esc y clic fuera cierran, gesto sostenido de SO continúa mostrando menú bajo Soledad. Las fichas e iconos siguen siendo ficticios; la barra instalada del usuario no se modifica. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) sigue borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
