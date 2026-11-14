@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.22 — Soledad/Malvina y expansiones SO-bandeja condicionadas al espacio  
+**Versión:** 0.23 — Autocontracción de SO y bandeja configurables por separado  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -683,3 +683,15 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Corrección de accesibilidad de Malvina:** el mantenedor pudo ocultarla pero **no encontró cómo recuperarla**. Además del menú contextual de SO, al mantener pulsado SO y abrir el lanzador flotante debe aparecer, cuando esté oculta, un botón claramente visible **«Mostrar Malvina (isla 2)»**, que se activa con un solo clic. Esta ruta no requiere clic derecho ni se confunde con el gesto de abrir ventanas. La ocultación automática sigue siendo propuesta pendiente, NO implementada.
 
 **Estado técnico:** en el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) (borrador) la maqueta QML ya calcula un presupuesto de ancho disponible desde la posición actual de Soledad y el lugar ocupado por Malvina y controles. Mide el ancho real de las fichas al expandirse y solo cierra el conjunto anterior si ambas exceden el espacio. Agregó acceso «Mostrar Malvina» al lanzador flotante, mantuvo SO breve/largo e incorporó las etiquetas de nombres en menús y ayudas. **Código revisado, SIN prueba en CachyOS después de este cambio**, no es bandeja ni lista de ventanas reales. Se registró en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
+
+## 35. Autocontracción independiente de SO y bandeja — DECISIÓN CONFIRMADA (v0.23, 14/11/2026)
+
+**Nueva decisión funcional del mantenedor:** «siempre sea posible activar la autocontracción de cada uno», SO y bandeja **por separado**, desde una opción de configuración de acceso sencillo. Esto se suma, sin reemplazar, a la **coexistencia horizontal cuando hay espacio** y a la prioridad de la expansión recién abierta si falta ancho útil (sección 34).
+
+**Comportamiento de SO:** mantener **activada por defecto** la autocontracción **al seleccionar una ventana desde SO**, comportamiento previamente confirmado. Una preferencia independiente permite desactivarla: elegir una ficha ya no contrae SO. El usuario conserva la posibilidad de contraer SO tocando el botón otra vez.
+
+**Comportamiento de bandeja:** permitir una preferencia separada, **desactivada por defecto**, para contraerla después de usar un icono. La maqueta simula un clic sobre Wi-Fi/Audio/Bluetooth y actúa sobre la bandeja sin modificar ningún servicio real. En una integración futura hay que distinguir iconos que realizan acciones de los que abren menús o subpaneles para **no cerrar la bandeja antes de terminar la acción**. No se aprobó un temporizador de inactividad ni contraer por pérdida de foco.
+
+**Interfaz de prueba:** clic en los **seis puntos → «Configuración de autocontracción»** permite tildar/destildar individualmente «SO: contraer tras elegir ventana» y «Bandeja: contraer tras usar icono». La configuración del plasmoide declara KConfig `autoCollapseSO=true` y `autoCollapseTray=false` (pendiente de probar persistencia real); la ventana Qt independiente conserva los estados solo durante esa sesión.
+
+**Estado de validación:** el código se publicó exclusivamente en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), con fichas de SO y bandeja **simuladas**, y **todavía no fue ejecutado en CachyOS tras este cambio**. No se afirma que ya reconozca ventanas, bandeja ni catálogo de apps reales. La prueba completa y la recuperación de Malvina se documentan en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
