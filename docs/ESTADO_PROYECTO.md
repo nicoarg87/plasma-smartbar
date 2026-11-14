@@ -7,7 +7,7 @@
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
 - [x] Licencia en el repositorio: GNU GPL-3.0.
-- [x] [Manual Maestro v0.27](MANUAL_MAESTRO.md), [Constitución Técnica v1.18](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
+- [x] [Manual Maestro v0.28](MANUAL_MAESTRO.md), [Constitución Técnica v1.19](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
 - [x] Código de interfaz **preliminar** en rama `prototype/v0.1-islas-so`, mediante [PR #3 (borrador)](https://github.com/nicoarg87/plasma-smartbar/pull/3): paquete Plasma 6 (`metadata.json` + QML), islas y fichas ficticias, script de ejecución en ventana. **Solo revisado estáticamente**, sin ejecutar en CachyOS; main no incorpora el código aún.
@@ -224,6 +224,13 @@
 - **REQUISITO CONFIRMADO:** si hay lanzador visible, clic breve en SO **lo cierra únicamente** y deja SO/bandeja intactos. Solo cuando no hay lanzador visible el clic breve alterna las fichas de ventanas abiertas.
 - **CAUSA Y PARCHE EXPERIMENTAL, PENDIENTE DE RETEST:** `toggleSO()` cerraba el popup y continuaba hacia la alternancia de `soExpanded`. [8a79f3f](https://github.com/nicoarg87/plasma-smartbar/commit/8a79f3fcad849ed252c284ba004bf88e173f00cb) ahora sale temprano tras cerrar `installedAppsPopup.visible`, sin modificar estados horizontales. El clic largo (~400 ms), Malvina y autocontracciones independientes permanecen como antes.
 - **PRÓXIMA PRUEBA EN CACHYOS:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh` → abrir SO y bandeja → sostener SO (abre flotante sin contraer) → **clic corto SO (cierra solo flotante)** → clic corto SO de nuevo (contrae fichas normalmente). Sin reemplazar panel KDE; [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
+
+## Recuperación de Malvina desde Soledad: menú de agarre accesible (14/11/2026)
+
+- **BUG DE DESCUBRIBILIDAD OBSERVADO EN CACHYOS:** el mantenedor ocultó Malvina (isla 2), pero no encontró un menú evidente en Soledad para restaurarla. Los accesos anteriores en clic derecho de SO y dentro del lanzador sostenido no eran suficientes para el uso cotidiano.
+- **REQUISITO CONFIRMADO:** Soledad debe mantener un acceso sencillo y visible para mostrar Malvina otra vez sin exigir clic derecho ni gesto sostenido. El menú **ya existente del agarre de seis puntos**, que se abre con clic normal, presentará la primera acción **«Mostrar Malvina (isla 2)»** cuando esté oculta y **«Ocultar Malvina (isla 2)»** cuando esté visible. No se añade un botón permanente ni se altera la geometría acordada; Malvina sigue visible por defecto.
+- **IMPLEMENTADO EN QML EXPERIMENTAL, NO PROBADO DESPUÉS:** [1953f21](https://github.com/nicoarg87/plasma-smartbar/commit/1953f21b1e8db883c0c03fab2aa70478b7f6b4f9) añade esta acción al principio de `gripMenu` con título «Opciones de Soledad»; las ayudas emergentes indican la nueva ruta cuando Malvina está oculta. El evento de visibilidad existente sigue conectado al estado de sesión Qt y al KConfig del envoltorio plasmoide, pero **persistencia real no validada**.
+- **PRÓXIMA PRUEBA EN CACHYOS:** `cd ~/plasma-smartbar; git pull; bash prototype/v0.1/probar_ancho.sh`; ocultar Malvina por clic derecho, clic normal en los seis puntos, primera opción «Mostrar Malvina», comprobar reaparición. Volver a abrir para verificar «Ocultar Malvina». Confirmar que SO/bandeja y el cierre del lanzador no sufrieron regresión. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) / [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador.
 
 ## Próximo hito técnico
 **Issue #1 — Prueba de concepto v0.1 (modo superior).** Después de probar su base, abordar el **issue #2 — validación del modo inferior**, respetando los controles en el borde inferior.
