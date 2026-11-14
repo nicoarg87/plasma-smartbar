@@ -725,6 +725,11 @@ Item {
                         // La parte superior queda por debajo de los 48 px
                         // fijos: nunca cubrir Soledad ni crear otra fila.
                         parent: root
+                        // Qt 6.8+: mostrar el menu en una ventana emergente
+                        // permite desplegarlo completo bajo la barra incluso
+                        // si la ventana Qt de ensayo tiene poca altura.
+                        // Requiere comprobación en KWin/Wayland.
+                        popupType: QQC2.Popup.Window
                         x: Math.max(0, Math.min(Math.max(0, root.width - width),
                             systemIsland.x + systemIsland.width - width))
                         y: root.fixedHeight + 5
