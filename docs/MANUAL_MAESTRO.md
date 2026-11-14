@@ -80,6 +80,16 @@ La organización por islas distingue **componentes funcionales y superficies vis
 
 Los ejemplos gráficos sirven para comunicar la distribución, pero **no certifican el comportamiento en KWin** ni autorizan introducir controles que no hayan sido aprobados.
 
+### Aclaración de maximización y representación visual — 14/11/2026
+
+**CONFIRMADO:** una ventana verdaderamente maximizada ocupa la pantalla disponible hasta sus bordes. **No debe aparecer una franja de título suplementaria creada por Plasma SmartBar encima de las pestañas del navegador.** Las islas se superponen en la misma franja superior de la ventana, no fuerzan una fila nueva ni empujan las pestañas hacia abajo.
+
+Al maximizar, **la isla 1 se desplaza automáticamente hacia la izquierda lo necesario para dejar sitio, en el extremo derecho, a los controles minimizar, restaurar/maximizar y cerrar de la ventana**. Es una adaptación contextual de posición horizontal de la isla, no un cambio de altura de la barra ni un botón manual para arrastrarla.
+
+**Isla 3:** sigue existiendo como opción de configuración, pero **no se muestra por defecto ni en conceptos visuales de navegadores** salvo pedido expreso de ilustrar su activación.
+
+**Límite técnico:** este resultado es una especificación visual y funcional deseada, no una integración demostrada en Brave/Firefox/Chrome bajo KWin/Wayland.
+
 ### Grupo derecho de controles
 
 - **Flecha de bandeja** horizontal.
