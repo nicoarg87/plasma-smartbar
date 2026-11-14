@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.5 (agarre de seis puntos confirmado el 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.6 (controles de ventana anclados independientes de isla 1; 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -11,7 +11,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 2. El botón **SO** muestra aplicaciones/ventanas que ya están abiertas; el lanzador del extremo izquierdo busca programas **instalados**. Son controles diferentes.
 3. SO despliega fichas **hacia la izquierda, en una sola fila**. Agrupa por aplicación de manera predeterminada (por ejemplo, tres ventanas Dolphin en una ficha). Se puede desagrupar por configuración.
 4. La flecha de bandeja es **izquierda al abrir (◀)** y **derecha al cerrar (▶)**. SO y bandeja **son mutuamente excluyentes**.
-5. Cuando una ventana está maximizada, los botones de SmartBar **minimizar, restaurar/maximizar y cerrar** aparecen en la zona derecha de la barra, **en el mismo borde elegido**: arriba si está arriba, **abajo si está abajo**. En ventanas normales siguen existiendo los controles propios de cada aplicación. El tamaño y la alineación respecto de la barra permanecen constantes. El destino exacto de los botones originales de cada aplicación está sujeto a validación técnica y no se presume que KWin pueda trasladarlos universalmente.
+5. Cuando una ventana está maximizada, los botones de SmartBar **minimizar, restaurar/maximizar y cerrar** aparecen **anclados al extremo derecho de la ventana/franja horizontal**, **en el mismo borde elegido**: arriba si está arriba, **abajo si está abajo**. **No se arrastran junto a la isla 1**, no siguen a SO ni cambian de posición al abrir su bandeja. **La isla 1 debe apartarse a la izquierda de los botones al maximizar**, y el agarre solo mueve la isla. En ventanas normales siguen existiendo los controles propios de cada aplicación. El tamaño y la alineación respecto de la barra permanecen constantes. El destino exacto de los botones originales de cada aplicación está sujeto a validación técnica y no se presume que KWin pueda trasladarlos universalmente.
 6. Las islas y sus expansiones tienen prioridad de capa en el borde horizontal elegido sobre la **interfaz de las ventanas maximizadas**; en modo superior esto incluye las pestañas del navegador, cuya convivencia sigue pendiente de validación. Se puede cubrir contenido temporalmente, pero jamás desplazar pestañas, redimensionar ventanas o crear otra fila.
 7. En **pantalla completa real** (video o videojuego), los controles de escritorio no deben superponerse al contenido.
 8. Seleccionar una ventana desde SO la activa y **contrae SO por defecto**; el usuario puede configurar que permanezca abierto. También existen modos de SO contraído, expandido o adaptativo.
@@ -22,7 +22,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 
 ## 2.1. Distribución predeterminada en islas — confirmada
 
-- **Isla 1, derecha:** identidad del sistema (botón SO con logo configurable), flecha de bandeja y **agarre punteado muy pequeño inmediatamente a la derecha de SO**; los controles de la ventana permanecen todavía más a la derecha al maximizar. El agarre permite reubicar horizontalmente la isla 1; **SO y agarre mantienen posición mientras bandeja/SO expanden su contenido hacia la izquierda**. El agarre no forma parte del menú expandible, no se oculta ni se mueve por su apertura. No desplazar pestañas ni cambiar la altura.
+- **Isla 1, derecha:** identidad del sistema (botón SO con logo configurable), flecha de bandeja y **agarre de seis puntos inmediatamente a la derecha de SO**. **Los controles de ventana forman un bloque separado, fijo en el extremo derecho**, no pertenecen al contenido arrastrable de isla 1. Al maximizar, la isla se coloca a la izquierda de esos controles; el agarre solo reubica la isla. **SO y agarre mantienen posición mientras bandeja/SO expanden su contenido hacia la izquierda**. El agarre no forma parte del menú expandible. No desplazar pestañas ni cambiar la altura.
 - **Isla 2, izquierda:** lanzador que busca programas instalados.
 - **Isla 3, junto al lanzador:** campo de búsqueda visible **opcional y oculto por defecto**.
 - **Separación visual por defecto:** solo las islas, sin fondo continuo entre ellas. El usuario puede activar un tema con **fondo continuo/entrelazado** sin modificar geometría ni conducta.
@@ -34,7 +34,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 
 **Modos oficiales de diseño:**
 - **Superior (predeterminado):** las islas 2 y 1 permanecen respectivamente a izquierda y derecha en el borde superior; se conserva la integración superior aprobada y los controles SmartBar de ventanas maximizadas arriba.
-- **Inferior (configurable):** las mismas islas mantienen sus funciones y extremos izquierdo/derecho en el borde inferior. **Los controles SmartBar de minimizar, restaurar/maximizar y cerrar para la ventana maximizada también deben estar abajo, junto a la isla 1, nunca separados arriba de ella.**
+- **Inferior (configurable):** las mismas islas mantienen sus funciones y extremos izquierdo/derecho en el borde inferior. **Los controles SmartBar de minimizar, restaurar/maximizar y cerrar para la ventana maximizada deben estar abajo, fijos en el extremo derecho**, con isla 1 a su izquierda por defecto, **nunca en una barra superior ni moviéndose con la isla**.
 - En ambos modos, SO y bandeja siguen extendiéndose **horizontalmente hacia la izquierda en una fila**, con altura invariable; el agarre punteado está **inmediatamente a la derecha de SO**, no se desplaza por abrir la bandeja y permite el ajuste horizontal deliberado de isla 1.
 - Paneles secundarios flotan **hacia adentro** de la pantalla y no aumentan el grosor.
 
@@ -52,6 +52,14 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - La preferencia «**Volver automáticamente a la derecha al desmaximizar**» está **activada por defecto** y debe ser **configurable y persistente** en las opciones de Plasma SmartBar. Si está desactivada, puede conservarse el desplazamiento manual al dejar de estar maximizada.
 - La coordinación con los controles de ventana, los márgenes válidos, el tratamiento de múltiples monitores y la lectura real del estado de KWin/Wayland deben investigarse y probarse. No se permite que el agarre o la isla queden fuera de pantalla o tapen controles indispensables de forma irreversible.
 - La **v0.1 experimental** puede simular el estado maximizado para probar el movimiento y los ajustes, **sin afirmar que ya se detectan las ventanas reales**.
+
+## 2.4. Controles de ventana independientes de las islas — corrección aprobada tras prueba real
+
+- **CONFIRMADO:** al maximizar, los botones de SmartBar `− □ ×` ocupan una **zona fija en el extremo derecho del borde horizontal activo** y no participan del arrastre de isla 1. En modo superior quedan arriba a la derecha; en modo inferior, abajo a la derecha.
+- **Composición:** isla 1 (bandeja, SO, seis puntos) es el bloque desplazable; el grupo de controles es **otro bloque independiente**. En su posición predeterminada son vecinos; si el usuario mueve la isla hacia el centro, **los tres controles permanecen en la esquina derecha**, con separación visible.
+- **Maximización:** al entrar en estado maximizado se reserva el espacio de controles en el borde; al salir desaparecen los controles SmartBar simulados y se aplica el retorno automático de isla 1 según la preferencia aprobada. Abrir SO o bandeja no modifica los controles.
+- **Prevención:** no desplazar ni redimensionar la ventana real, sus controles originales ni sus pestañas. **La viabilidad en ventanas reales de KWin/Wayland aún no está demostrada**; un boceto o simulador no la certifica.
+- **Origen:** el mantenedor detectó durante la prueba v0.1 en CachyOS que la maqueta arrastraba incorrectamente los tres controles junto con isla 1 y exigió mantenerlos en el extremo derecho. Esta corrección sustituye cualquier referencia anterior a controles que se desplazan junto al agarre.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
