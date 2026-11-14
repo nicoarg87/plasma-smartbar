@@ -16,8 +16,10 @@ Window {
 
     // Tamaño de referencia: el editor de logo es la pestaña más alta.
     // Si la pantalla es pequeña, las pestañas permiten desplazamiento.
-    width: Math.min(750, Math.max(420, Screen.desktopAvailableWidth - 64))
-    height: Math.min(850, Math.max(510, Screen.desktopAvailableHeight - 64))
+    width: Screen.desktopAvailableWidth > 0
+        ? Math.min(750, Math.max(420, Screen.desktopAvailableWidth - 64)) : 750
+    height: Screen.desktopAvailableHeight > 0
+        ? Math.min(850, Math.max(510, Screen.desktopAvailableHeight - 64)) : 850
     minimumWidth: 420
     minimumHeight: 510
 
