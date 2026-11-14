@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.20 — SO con pulsación sostenida e isla 2 visible pero ocultable  
+**Versión:** 0.21 — Lanzador flotante anclado a isla 1  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -661,3 +661,13 @@ Esta casilla es un **indicador/control de alineación actual**, distinto de la p
 **Ocultación automática:** el usuario la mencionó como posibilidad adicional para el futuro. **PROPUESTA SIN DEFINICIÓN TÉCNICA NI APROBACIÓN PARA IMPLEMENTAR**: resta decidir si se oculta por inactividad, pérdida de foco u otra condición, y cómo reaparece. No activar por defecto ni diseñar ese comportamiento sin precisar su política.
 
 **Implementación en rama experimental — no probada en CachyOS después de este cambio:** `SmartBarContent.qml` añadió temporizador de 400 ms para SO, menú flotante **con apps de muestra que NO se ejecutan**, clic derecho en isla 2 para ocultarla y menú contextual en SO para mostrarla nuevamente. Se agregó la configuración KConfig `showLauncherIsland=true` y su conexión con el plasmoide; en la ventana Qt de ensayo la visibilidad se maneja únicamente durante esa sesión. **Persistencia efectiva en KDE pendiente de verificar**. Todavía no enumera apps realmente instaladas y no está enlazado con ventanas reales. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) / [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3).
+
+## 33. Lanzador SO flotante bajo la isla 1, no en la posición original (v0.21, 14/11/2026)
+
+**Fallo detectado en CachyOS con captura del mantenedor:** después de desplazar **isla 1 al centro** con los seis puntos y mantener SO unos 400 ms, el lanzador flotante de aplicaciones simuladas aparecía **en el extremo derecho de la pantalla**, separado de la isla. Se trataba de un error de anclaje, no de una decisión de colocar el lanzador allí.
+
+**Regla funcional confirmada:** el lanzador de la pulsación sostenida de **SO sigue a isla 1**. En el modo superior se abre **debajo de la ubicación actual de isla 1**, centrado horizontalmente respecto de la isla cuando hay espacio y con ajuste a los límites útiles si está cerca de un extremo. No vuelve a la posición por defecto mientras isla 1 permanezca desplazada. Si la isla cambia de posición o se redimensiona el contenedor, las coordenadas del menú deben mantenerse ligadas a ella, sin desplazar los controles fijos `− □ ×`. En modo inferior futuro el flotante abrirá hacia arriba, conservando la misma relación horizontal.
+
+**Causa en la v0.1:** el cálculo del popup utilizaba una transformación `soButton.mapToItem()` que podía conservar una coordenada anterior al arrastre. **Parche en rama experimental** [51aad39](https://github.com/nicoarg87/plasma-smartbar/commit/51aad39b0b448074779d15fd131cc7a6ed0e5032): el popup usa las propiedades reactivas `systemIsland.x` y `systemIsland.width` para centrar el menú debajo de la isla y limitar su posición al ancho del contenedor. **Código revisado, pero NO se ha probado todavía el arreglo en CachyOS**.
+
+**Invariantes:** mantener clic corto SO para ventanas, pulsación larga SO para lanzador, altura inalterada, seis puntos junto a SO, isla 2 ocultable/visible por defecto, bandeja mutuamente excluyente y controles de ventana independientes. La lista sigue siendo **simulada**: no contiene aún el catálogo de programas instalados ni ejecuta apps. Registro de la prueba en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1); PR #3 permanece borrador.
