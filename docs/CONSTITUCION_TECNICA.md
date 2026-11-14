@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.17 (lanzador flotante SO no contrae expansiones de Soledad, 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.18 (clic breve SO prioriza cerrar lanzador flotante sin contraer fichas, 14/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -182,6 +182,15 @@ Esta sección más reciente **prevalece sobre cualquier formulación anterior de
 - **Estado técnico:** se retiró la contracción incondicional de `openInstalledLauncher()` en la rama experimental [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3). **Aún pendiente de retest en CachyOS** tras el cambio; sin interacción con ventanas o bandeja reales.
 
 Esta decisión sustituye las reglas previas que hacían cerrar SO y bandeja al abrir el lanzador desde SO.
+
+## 2.16. Clic breve SO: cerrar primero el lanzador flotante sin contraer las fichas (14/11/2026)
+
+**COMPORTAMIENTO CONFIRMADO POR EL MANTENEDOR:** con las fichas de ventanas SO expandidas (y eventualmente también la bandeja), después de abrir el **lanzador flotante de aplicaciones** mediante pulsación sostenida de SO, un **clic breve posterior en SO debe cerrar únicamente el lanzador**, sin contraer las fichas SO ni la bandeja. El estado anterior de esas expansiones se conserva tal como el usuario lo dejó.
+
+- **Prioridad del gesto:** si el lanzador está visible, el clic breve sobre SO lo cierra y **termina la operación**; no ejecuta además la alternancia de `soExpanded`. Si no hay lanzador visible, el clic breve conserva su comportamiento normal de abrir/cerrar las fichas SO.
+- **Independencia:** la selección de una ficha de ventana real/simulada y la interacción con un icono de bandeja siguen sujetas a sus dos preferencias independientes de autocontracción. La falta física de espacio entre expansiones también se conserva como regla distinta. Ninguna se dispara por cerrar el lanzador.
+- **Accesos sin cambios:** SO sostenido (~400 ms) abre lanzador bajo Soledad; Malvina abre/cierra lanzador bajo Malvina con clics alternos; posición de islas, agarre de seis puntos, separador, controles fijos y altura permanecen invariantes.
+- **Estado:** corrección en la maqueta QML de [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendiente de retest en CachyOS** tras el nuevo cambio. No controla ventanas reales ni toca el panel instalado.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
