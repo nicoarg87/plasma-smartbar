@@ -577,10 +577,46 @@ Item {
             anchors.rightMargin: root.islandOffset + root.controlsReservation
             anchors.verticalCenter: parent.verticalCenter
 
+            // Punta triangular opcional. Solo se pinta cuando cambia algo,
+            // sin animación ni una fila extra. Botón de bandeja queda a la
+            // derecha de la zona estrecha para conservar el área de clic.
+            Canvas {
+                id: soTipBackground
+                anchors.fill: parent
+                visible: root.soledadShape === "leftTip"
+                onWidthChanged: requestPaint()
+                onHeightChanged: requestPaint()
+                onVisibleChanged: if (visible) requestPaint()
+                Connections {
+                    target: root
+                    function onSoledadColorChanged() { soTipBackground.requestPaint() }
+                    function onSoledadOpacityChanged() { soTipBackground.requestPaint() }
+                    function onSoledadShapeChanged() { soTipBackground.requestPaint() }
+                }
+                onPaint: {
+                    const ctx = getContext("2d")
+                    ctx.reset()
+                    ctx.beginPath()
+                    ctx.moveTo(1, height / 2)
+                    ctx.lineTo(24, 1)
+                    ctx.lineTo(width - 1, 1)
+                    ctx.lineTo(width - 1, height - 1)
+                    ctx.lineTo(24, height - 1)
+                    ctx.closePath()
+                    ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+                                            root.soledadColor.b, root.soledadOpacity)
+                    ctx.strokeStyle = "#4e8499"
+                    ctx.lineWidth = 1
+                    ctx.fill()
+                    ctx.stroke()
+                }
+            }
             Row {
                 id: systemRow
                 spacing: 4
-                anchors.centerIn: parent
+                anchors.verticalCenter: parent.verticalCenter
+                x: (parent.width - width) / 2 +
+                    (root.soledadShape === "leftTip" ? 12 : 0)
 
                 IslandButton {
                     text: root.trayExpanded ? "▶" : "◀"
