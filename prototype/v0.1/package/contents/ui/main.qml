@@ -10,17 +10,28 @@ PlasmoidItem {
     Layout.fillWidth: true
     Layout.minimumWidth: 750    // Solo requisito de la maqueta horizontal.
     Layout.preferredWidth: 960  // Sugerencia, no ancho máximo.
-    Layout.minimumHeight: 48
-    Layout.preferredHeight: 48
-    Layout.maximumHeight: 48
+    // El plasmoide solicita la altura elegida; Plasma puede limitarla
+    // según el panel anfitrión. Nunca modificar un panel existente.
+    Layout.minimumHeight: Plasmoid.configuration.panelHeight
+    Layout.preferredHeight: Plasmoid.configuration.panelHeight
+    Layout.maximumHeight: Plasmoid.configuration.panelHeight
     implicitWidth: 960
-    implicitHeight: 48
+    implicitHeight: Plasmoid.configuration.panelHeight
 
     onWidthChanged: console.log("SmartBar v0.1: ancho del applet Plasma =", width)
 
     SmartBarContent {
         id: demo
         anchors.fill: parent
+        panelHeight: Plasmoid.configuration.panelHeight
+        soledadHeight: Plasmoid.configuration.soledadHeight
+        malvinaHeight: Plasmoid.configuration.malvinaHeight
+        soledadRadius: Plasmoid.configuration.soledadRadius
+        malvinaRadius: Plasmoid.configuration.malvinaRadius
+        soledadMinWidth: Plasmoid.configuration.soledadMinWidth
+        malvinaWidth: Plasmoid.configuration.malvinaWidth
+        soButtonFrameShape: Plasmoid.configuration.soButtonFrameShape
+        soButtonWidth: Plasmoid.configuration.soButtonWidth
 
         // La configuración de Plasma se mantiene en el envoltorio;
         // SmartBarContent no depende de Plasmoid y es reutilizable.
@@ -35,6 +46,7 @@ PlasmoidItem {
         soLogoZoom: Plasmoid.configuration.soLogoZoom
         soLogoPanX: Plasmoid.configuration.soLogoPanX
         soLogoPanY: Plasmoid.configuration.soLogoPanY
+        soLogoRotation: Plasmoid.configuration.soLogoRotation
         soLogoAnimate: Plasmoid.configuration.soLogoAnimate
         soledadColor: Plasmoid.configuration.soledadColor
         malvinaColor: Plasmoid.configuration.malvinaColor
@@ -53,7 +65,7 @@ PlasmoidItem {
             Plasmoid.configuration.soActivityStroke = stroke
             Plasmoid.configuration.soActivityMotion = allowMotion
         }
-        onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif) {
+        onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             Plasmoid.configuration.soLogoMode = mode
             Plasmoid.configuration.soLogoPath = path
             Plasmoid.configuration.soLogoShape = shape
@@ -62,6 +74,19 @@ PlasmoidItem {
             Plasmoid.configuration.soLogoPanX = panX
             Plasmoid.configuration.soLogoPanY = panY
             Plasmoid.configuration.soLogoAnimate = allowGif
+            Plasmoid.configuration.soLogoRotation = rotation
+        }
+        onRequestGeometryChange: function(panel, soH, malH, soRadius, malRadius,
+                                          soWidth, malWidth, buttonShape, buttonWidth) {
+            Plasmoid.configuration.panelHeight = panel
+            Plasmoid.configuration.soledadHeight = soH
+            Plasmoid.configuration.malvinaHeight = malH
+            Plasmoid.configuration.soledadRadius = soRadius
+            Plasmoid.configuration.malvinaRadius = malRadius
+            Plasmoid.configuration.soledadMinWidth = soWidth
+            Plasmoid.configuration.malvinaWidth = malWidth
+            Plasmoid.configuration.soButtonFrameShape = buttonShape
+            Plasmoid.configuration.soButtonWidth = buttonWidth
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
             Plasmoid.configuration.soledadColor = a
