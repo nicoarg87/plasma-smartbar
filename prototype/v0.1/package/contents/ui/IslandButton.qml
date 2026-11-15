@@ -18,7 +18,9 @@ QQC2.Button {
     // Sólo SO usa geometría ampliada; fichas de apps conservan medidas.
     property real preferredButtonWidth: 0
     property real preferredButtonHeight: 0
-    property string frameShape: "square" // square, rectangle, rounded, capsule, oval
+    // Predeterminado de fichas de texto: conservar redondeado. SO y
+    // el botón de bandeja pueden solicitar esquinas cuadradas.
+    property string frameShape: "rounded" // square, rectangle, rounded, capsule, oval
     readonly property string effectiveImageShape: frameShape === "square" ? iconShape : frameShape
     // SOLO Soledad conecta esto a la cantidad real de ventanas.
     // Sin ventanas se destruye el lienzo, evitando animación y consumo.
@@ -42,9 +44,11 @@ QQC2.Button {
         // superpuestas (círculo + cuadrado/rombo) sobre la huella.
         // Las fichas sin imagen mantienen su aspecto habitual.
         readonly property bool showsLogo: control.iconSource.toString().length > 0
-        radius: control.frameShape === "rectangle" ? 0 :
-            (control.frameShape === "rounded" ? Math.min(12, control.height / 3) :
-             (control.frameShape === "capsule" ? control.height / 2 : 17))
+        radius: control.frameShape === "rectangle" ||
+                control.frameShape === "square" ? 0 :
+                (control.frameShape === "rounded"
+                    ? Math.min(17, control.height / 2)
+                    : control.height / 2)
         color: showsLogo ? "transparent" :
                (control.down ? "#254c61" :
                 (control.hovered ? "#24425a" :
