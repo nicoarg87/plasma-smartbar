@@ -99,6 +99,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **Acerca de (prueba pendiente):** autor público nicoarg87, correo para consultas **nicoarg87@gmail.com** (autorizado), licencia GNU GPL v3 con enlace al LICENSE oficial y aviso **SIN NINGUNA GARANTÍA**. Código en PR #3; verificar apertura de cliente de correo y legibilidad en CachyOS. **PayPal y Cafecito se posponen**; sin links ni botones de donaciones.
 - [ ] Validar todos los cambios en CachyOS/Wayland usando exclusivamente ventana de prueba Qt; PR #3 y issues #1/#5 abiertos. Iconos personalizados del agarre y bandeja e isla extra siguen diferidos.
 
+## Terminaciones por isla y orden de Acerca de — validar en CachyOS (15/11/2026)
+
+- [ ] **Geometría predeterminada nueva:** Soledad redondeada izquierda / recta derecha y agarre cuadrado. Alternar Soledad entre redondeada, cuadrada, ambas mixtas y punta triangular izquierda (experimental); Malvina entre redondeada, cuadrada y ambas mixtas; agarre y flecha de bandeja cuadrado/redondeado. `Restablecer` vuelve a defaults. Verificar gesto de arrastre y barra fija.
+- [ ] **Acerca de:** correo autorizado `nicoarg87@gmail.com`, repositorio GitHub inmediatamente debajo del contacto, licencia GNU GPL v3 y aviso SIN NINGUNA GARANTÍA por debajo. Verificar botones con teclado, sin donaciones.
+- [ ] **Compatibilidad:** probar esquinas individuales de QtQuick Rectangle (Qt 6.7+, `tech preview` en Qt 6.8), Canvas triangular y ancho de isla con SO y bandeja abiertos. PR #3 experimental, issues #1/#5 abiertos; no modificar panel KDE en uso.
+
 ## Centro de configuración de Soledad en pestañas — decisión confirmada (14/11/2026)
 
 - [ ] **Una ventana con seis pestañas (orden actual):** Logo SO, Contorno, Apariencia, Islas y posición, Autocontracción y Acerca de. Entrada única «Configuración de Soledad…» en el menú de los seis puntos. Código publicado en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) con nuevo componente SoledadSettings.qml; **sin retest en CachyOS**. Verificar que no se instancien tres ventanas de personalización separadas.
