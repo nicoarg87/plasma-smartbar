@@ -14,6 +14,7 @@ Item {
     property real zoom: 1.0
     property real panX: 0.0 // -1 a 1
     property real panY: 0.0
+    property real imageRotation: 0.0 // grados, no modifica el archivo de origen
     readonly property bool loadError: animateGif
         ? animatedSource.status === Image.Error
         : staticSource.status === Image.Error
@@ -29,6 +30,7 @@ Item {
 
         Image {
             id: staticSource
+            rotation: artwork.imageRotation
             source: !artwork.animateGif ? artwork.imageUrl : ""
             visible: !artwork.animateGif
             width: imageStage.width * Math.max(1, artwork.zoom)
@@ -44,6 +46,7 @@ Item {
 
         AnimatedImage {
             id: animatedSource
+            rotation: artwork.imageRotation
             source: artwork.animateGif ? artwork.imageUrl : ""
             visible: artwork.animateGif
             width: imageStage.width * Math.max(1, artwork.zoom)
@@ -83,7 +86,13 @@ Item {
             ctx.clearRect(0, 0, w, h)
             ctx.fillStyle = "white"
             ctx.beginPath()
-            if (artwork.cropShape === "circle") {
+            if (artwork.cropShape === "rounded") {
+                ctx.roundedRect(0, 0, w, h, Math.min(12, h / 3), Math.min(12, h / 3))
+            } else if (artwork.cropShape === "capsule") {
+                ctx.roundedRect(0, 0, w, h, h / 2, h / 2)
+            } else if (artwork.cropShape === "oval") {
+                ctx.ellipse(0, 0, w, h)
+            } else if (artwork.cropShape === "circle") {
                 ctx.arc(w / 2, h / 2, Math.min(w, h) / 2, 0, Math.PI * 2)
             } else if (artwork.cropShape === "diamond") {
                 ctx.moveTo(w / 2, 0)
