@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.25 (centro unificado de configuración en pestañas; 14/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.26 (dimensiones de islas y SO, rotación, restablecimientos y Acerca de; 15/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -280,6 +280,20 @@ Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la 
 - **Posible isla extra — DIFERIDA:** el mantenedor mencionó una opción futura para agregar otra isla, pero **ordenó no desarrollarla ahora**. No añadir botón operativo, isla nueva, cambio de numeración ni sustitución de la isla 3 buscadora sin nueva aprobación.
 
 **ESTADO:** implementado en el componente QML experimental SoledadSettings.qml y enlazado con SmartBarContent.qml en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin ejecución ni prueba en CachyOS/Wayland tras el cambio**. No se fusiona al plasmoide de uso diario. Seguimiento en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) e [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+
+## 2.24. Personalización geométrica de islas y botón SO; rotación y pestaña Acerca de (15/11/2026)
+
+**DECISIONES CONFIRMADAS POR EL MANTENEDOR (PRIORIDAD SOBRE PROTOTIPO FIJO DE 48 PX):** la **altura general la determina el usuario** y sigue **constante durante interacciones y expansiones**, sin cambios por fichas, GIF ni paneles flotantes. No imponer 48 px como altura definitiva; sí conservar 48 como **valor inicial**. El usuario también puede configurar **alto, ancho y radio de esquinas de Soledad y Malvina** de modo independiente dentro de los límites de altura disponible. El ancho de Soledad responde a un mínimo seleccionable y al contenido real que se expande en **una sola fila**; no puede reducirse por debajo de las fichas visibles.
+
+- **Botón SO:** además del formato actual, admitir **botón más ancho en horizontal** (aprox. el doble) y formatos **rectángulo de esquinas rectas, rectángulo redondeado, cápsula horizontal y óvalo horizontal**, con ancho configurable. El botón no cambia por sí solo la altura fijada para la barra. La máscara visible, el contorno de actividad y el área de clic deben respetar una **única forma**, sin bordes dobles; las formas de recorte anteriores (círculo, cuadrado, rombo, corazón y estrella) siguen disponibles en el modo clásico. Las dimensiones mayores deben reducir el espacio horizontal disponible de manera previsible: no desplazar pestañas de aplicaciones externas, no crear segunda fila ni mover controles independientes de ventana.
+- **Editor de logo/GIF:** añadir **control de rotación gradual** para la imagen o GIF, además de escalado y desplazamientos. Aplicar la misma rotación a todos los cuadros del GIF sin modificar el archivo original. Valor predeterminado 0° y restablecimiento simple. La calidad visible depende del archivo fuente; evitar prometer mejoras de resolución por ampliar.
+- **Orden del centro de configuración:** **Logo SO → Contorno → Apariencia → Islas y posición → Autocontracción → Acerca de**. El editor sigue una sola ventana con pestañas independientes, scroll donde corresponda, «Aplicar» sin cierre y «Cerrar» separado.
+- **Restablecer por sección:** debe existir botón **Restablecer** en cada pestaña con preferencias editables (las cinco primeras). Los valores pasan al estado inicial correspondiente cuando luego se pulsa «Aplicar». No agregar un botón de restablecimiento a «Acerca de» porque solo muestra información.
+- **Acerca de:** mostrar nombre del proyecto, licencia **GPL-3.0** y autor público **NicoR87**; no publicar datos personales no aprobados. Los correos de contacto y enlaces de donaciones (Cafecito/PayPal) **deben verificarse con el mantenedor antes de publicarse**. No inventar enlaces, correos ni identidades.
+- **Alcance preservado:** personalización futura del icono de la bandeja y del agarre de seis puntos y «Añadir isla extra» siguen **diferidas**. La isla 3 buscadora no se reemplaza ni renumera. El panel KDE existente no debe tocarse.
+
+**ESTADO DE INGENIERÍA:** se agregaron controles, propiedades QML y entradas KConfig en la rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendientes de ejecución y validación en CachyOS/Wayland**. La altura del plasmoide en un panel KDE real depende también de la geometría que asigne el contenedor; no se presume compatibilidad final. La vista `probar_ancho.sh` es reversible y no instala paneles. Seguimiento: [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
