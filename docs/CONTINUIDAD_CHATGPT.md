@@ -96,6 +96,12 @@ El menú de los **seis puntos** debe abrir **debajo de la posición horizontal a
 
 **ESTADO:** código creado en rama experimental [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) y enlazado con KConfig previsto y vista Qt aislada; revisión estática de enlaces y delimitadores, **SIN test real en CachyOS/Wayland de esta versión**. Constitución **v1.28**, Manual Maestro **v0.37**, Estado/ROADMAP/README actualizados. No afirmar que el panel Plasma real respeta tamaño solicitado hasta prueba. Issues #1 y #5 siguen abiertos.
 
+## 4.4. Nuevas terminaciones y orden de Acerca de (15/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** «Acerca de» muestra autor `nicoarg87`, correo `nicoarg87@gmail.com`, **repositorio GitHub y botón inmediatamente debajo del contacto**, luego explicación GNU GPL v3 y aviso **SIN NINGUNA GARANTÍA** con botón de lectura LICENSE. Sin donaciones. Soledad adopta por defecto **izquierda redondeada/derecha recta**; agarre de seis puntos **cuadrado**. En «Islas y posición» se configuran estilos de Soledad (redondeada completa, cuadrada completa, dos mixtas y punta triangular izquierda opcional), Malvina (cuatro formas básicas, redondeada inicial), agarre (cuadrado/redondeado) y botón de bandeja simulada (redondeado/cuadrado). Cambiar forma no cambia alto ni bloquea arrastre; el texto/icono personalizado de bandeja y agarre sigue diferido.
+
+**IMPLEMENTACIÓN:** rama experimental PR #3 con `SmartBarContent.qml`, `SoledadSettings.qml`, `IslandButton.qml`, `preview_redimensionable.qml`, `main.qml`, `main.xml`. Las esquinas independientes de QtQuick Rectangle (desde Qt 6.7, `tech preview` en 6.8) y el Canvas triangular necesitan validar en CachyOS/Wayland. No se ha ejecutado el nuevo QML, no se ha fusionado PR ni modificado el panel KDE habitual. Constitución **v1.29**, Manual Maestro **v0.38**, Estado y README actualizados; issues #1/#5 abiertos.
+
 ## 5. Reglas del trabajo diario
 
 - Separar siempre **HECHO Y PROBADO**, **IMPLEMENTADO PERO NO PROBADO**, **PLANIFICADO** y **PROPUESTA**.
