@@ -36,6 +36,10 @@ Window {
     property real demoMalvinaRadius: 22
     property real demoSoledadMinWidth: 0
     property real demoMalvinaWidth: 52
+    property string demoSoledadShape: "leftRoundRightSquare"
+    property string demoMalvinaShape: "rounded"
+    property string demoGripShape: "square"
+    property string demoTrayButtonShape: "rounded"
     property string demoSoButtonFrameShape: "square"
     property real demoSoButtonWidth: 80
     property color demoSoledadColor: "#101e31"
@@ -63,6 +67,10 @@ Window {
         malvinaRadius: previewWindow.demoMalvinaRadius
         soledadMinWidth: previewWindow.demoSoledadMinWidth
         malvinaWidth: previewWindow.demoMalvinaWidth
+        soledadShape: previewWindow.demoSoledadShape
+        malvinaShape: previewWindow.demoMalvinaShape
+        gripShape: previewWindow.demoGripShape
+        trayButtonShape: previewWindow.demoTrayButtonShape
         soButtonFrameShape: previewWindow.demoSoButtonFrameShape
         soButtonWidth: previewWindow.demoSoButtonWidth
 
@@ -108,7 +116,8 @@ Window {
             previewWindow.demoSoLogoRotation = rotation
         }
         onRequestGeometryChange: function(panel, soH, malH, soRadius, malRadius,
-                                          soWidth, malWidth, buttonShape, buttonWidth) {
+                                          soWidth, malWidth, buttonShape, buttonWidth,
+                                          soShape, malShape, gripButtonShape, trayShape) {
             previewWindow.demoPanelHeight = panel
             previewWindow.demoSoledadHeight = soH
             previewWindow.demoMalvinaHeight = malH
@@ -118,6 +127,10 @@ Window {
             previewWindow.demoMalvinaWidth = malWidth
             previewWindow.demoSoButtonFrameShape = buttonShape
             previewWindow.demoSoButtonWidth = buttonWidth
+            previewWindow.demoSoledadShape = soShape
+            previewWindow.demoMalvinaShape = malShape
+            previewWindow.demoGripShape = gripButtonShape
+            previewWindow.demoTrayButtonShape = trayShape
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
             previewWindow.demoSoledadColor = a
