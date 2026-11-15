@@ -649,3 +649,35 @@ Confirmar la rama `prototype/v0.1-islas-so` antes de actualizar. Si hay cambios 
 2. Pulsar **Enviar una consulta por correo**: solo debe abrirse el cliente de correo predeterminado con destinatario preparado. **No debe enviar un mensaje automáticamente**.
 3. Pulsar **Leer licencia GNU GPL versión 3**: debe abrir el archivo oficial `LICENSE` de este repositorio. Verificar legibilidad y acceso con teclado.
 4. No deben verse botones ni leyendas de PayPal o Cafecito. El panel KDE habitual no se modifica. **Prueba en CachyOS/Wayland pendiente**.
+
+## Retest: orden de Acerca de y formas configurables de islas (15/11/2026)
+
+**NUEVAS OBSERVACIONES CONFIRMADAS POR EL MANTENEDOR:** en Acerca de, GitHub estaba demasiado abajo; debe aparecer inmediatamente debajo del contacto por correo, con nombre y botón; después la licencia GNU GPL v3 y el aviso SIN NINGUNA GARANTÍA. Soledad parecía demasiado redondeada: **estética inicial nueva = izquierda redondeada / derecha recta**; el botón de seis puntos pasa a **cuadrado de forma predeterminada**. Ambos y sus alternativas deben ser configurables. También se pide formato rectangular para el acceso de bandeja y una posible punta triangular izquierda donde la bandeja se ubique correctamente.
+
+**IMPLEMENTADO EN LA RAMA EXPERIMENTAL, NO PROBADO TODAVÍA EN CACHYOS:**
+- «Acerca de»: orden `autor → contacto + botón de correo → enlace de GitHub + botón de repositorio → explicación licencia GNU GPL v3 → SIN NINGUNA GARANTÍA → botón leer LICENSE`. Se conserva correo público `nicoarg87@gmail.com` y autor `nicoarg87`; sin PayPal/Cafecito.
+- «Islas y posición»: selectores **Forma de Soledad** (mixta izquierda redondeada/derecha recta [inicial], toda redondeada, toda cuadrada, inversa, punta triangular izquierda opcional), **Forma de Malvina** (redondeada [inicial], cuadrada, mixta en ambas direcciones), **Agarre de seis puntos** (cuadrado [inicial] o redondeado) y **Botón de bandeja simulada** (redondeado [inicial] o cuadrado).
+- Los radios de esquina configurados previamente siguen actuando donde haya esquinas redondeadas. Las esquinas por lado usan propiedades de `Rectangle` disponibles desde Qt 6.7 (Qt 6.8 las documenta como *tech preview*); la punta triangular opcional utiliza un Canvas estático detrás de los controles y reserva más espacio a la izquierda para no tapar la flecha ni reducir su área de clic. **Esta variante es experimental y debe validar visual, foco y accesibilidad**.
+- **Restablecer islas y posición** vuelve a las formas y dimensiones iniciales. El alto general queda constante durante las expansiones; el agarre no cambia de ubicación con SO/bandeja.
+- En `SmartBarContent.qml` siguen los mismos gestos de clic izquierdo/derecho y arrastre del agarre. Los perfiles por aplicación, iconos externos personalizados y nueva isla siguen diferidos.
+
+**Cómo probar sin modificar el panel KDE:**
+
+~~~bash
+cd ~/plasma-smartbar
+git branch --show-current
+git pull
+bash prototype/v0.1/probar_ancho.sh
+~~~
+
+Continuar solo si la rama es `prototype/v0.1-islas-so` y no hay cambios locales por preservar.
+
+1. Abrir **Acerca de** y verificar orden autor/contacto/GitHub/licencia/ausencia de garantía. Pulsar «Abrir repositorio oficial» y «Leer licencia»; no enviar correo automáticamente.
+2. Ver Soledad inicial **izquierda redondeada, derecha recta** y agarre **cuadrado**. Comprobar que la flecha de bandeja conserva aspecto redondeado inicial.
+3. En «Islas y posición», elegir **toda redondeada, toda cuadrada y mixta inversa** en Soledad, pulsar Aplicar y comprobar cambio visual sin cerrar Configuración. Cambiar Malvina a cuadrada y viceversa.
+4. Cambiar el agarre de **cuadrado a redondeado** y el botón de bandeja de **redondeado a cuadrado**; comprobar que clic derecho del agarre sigue abriendo opciones debajo de Soledad y clic izquierdo/arrastre permiten moverla **a izquierda y derecha**.
+5. Seleccionar **punta triangular izquierda**. Asegurarse de que la flecha y su área clicable no queden recortadas, que el Canvas no cubra las fichas, que SO/bandeja sigan en la misma fila y que no cambie el alto. Mover Soledad y probar extremos de la ventana y controles de maximización simulada.
+6. Restablecer Islas y posición, **Aplicar** sin cierre y comprobar que el estilo vuelve al inicial. Reducir ancho de la ventana: verificar que se respeten los límites y la isla no quede irrecuperable.
+7. Si aparecen errores QML, glitches, bloqueo del ratón o desaparición de opciones, conservar captura y mensajes de Konsole.
+
+**Estado real:** código publicado y comprobado solo por inspección de referencias y delimitadores QML; sin prueba con Qt ejecutado en CachyOS/KWin/Wayland. La integración y compatibilidad efectiva de las esquinas individuales, especialmente la punta triangular y sus hitboxes, queda pendiente. No tocar el panel instalado, mantener [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador e [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) abierto.
