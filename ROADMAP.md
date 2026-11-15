@@ -89,6 +89,16 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **Contorno SO por ventanas abiertas:** **cero ventanas → sin trazo y sin temporizador**; una o más → efecto opcional off/fijo/luz recorriendo perímetro de la máscara, color ajustable, grosor 0,5–2 px, movimiento opcional. Brillo fijo predeterminado. Demo con alternancia 0/3 ventanas; **conexión al modelo KDE de ventanas reales pendiente de prueba**. Consumo/performance y accesibilidad pendientes.
 - [ ] **No introducir animaciones generales de barra:** GIF elegido y contorno SO animado optativo son excepciones explícitas limitadas; nada de MPRIS, animaciones de fichas ni de minimización en MVP.
 
+
+## Geometría editable, rotación y Acerca de (15/11/2026)
+
+- [ ] Botón SO ancho configurable con formato cuadrado, rectángulo recto, redondeado, cápsula y óvalo; mantener una sola máscara/contorno y la fila horizontal.
+- [ ] Altura global elegida por usuario (48 por defecto, constante mientras se expanden las islas), altos/anchos/radios de Soledad y Malvina independientes dentro del espacio. Verificar limitaciones del contenedor Plasma al solicitar altura de panel real.
+- [ ] Rotar foto/GIF con control de −180° a +180° sin modificar fuente, manteniendo recorte y contorno coherentes.
+- [ ] Pestañas reordenadas Logo → Contorno → Apariencia → Islas y posición → Autocontracción → Acerca de. Las cinco configurables tienen Restablecer; Aplicar guarda sin cerrar.
+- [ ] Acerca de: autor público NicoR87, licencia GPL-3.0 y GitHub, con correo y donaciones pendientes de confirmación; no inventar links.
+- [ ] Validar todos los cambios en CachyOS/Wayland usando exclusivamente ventana de prueba Qt; PR #3 y issues #1/#5 abiertos. Iconos personalizados del agarre y bandeja e isla extra siguen diferidos.
+
 ## Centro de configuración de Soledad en pestañas — decisión confirmada (14/11/2026)
 
 - [ ] **Una ventana con cinco pestañas:** Logo SO, Apariencia, Contorno, Autocontracción, Islas y posición. Entrada única «Configuración de Soledad…» en el menú de los seis puntos. Código publicado en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) con nuevo componente SoledadSettings.qml; **sin retest en CachyOS**. Verificar que no se instancien tres ventanas de personalización separadas.
