@@ -579,7 +579,7 @@ bash prototype/v0.1/probar_ancho.sh
 
 **PEDIDO FUNCIONAL CONFIRMADO:** el mantenedor reportó que las tres ventanas de personalización requerían agrandarse manualmente y que pulsar Aplicar las cerraba. Se aprobó una **única ventana con pestañas**, donde **Aplicar no cierra** y **Cerrar es un botón separado**. La posibilidad de **añadir una isla extra** se registrará como idea futura; **no se implementa** ahora.
 
-**IMPLEMENTADO SOLO EN PR #3, PENDIENTE DE PRUEBA REAL:** componente nuevo SoledadSettings.qml; abierto con clic derecho en los seis puntos → **Configuración de Soledad…**. Incluye cinco pestañas: **Logo SO**, **Apariencia**, **Contorno**, **Autocontracción** e **Islas y posición**. Dimensiones iniciales de hasta 750 × 850 unidades lógicas según pantalla, suficientes como referencia para el editor de logo; cada pestaña ofrece desplazamiento propio si el espacio es menor. Aplicar y Cerrar están siempre en el pie de la ventana, fuera de las áreas desplazables.
+**IMPLEMENTADO SOLO EN PR #3, PENDIENTE DE PRUEBA REAL:** componente nuevo SoledadSettings.qml; abierto con clic derecho en los seis puntos → **Configuración de Soledad…**. Incluye actualmente **seis pestañas** en este orden: **Logo SO**, **Contorno**, **Apariencia**, **Islas y posición**, **Autocontracción** y **Acerca de**. Dimensiones iniciales de hasta 750 × 850 unidades lógicas según pantalla, suficientes como referencia para el editor de logo; cada pestaña ofrece desplazamiento propio si el espacio es menor. Aplicar y Cerrar están siempre en el pie de la ventana, fuera de las áreas desplazables.
 
 - **Logo SO:** huella, imagen personalizada, texto SO, GIF, cinco máscaras, encajar/rellenar, zoom y desplazamientos, restablecimiento sin editar el archivo original.
 - **Apariencia:** colores y opacidad independientes de Soledad, Malvina y fondo continuo opcional (apagado por defecto).
@@ -598,7 +598,7 @@ bash prototype/v0.1/probar_ancho.sh
 
 Confirmar que la rama es prototype/v0.1-islas-so. No sobrescribir modificaciones locales si Git informa conflictos.
 
-1. Derecho en seis puntos → Configuración de Soledad…: comprobar que se abre **una ventana** con las cinco pestañas y no tres diálogos separados.
+1. Derecho en seis puntos → Configuración de Soledad…: comprobar que se abre **una ventana** con las seis pestañas y no tres diálogos separados.
 2. En Logo SO, probar imagen/GIF, formas, zoom, encuadre y restablecimiento; comprobar que cualquier control se alcanza sin agrandar la ventana manualmente (usar desplazamiento en pantallas pequeñas).
 3. En Apariencia y Contorno cambiar valores, pulsar **Aplicar**: la ventana debe seguir abierta y permitir seguir cambiando de pestaña. **Cerrar** sí debe cerrarla.
 4. En Autocontracción cambiar las dos preferencias, aplicar, tocar fichas SO y bandeja simuladas; volver a abrir configuración y verificar los estados de sesión.
@@ -617,7 +617,7 @@ Confirmar que la rama es prototype/v0.1-islas-so. No sobrescribir modificaciones
 - **Islas y posición:** altura general 40–120 unidades lógicas, altura Soledad y Malvina por separado (limitada a la altura disponible), radio de esquinas por isla, ancho mínimo opcional de Soledad (0=automático por fichas), ancho de Malvina, además de las opciones de posición confirmadas.
 - **Pestañas, orden:** Logo SO → Contorno → Apariencia → Islas y posición → Autocontracción → **Acerca de**.
 - **Restablecer:** botón independiente en todas las pestañas que modifican preferencias: Logo, Contorno, Apariencia, Islas/posición y Autocontracción. Los valores restablecidos quedan **pendientes hasta pulsar Aplicar**. La pestaña Acerca de no contiene opciones modificables.
-- **Acerca de (actualización 15/11/2026):** proyecto, autor público **NicoR87**, correo **nicoarg87@gmail.com** autorizado para consultas, botón que abre el cliente de correo, licencia **GNU GPL versión 3**, enlace al archivo LICENSE y aviso visible **SIN NINGUNA GARANTÍA** con salvedad legal. **No mostrar PayPal/Cafecito ni enlaces de donaciones** por ahora: postergados expresamente por el mantenedor.
+- **Acerca de (actualización 15/11/2026):** proyecto, autor público **nicoarg87**, correo **nicoarg87@gmail.com** autorizado para consultas, botón que abre el cliente de correo, licencia **GNU GPL versión 3**, enlace al archivo LICENSE y aviso visible **SIN NINGUNA GARANTÍA** con salvedad legal. **No mostrar PayPal/Cafecito ni enlaces de donaciones** por ahora: postergados expresamente por el mantenedor.
 - **El editor sigue una sola ventana**, con botones Aplicar (no cierra) y Cerrar separados, scroll por pestaña y tamaño adaptable a pantalla.
 
 **Código publicado en PR #3, PENDIENTE DE PRUEBA EN CACHYOS/KWIN/WAYLAND:** `SoledadSettings.qml`, `LogoArtwork.qml`, `SoActivityOutline.qml`, `IslandButton.qml`, `SmartBarContent.qml`, `preview_redimensionable.qml`, `main.qml` y `main.xml` enlazados. En la ventana Qt las preferencias son solo de sesión; no se ha demostrado que un plasmoide dentro de un panel de KDE pueda solicitar su altura preferida a la geometría del contenedor. **No instalar sobre el panel de uso diario.**
@@ -638,14 +638,14 @@ Confirmar la rama `prototype/v0.1-islas-so` antes de actualizar. Si hay cambios 
 3. Cargar foto y GIF; rotar -30°, 0°, +30° y comprobar que el encuadre se aplica sin modificar archivos, que la imagen no se estira al cambiar ancho y que el GIF sigue animado si está permitido.
 4. Islas y posición: cambiar **altura general**, alturas, anchos y radio de esquinas de **cada isla**. Verificar que Soledad y Malvina siguen una sola fila y se mantienen centradas verticalmente; SO y bandeja se expanden a la izquierda sin modificar el grosor en cada estado. Probar anchura mínima automática (0).
 5. Usar Restablecer en Logo, Contorno, Apariencia, Islas y posición y Autocontracción, pulsar Aplicar y reabrir para confirmar predeterminados. Comprobar que la alineación NO se restablece al aplicar cambios que no tocaron su casilla.
-6. Acerca de: comprobar que se muestre solo **NicoR87** como autor, enlace al GitHub oficial y estados «pendiente» para contacto/donaciones. No hay enlace PayPal o Cafecito hasta que sea proporcionado.
+6. Acerca de: comprobar que se muestre solo **nicoarg87** como autor, enlace al GitHub oficial y correo público confirmado para consultas. Las donaciones están pospuestas y no deben aparecer en la interfaz.
 7. Probar ventanas más angostas, mover Soledad a ambos extremos, activar máximización simulada y abrir SO/bandeja. Si una opción se corta o un menú detiene el arrastre, guardar captura y salida de Konsole.
 
 **Estado:** código y documentación escritos; revisión estática de delimitadores/referencias. **No probada aún la ejecución de Qt/Wayland de estos nuevos cambios** ni la persistencia KConfig; PR #3 sigue en borrador, issues #1/#5 abiertos.
 
 ### Verificación posterior: contacto y aviso GPL v3 (15/11/2026)
 
-1. Entrar en seis puntos → Configuración de Soledad… → última pestaña **Acerca de**. Debe mostrar **Autor: NicoR87**, **nicoarg87@gmail.com**, nombre Plasma SmartBar y el aviso **SIN NINGUNA GARANTÍA**, con texto sobre ausencia de garantía de comerciabilidad y de aptitud para un fin particular, en la medida legal aplicable.
+1. Entrar en seis puntos → Configuración de Soledad… → última pestaña **Acerca de**. Debe mostrar **Autor: nicoarg87**, **nicoarg87@gmail.com**, nombre Plasma SmartBar y el aviso **SIN NINGUNA GARANTÍA**, con texto sobre ausencia de garantía de comerciabilidad y de aptitud para un fin particular, en la medida legal aplicable.
 2. Pulsar **Enviar una consulta por correo**: solo debe abrirse el cliente de correo predeterminado con destinatario preparado. **No debe enviar un mensaje automáticamente**.
 3. Pulsar **Leer licencia GNU GPL versión 3**: debe abrir el archivo oficial `LICENSE` de este repositorio. Verificar legibilidad y acceso con teclado.
 4. No deben verse botones ni leyendas de PayPal o Cafecito. El panel KDE habitual no se modifica. **Prueba en CachyOS/Wayland pendiente**.
