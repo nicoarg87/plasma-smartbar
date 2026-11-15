@@ -19,6 +19,10 @@ Item {
     property real malvinaRadius: 22
     property real soledadMinWidth: 0 // 0 = automático según fichas
     property real malvinaWidth: 52
+    property string soledadShape: "leftRoundRightSquare"
+    property string malvinaShape: "rounded"
+    property string gripShape: "square"
+    property string trayButtonShape: "rounded"
     property string soButtonFrameShape: "square"
     property real soButtonWidth: 80
     implicitHeight: fixedHeight
@@ -80,7 +84,9 @@ Item {
                                  real malvinaHeight, real soledadRadius,
                                  real malvinaRadius, real soledadWidth,
                                  real malvinaWidth, string buttonShape,
-                                 real buttonWidth)
+                                 real buttonWidth, string soShape,
+                                 string malShape, string gripButtonShape,
+                                 string trayShape)
     signal requestAppearanceChange(string soledadColor, real soledadOpacity,
                                    string malvinaColor, real malvinaOpacity,
                                    bool showBackground, string backgroundColor,
@@ -330,6 +336,10 @@ Item {
             soledadSettings.malvinaRadius = root.malvinaRadius
             soledadSettings.soledadMinWidth = root.soledadMinWidth
             soledadSettings.malvinaWidth = root.malvinaWidth
+            soledadSettings.soledadShape = root.soledadShape
+            soledadSettings.malvinaShape = root.malvinaShape
+            soledadSettings.gripShape = root.gripShape
+            soledadSettings.trayButtonShape = root.trayButtonShape
             soledadSettings.soButtonFrameShape = root.soButtonFrameShape
             soledadSettings.soButtonWidth = root.soButtonWidth
             soledadSettings.soledadColor = root.soledadColor
@@ -365,10 +375,12 @@ Item {
                                      zoom, panX, panY, animate, rotation)
         }
         onSaveGeometryRequested: function(panel, soH, malH, soRadius, malRadius,
-                                          soWidth, malWidth, buttonShape, buttonWidth) {
+                                          soWidth, malWidth, buttonShape, buttonWidth,
+                                          soShape, malShape, gripButtonShape, trayShape) {
             root.requestGeometryChange(panel, soH, malH, soRadius,
                                        malRadius, soWidth, malWidth,
-                                       buttonShape, buttonWidth)
+                                       buttonShape, buttonWidth,
+                                       soShape, malShape, gripButtonShape, trayShape)
         }
         onSaveAppearanceRequested: function(soColor, soOpacity, malColor,
                                              malOpacity, backgroundShown,
@@ -500,7 +512,12 @@ Item {
             visible: root.launcherIslandVisible
             width: Math.max(launcherButton.implicitWidth + 12, root.malvinaWidth)
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
-            radius: Math.max(0, Math.min(root.malvinaRadius, height / 2))
+            radius: root.malvinaShape === "square" ? 0 :
+                Math.max(0, Math.min(root.malvinaRadius, height / 2))
+            topLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
+            bottomLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
+            topRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
+            bottomRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
             color: Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
                            root.malvinaColor.b, root.malvinaOpacity)
             border.color: "#4e8499"
@@ -536,15 +553,24 @@ Item {
         Rectangle {
             id: systemIsland
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.soledadHeight))
-            width: Math.max(systemRow.implicitWidth + 12, root.soledadMinWidth)
+            width: Math.max(systemRow.implicitWidth + 12 +
+                            (root.soledadShape === "leftTip" ? 28 : 0),
+                            root.soledadMinWidth)
             // Al cambiar fichas o espacio por arrastre, mantener ambas
             // expansiones salvo que realmente dejen de caber.
             onWidthChanged: root.ensureExpansionFits()
-            radius: Math.max(0, Math.min(root.soledadRadius, height / 2))
-            color: Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+            radius: root.soledadShape === "square" ||
+                    root.soledadShape === "leftTip" ? 0 :
+                    Math.max(0, Math.min(root.soledadRadius, height / 2))
+            topLeftRadius: root.soledadShape === "leftSquareRightRound" ? 0 : radius
+            bottomLeftRadius: root.soledadShape === "leftSquareRightRound" ? 0 : radius
+            topRightRadius: root.soledadShape === "leftRoundRightSquare" ? 0 : radius
+            bottomRightRadius: root.soledadShape === "leftRoundRightSquare" ? 0 : radius
+            color: root.soledadShape === "leftTip" ? "transparent" :
+                Qt.rgba(root.soledadColor.r, root.soledadColor.g,
                            root.soledadColor.b, root.soledadOpacity)
             border.color: "#4e8499"
-            border.width: 1
+            border.width: root.soledadShape === "leftTip" ? 0 : 1
             anchors.right: parent.right
             // Los controles de ventana quedan en el extremo derecho INMÓVILES.
             // La isla 1 se arrastra solo a la izquierda del espacio reservado.
@@ -558,6 +584,7 @@ Item {
 
                 IslandButton {
                     text: root.trayExpanded ? "▶" : "◀"
+                    frameShape: root.trayButtonShape
                     onClicked: root.toggleTray()
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: "Abrir/cerrar bandeja simulada"
@@ -706,7 +733,7 @@ Item {
                         }
                     }
                     background: Rectangle {
-                        radius: 17
+                        radius: root.gripShape === "square" ? 0 : 17
                         color: moveGrip.hovered ? "#24425a" : "#14283d"
                         border.width: 1
                         border.color: "#45647a"
