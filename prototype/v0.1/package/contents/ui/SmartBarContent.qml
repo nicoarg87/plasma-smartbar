@@ -10,7 +10,17 @@ Item {
 
     // Componente compartido: puede vivir tanto en un plasmoide de KDE
     // como en una ventana Qt de prueba. Solo dibuja islas, no banda continua.
-    readonly property int fixedHeight: 48
+    // Altura fijada por usuario: nunca cambia al expandir SO/bandeja.
+    property real panelHeight: 48
+    readonly property real fixedHeight: Math.max(40, Math.min(120, panelHeight))
+    property real soledadHeight: 44
+    property real malvinaHeight: 44
+    property real soledadRadius: 22
+    property real malvinaRadius: 22
+    property real soledadMinWidth: 0 // 0 = automático según fichas
+    property real malvinaWidth: 52
+    property string soButtonFrameShape: "square"
+    property real soButtonWidth: 80
     implicitHeight: fixedHeight
     property bool autoReturnRight: true
     // Isla 2 visible por defecto. Se oculta solo por elección del usuario.
@@ -29,6 +39,7 @@ Item {
     property real soLogoZoom: 1
     property real soLogoPanX: 0
     property real soLogoPanY: 0
+    property real soLogoRotation: 0
     property bool soLogoAnimate: true
     readonly property url defaultSoLogo: Qt.resolvedUrl("assets/so-paw.png")
     readonly property url activeSoLogo: soLogoMode === "text" ? "" :
@@ -64,7 +75,12 @@ Item {
 
     signal requestSoLogoChange(string mode, string path, string shape,
                                string fitMode, real zoom, real panX, real panY,
-                               bool allowGif)
+                               bool allowGif, real rotation)
+    signal requestGeometryChange(real panelHeight, real soledadHeight,
+                                 real malvinaHeight, real soledadRadius,
+                                 real malvinaRadius, real soledadWidth,
+                                 real malvinaWidth, string buttonShape,
+                                 real buttonWidth)
     signal requestAppearanceChange(string soledadColor, real soledadOpacity,
                                    string malvinaColor, real malvinaOpacity,
                                    bool showBackground, string backgroundColor,
@@ -101,7 +117,8 @@ Item {
     readonly property real controlsReservation: root.previewMaximized
         ? windowControls.width + 6 : 0
     readonly property real maxIslandOffset: Math.max(
-        0, root.width - (root.launcherIslandVisible ? launcherIsland.width : 0) - 460 - 12
+        0, root.width - (root.launcherIslandVisible ? launcherIsland.width : 0)
+           - 460 - Math.max(0, soButton.implicitWidth - 40) - 12
            - controlsReservation
     )
     // Espacio físico desde el borde izquierdo libre hasta la derecha de
@@ -304,7 +321,17 @@ Item {
             soledadSettings.cropZoom = root.soLogoZoom
             soledadSettings.cropPanX = root.soLogoPanX
             soledadSettings.cropPanY = root.soLogoPanY
+            soledadSettings.cropRotation = root.soLogoRotation
             soledadSettings.enableGif = root.soLogoAnimate
+            soledadSettings.panelHeight = root.fixedHeight
+            soledadSettings.soledadHeight = root.soledadHeight
+            soledadSettings.malvinaHeight = root.malvinaHeight
+            soledadSettings.soledadRadius = root.soledadRadius
+            soledadSettings.malvinaRadius = root.malvinaRadius
+            soledadSettings.soledadMinWidth = root.soledadMinWidth
+            soledadSettings.malvinaWidth = root.malvinaWidth
+            soledadSettings.soButtonFrameShape = root.soButtonFrameShape
+            soledadSettings.soButtonWidth = root.soButtonWidth
             soledadSettings.soledadColor = root.soledadColor
             soledadSettings.malvinaColor = root.malvinaColor
             soledadSettings.backgroundColor = root.backgroundColor
@@ -332,9 +359,16 @@ Item {
     SoledadSettings {
         id: soledadSettings
         defaultImage: root.defaultSoLogo
-        onSaveLogoRequested: function(mode, path, shape, fitMode, zoom, panX, panY, animate) {
+        onSaveLogoRequested: function(mode, path, shape, fitMode, zoom, panX, panY,
+                                      animate, rotation) {
             root.requestSoLogoChange(mode, path, shape, fitMode,
-                                     zoom, panX, panY, animate)
+                                     zoom, panX, panY, animate, rotation)
+        }
+        onSaveGeometryRequested: function(panel, soH, malH, soRadius, malRadius,
+                                          soWidth, malWidth, buttonShape, buttonWidth) {
+            root.requestGeometryChange(panel, soH, malH, soRadius,
+                                       malRadius, soWidth, malWidth,
+                                       buttonShape, buttonWidth)
         }
         onSaveAppearanceRequested: function(soColor, soOpacity, malColor,
                                              malOpacity, backgroundShown,
@@ -464,9 +498,9 @@ Item {
         Rectangle {
             id: launcherIsland
             visible: root.launcherIslandVisible
-            width: launcherButton.implicitWidth + 12
-            height: 44
-            radius: 22
+            width: Math.max(launcherButton.implicitWidth + 12, root.malvinaWidth)
+            height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
+            radius: Math.max(0, Math.min(root.malvinaRadius, height / 2))
             color: Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
                            root.malvinaColor.b, root.malvinaOpacity)
             border.color: "#4e8499"
@@ -501,12 +535,12 @@ Item {
         // Isla 1: anclaje propio desplazable, independiente de su expansión.
         Rectangle {
             id: systemIsland
-            height: 44
-            width: systemRow.implicitWidth + 12
+            height: Math.max(32, Math.min(root.fixedHeight - 4, root.soledadHeight))
+            width: Math.max(systemRow.implicitWidth + 12, root.soledadMinWidth)
             // Al cambiar fichas o espacio por arrastre, mantener ambas
             // expansiones salvo que realmente dejen de caber.
             onWidthChanged: root.ensureExpansionFits()
-            radius: 22
+            radius: Math.max(0, Math.min(root.soledadRadius, height / 2))
             color: Qt.rgba(root.soledadColor.r, root.soledadColor.g,
                            root.soledadColor.b, root.soledadOpacity)
             border.color: "#4e8499"
@@ -580,6 +614,12 @@ Item {
                     iconZoom: root.soLogoZoom
                     iconPanX: root.soLogoPanX
                     iconPanY: root.soLogoPanY
+                    iconRotation: root.soLogoRotation
+                    frameShape: root.soButtonFrameShape
+                    preferredButtonHeight: Math.max(30, systemIsland.height - 10)
+                    preferredButtonWidth: root.soButtonFrameShape === "square"
+                        ? Math.max(40, systemIsland.height - 8)
+                        : Math.max(44, root.soButtonWidth)
 
                     // Clic corto: ventanas abiertas. Mantener unos 400 ms:
                     // lanzador de muestra. El clic de soltado NO debe activar
