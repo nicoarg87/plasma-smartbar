@@ -34,6 +34,9 @@ Window {
     property real cropZoom: 1
     property real cropPanX: 0
     property real cropPanY: 0
+    property real cropRotation: 0
+    property string soButtonFrameShape: "square"
+    property real soButtonWidth: 80
     property bool enableGif: true
     readonly property url selectedImage: logoMode === "text" ? "" :
         (logoMode === "custom" && filePath.length > 0 ? filePath : defaultImage)
@@ -63,12 +66,24 @@ Window {
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
     property bool alignedRight: true
+    property real panelHeight: 48
+    property real soledadHeight: 44
+    property real malvinaHeight: 44
+    property real soledadRadius: 22
+    property real malvinaRadius: 22
+    property real soledadMinWidth: 0
+    property real malvinaWidth: 52
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
 
     signal saveLogoRequested(string mode, string path, string shape,
                              string fitMode, real zoom, real panX,
-                             real panY, bool animate)
+                             real panY, bool animate, real rotation)
+    signal saveGeometryRequested(real panel, real soledadHeight,
+                                 real malvinaHeight, real soledadRadius,
+                                 real malvinaRadius, real soledadWidth,
+                                 real malvinaWidth, string buttonShape,
+                                 real buttonWidth)
     signal saveAppearanceRequested(string soColor, real soOpacity,
                                    string malColor, real malOpacity,
                                    bool backgroundShown, string bgColor,
@@ -94,7 +109,12 @@ Window {
     }
     function applyChanges() {
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
-                          cropZoom, cropPanX, cropPanY, enableGif)
+                          cropZoom, cropPanX, cropPanY, enableGif, cropRotation)
+        saveGeometryRequested(panelHeight,
+                              Math.min(soledadHeight, panelHeight - 4),
+                              Math.min(malvinaHeight, panelHeight - 4),
+                              soledadRadius, malvinaRadius, soledadMinWidth,
+                              malvinaWidth, soButtonFrameShape, soButtonWidth)
         saveAppearanceRequested(toHex(soledadColor), soledadOpacity,
                                 toHex(malvinaColor), malvinaOpacity,
                                 showBackground, toHex(backgroundColor),
@@ -153,10 +173,11 @@ Window {
             id: tabs
             Layout.fillWidth: true
             QQC2.TabButton { text: "Logo SO"; width: implicitWidth }
-            QQC2.TabButton { text: "Apariencia"; width: implicitWidth }
             QQC2.TabButton { text: "Contorno"; width: implicitWidth }
-            QQC2.TabButton { text: "Autocontracción"; width: implicitWidth }
+            QQC2.TabButton { text: "Apariencia"; width: implicitWidth }
             QQC2.TabButton { text: "Islas y posición"; width: implicitWidth }
+            QQC2.TabButton { text: "Autocontracción"; width: implicitWidth }
+            QQC2.TabButton { text: "Acerca de"; width: implicitWidth }
         }
 
         StackLayout {
@@ -193,7 +214,9 @@ Window {
                             imageUrl: settings.selectedImage
                             animateGif: settings.isGif
                             animationAllowed: settings.enableGif
-                            cropShape: settings.shape
+                            cropShape: settings.soButtonFrameShape === "square"
+                                ? settings.shape : settings.soButtonFrameShape
+                            imageRotation: settings.cropRotation
                             fitMode: settings.cropFitMode
                             zoom: settings.cropZoom
                             panX: settings.cropPanX
@@ -299,14 +322,69 @@ Window {
                             onMoved: settings.cropPanY = value
                         }
                     }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Rotación"; color: "white"; Layout.preferredWidth: 90 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: -180; to: 180; stepSize: 1
+                            value: settings.cropRotation
+                            onMoved: settings.cropRotation = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.cropRotation) + "°"
+                            color: "white"
+                            Layout.preferredWidth: 52
+                        }
+                    }
+                    QQC2.Label { text: "Formato del botón SO"; color: "white"; font.bold: true }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Cuadrado", "Rectángulo recto", "Rectángulo redondeado",
+                                "Cápsula horizontal", "Óvalo horizontal"]
+                        currentIndex: ["square","rectangle","rounded","capsule","oval"]
+                            .indexOf(settings.soButtonFrameShape)
+                        onActivated: function(i) {
+                            settings.soButtonFrameShape =
+                                ["square","rectangle","rounded","capsule","oval"][i]
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        enabled: settings.soButtonFrameShape !== "square"
+                        QQC2.Label { text: "Ancho SO"; color: "white"; Layout.preferredWidth: 90 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 44; to: 180; stepSize: 2
+                            value: settings.soButtonWidth
+                            onMoved: settings.soButtonWidth = value
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.soButtonWidth) + " px"
+                            color: "white"
+                            Layout.preferredWidth: 56
+                        }
+                    }
+                    QQC2.Label {
+                        text: "El formato horizontal determina también la máscara y el borde. En el modo cuadrado se utiliza la forma de recorte elegida arriba."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
                     QQC2.CheckBox {
                         text: "Reproducir GIF animados"
                         checked: settings.enableGif
                         onToggled: settings.enableGif = checked
                     }
                     QQC2.Button {
-                        text: "Restablecer encuadre"
+                        text: "Restablecer logo y formato"
                         onClicked: {
+                            settings.logoMode = "default"
+                            settings.filePath = ""
+                            settings.soButtonFrameShape = "square"
+                            settings.soButtonWidth = 80
+                            settings.cropRotation = 0
+                            settings.enableGif = true
                             settings.cropZoom = 1
                             settings.cropPanX = 0
                             settings.cropPanY = 0
@@ -317,95 +395,7 @@ Window {
                 }
             }
 
-            // 2. Apariencia: las islas mantienen sus preferencias independientes.
-            QQC2.ScrollView {
-                id: appearanceScroll
-                clip: true
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
-                ColumnLayout {
-                    width: appearanceScroll.availableWidth - 8
-                    spacing: 14
-                    QQC2.Label {
-                        text: "Colores y transparencia"
-                        font.bold: true
-                        color: "white"
-                    }
-                    QQC2.Label {
-                        text: "Elegí Soledad, Malvina o el fondo continuo opcional."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.ComboBox {
-                        id: appearanceTarget
-                        Layout.fillWidth: true
-                        model: ["Soledad (isla 1)", "Malvina (isla 2)", "Fondo opcional"]
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Rectangle {
-                            width: 54
-                            height: 42
-                            radius: 8
-                            border.color: "#abc4d1"
-                            color: Qt.rgba(settings.activeColor.r, settings.activeColor.g,
-                                           settings.activeColor.b, settings.activeOpacity)
-                        }
-                        QQC2.Button {
-                            text: "Elegir color…"
-                            onClicked: {
-                                islandColorDialog.editingTarget = appearanceTarget.currentIndex
-                                islandColorDialog.selectedColor = settings.activeColor
-                                islandColorDialog.open()
-                            }
-                        }
-                        QQC2.Label {
-                            text: settings.toHex(settings.activeColor)
-                            color: "#eeeaf7"
-                        }
-                    }
-                    QQC2.Label { text: "Opacidad"; color: "white" }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0; to: 1; stepSize: 0.05
-                            value: settings.activeOpacity
-                            onMoved: settings.chooseOpacity(value)
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.activeOpacity * 100) + "%"
-                            color: "white"
-                            Layout.preferredWidth: 65
-                        }
-                    }
-                    QQC2.CheckBox {
-                        text: "Mostrar fondo continuo opcional"
-                        checked: settings.showBackground
-                        onToggled: settings.showBackground = checked
-                    }
-                    QQC2.Label {
-                        text: "El fondo está desactivado por defecto. No cambia la altura ni reemplaza una isla."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Button {
-                        text: "Restablecer colores"
-                        onClicked: {
-                            settings.soledadColor = "#101e31"
-                            settings.malvinaColor = "#101e31"
-                            settings.backgroundColor = "#202333"
-                            settings.soledadOpacity = 1
-                            settings.malvinaOpacity = 1
-                            settings.backgroundOpacity = 0.5
-                            settings.showBackground = false
-                        }
-                    }
-                }
-            }
-
-            // 3. Contorno: solo si hay ventanas, respetando forma y rendimiento.
+            // 2. Contorno: solo si hay ventanas, respetando forma y rendimiento.
             QQC2.ScrollView {
                 id: outlineScroll
                 clip: true
@@ -431,6 +421,10 @@ Window {
                             iconAnimated: settings.isGif
                             iconAnimationEnabled: settings.enableGif
                             iconShape: settings.shape
+                            frameShape: settings.soButtonFrameShape
+                            preferredButtonWidth: settings.soButtonFrameShape === "square" ? 40 : settings.soButtonWidth
+                            preferredButtonHeight: Math.max(30, Math.min(settings.soledadHeight, settings.panelHeight - 4) - 10)
+                            iconRotation: settings.cropRotation
                             iconFitMode: settings.cropFitMode
                             iconZoom: settings.cropZoom
                             iconPanX: settings.cropPanX
@@ -520,51 +514,95 @@ Window {
                 }
             }
 
-            // 4. Autocontracción: preferencias distintas; sin temporizador.
+            // 3. Apariencia: las islas mantienen sus preferencias independientes.
             QQC2.ScrollView {
-                id: collapseScroll
+                id: appearanceScroll
                 clip: true
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: collapseScroll.availableWidth - 8
-                    spacing: 16
+                    width: appearanceScroll.availableWidth - 8
+                    spacing: 14
                     QQC2.Label {
-                        text: "Autocontracción"
+                        text: "Colores y transparencia"
                         font.bold: true
                         color: "white"
                     }
+                    QQC2.Label {
+                        text: "Elegí Soledad, Malvina o el fondo continuo opcional."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.ComboBox {
+                        id: appearanceTarget
+                        Layout.fillWidth: true
+                        model: ["Soledad (isla 1)", "Malvina (isla 2)", "Fondo opcional"]
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Rectangle {
+                            width: 54
+                            height: 42
+                            radius: 8
+                            border.color: "#abc4d1"
+                            color: Qt.rgba(settings.activeColor.r, settings.activeColor.g,
+                                           settings.activeColor.b, settings.activeOpacity)
+                        }
+                        QQC2.Button {
+                            text: "Elegir color…"
+                            onClicked: {
+                                islandColorDialog.editingTarget = appearanceTarget.currentIndex
+                                islandColorDialog.selectedColor = settings.activeColor
+                                islandColorDialog.open()
+                            }
+                        }
+                        QQC2.Label {
+                            text: settings.toHex(settings.activeColor)
+                            color: "#eeeaf7"
+                        }
+                    }
+                    QQC2.Label { text: "Opacidad"; color: "white" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.activeOpacity
+                            onMoved: settings.chooseOpacity(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.activeOpacity * 100) + "%"
+                            color: "white"
+                            Layout.preferredWidth: 65
+                        }
+                    }
                     QQC2.CheckBox {
-                        text: "SO: contraer después de elegir una ventana"
-                        checked: settings.autoCollapseSO
-                        onToggled: settings.autoCollapseSO = checked
+                        text: "Mostrar fondo continuo opcional"
+                        checked: settings.showBackground
+                        onToggled: settings.showBackground = checked
                     }
                     QQC2.Label {
-                        text: "Activado por defecto. Podés dejar SO abierto desmarcando esta opción."
+                        text: "El fondo está desactivado por defecto. No cambia la altura ni reemplaza una isla."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
-                    QQC2.CheckBox {
-                        text: "Bandeja: contraer después de utilizar un icono"
-                        checked: settings.autoCollapseTray
-                        onToggled: settings.autoCollapseTray = checked
-                    }
-                    QQC2.Label {
-                        text: "Desactivado por defecto. La apertura del lanzador no contrae ninguna sección."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label {
-                        text: "Sin temporizador de inactividad: el cierre solo se dispara por la acción aprobada o por falta de espacio."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
+                    QQC2.Button {
+                        text: "Restablecer colores"
+                        onClicked: {
+                            settings.soledadColor = "#101e31"
+                            settings.malvinaColor = "#101e31"
+                            settings.backgroundColor = "#202333"
+                            settings.soledadOpacity = 1
+                            settings.malvinaOpacity = 1
+                            settings.backgroundOpacity = 0.5
+                            settings.showBackground = false
+                        }
                     }
                 }
             }
 
-            // 5. Opciones actuales de isla y posición, sin añadir isla extra.
+            // 4. Islas y posición de isla y posición, sin añadir isla extra.
             QQC2.ScrollView {
                 id: positionScroll
                 clip: true
@@ -618,6 +656,218 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label { text: "Geometría de las islas"; color: "white"; font.bold: true }
+                    QQC2.Label {
+                        text: "La altura elegida es constante durante el uso. Las dos islas pueden tener medidas y esquinas diferentes."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Altura general"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 40; to: 120; stepSize: 2
+                            value: settings.panelHeight
+                            onMoved: settings.panelHeight = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.panelHeight) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Altura Soledad"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 32; to: 120; stepSize: 2
+                            value: settings.soledadHeight
+                            onMoved: settings.soledadHeight = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.soledadHeight) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Altura Malvina"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 32; to: 120; stepSize: 2
+                            value: settings.malvinaHeight
+                            onMoved: settings.malvinaHeight = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.malvinaHeight) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Esquinas Soledad"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 60; stepSize: 2
+                            value: settings.soledadRadius
+                            onMoved: settings.soledadRadius = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.soledadRadius) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Esquinas Malvina"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 60; stepSize: 2
+                            value: settings.malvinaRadius
+                            onMoved: settings.malvinaRadius = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.malvinaRadius) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Ancho mínimo Soledad"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 420; stepSize: 2
+                            value: settings.soledadMinWidth
+                            onMoved: settings.soledadMinWidth = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: settings.soledadMinWidth === 0 ? "Auto" : Math.round(settings.soledadMinWidth) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Ancho Malvina"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 52; to: 220; stepSize: 2
+                            value: settings.malvinaWidth
+                            onMoved: settings.malvinaWidth = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.malvinaWidth) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Si la altura de una isla supera la altura general, se limita al espacio disponible. El ancho mínimo de Soledad no reemplaza la expansión automática de fichas."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Restablecer islas y posición"
+                        onClicked: {
+                            settings.launcherIslandVisible = true
+                            settings.autoReturnRight = true
+                            settings.alignedRight = true
+                            settings.alignmentEdited = true
+                            settings.panelHeight = 48
+                            settings.soledadHeight = 44
+                            settings.malvinaHeight = 44
+                            settings.soledadRadius = 22
+                            settings.malvinaRadius = 22
+                            settings.soledadMinWidth = 0
+                            settings.malvinaWidth = 52
+                        }
+                    }
+                }
+            }
+            // 5. Autocontracción: preferencias distintas; sin temporizador.
+            QQC2.ScrollView {
+                id: collapseScroll
+                clip: true
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                ColumnLayout {
+                    width: collapseScroll.availableWidth - 8
+                    spacing: 16
+                    QQC2.Label {
+                        text: "Autocontracción"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.CheckBox {
+                        text: "SO: contraer después de elegir una ventana"
+                        checked: settings.autoCollapseSO
+                        onToggled: settings.autoCollapseSO = checked
+                    }
+                    QQC2.Label {
+                        text: "Activado por defecto. Podés dejar SO abierto desmarcando esta opción."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.CheckBox {
+                        text: "Bandeja: contraer después de utilizar un icono"
+                        checked: settings.autoCollapseTray
+                        onToggled: settings.autoCollapseTray = checked
+                    }
+                    QQC2.Label {
+                        text: "Desactivado por defecto. La apertura del lanzador no contrae ninguna sección."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Sin temporizador de inactividad: el cierre solo se dispara por la acción aprobada o por falta de espacio."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Restablecer autocontracción"
+                        onClicked: {
+                            settings.autoCollapseSO = true
+                            settings.autoCollapseTray = false
+                        }
+                    }
+                }
+            }
+
+            // 6. Acerca de: sin datos personales inferidos ni enlaces inventados.
+            QQC2.ScrollView {
+                id: aboutScroll
+                clip: true
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                ColumnLayout {
+                    width: aboutScroll.availableWidth - 8
+                    spacing: 16
+                    QQC2.Label {
+                        text: "Acerca de Plasma SmartBar"
+                        color: "white"; font.bold: true; font.pixelSize: 18
+                    }
+                    QQC2.Label { text: "Autor: NicoR87"; color: "white" }
+                    QQC2.Label { text: "Proyecto libre · Licencia GPL-3.0"; color: "white" }
+                    QQC2.Label {
+                        text: "Repositorio oficial: github.com/nicoarg87/plasma-smartbar"
+                        color: "#9bdfff"
+                        wrapMode: Text.WrapAnywhere
+                        Layout.fillWidth: true
+                    }
+                    QQC2.Button {
+                        text: "Abrir repositorio oficial"
+                        onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar")
+                    }
+                    QQC2.Label {
+                        text: "Correo de contacto: pendiente de confirmar."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Apoyar el proyecto: enlace de donaciones pendiente."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "No se publica ningún enlace de PayPal o Cafecito hasta que el mantenedor confirme el enlace exacto."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                     }
                 }
             }
