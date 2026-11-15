@@ -858,6 +858,16 @@ Window {
                         onClicked: Qt.openUrlExternally("mailto:nicoarg87@gmail.com")
                     }
                     QQC2.Label {
+                        text: "Repositorio oficial: github.com/nicoarg87/plasma-smartbar"
+                        color: "#9bdfff"
+                        wrapMode: Text.WrapAnywhere
+                        Layout.fillWidth: true
+                    }
+                    QQC2.Button {
+                        text: "Abrir repositorio oficial"
+                        onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar")
+                    }
+                    QQC2.Label {
                         text: "Plasma SmartBar es software libre publicado bajo la Licencia Pública General de GNU, versión 3 (GNU GPL-3.0). Puede utilizarse, estudiarse, modificarse y redistribuirse bajo los términos de esa licencia."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
@@ -874,16 +884,7 @@ Window {
                         text: "Leer licencia GNU GPL versión 3"
                         onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar/blob/main/LICENSE")
                     }
-                    QQC2.Label {
-                        text: "Repositorio oficial: github.com/nicoarg87/plasma-smartbar"
-                        color: "#9bdfff"
-                        wrapMode: Text.WrapAnywhere
-                        Layout.fillWidth: true
-                    }
-                    QQC2.Button {
-                        text: "Abrir repositorio oficial"
-                        onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar")
-                    }
+
                 }
             }
         }
