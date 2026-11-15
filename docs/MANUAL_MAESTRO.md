@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.36 — Contacto de consultas y ausencia de garantía en Acerca de  
+**Versión:** 0.37 — Identidad pública de autor corregida a nicoarg87  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -855,7 +855,7 @@ Se debe verificar en **CachyOS, sin sustituir el panel habitual**, apertura bajo
 
 Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los valores iniciales (Logo: logo original, forma cuadrada, rotación 0°; Contorno: borde fijo opcional, color y grosor iniciales; Apariencia: colores/opacidad iniciales; Islas y posición: alturas 48/44/44, radios 22/22, anchos automático/52 y posicionamiento inicial; Autocontracción: SO sí y bandeja no). El botón principal **Aplicar** mantiene la ventana abierta y guarda; **Cerrar** cierra. «Mover isla 1 a la derecha AHORA» sigue actuando sin esperar Aplicar. «Acerca de» no tiene Restablecer porque no edita preferencias.
 
-**Acerca de:** presentar **Plasma SmartBar**, autor público **NicoR87**, correo para consultas **nicoarg87@gmail.com** (confirmado explícitamente por el mantenedor), licencia **GNU GPL versión 3** y repositorio oficial `nicoarg87/plasma-smartbar`. Un botón «Enviar una consulta por correo» abre el cliente de correo mediante `mailto:`. Mostrar un aviso visible: **«SIN NINGUNA GARANTÍA»**, aclarando que no se ofrece garantía de comerciabilidad ni de aptitud para un propósito determinado, en la medida permitida por la ley, y vincular el archivo oficial [LICENSE](../LICENSE) con el texto completo de la GPL v3. **No mostrar referencias ni botones PayPal/Cafecito por ahora**, a solicitud expresa del mantenedor. No exponer más información personal.
+**Acerca de:** presentar **Plasma SmartBar**, autor público **nicoarg87**, correo para consultas **nicoarg87@gmail.com** (confirmado explícitamente por el mantenedor), licencia **GNU GPL versión 3** y repositorio oficial `nicoarg87/plasma-smartbar`. Un botón «Enviar una consulta por correo» abre el cliente de correo mediante `mailto:`. Mostrar un aviso visible: **«SIN NINGUNA GARANTÍA»**, aclarando que no se ofrece garantía de comerciabilidad ni de aptitud para un propósito determinado, en la medida permitida por la ley, y vincular el archivo oficial [LICENSE](../LICENSE) con el texto completo de la GPL v3. **No mostrar referencias ni botones PayPal/Cafecito por ahora**, a solicitud expresa del mantenedor. No exponer más información personal.
 
 **Diferido sin implementación:** nuevos iconos personalizables de bandeja y del agarre, subpestañas anidadas de iconos y opción para añadir isla extra. No redefinir isla 3 ni alterar funciones previas sin aprobación.
 
