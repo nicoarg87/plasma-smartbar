@@ -73,6 +73,10 @@ Window {
     property real malvinaRadius: 22
     property real soledadMinWidth: 0
     property real malvinaWidth: 52
+    property string soledadShape: "leftRoundRightSquare"
+    property string malvinaShape: "rounded"
+    property string gripShape: "square"
+    property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
 
@@ -83,7 +87,9 @@ Window {
                                  real malvinaHeight, real soledadRadius,
                                  real malvinaRadius, real soledadWidth,
                                  real malvinaWidth, string buttonShape,
-                                 real buttonWidth)
+                                 real buttonWidth, string soShape,
+                                 string malShape, string gripButtonShape,
+                                 string trayShape)
     signal saveAppearanceRequested(string soColor, real soOpacity,
                                    string malColor, real malOpacity,
                                    bool backgroundShown, string bgColor,
@@ -114,7 +120,9 @@ Window {
                               Math.min(soledadHeight, panelHeight - 4),
                               Math.min(malvinaHeight, panelHeight - 4),
                               soledadRadius, malvinaRadius, soledadMinWidth,
-                              malvinaWidth, soButtonFrameShape, soButtonWidth)
+                              malvinaWidth, soButtonFrameShape, soButtonWidth,
+                              soledadShape, malvinaShape, gripShape,
+                              trayButtonShape)
         saveAppearanceRequested(toHex(soledadColor), soledadOpacity,
                                 toHex(malvinaColor), malvinaOpacity,
                                 showBackground, toHex(backgroundColor),
@@ -657,6 +665,60 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    QQC2.Label {
+                        text: "Terminaciones visuales"
+                        color: "white"; font.bold: true
+                    }
+                    QQC2.Label {
+                        text: "Soledad: el modelo inicial conserva la izquierda redondeada y termina recto a la derecha."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label { text: "Forma de Soledad"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Izquierda redondeada / derecha recta (inicial)",
+                                "Toda redondeada", "Toda cuadrada",
+                                "Izquierda recta / derecha redondeada",
+                                "Punta triangular izquierda / derecha recta"]
+                        currentIndex: ["leftRoundRightSquare","rounded","square",
+                                       "leftSquareRightRound","leftTip"]
+                            .indexOf(settings.soledadShape)
+                        onActivated: function(i) {
+                            settings.soledadShape = ["leftRoundRightSquare","rounded",
+                                "square","leftSquareRightRound","leftTip"][i]
+                        }
+                    }
+                    QQC2.Label { text: "Forma de Malvina"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Redondeada (inicial)", "Cuadrada",
+                                "Izquierda redondeada / derecha recta",
+                                "Izquierda recta / derecha redondeada"]
+                        currentIndex: ["rounded","square","leftRoundRightSquare",
+                                       "leftSquareRightRound"].indexOf(settings.malvinaShape)
+                        onActivated: function(i) {
+                            settings.malvinaShape = ["rounded","square",
+                                "leftRoundRightSquare","leftSquareRightRound"][i]
+                        }
+                    }
+                    QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Cuadrado (inicial)", "Redondeado"]
+                        currentIndex: settings.gripShape === "rounded" ? 1 : 0
+                        onActivated: function(i) {
+                            settings.gripShape = i === 1 ? "rounded" : "square"
+                        }
+                    }
+                    QQC2.Label { text: "Botón de bandeja simulada"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Redondeado (inicial)", "Cuadrado"]
+                        currentIndex: settings.trayButtonShape === "square" ? 1 : 0
+                        onActivated: function(i) {
+                            settings.trayButtonShape = i === 1 ? "square" : "rounded"
+                        }
+                    }
                     QQC2.Label { text: "Geometría de las islas"; color: "white"; font.bold: true }
                     QQC2.Label {
                         text: "La altura elegida es constante durante el uso. Las dos islas pueden tener medidas y esquinas diferentes."
@@ -778,6 +840,10 @@ Window {
                             settings.malvinaRadius = 22
                             settings.soledadMinWidth = 0
                             settings.malvinaWidth = 52
+                            settings.soledadShape = "leftRoundRightSquare"
+                            settings.malvinaShape = "rounded"
+                            settings.gripShape = "square"
+                            settings.trayButtonShape = "rounded"
                         }
                     }
                 }
