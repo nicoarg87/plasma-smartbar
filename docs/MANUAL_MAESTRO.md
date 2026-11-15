@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.37 — Identidad pública de autor corregida a nicoarg87  
+**Versión:** 0.38 — Terminaciones de islas, agarre cuadrado y orden de Acerca de  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -860,3 +860,19 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 **Diferido sin implementación:** nuevos iconos personalizables de bandeja y del agarre, subpestañas anidadas de iconos y opción para añadir isla extra. No redefinir isla 3 ni alterar funciones previas sin aprobación.
 
 **IMPLEMENTADO A NIVEL QML EXPERIMENTAL, NO PROBADO EN CACHYOS TRAS ESTOS CAMBIOS:** `LogoArtwork.qml` (giro foto/GIF y máscaras nuevas), `IslandButton.qml` y `SoActivityOutline.qml` (formas de botón, ancho y contorno), `SmartBarContent.qml` (alto general/geometría de islas), `SoledadSettings.qml` (pestañas, sliders y Restablecer), `main.xml` (valores KConfig), `main.qml` (configuración prevista para plasmoide) y `preview_redimensionable.qml` (configuración de sesión del ensayo). El contenedor Plasma puede controlar el alto del panel y esa integración no se ha validado; no sustituir el panel existente del usuario. Criterios de prueba en `prototype/v0.1/README.md`. Seguimiento en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+## 47. Opciones de terminación visual y orden de Acerca de (v0.38, 15/11/2026)
+
+**CAMBIOS APROBADOS POR EL MANTENEDOR TRAS PROBAR EL MENÚ:**
+
+**Acerca de:** la información debe aparecer en orden previsible: (1) nombre del proyecto y autor **nicoarg87**; (2) correo de contacto **nicoarg87@gmail.com** y botón para preparar consulta por email; (3) URL del **repositorio oficial GitHub** y botón para abrirlo; (4) explicación de la licencia **GNU GPL versión 3**; (5) aviso destacado **SIN NINGUNA GARANTÍA**, incluyendo ausencia de garantía de comerciabilidad y de adecuación para propósito particular, en la medida legal aplicable, y acceso a [LICENSE](../LICENSE). Sin PayPal, Cafecito ni mensajes de donación.
+
+**Forma predeterminada de isla 1 (Soledad):** lado **izquierdo redondeado** y lado **derecho cuadrado/recto**; el botón de **seis puntos** debe ser **cuadrado** inicialmente. Las formas son personalizables: Soledad ofrece redondeada completa, cuadrada completa, redondeada izquierda/recta derecha, recta izquierda/redondeada derecha y punta triangular izquierda opcional (derecha recta); Malvina ofrece las cuatro opciones básicas, con redondeada completa por defecto. Las opciones se ubican en la pestaña **«Islas y posición»** y se guardan por separado en las preferencias. **Restablecer islas y posición** devuelve estas formas iniciales y conserva el funcionamiento habitual de los gestos.
+
+**Botón de bandeja de sistema simulada:** además de la flecha de abrir/cerrar, se puede elegir una presentación **redondeada (inicial)** o **cuadrada**, sin cambiar la función del clic ni los iconos de ejemplo. El agarre puede alternar entre cuadrado (inicial) y redondeado. El reemplazo de flechas, iconos personalizados y submenús internos avanzados **permanece diferido**, al igual que añadir isla extra. Se mantiene el ancho configurable del botón SO, su forma y la rotación de imágenes/GIF.
+
+**Punta triangular izquierda:** se añadió como formato opcional de ensayo. La isla reserva ancho adicional, dibuja el fondo mediante `Canvas` solo cuando esa forma está seleccionada, y mantiene la flecha de bandeja en la zona amplia, fuera de la punta. Es una **implementación experimental** que necesita comprobar tamaño, clics, foco, accesibilidad y desplazamiento sin superponer ni tapar elementos. No se activa por defecto.
+
+**Aspectos técnicos y compatibilidad:** Qt 6.7 introdujo `Rectangle.topLeftRadius`, `topRightRadius`, `bottomLeftRadius` y `bottomRightRadius`, pero Qt 6.8 aún los documenta como tecnología preliminar; los estados de selección y guardado están conectados en `SmartBarContent.qml`, `SoledadSettings.qml`, el visor Qt, el envoltorio Plasma y KConfig. **La existencia de código y los chequeos estáticos NO demuestran funcionamiento en CachyOS/Wayland**. No instalar sobre el panel existente, mantener [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador e [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) abierto hasta que el mantenedor verifique.
+
+**Prueba reversible:** desde la rama `prototype/v0.1-islas-so`, actualizar con Git y ejecutar `bash prototype/v0.1/probar_ancho.sh`. Comparar forma inicial, opciones cuadradas/redondeadas/mixtas/triangular, botón de bandeja y agarre, arrastre de ida/vuelta, menú de seis puntos, SO/bandeja en una sola fila, seis pestañas y botón Restablecer, sin mover controles de ventana ni cambiar el grosor durante el uso.
