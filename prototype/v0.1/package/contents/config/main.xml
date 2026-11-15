@@ -38,6 +38,11 @@
     <entry name="malvinaRadius" type="Double"><default>22</default></entry>
     <entry name="soledadMinWidth" type="Double"><default>0</default></entry>
     <entry name="malvinaWidth" type="Double"><default>52</default></entry>
+    <!-- Preajustes visuales; el usuario puede mantener el radio individual. -->
+    <entry name="soledadShape" type="String"><default>leftRoundRightSquare</default></entry>
+    <entry name="malvinaShape" type="String"><default>rounded</default></entry>
+    <entry name="gripShape" type="String"><default>square</default></entry>
+    <entry name="trayButtonShape" type="String"><default>rounded</default></entry>
     <entry name="soButtonFrameShape" type="String"><default>square</default></entry>
     <entry name="soButtonWidth" type="Double"><default>80</default></entry>
     <entry name="soledadColor" type="String"><default>#101e31</default></entry>
