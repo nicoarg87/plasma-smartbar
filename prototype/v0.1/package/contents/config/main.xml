@@ -29,6 +29,17 @@
     <entry name="soLogoPanX" type="Double"><default>0.0</default></entry>
     <entry name="soLogoPanY" type="Double"><default>0.0</default></entry>
     <entry name="soLogoAnimate" type="Bool"><default>true</default></entry>
+    <entry name="soLogoRotation" type="Double"><default>0</default></entry>
+    <!-- Alto configurado por usuario, constante durante cada interacción. -->
+    <entry name="panelHeight" type="Double"><default>48</default></entry>
+    <entry name="soledadHeight" type="Double"><default>44</default></entry>
+    <entry name="malvinaHeight" type="Double"><default>44</default></entry>
+    <entry name="soledadRadius" type="Double"><default>22</default></entry>
+    <entry name="malvinaRadius" type="Double"><default>22</default></entry>
+    <entry name="soledadMinWidth" type="Double"><default>0</default></entry>
+    <entry name="malvinaWidth" type="Double"><default>52</default></entry>
+    <entry name="soButtonFrameShape" type="String"><default>square</default></entry>
+    <entry name="soButtonWidth" type="Double"><default>80</default></entry>
     <entry name="soledadColor" type="String"><default>#101e31</default></entry>
     <entry name="malvinaColor" type="String"><default>#101e31</default></entry>
     <entry name="backgroundColor" type="String"><default>#202333</default></entry>
