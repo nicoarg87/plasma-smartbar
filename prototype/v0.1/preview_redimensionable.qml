@@ -27,7 +27,17 @@ Window {
     property real demoSoLogoZoom: 1
     property real demoSoLogoPanX: 0
     property real demoSoLogoPanY: 0
+    property real demoSoLogoRotation: 0
     property bool demoSoLogoAnimate: true
+    property real demoPanelHeight: 48
+    property real demoSoledadHeight: 44
+    property real demoMalvinaHeight: 44
+    property real demoSoledadRadius: 22
+    property real demoMalvinaRadius: 22
+    property real demoSoledadMinWidth: 0
+    property real demoMalvinaWidth: 52
+    property string demoSoButtonFrameShape: "square"
+    property real demoSoButtonWidth: 80
     property color demoSoledadColor: "#101e31"
     property color demoMalvinaColor: "#101e31"
     property color demoBackgroundColor: "#202333"
@@ -46,6 +56,15 @@ Window {
         anchors.right: parent.right
         anchors.top: parent.top
         height: fixedHeight
+        panelHeight: previewWindow.demoPanelHeight
+        soledadHeight: previewWindow.demoSoledadHeight
+        malvinaHeight: previewWindow.demoMalvinaHeight
+        soledadRadius: previewWindow.demoSoledadRadius
+        malvinaRadius: previewWindow.demoMalvinaRadius
+        soledadMinWidth: previewWindow.demoSoledadMinWidth
+        malvinaWidth: previewWindow.demoMalvinaWidth
+        soButtonFrameShape: previewWindow.demoSoButtonFrameShape
+        soButtonWidth: previewWindow.demoSoButtonWidth
 
         autoReturnRight: previewWindow.demoAutoReturnRight
         launcherIslandVisible: previewWindow.demoLauncherIslandVisible
@@ -58,6 +77,7 @@ Window {
         soLogoZoom: previewWindow.demoSoLogoZoom
         soLogoPanX: previewWindow.demoSoLogoPanX
         soLogoPanY: previewWindow.demoSoLogoPanY
+        soLogoRotation: previewWindow.demoSoLogoRotation
         soLogoAnimate: previewWindow.demoSoLogoAnimate
         soledadColor: previewWindow.demoSoledadColor
         malvinaColor: previewWindow.demoMalvinaColor
@@ -76,7 +96,7 @@ Window {
             previewWindow.demoSoActivityStroke = stroke
             previewWindow.demoSoActivityMotion = allowMotion
         }
-        onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif) {
+        onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             previewWindow.demoSoLogoMode = mode
             previewWindow.demoSoLogoPath = path
             previewWindow.demoSoLogoShape = shape
@@ -85,6 +105,19 @@ Window {
             previewWindow.demoSoLogoPanX = panX
             previewWindow.demoSoLogoPanY = panY
             previewWindow.demoSoLogoAnimate = allowGif
+            previewWindow.demoSoLogoRotation = rotation
+        }
+        onRequestGeometryChange: function(panel, soH, malH, soRadius, malRadius,
+                                          soWidth, malWidth, buttonShape, buttonWidth) {
+            previewWindow.demoPanelHeight = panel
+            previewWindow.demoSoledadHeight = soH
+            previewWindow.demoMalvinaHeight = malH
+            previewWindow.demoSoledadRadius = soRadius
+            previewWindow.demoMalvinaRadius = malRadius
+            previewWindow.demoSoledadMinWidth = soWidth
+            previewWindow.demoMalvinaWidth = malWidth
+            previewWindow.demoSoButtonFrameShape = buttonShape
+            previewWindow.demoSoButtonWidth = buttonWidth
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
             previewWindow.demoSoledadColor = a
