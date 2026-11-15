@@ -833,7 +833,8 @@ Window {
                 }
             }
 
-            // 6. Acerca de: sin datos personales inferidos ni enlaces inventados.
+            // 6. Acerca de: contacto publicado con autorización del
+            // mantenedor. Sin botones ni referencias a donaciones.
             QQC2.ScrollView {
                 id: aboutScroll
                 clip: true
@@ -846,7 +847,33 @@ Window {
                         color: "white"; font.bold: true; font.pixelSize: 18
                     }
                     QQC2.Label { text: "Autor: NicoR87"; color: "white" }
-                    QQC2.Label { text: "Proyecto libre · Licencia GPL-3.0"; color: "white" }
+                    QQC2.Label {
+                        text: "Contacto para consultas: nicoarg87@gmail.com"
+                        color: "white"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WrapAnywhere
+                    }
+                    QQC2.Button {
+                        text: "Enviar una consulta por correo"
+                        onClicked: Qt.openUrlExternally("mailto:nicoarg87@gmail.com")
+                    }
+                    QQC2.Label {
+                        text: "Plasma SmartBar es software libre publicado bajo la Licencia Pública General de GNU, versión 3 (GNU GPL-3.0). Puede utilizarse, estudiarse, modificarse y redistribuirse bajo los términos de esa licencia."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "SIN NINGUNA GARANTÍA: el programa se distribuye tal cual, sin garantía de comerciabilidad ni de adecuación para un propósito particular, en la medida permitida por la legislación aplicable. Consultá el texto completo de la GNU GPL v3."
+                        color: "#ffd6aa"
+                        font.bold: true
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Leer licencia GNU GPL versión 3"
+                        onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar/blob/main/LICENSE")
+                    }
                     QQC2.Label {
                         text: "Repositorio oficial: github.com/nicoarg87/plasma-smartbar"
                         color: "#9bdfff"
@@ -856,18 +883,6 @@ Window {
                     QQC2.Button {
                         text: "Abrir repositorio oficial"
                         onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar")
-                    }
-                    QQC2.Label {
-                        text: "Correo de contacto: pendiente de confirmar."
-                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label {
-                        text: "Apoyar el proyecto: enlace de donaciones pendiente."
-                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label {
-                        text: "No se publica ningún enlace de PayPal o Cafecito hasta que el mantenedor confirme el enlace exacto."
-                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                     }
                 }
             }
