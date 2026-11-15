@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.34 — Centro de configuración de Soledad en pestañas, Aplicar sin cerrar  
+**Versión:** 0.35 — Geometría configurable de SO/islas, rotación, Restablecer y Acerca de  
 **Fecha de actualización:** 14 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
@@ -836,3 +836,27 @@ Se debe verificar en **CachyOS, sin sustituir el panel habitual**, apertura bajo
 **IMPLEMENTACIÓN EN PR #3 BORRADOR (pendiente de prueba real):** componente nuevo SoledadSettings.qml con TabBar/StackLayout y cinco ScrollView; SmartBarContent.qml centraliza la apertura, transmite las preferencias existentes a los handlers de Qt independiente o KConfig prevista. Las ventanas LogoEditor.qml, AppearanceEditor.qml y SoActivityEditor.qml siguen en el árbol como fuentes anteriores, pero **ya no se abren desde el menú de los seis puntos** ni se instancian en SmartBarContent. La ventana nueva no llama a close() al aplicar. Se debe revisar particularmente que los diálogos de elegir imagen y color funcionen, que las pestañas quepan en distintas resoluciones y que las preferencias se apliquen y conserven.
 
 **VALIDACIÓN PENDIENTE:** probar en CachyOS/KWin/Wayland, siguiendo la guía de prototype/v0.1/README.md. La ventana Qt de prueba no modifica el panel KDE del usuario ni acredita persistencia KConfig real. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5), [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) (borrador).
+
+## 46. Geometría de islas, formatos horizontales y ampliación de configuración (v0.35, 15/11/2026)
+
+**PEDIDOS CONFIRMADOS DEL MANTENEDOR:** la altura predeterminada 48 px del prototipo no es un límite inamovible; el usuario debe poder elegir **altura general y geometría de cada isla** sin que las expansiones modifiquen ese alto durante el uso. Soledad y Malvina disponen de alto, ancho y radio de esquinas configurables; Soledad conserva el ancho adaptable a las ventanas activas y puede configurar su ancho mínimo. La bandeja, las fichas y SO permanecen en **una sola fila**, expandiéndose horizontalmente hacia la izquierda, y los controles de ventana conservan anclaje independiente.
+
+**Botón SO:** opción cuadrada actual o formatos anchos con **rectángulo recto, rectángulo redondeado, cápsula horizontal y óvalo**. El ancho se ajusta mediante un control específico y no obliga a cambiar altura de barra. Cuando se usa formato horizontal, logo y contorno luminoso toman la geometría de ese formato; en modo clásico se mantienen las cinco máscaras confirmadas (cuadrado/círculo/rombo/corazón/estrella). No se dibujan dos marcos encima. El área de clic y las ayudas deben continuar accesibles.
+
+**Rotación en el editor:** junto a zoom, horizontal y vertical se incorpora una barra de **−180° a +180°**. Imagen estática y **cada cuadro GIF** reciben el mismo giro visual, de modo no destructivo. Se almacena el ángulo por separado de forma, encuadre y escala, con retorno a **0°** mediante Restablecer.
+
+**Nuevo orden de las seis pestañas:**
+1. Logo SO (incluye formato y ancho SO, recorte, GIF, zoom y rotación).
+2. Contorno (actividad opcional y estado de ventanas).
+3. Apariencia (colores/transparencia por isla y fondo).
+4. Islas y posición (alto general e individual, ancho mínimo Soledad/ancho Malvina, radio de esquinas, visibilidad Malvina y posición).
+5. Autocontracción (SO y bandeja independientes).
+6. Acerca de (licencia, nombre, autor y enlaces confirmados).
+
+Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los valores iniciales (Logo: logo original, forma cuadrada, rotación 0°; Contorno: borde fijo opcional, color y grosor iniciales; Apariencia: colores/opacidad iniciales; Islas y posición: alturas 48/44/44, radios 22/22, anchos automático/52 y posicionamiento inicial; Autocontracción: SO sí y bandeja no). El botón principal **Aplicar** mantiene la ventana abierta y guarda; **Cerrar** cierra. «Mover isla 1 a la derecha AHORA» sigue actuando sin esperar Aplicar. «Acerca de» no tiene Restablecer porque no edita preferencias.
+
+**Acerca de:** presentar **Plasma SmartBar**, autor público **NicoR87**, licencia **GPL-3.0** y repositorio oficial `nicoarg87/plasma-smartbar`. El mantenedor está buscando el enlace de PayPal/Cafecito y todavía no ha confirmado un correo completo y sin ambigüedades: se mantienen **campos pendientes, sin enlaces de donación inventados y sin publicar datos privados adicionales**.
+
+**Diferido sin implementación:** nuevos iconos personalizables de bandeja y del agarre, subpestañas anidadas de iconos y opción para añadir isla extra. No redefinir isla 3 ni alterar funciones previas sin aprobación.
+
+**IMPLEMENTADO A NIVEL QML EXPERIMENTAL, NO PROBADO EN CACHYOS TRAS ESTOS CAMBIOS:** `LogoArtwork.qml` (giro foto/GIF y máscaras nuevas), `IslandButton.qml` y `SoActivityOutline.qml` (formas de botón, ancho y contorno), `SmartBarContent.qml` (alto general/geometría de islas), `SoledadSettings.qml` (pestañas, sliders y Restablecer), `main.xml` (valores KConfig), `main.qml` (configuración prevista para plasmoide) y `preview_redimensionable.qml` (configuración de sesión del ensayo). El contenedor Plasma puede controlar el alto del panel y esa integración no se ha validado; no sustituir el panel existente del usuario. Criterios de prueba en `prototype/v0.1/README.md`. Seguimiento en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
