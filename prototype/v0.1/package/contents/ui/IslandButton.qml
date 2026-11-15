@@ -14,6 +14,12 @@ QQC2.Button {
     property real iconZoom: 1
     property real iconPanX: 0
     property real iconPanY: 0
+    property real iconRotation: 0
+    // Sólo SO usa geometría ampliada; fichas de apps conservan medidas.
+    property real preferredButtonWidth: 0
+    property real preferredButtonHeight: 0
+    property string frameShape: "square" // square, rectangle, rounded, capsule, oval
+    readonly property string effectiveImageShape: frameShape === "square" ? iconShape : frameShape
     // SOLO Soledad conecta esto a la cantidad real de ventanas.
     // Sin ventanas se destruye el lienzo, evitando animación y consumo.
     property int activityCount: 0
@@ -22,9 +28,10 @@ QQC2.Button {
     property real activityStroke: 1.0
     property bool activityMotionAllowed: true
 
-    implicitHeight: 34
-    implicitWidth: iconSource.toString().length > 0
-        ? 40 : Math.max(40, label.implicitWidth + 18)
+    implicitHeight: preferredButtonHeight > 0 ? preferredButtonHeight : 34
+    implicitWidth: preferredButtonWidth > 0 ? preferredButtonWidth :
+        (iconSource.toString().length > 0 ? 40 :
+         Math.max(40, label.implicitWidth + 18))
     hoverEnabled: true
     focusPolicy: Qt.StrongFocus
 
@@ -35,7 +42,9 @@ QQC2.Button {
         // superpuestas (círculo + cuadrado/rombo) sobre la huella.
         // Las fichas sin imagen mantienen su aspecto habitual.
         readonly property bool showsLogo: control.iconSource.toString().length > 0
-        radius: 17
+        radius: control.frameShape === "rectangle" ? 0 :
+            (control.frameShape === "rounded" ? Math.min(12, control.height / 3) :
+             (control.frameShape === "capsule" ? control.height / 2 : 17))
         color: showsLogo ? "transparent" :
                (control.down ? "#254c61" :
                 (control.hovered ? "#24425a" :
@@ -53,17 +62,18 @@ QQC2.Button {
         Loader {
             id: iconLoader
             anchors.centerIn: parent
-            width: 28
-            height: 28
+            width: Math.max(14, control.width - 12)
+            height: Math.max(14, control.height - 6)
             active: control.iconSource.toString().length > 0
             sourceComponent: Component {
                 LogoArtwork {
-                    width: 28
-                    height: 28
+                    width: iconLoader.width
+                    height: iconLoader.height
                     imageUrl: control.iconSource
                     animateGif: control.iconAnimated
                     animationAllowed: control.iconAnimationEnabled
-                    cropShape: control.iconShape
+                    cropShape: control.effectiveImageShape
+                    imageRotation: control.iconRotation
                     fitMode: control.iconFitMode
                     zoom: control.iconZoom
                     panX: control.iconPanX
@@ -77,15 +87,15 @@ QQC2.Button {
         Loader {
             id: activityOutlineLoader
             anchors.centerIn: parent
-            width: 32
-            height: 32
+            width: Math.max(18, control.width - 8)
+            height: Math.max(18, control.height - 2)
             active: control.activityCount > 0 &&
                     control.activityEffect !== "off"
             sourceComponent: Component {
                 SoActivityOutline {
-                    width: 32
-                    height: 32
-                    shape: control.iconShape
+                    width: activityOutlineLoader.width
+                    height: activityOutlineLoader.height
+                    shape: control.effectiveImageShape
                     accentColor: control.activityColor
                     strokeSize: control.activityStroke
                     effectStyle: control.activityEffect
