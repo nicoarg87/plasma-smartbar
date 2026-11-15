@@ -88,6 +88,14 @@ El menú de los **seis puntos** debe abrir **debajo de la posición horizontal a
 
 **Estado de implementación:** nuevo `SoledadSettings.qml` y cambios de `SmartBarContent.qml` publicados **solo en PR #3 experimental**; los tres editores anteriores permanecen como archivos históricos, pero ya no se instancian al abrir configuración desde el menú. [Guía v0.1](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/README.md) actualizada; Constitución Técnica **v1.25**, Manual Maestro **v0.34**, Estado del Proyecto y ROADMAP también. **Todavía no hay prueba ejecutada después de estos cambios en CachyOS/Wayland**, y la persistencia real de KConfig sigue pendiente. Mantener issues #1/#5 y PR #3 abiertos; proteger panel KDE instalado.
 
+## 4.3. Geometría personalizable, rotación y Acerca de (15/11/2026)
+
+**DECISIONES FUNCIONALES CONFIRMADAS POSTERIORES:** el usuario puede elegir la **altura global de la barra**, constante durante la apertura de SO/bandeja, y **dimensiones y esquinas de Soledad y Malvina** por separado. El botón SO puede ser más ancho: cuadrado clásico, rectángulo de esquinas rectas, redondeado, cápsula u óvalo horizontal, con ancho ajustable. El logo foto/GIF admite control gradual de rotación, no destructivo. Sigue vigente una sola fila, controles de ventana fijos y ausencia de alteración del panel instalado.
+
+**Orden de pestañas aprobado:** Logo SO, Contorno, Apariencia, Islas y posición, Autocontracción, Acerca de. Botones **Restablecer** por cada una de las cinco pestañas editables, además de Aplicar que no cierra y Cerrar independiente. Acerca de muestra autor público **NicoR87**, GPL-3.0 y GitHub oficial; **correo completo y links de PayPal/Cafecito NO confirmados: no inventar ni publicar**. Personalización futura de agarre/bandeja y nueva isla diferidas.
+
+**ESTADO:** código creado en rama experimental [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) y enlazado con KConfig previsto y vista Qt aislada; revisión estática de enlaces y delimitadores, **SIN test real en CachyOS/Wayland de esta versión**. Constitución **v1.26**, Manual Maestro **v0.35**, Estado/ROADMAP/README actualizados. No afirmar que el panel Plasma real respeta tamaño solicitado hasta prueba. Issues #1 y #5 siguen abiertos.
+
 ## 5. Reglas del trabajo diario
 
 - Separar siempre **HECHO Y PROBADO**, **IMPLEMENTADO PERO NO PROBADO**, **PLANIFICADO** y **PROPUESTA**.
