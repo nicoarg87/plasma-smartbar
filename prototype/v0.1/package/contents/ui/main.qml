@@ -30,6 +30,10 @@ PlasmoidItem {
         malvinaRadius: Plasmoid.configuration.malvinaRadius
         soledadMinWidth: Plasmoid.configuration.soledadMinWidth
         malvinaWidth: Plasmoid.configuration.malvinaWidth
+        soledadShape: Plasmoid.configuration.soledadShape
+        malvinaShape: Plasmoid.configuration.malvinaShape
+        gripShape: Plasmoid.configuration.gripShape
+        trayButtonShape: Plasmoid.configuration.trayButtonShape
         soButtonFrameShape: Plasmoid.configuration.soButtonFrameShape
         soButtonWidth: Plasmoid.configuration.soButtonWidth
 
@@ -77,7 +81,8 @@ PlasmoidItem {
             Plasmoid.configuration.soLogoRotation = rotation
         }
         onRequestGeometryChange: function(panel, soH, malH, soRadius, malRadius,
-                                          soWidth, malWidth, buttonShape, buttonWidth) {
+                                          soWidth, malWidth, buttonShape, buttonWidth,
+                                          soShape, malShape, gripButtonShape, trayShape) {
             Plasmoid.configuration.panelHeight = panel
             Plasmoid.configuration.soledadHeight = soH
             Plasmoid.configuration.malvinaHeight = malH
@@ -87,6 +92,10 @@ PlasmoidItem {
             Plasmoid.configuration.malvinaWidth = malWidth
             Plasmoid.configuration.soButtonFrameShape = buttonShape
             Plasmoid.configuration.soButtonWidth = buttonWidth
+            Plasmoid.configuration.soledadShape = soShape
+            Plasmoid.configuration.malvinaShape = malShape
+            Plasmoid.configuration.gripShape = gripButtonShape
+            Plasmoid.configuration.trayButtonShape = trayShape
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
             Plasmoid.configuration.soledadColor = a
