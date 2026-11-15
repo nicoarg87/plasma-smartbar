@@ -846,7 +846,7 @@ Window {
                         text: "Acerca de Plasma SmartBar"
                         color: "white"; font.bold: true; font.pixelSize: 18
                     }
-                    QQC2.Label { text: "Autor: NicoR87"; color: "white" }
+                    QQC2.Label { text: "Autor: nicoarg87"; color: "white" }
                     QQC2.Label {
                         text: "Contacto para consultas: nicoarg87@gmail.com"
                         color: "white"
