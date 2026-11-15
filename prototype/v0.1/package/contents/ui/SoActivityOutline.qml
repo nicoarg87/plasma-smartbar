@@ -28,7 +28,15 @@ Canvas {
         const right = w - margin
         const bottom = h - margin
         ctx.beginPath()
-        if (shape === "circle") {
+        if (shape === "rounded") {
+            const radius = Math.min(12, (bottom - top) / 3)
+            ctx.roundedRect(left, top, right-left, bottom-top, radius, radius)
+        } else if (shape === "capsule") {
+            const radius = (bottom - top) / 2
+            ctx.roundedRect(left, top, right-left, bottom-top, radius, radius)
+        } else if (shape === "oval") {
+            ctx.ellipse(left, top, right-left, bottom-top)
+        } else if (shape === "circle") {
             ctx.arc(w/2, h/2, minSize/2 - margin, 0, Math.PI * 2)
         } else if (shape === "diamond") {
             ctx.moveTo(w/2, top)
