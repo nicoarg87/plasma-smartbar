@@ -607,3 +607,38 @@ Confirmar que la rama es prototype/v0.1-islas-so. No sobrescribir modificaciones
 7. Si aparece un fallo Qt, registrar salida de Konsole y captura. Mantener [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5) abiertos.
 
 **Estado:** implementación QML publicada en rama experimental; **NO probada todavía en CachyOS/Wayland** después de este cambio. PR #3 continúa en borrador; el panel KDE instalado permanece intacto.
+
+## Personalización de geometría, rotación y Acerca de (15/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** permitir que el botón SO sea más ancho que el cuadrado actual, con rectángulo de esquinas rectas, redondeadas, cápsula horizontal y óvalo. Mantener también el modo cuadrado. El **ancho del SO es configurable** y la altura de la barra es un valor **elegido por el usuario**, pero **constante durante las expansiones**. Las islas Soledad y Malvina disponen de alto, ancho (mínimo de Soledad/ancho de Malvina) y radio de esquinas propios. No redimensionar ventanas del sistema ni pestañas del navegador.
+
+**Nuevo estado experimental:**
+- **Logo SO:** selector de formato cuadrado/rectangular/cápsula/oval, ancho horizontal ajustable (44–180 px lógicos en modo ancho), control de rotación de -180 a +180 grados que actúa sobre la foto o **todos los cuadros GIF** sin tocar el archivo original. Las formas previas cuadrado/círculo/rombo/corazón/estrella siguen disponibles en el selector de recorte; cuando se elige un formato horizontal, ese formato determina la máscara y el contorno exterior.
+- **Islas y posición:** altura general 40–120 unidades lógicas, altura Soledad y Malvina por separado (limitada a la altura disponible), radio de esquinas por isla, ancho mínimo opcional de Soledad (0=automático por fichas), ancho de Malvina, además de las opciones de posición confirmadas.
+- **Pestañas, orden:** Logo SO → Contorno → Apariencia → Islas y posición → Autocontracción → **Acerca de**.
+- **Restablecer:** botón independiente en todas las pestañas que modifican preferencias: Logo, Contorno, Apariencia, Islas/posición y Autocontracción. Los valores restablecidos quedan **pendientes hasta pulsar Aplicar**. La pestaña Acerca de no contiene opciones modificables.
+- **Acerca de:** nombre y proyecto, autor público **NicoR87**, licencia GPL-3.0 y enlace al repositorio oficial. **Correo de contacto y enlaces a Cafecito/PayPal pendientes de confirmación**; no inventar direcciones ni publicar enlaces de pago no entregados por el mantenedor.
+- **El editor sigue una sola ventana**, con botones Aplicar (no cierra) y Cerrar separados, scroll por pestaña y tamaño adaptable a pantalla.
+
+**Código publicado en PR #3, PENDIENTE DE PRUEBA EN CACHYOS/KWIN/WAYLAND:** `SoledadSettings.qml`, `LogoArtwork.qml`, `SoActivityOutline.qml`, `IslandButton.qml`, `SmartBarContent.qml`, `preview_redimensionable.qml`, `main.qml` y `main.xml` enlazados. En la ventana Qt las preferencias son solo de sesión; no se ha demostrado que un plasmoide dentro de un panel de KDE pueda solicitar su altura preferida a la geometría del contenedor. **No instalar sobre el panel de uso diario.**
+
+### Prueba manual segura
+
+~~~bash
+cd ~/plasma-smartbar
+git branch --show-current
+git pull
+bash prototype/v0.1/probar_ancho.sh
+~~~
+
+Confirmar la rama `prototype/v0.1-islas-so` antes de actualizar. Si hay cambios locales o conflictos, revisarlos sin forzar.
+
+1. Clic derecho en los seis puntos → Configuración de Soledad. Comprobar el **orden de seis pestañas** y la presencia de **Restablecer** en las cinco editables. Aplicar no cierra.
+2. Logo SO: probar cuadrado, rectángulo recto, redondeado, cápsula y óvalo. Ajustar ancho horizontal y comprobar que el logo y el contorno luminoso siguen la misma forma y **no se dibujan marcos distintos**.
+3. Cargar foto y GIF; rotar -30°, 0°, +30° y comprobar que el encuadre se aplica sin modificar archivos, que la imagen no se estira al cambiar ancho y que el GIF sigue animado si está permitido.
+4. Islas y posición: cambiar **altura general**, alturas, anchos y radio de esquinas de **cada isla**. Verificar que Soledad y Malvina siguen una sola fila y se mantienen centradas verticalmente; SO y bandeja se expanden a la izquierda sin modificar el grosor en cada estado. Probar anchura mínima automática (0).
+5. Usar Restablecer en Logo, Contorno, Apariencia, Islas y posición y Autocontracción, pulsar Aplicar y reabrir para confirmar predeterminados. Comprobar que la alineación NO se restablece al aplicar cambios que no tocaron su casilla.
+6. Acerca de: comprobar que se muestre solo **NicoR87** como autor, enlace al GitHub oficial y estados «pendiente» para contacto/donaciones. No hay enlace PayPal o Cafecito hasta que sea proporcionado.
+7. Probar ventanas más angostas, mover Soledad a ambos extremos, activar máximización simulada y abrir SO/bandeja. Si una opción se corta o un menú detiene el arrastre, guardar captura y salida de Konsole.
+
+**Estado:** código y documentación escritos; revisión estática de delimitadores/referencias. **No probada aún la ejecución de Qt/Wayland de estos nuevos cambios** ni la persistencia KConfig; PR #3 sigue en borrador, issues #1/#5 abiertos.
