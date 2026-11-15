@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.28 (ortografía del autor confirmada como nicoarg87; 15/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.29 (terminaciones configurables de islas y orden de Acerca de; 15/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -294,6 +294,18 @@ Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la 
 - **Alcance preservado:** personalización futura del icono de la bandeja y del agarre de seis puntos y «Añadir isla extra» siguen **diferidas**. La isla 3 buscadora no se reemplaza ni renumera. El panel KDE existente no debe tocarse.
 
 **ESTADO DE INGENIERÍA:** se agregaron controles, propiedades QML y entradas KConfig en la rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendientes de ejecución y validación en CachyOS/Wayland**. La altura del plasmoide en un panel KDE real depende también de la geometría que asigne el contenedor; no se presume compatibilidad final. La vista `probar_ancho.sh` es reversible y no instala paneles. Seguimiento: [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+
+## 2.25. Terminaciones visuales por isla y orden de Acerca de (15/11/2026)
+
+**REQUISITOS CONFIRMADOS POR EL MANTENEDOR TRAS OBSERVAR LA VISTA QT:**
+- **Orden de «Acerca de»:** nombre de proyecto/autor público `nicoarg87`, correo `nicoarg87@gmail.com` y botón de consultas, **inmediatamente después** la dirección y botón «Abrir repositorio oficial», y **debajo** la información de licencia GNU GPL versión 3 y el aviso visible **SIN NINGUNA GARANTÍA**, con acceso al texto completo de [LICENSE](../LICENSE). Se excluyen PayPal y Cafecito.
+- **Soledad por defecto:** el fondo de isla 1 tiene el **extremo izquierdo redondeado y el extremo derecho recto/cuadrado**. El **agarre de seis puntos** es **cuadrado por defecto**, manteniendo intactos el arrastre izquierdo, el clic derecho para opciones, las áreas de acceso y el movimiento horizontal de Soledad. El botón SO con logo no cambia de gesto.
+- **Personalización de forma de islas:** agregar en «Islas y posición» terminaciones **toda redondeada**, **toda cuadrada** y **mixta en cualquiera de los dos sentidos**. Soledad admite, además, **punta triangular izquierda como opción experimental** con el icono de bandeja alineado dentro de la zona utilizable. Malvina mantiene formato redondeado inicial y sus propias terminaciones configurables. Se conservan alto/ancho y radio de esquinas previos.
+- **Controles asociados:** permitir elegir **agarre de seis puntos cuadrado o redondeado**; el botón de **abrir bandeja simulada** puede ser redondeado o cuadrado. La personalización posterior de los glifos o iconos propios de esos controles sigue diferida, y **añadir isla extra** no se habilita.
+- **Restricciones:** las formas no modifican el grosor constante elegido por usuario, no crean segunda fila, no invaden el área de controles de ventana, no impiden arrastre a ambos lados, no alteran ventanas ni pestañas externas y no perjudican la accesibilidad. El dibujo triangular es solo una decoración visual; su área clicable se conserva accesible y requiere prueba real.
+
+**ESTADO TÉCNICO:** se modificaron `SmartBarContent.qml`, `SoledadSettings.qml`, `IslandButton.qml`, `preview_redimensionable.qml`, `main.qml` y KConfig en el [PR #3 experimental](https://github.com/nicoarg87/plasma-smartbar/pull/3). Las propiedades por esquina de `QtQuick.Rectangle` existen desde Qt 6.7; en Qt 6.8 constan como API técnica preliminar (*tech preview*), por lo que compatibilidad visual y de estilo **requieren validación en CachyOS/KWin/Wayland**. Hasta verificar las formas, la punta triangular y el agarre, **no dar por probadas estas opciones ni fusionar PR #3**. No sustituir el panel KDE habitual.
 
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
