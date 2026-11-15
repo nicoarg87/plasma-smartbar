@@ -617,7 +617,7 @@ Confirmar que la rama es prototype/v0.1-islas-so. No sobrescribir modificaciones
 - **Islas y posición:** altura general 40–120 unidades lógicas, altura Soledad y Malvina por separado (limitada a la altura disponible), radio de esquinas por isla, ancho mínimo opcional de Soledad (0=automático por fichas), ancho de Malvina, además de las opciones de posición confirmadas.
 - **Pestañas, orden:** Logo SO → Contorno → Apariencia → Islas y posición → Autocontracción → **Acerca de**.
 - **Restablecer:** botón independiente en todas las pestañas que modifican preferencias: Logo, Contorno, Apariencia, Islas/posición y Autocontracción. Los valores restablecidos quedan **pendientes hasta pulsar Aplicar**. La pestaña Acerca de no contiene opciones modificables.
-- **Acerca de:** nombre y proyecto, autor público **NicoR87**, licencia GPL-3.0 y enlace al repositorio oficial. **Correo de contacto y enlaces a Cafecito/PayPal pendientes de confirmación**; no inventar direcciones ni publicar enlaces de pago no entregados por el mantenedor.
+- **Acerca de (actualización 15/11/2026):** proyecto, autor público **NicoR87**, correo **nicoarg87@gmail.com** autorizado para consultas, botón que abre el cliente de correo, licencia **GNU GPL versión 3**, enlace al archivo LICENSE y aviso visible **SIN NINGUNA GARANTÍA** con salvedad legal. **No mostrar PayPal/Cafecito ni enlaces de donaciones** por ahora: postergados expresamente por el mantenedor.
 - **El editor sigue una sola ventana**, con botones Aplicar (no cierra) y Cerrar separados, scroll por pestaña y tamaño adaptable a pantalla.
 
 **Código publicado en PR #3, PENDIENTE DE PRUEBA EN CACHYOS/KWIN/WAYLAND:** `SoledadSettings.qml`, `LogoArtwork.qml`, `SoActivityOutline.qml`, `IslandButton.qml`, `SmartBarContent.qml`, `preview_redimensionable.qml`, `main.qml` y `main.xml` enlazados. En la ventana Qt las preferencias son solo de sesión; no se ha demostrado que un plasmoide dentro de un panel de KDE pueda solicitar su altura preferida a la geometría del contenedor. **No instalar sobre el panel de uso diario.**
@@ -642,3 +642,10 @@ Confirmar la rama `prototype/v0.1-islas-so` antes de actualizar. Si hay cambios 
 7. Probar ventanas más angostas, mover Soledad a ambos extremos, activar máximización simulada y abrir SO/bandeja. Si una opción se corta o un menú detiene el arrastre, guardar captura y salida de Konsole.
 
 **Estado:** código y documentación escritos; revisión estática de delimitadores/referencias. **No probada aún la ejecución de Qt/Wayland de estos nuevos cambios** ni la persistencia KConfig; PR #3 sigue en borrador, issues #1/#5 abiertos.
+
+### Verificación posterior: contacto y aviso GPL v3 (15/11/2026)
+
+1. Entrar en seis puntos → Configuración de Soledad… → última pestaña **Acerca de**. Debe mostrar **Autor: NicoR87**, **nicoarg87@gmail.com**, nombre Plasma SmartBar y el aviso **SIN NINGUNA GARANTÍA**, con texto sobre ausencia de garantía de comerciabilidad y de aptitud para un fin particular, en la medida legal aplicable.
+2. Pulsar **Enviar una consulta por correo**: solo debe abrirse el cliente de correo predeterminado con destinatario preparado. **No debe enviar un mensaje automáticamente**.
+3. Pulsar **Leer licencia GNU GPL versión 3**: debe abrir el archivo oficial `LICENSE` de este repositorio. Verificar legibilidad y acceso con teclado.
+4. No deben verse botones ni leyendas de PayPal o Cafecito. El panel KDE habitual no se modifica. **Prueba en CachyOS/Wayland pendiente**.
