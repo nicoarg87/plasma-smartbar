@@ -1,4 +1,4 @@
-# Estado actual de Plasma SmartBar
+# Estado actual de Plasma SmartBar Islands
 
 **Fecha de corte:** 16 de noviembre de 2026  
 **Estado general:** prototipo visual v0.1 de Plasma SmartBar **ejecutado en CachyOS con interacciones básicas comprobadas** (SO/bandeja, arrastre de isla 1, menú del agarre). Sigue en rama experimental, sin conexión a ventanas reales ni fusión a main; la anomalía de recarga del visor continúa sin diagnosticar. **No existe todavía una barra instalable y validada para uso diario.**
@@ -379,4 +379,13 @@ Actualizar cuando cambie algún hito: fecha, decisión confirmada, qué cambió 
 
 **REVISIÓN ESTÁTICA:** se verificó que QML editado tiene delimitadores balanceados, que `LogoArtwork` usa el modo `stretch` en imagen fija y GIF, y que no hay referencias activas a `so-paw.png` en los QML revisados. **NO** se ejecutó Qt/CachyOS/KWin ni se probó la UI/persistencia real; no afirmar que el escalado es correcto visualmente hasta ensayo. **Sin cambios en el panel instalado**. [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) continúa experimental, [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5) abierto.
 
-**Pendiente del mismo pedido:** recuperar el archivo tropical seleccionado en el chat de diseño e incorporarlo exactamente con CC0 1.0, SHA-256 y referencia en el inventario; validar el resultado en CachyOS/Qt/Wayland. No afirmar que la imagen se incluyó ni que la prueba de comportamiento visual y KConfig fue satisfactoria. Golden Dog: mantener fuera hasta tener derechos verificables. No cambiar requisitos de barra, ventanas y fullscreen sin nuevas pruebas/decisión.
+**Actualización posterior:** la imagen tropical exacta fue recibida y registrada con SHA-256; está en un ZIP de prueba descargable desde la conversación, pero todavía NO fue incorporada a GitHub. Validar en CachyOS/Qt/Wayland. No afirmar que la imagen se incluyó ni que la prueba de comportamiento visual y KConfig fue satisfactoria. Golden Dog: mantener fuera hasta tener derechos verificables. No cambiar requisitos de barra, ventanas y fullscreen sin nuevas pruebas/decisión.
+
+
+## Prueba pendiente: Malvina autooculta, imagen tropical y nombre visible (16/11/2026)
+
+**CONFIRMADO:** nombre público Plasma SmartBar Islands, repositorio e identificador técnico sin cambiar. Malvina queda habilitada pero oculta por defecto: aparece tras mantener el cursor 600 ms sobre su ubicación; se oculta 250 ms después de salir; se mantiene mientras su lanzador siga abierto. En «Islas y posición» se puede desactivar «Ocultar Malvina automáticamente», independientemente de «Mostrar Malvina».
+
+**IMPLEMENTADO en la rama de prueba:** temporizadores y HoverHandler pasivo en SmartBarContent.qml (commit 5614704); casilla en SoledadSettings.qml (commit e0e299b); configuración en preview_redimensionable.qml, main.qml y KConfig (commit 9ec2625). Imagen SO predeterminada apunta a assets/so-tropical.png (commit 4ae749c); el archivo PNG original fue recuperado y adjuntado a la conversación en un ZIP para instalarlo solo en el checkout local. **No está subido a GitHub**. SHA-256 PNG: 0c6e646886ba293db5b53d13f81a7421b4ceaee56d6bd92ed99745da273d4137, 1774 × 887 px.
+
+**PENDIENTE DE PRUEBA real en CachyOS/Qt/KWin/Wayland:** la correcta visibilidad y ocultamiento, persistencia de la preferencia, zoom/estiramiento y la compatibilidad con pestañas ubicadas bajo la superficie de Malvina. El HoverHandler QML no captura clics dentro del componente, pero NO acredita paso de clics hacia otras ventanas bajo Wayland. No se modificó el panel existente. Ejecutar bash prototype/v0.1/probar_ancho.sh desde la rama experimental, con el ZIP de imagen extraído.
