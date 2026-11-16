@@ -55,14 +55,16 @@ Window {
     readonly property real activeOpacity: appearanceTarget.currentIndex === 0 ? soledadOpacity :
         (appearanceTarget.currentIndex === 1 ? malvinaOpacity : backgroundOpacity)
 
-    property string effectStyle: "steady"
+    property string effectStyle: "orbit"
     property color accentColor: "#35d7ff"
     property real strokeSize: 1
     property bool allowMotion: true
     property real orbitSpeed: 1.0 // vueltas por segundo
     property int trailPercent: 22 // porcentaje del perímetro
     property string trailStyle: "solid" // solid, dotted, dashed
-    property bool simulateHasWindows: true
+    property bool showOutlineWhenEmpty: true
+    property bool showOutlineWhenOpen: false
+    property bool simulateHasWindows: false
 
     property bool autoCollapseSO: true
     property bool autoCollapseTray: false
@@ -100,7 +102,8 @@ Window {
                                    real bgOpacity)
     signal saveActivityRequested(string style, string color,
                                  real stroke, bool motion, real speed,
-                                 int tailLength, string lineStyle)
+                                 int tailLength, string lineStyle,
+                                 bool showWhenEmpty, bool showWhenOpen)
     signal saveAutoHideMalvinaRequested(bool enabled)
     signal saveBehaviorRequested(bool collapseSO, bool collapseTray,
                                  bool returnRight, bool showMalvina,
@@ -135,7 +138,8 @@ Window {
                                 backgroundOpacity)
         saveActivityRequested(effectStyle, toHex(accentColor),
                               strokeSize, allowMotion, orbitSpeed,
-                              trailPercent, trailStyle)
+                              trailPercent, trailStyle,
+                              showOutlineWhenEmpty, showOutlineWhenOpen)
         saveAutoHideMalvinaRequested(autoHideMalvina)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
@@ -465,6 +469,8 @@ Window {
                             activityOrbitSpeed: settings.orbitSpeed
                             activityTrailPercent: settings.trailPercent
                             activityTrailStyle: settings.trailStyle
+                            activityShowWhenEmpty: settings.showOutlineWhenEmpty
+                            activityShowWhenOpen: settings.showOutlineWhenOpen
                         }
                     }
                     QQC2.CheckBox {
@@ -473,7 +479,23 @@ Window {
                         onToggled: settings.simulateHasWindows = checked
                     }
                     QQC2.Label {
-                        text: "Sin ventanas abiertas, el borde debe desaparecer."
+                        text: "Elegí cuándo mostrar el contorno. Sin ventanas, la luz puede invitar a abrir aplicaciones; con ventanas, podés ocultarla."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.CheckBox {
+                        text: "Mostrar contorno cuando NO hay ventanas (predeterminado)"
+                        checked: settings.showOutlineWhenEmpty
+                        onToggled: settings.showOutlineWhenEmpty = checked
+                    }
+                    QQC2.CheckBox {
+                        text: "Mostrar contorno cuando HAY ventanas"
+                        checked: settings.showOutlineWhenOpen
+                        onToggled: settings.showOutlineWhenOpen = checked
+                    }
+                    QQC2.Label {
+                        text: "Podés activar ambos estados, uno solo o ninguno. El efecto «Desactivado» apaga el contorno en todos los casos."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -604,13 +626,15 @@ Window {
                     QQC2.Button {
                         text: "Restablecer contorno"
                         onClicked: {
-                            settings.effectStyle = "steady"
+                            settings.effectStyle = "orbit"
                             settings.accentColor = "#35d7ff"
                             settings.strokeSize = 1
                             settings.allowMotion = true
                             settings.orbitSpeed = 1.0
                             settings.trailPercent = 22
                             settings.trailStyle = "solid"
+                            settings.showOutlineWhenEmpty = true
+                            settings.showOutlineWhenOpen = false
                         }
                     }
                 }
