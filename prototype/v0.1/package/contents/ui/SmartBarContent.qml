@@ -38,8 +38,11 @@ Item {
     // real, bloquear por seguridad (fail-closed) en el plasmoide.
     property bool windowStateKnown: true  // true solo en visor simulado
     property bool previewFullscreen: false
+    property bool hostMaximized: false
+    property bool hostFullscreen: false
     readonly property bool autoRevealBlocked:
-        !windowStateKnown || previewMaximized || previewFullscreen
+        !windowStateKnown || previewMaximized || previewFullscreen ||
+        hostMaximized || hostFullscreen
     onAutoRevealBlockedChanged: {
         if (autoRevealBlocked) {
             malvinaRevealTimer.stop()
