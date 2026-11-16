@@ -24,7 +24,7 @@ Window {
     property string demoSoLogoMode: "default"
     property string demoSoLogoPath: ""
     property string demoSoLogoShape: "square"
-    property string demoSoLogoFitMode: "fit"
+    property string demoSoLogoFitMode: "stretch"
     property real demoSoLogoZoom: 1
     property real demoSoLogoPanX: 0
     property real demoSoLogoPanY: 0
@@ -41,22 +41,28 @@ Window {
     property string demoMalvinaShape: "rounded"
     property string demoGripShape: "square"
     property string demoTrayButtonShape: "rounded"
-    property string demoSoButtonFrameShape: "square"
-    property real demoSoButtonWidth: 80
-    property color demoSoledadColor: "#101e31"
+    property string demoSoButtonFrameShape: "capsule"
+    property real demoSoButtonWidth: 96
+    property color demoSoledadColor: "#010111"
     property color demoMalvinaColor: "#101e31"
     property color demoBackgroundColor: "#202333"
-    property real demoSoledadOpacity: 1
+    property real demoSoledadOpacity: 0.5
     property real demoMalvinaOpacity: 1
     property real demoBackgroundOpacity: 0.5
     property bool demoShowBackground: false
+    property bool demoTrayButtonColorOverride: false
+    property color demoTrayButtonColor: "#010111"
+    property real demoTrayButtonOpacity: 0.5
+    property bool demoGripButtonColorOverride: false
+    property color demoGripButtonColor: "#010111"
+    property real demoGripButtonOpacity: 0.5
     property string demoSoActivityStyle: "orbit"
     property color demoSoActivityColor: "#35d7ff"
-    property real demoSoActivityStroke: 1.0
+    property real demoSoActivityStroke: 0.75
     property bool demoSoActivityMotion: true
-    property real demoSoActivityOrbitSpeed: 1.0
-    property int demoSoActivityTrailPercent: 22
-    property string demoSoActivityTrailStyle: "solid"
+    property real demoSoActivityOrbitSpeed: 1.5
+    property int demoSoActivityTrailPercent: 75
+    property string demoSoActivityTrailStyle: "dashed"
     property bool demoSoActivityShowWhenEmpty: true
     property bool demoSoActivityShowWhenOpen: false
 
@@ -101,6 +107,12 @@ Window {
         malvinaOpacity: previewWindow.demoMalvinaOpacity
         backgroundOpacity: previewWindow.demoBackgroundOpacity
         showBackground: previewWindow.demoShowBackground
+        trayButtonColorOverride: previewWindow.demoTrayButtonColorOverride
+        trayButtonColor: previewWindow.demoTrayButtonColor
+        trayButtonOpacity: previewWindow.demoTrayButtonOpacity
+        gripButtonColorOverride: previewWindow.demoGripButtonColorOverride
+        gripButtonColor: previewWindow.demoGripButtonColor
+        gripButtonOpacity: previewWindow.demoGripButtonOpacity
         soActivityStyle: previewWindow.demoSoActivityStyle
         soActivityColor: previewWindow.demoSoActivityColor
         soActivityStroke: previewWindow.demoSoActivityStroke
@@ -154,7 +166,10 @@ Window {
             previewWindow.demoGripShape = gripButtonShape
             previewWindow.demoTrayButtonShape = trayShape
         }
-        onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
+        onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
+                                            alphaBg, trayOverride, trayColor,
+                                            trayOpacity, gripOverride,
+                                            gripColor, gripOpacity) {
             previewWindow.demoSoledadColor = a
             previewWindow.demoSoledadOpacity = alphaA
             previewWindow.demoMalvinaColor = b
@@ -162,6 +177,12 @@ Window {
             previewWindow.demoShowBackground = shown
             previewWindow.demoBackgroundColor = bg
             previewWindow.demoBackgroundOpacity = alphaBg
+            previewWindow.demoTrayButtonColorOverride = trayOverride
+            previewWindow.demoTrayButtonColor = trayColor
+            previewWindow.demoTrayButtonOpacity = trayOpacity
+            previewWindow.demoGripButtonColorOverride = gripOverride
+            previewWindow.demoGripButtonColor = gripColor
+            previewWindow.demoGripButtonOpacity = gripOpacity
         }
         onRequestAutoReturnRightChange: function(newValue) {
             previewWindow.demoAutoReturnRight = newValue
