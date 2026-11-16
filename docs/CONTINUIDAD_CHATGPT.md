@@ -30,7 +30,7 @@ Ante «retomemos Plasma SmartBar», el asistente debe:
 
 - Director funcional y de diseño: titular del repositorio oficial (usuario GitHub **nicoarg87**).
 - Se puede delegar programación, pruebas, documentación y revisión; los colaboradores proponen mediante issues y pull requests.
-- Los forks están permitidos bajo las condiciones de **GPL-3.0**. Nadie puede modificar el repositorio oficial sin permisos de escritura autorizados.
+- **Decisión posterior del 16/11/2026:** el código y la documentación propios usan **MIT**; versiones históricas GPL-3.0 conservan permisos previos. Los recursos gráficos se documentan con licencia propia. Nadie puede modificar el repositorio oficial sin permisos de escritura autorizados.
 - No cambiar licencia, visión principal, requisitos confirmados o reglas de gobernanza sin aprobación explícita del director.
 - Rama principal: **main**. La regla activa de GitHub **«Proteccion de main»** se creó para bloquear borrado y force pushes; no equivale a revisión obligatoria de PR.
 
@@ -133,3 +133,10 @@ El Proyecto de ChatGPT organiza conversaciones e instrucciones, pero **no es el 
 
 «Retomemos Plasma SmartBar desde el repositorio https://github.com/nicoarg87/plasma-smartbar. Leé la Constitución Técnica, el Manual Maestro, el Estado del Proyecto y el issue de trabajo pendiente. Recordá que dirijo el diseño y no se deben modificar requisitos confirmados sin mi aprobación. Decime qué está realmente hecho, qué falta y cuál es el siguiente paso, sin reinventar la especificación ni generar imágenes.»
 
+
+## 9. Decisión más reciente: MIT, imagen CC0 y SO estirable (16/11/2026)
+
+- **CONFIRMADO:** cambiar software/documentación propia a MIT; mantener licencias gráficas separadas. Imagen tropical de OpenAI destinada a CC0 1.0 con permiso de explotación comercial en la medida que se posean los derechos; **falta recuperar el archivo exacto** para incluirlo como imagen predeterminada.
+- **NO INCLUIR** el recurso huella Golden Dog sin comprobar autoría/permiso. Mientras no se recupere imagen tropical, conservar fallback **texto SO**, sin generar un reemplazo visual ni afirmar que se distribuye la imagen exacta.
+- **EDITOR DE SO CONFIRMADO:** lista única de formas geométricas y anchas; modos encajar/rellenar/estirar con zoom que persiste y conserva la deformación, sin modificar bytes de archivos del usuario.
+- **PENDIENTE:** retest de la rama experimental PR #3 en CachyOS; los archivos de la imagen tropical no se pudieron recuperar de otros chats mediante herramientas de archivos. Ver [licencias gráficas](LICENCIAS_RECURSOS_GRAFICOS.md) y [Estado del Proyecto](ESTADO_PROYECTO.md).
