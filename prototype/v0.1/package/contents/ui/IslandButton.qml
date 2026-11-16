@@ -22,9 +22,13 @@ QQC2.Button {
     // el botón de bandeja pueden solicitar esquinas cuadradas.
     property string frameShape: "rounded" // square, rectangle, rounded, capsule, oval
     readonly property string effectiveImageShape: frameShape === "square" ? iconShape : frameShape
-    // SOLO Soledad conecta esto a la cantidad real de ventanas.
-    // Sin ventanas se destruye el lienzo, evitando animación y consumo.
+    // SOLO el botón SO conecta cantidad y política de ventanas.
+    // Valores seguros para los demás botones: ninguno se ilumina vacío.
     property int activityCount: 0
+    property bool activityShowWhenEmpty: false
+    property bool activityShowWhenOpen: true
+    readonly property bool activityActiveForState: activityCount > 0
+        ? activityShowWhenOpen : activityShowWhenEmpty
     property string activityEffect: "steady"  // off, steady, orbit
     property color activityColor: "#35d7ff"
     property real activityStroke: 1.0
@@ -89,14 +93,14 @@ QQC2.Button {
             }
         }
 
-        // El contorno rodea la forma elegida del logo. Se carga solo
-        // si hay una ventana real (en la maqueta, ficha de muestra).
+        // Cargar el contorno solo si el usuario eligió ese estado de
+        // ventanas y el efecto no está apagado. Esto incluye cero ventanas.
         Loader {
             id: activityOutlineLoader
             anchors.centerIn: parent
             width: Math.max(18, control.width - 8)
             height: Math.max(18, control.height - 2)
-            active: control.activityCount > 0 &&
+            active: control.activityActiveForState &&
                     control.activityEffect !== "off"
             sourceComponent: Component {
                 SoActivityOutline {
@@ -110,7 +114,7 @@ QQC2.Button {
                     orbitSpeed: control.activityOrbitSpeed
                     trailPercent: control.activityTrailPercent
                     trailStyle: control.activityTrailStyle
-                    hasWindows: control.activityCount > 0
+                    activeForState: control.activityActiveForState
                 }
             }
         }
