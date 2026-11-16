@@ -1,12 +1,12 @@
 # Estado actual de Plasma SmartBar
 
-**Fecha de corte:** 14 de noviembre de 2026  
+**Fecha de corte:** 16 de noviembre de 2026  
 **Estado general:** prototipo visual v0.1 de Plasma SmartBar **ejecutado en CachyOS con interacciones básicas comprobadas** (SO/bandeja, arrastre de isla 1, menú del agarre). Sigue en rama experimental, sin conexión a ventanas reales ni fusión a main; la anomalía de recarga del visor continúa sin diagnosticar. **No existe todavía una barra instalable y validada para uso diario.**
 
 ## Realmente completado
 
 - [x] Repositorio público oficial: https://github.com/nicoarg87/plasma-smartbar
-- [x] Licencia en el repositorio: GNU GPL-3.0.
+- [x] **Licencia vigente para código/documentación propia: MIT desde 16/11/2026** (versión anterior GPL-3.0 continúa válida para sus copias históricas).
 - [x] [Manual Maestro v0.33](MANUAL_MAESTRO.md), [Constitución Técnica v1.24](CONSTITUCION_TECNICA.md), [GOVERNANCE](../GOVERNANCE.md), [CONTRIBUTING](../CONTRIBUTING.md), [ROADMAP](../ROADMAP.md).
 - [x] Regla de ramas `Proteccion de main` **activa** en GitHub, aplica a la rama predeterminada, bloquea borrado y push no fast-forward, según lectura de GitHub el 14/11/2026: https://github.com/nicoarg87/plasma-smartbar/rules/27249133
 - [x] Issue inicial: https://github.com/nicoarg87/plasma-smartbar/issues/1 (prueba de concepto v0.1, todavía no ejecutada).
@@ -359,3 +359,24 @@ Conservar la sincronía documental entre la Constitución, el Manual Maestro y l
 
 ## Convención de actualizaciones
 Actualizar cuando cambie algún hito: fecha, decisión confirmada, qué cambió en GitHub, qué se ejecutó realmente, resultado y siguiente paso. No marcar como «probado» solo porque exista un issue o un archivo.
+
+
+## Actualización confirmada del 16/11/2026 — MIT + CC0 y botón SO
+
+**CONFIRMADO por el mantenedor:** el software/documentación propia de Plasma SmartBar cambia de GPL-3.0 a **MIT**, para permitir comercialización/reutilización con la obligación de conservar aviso MIT. Los gráficos se licencian aparte. La imagen tropical con palmera, barra y atardecer creada con OpenAI se destina a **CC0 1.0 Universal** en cuanto a los derechos que puedan concederse; se habilita impresión/venta de productos derivados. **Pendiente el archivo exacto**: no se recuperó de chats anteriores y no está incluido en la distribución; tampoco se ha verificado SHA-256. La huella Golden Dog queda fuera del prototipo por derechos de terceros todavía no acreditados. No reclamar que se solucionó su titularidad.
+
+**IMPLEMENTADO EN RAMA MAIN (documentación/legal):**
+
+- [MIT (LICENSE)](../LICENSE) [commit b2d0308](https://github.com/nicoarg87/plasma-smartbar/commit/b2d03080156a3e9240ccb77d171f83e37189f05c).
+- [Guía de licencias gráficas](LICENCIAS_RECURSOS_GRAFICOS.md), incluyendo registro de procedencia, límites CC0 y exclusión Golden Dog: [commit a8dae12](https://github.com/nicoarg87/plasma-smartbar/commit/a8dae12496dd963d9a45f2ac4c67e443d2891667).
+- README, GOV/CONTRIBUTING, ROADMAP, Constitución v1.30, Manual v0.39, Continuidad y plantilla actualizados con MIT y el plan de CC0 ([Constitución 1f89ebf](https://github.com/nicoarg87/plasma-smartbar/commit/1f89ebff26d2c4de05355934949b02e13c243bdf), [Manual beb858e](https://github.com/nicoarg87/plasma-smartbar/commit/beb858e1996248312d3c2c324079209957ad1d2b)). Las menciones históricas a GPL describen el estado anterior, no la licencia vigente.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL, SIN PRUEBA EN CACHYOS:**
+
+- [LogoArtwork.qml](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/package/contents/ui/LogoArtwork.qml) suma `Image.Stretch` como tercer modo de ajuste, manteniendo zoom y desplazamiento posteriores sin reescribir imagen ([commit efa5267](https://github.com/nicoarg87/plasma-smartbar/commit/efa5267f579d989308d7508820aaf5a81ab72298)).
+- [SoledadSettings.qml](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/package/contents/ui/SoledadSettings.qml) integra las nueve formas en **un único desplegable**, conserva control de ancho horizontal, ofrece **Encajar/Rellenar/Estirar**, vista previa horizontal proporcionada y pestaña Acerca de con MIT y acceso a guía CC0 ([commits 11f383e](https://github.com/nicoarg87/plasma-smartbar/commit/11f383e1b50086186eb638db883b762b7a219111), [5d3aa80](https://github.com/nicoarg87/plasma-smartbar/commit/5d3aa80876e166e672042229727b7d9e14fa0cf8)).
+- [SmartBarContent.qml](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/package/contents/ui/SmartBarContent.qml) usa **texto SO** de respaldo en ausencia de imagen tropical; huella `assets/so-paw.png` retirada del árbol de la rama experimental ([commit 28f1f3f](https://github.com/nicoarg87/plasma-smartbar/commit/28f1f3ff411eb9c121cdc8fc0b5eb00ce4f4e688)). Licencia MIT en rama de prueba [commit ee2c27e](https://github.com/nicoarg87/plasma-smartbar/commit/ee2c27e677e387c97c18197c6081be8bd4eec256). `LogoEditor.qml` legado también admite estirar, pero la ruta efectiva es la configuración unificada.
+
+**REVISIÓN ESTÁTICA:** se verificó que QML editado tiene delimitadores balanceados, que `LogoArtwork` usa el modo `stretch` en imagen fija y GIF, y que no hay referencias activas a `so-paw.png` en los QML revisados. **NO** se ejecutó Qt/CachyOS/KWin ni se probó la UI/persistencia real; no afirmar que el escalado es correcto visualmente hasta ensayo. **Sin cambios en el panel instalado**. [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) continúa experimental, [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5) abierto.
+
+**Pendiente del mismo pedido:** recuperar el archivo tropical seleccionado en el chat de diseño e incorporarlo exactamente con CC0 1.0, SHA-256 y referencia en el inventario; validar el resultado en CachyOS/Qt/Wayland. No afirmar que la imagen se incluyó ni que la prueba de comportamiento visual y KConfig fue satisfactoria. Golden Dog: mantener fuera hasta tener derechos verificables. No cambiar requisitos de barra, ventanas y fullscreen sin nuevas pruebas/decisión.
