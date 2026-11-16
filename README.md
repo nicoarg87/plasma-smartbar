@@ -1,15 +1,15 @@
-# Plasma SmartBar
+# Plasma SmartBar Islands
 
 **Barra inteligente, minimalista y modular para Linux con KDE Plasma 6: arriba por defecto, abajo como modo configurable previsto.**
 
-> **Estado del proyecto:** fase de diseño y documentación. **No existe todavía un complemento funcional ni una versión instalable; tampoco están implementados los modos superior o inferior.** CachyOS será el primer entorno de pruebas; el objetivo es funcionar también en otras distribuciones Linux con Plasma compatible.
+> **Estado del proyecto:** documentación en main y prototipo visual v0.1 en rama experimental, con ensayos parciales ya realizados en CachyOS. **Todavía no hay versión instalable validada ni control real de ventanas.** El modo inferior sigue pendiente de implementación y pruebas.
 
 ## Idea principal
-Plasma SmartBar busca concentrar la gestión de ventanas en **islas de una barra horizontal de grosor constante**, sin llenar el escritorio de tareas visibles de forma permanente. **Se desarrolla primero arriba y se admite como modo oficial configurable abajo:**
+Plasma SmartBar Islands busca concentrar la gestión de ventanas en **islas de una barra horizontal de grosor constante**, sin llenar el escritorio de tareas visibles de forma permanente. **Se desarrolla primero arriba y se admite como modo oficial configurable abajo:**
 
 - Un **lanzador izquierdo** permite buscar e iniciar programas instalados.
 - Un botón **SO** a la derecha abre hacia la **izquierda** una fila horizontal de fichas de **aplicaciones ya abiertas**. Por defecto agrupa todas las ventanas de una aplicación en una ficha; puede desagruparse por configuración.
-- Una **bandeja expandible** se abre horizontalmente a la izquierda. **SO y bandeja pueden coexistir si hay espacio; si no, se contrae la expansión previa**.
+- Una **bandeja expandible** se abre horizontalmente a la izquierda. **SO y bandeja pueden permanecer abiertas simultáneamente si hay espacio; si no, al abrir una se contrae la otra**.
 - Los botones de minimizar, restaurar y cerrar se integran arriba al maximizar una ventana.
 - SO y bandeja pueden **cubrir temporalmente las pestañas del navegador**, pero jamás bajarlas, agrandar la barra o redimensionar la ventana.
 - Video y juegos en **pantalla completa real** ocultan los controles superiores.
@@ -33,12 +33,12 @@ Plasma SmartBar busca concentrar la gestión de ventanas en **islas de una barra
 Qt 6, QML/Qt Quick, KDE Plasma 6 y KWin. Prioridad: **rendimiento, estabilidad, compatibilidad y accesibilidad**. La primera versión se centrará en el núcleo funcional **sin animaciones complejas ni multimedia MPRIS**; los temas, efectos y herramientas llegarán más adelante.
 
 ## Código abierto y dirección
-Este repositorio es **público** y el código/documentación propios se publican bajo licencia **MIT** (ver [LICENSE](LICENSE)). Las imágenes tienen licencias separadas; la imagen tropical de OpenAI está autorizada para **CC0 1.0**, pero aún no está incorporado su archivo exacto. La huella de Golden Dog queda excluida por falta de derechos acreditados. Ver [Licencias de recursos gráficos (rama principal)](https://github.com/nicoarg87/plasma-smartbar/blob/main/docs/LICENCIAS_RECURSOS_GRAFICOS.md).
+Este repositorio es **público**. El código y la documentación propia se publican bajo **licencia MIT** (ver [LICENSE](LICENSE)); los gráficos tienen su propia licencia y procedencia en [Licencias de recursos gráficos](docs/LICENCIAS_RECURSOS_GRAFICOS.md). La futura imagen tropical generada con OpenAI se destinará a **CC0 1.0**, sin que esa dedicación se aplique automáticamente a imágenes externas o de procedencia sin verificar. Las copias históricas GPL-3.0 conservan sus permisos originales.
 
 **El mantenedor dirige la versión oficial.** Las personas interesadas pueden reportar errores, proponer funcionalidades o crear sus propias versiones; los cambios externos solo se incorporan al proyecto oficial después de revisión y aprobación. La Constitución Técnica y el Manual Maestro son la referencia funcional del repositorio.
 
 ## Estado actual
-- [x] Repositorio público; software propio bajo MIT desde 16/11/2026.
+- [x] Repositorio público; cambio autorizado a MIT para código/documentación propia el 16/11/2026.
 - [x] Especificación funcional y reglas de colaboración iniciales.
 - [ ] Diseño e investigación de las APIs necesarias.
 - [ ] Primer prototipo superior de barra y gestión de ventanas.
@@ -47,3 +47,6 @@ Este repositorio es **público** y el código/documentación propios se publican
 - [ ] Lanzamiento experimental.
 
 **No usar las imágenes conceptuales previamente rechazadas como especificación.**
+
+
+**Prueba actual v0.1:** interfaz con nombre público Plasma SmartBar Islands, imagen SO tropical incluida en ZIP de ensayo por separado, y Malvina con autoocultamiento predeterminado y hover retardado configurable. Código experimental en rama `prototype/v0.1-islas-so`; para instrucciones ver [README de prueba](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/README.md). No reemplazar el panel existente.
