@@ -699,3 +699,26 @@ Continuar solo si la rama es `prototype/v0.1-islas-so` y no hay cambios locales 
 Desde la carpeta del repositorio en la rama `prototype/v0.1-islas-so`, copiá el `so-tropical.png` original a la ruta indicada, o extraé el ZIP de prueba preparado con la estructura exacta de carpetas. Después ejecutá `bash prototype/v0.1/probar_ancho.sh`, **sin modificar el panel instalado**. En «Configuración de Soledad» → «Logo SO», verificá Predeterminada tropical, Encajar/Rellenar/Estirar, zoom y arrastre, las nueve formas y ancho horizontal; pulsá Aplicar (no cierra), y luego Cerrar. Revisá si guarda al volver a abrir la ventana; los valores de la vista Qt solo viven en la sesión. La prueba de KConfig del plasmoide real y el comportamiento KWin/Wayland siguen pendientes.
 
 La imagen se considera recurso gráfico separado, destinado a CC0 1.0 dentro de los derechos disponibles; ver `docs/LICENCIAS_RECURSOS_GRAFICOS.md`.
+
+
+## Ajustar velocidad y estilo de la luz móvil de SO (16/11/2026)
+
+En esta rama experimental, abrí la ventana de prueba independiente con:
+
+```bash
+cd ~/plasma-smartbar
+git fetch origin
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+bash prototype/v0.1/probar_ancho.sh
+```
+
+Hacé clic derecho sobre los seis puntos de Soledad → «Configuración de Soledad…» → **Contorno**. Elegí **«Luz que recorre el contorno»**; dejá marcado «Permitir movimiento sutil del borde» y «Simular ventanas abiertas en esta vista previa». Los tres parámetros se reflejan en el botón SO de muestra:
+
+- **Velocidad (vueltas/segundo):** campo numérico editable con botones +/−, entre **0,1 y 3,0** (paso 0,1, permite coma o punto). Inicial **1,0**: una vuelta aproximada por segundo; probá 2,0 si lo querés más rápido.
+- **Longitud de la cola:** porcentaje del perímetro del botón, de **5 a 85**; inicial **22**.
+- **Trazo:** **Línea continua**, **Punteado** o **Guiones**. Afecta a la estela luminosa que se mueve.
+
+Pulsá **Aplicar**, comprobá que la ventana sigue abierta, luego **Cerrar** y reabríla para verificar la preferencia. En la **prueba Qt** los cambios persisten mientras dura la sesión de la ventana; KConfig está conectado para el plasmoide, pero todavía **no fue comprobado con el panel real**. «Restablecer contorno» vuelve al estado inicial de los tres parámetros. Si simulás cero ventanas o desactivás el contorno, no debe ejecutarse el temporizador de animación.
+
+**Estado:** implementación y revisión estática publicadas; **prueba visual en CachyOS pendiente**. No instalar ni reemplazar el panel KDE existente. En formas irregulares, velocidad y tamaño se calculan mediante estimaciones del perímetro y pueden ser aproximados.
