@@ -6,6 +6,11 @@ import QtQuick.Controls as QQC2
 QQC2.Button {
     id: control
     property bool accent: false
+    // Bandeja: mismo color y opacidad de la isla por defecto.
+    // Cada categoría puede reemplazarlo desde Apariencia.
+    property bool useTileColor: false
+    property color tileColor: "#010111"
+    property real tileOpacity: 0.5
     property url iconSource: ""
     property bool iconAnimated: false
     property bool iconAnimationEnabled: true
@@ -57,11 +62,15 @@ QQC2.Button {
                     ? Math.min(17, control.height / 2)
                     : control.height / 2)
         color: showsLogo ? "transparent" :
-               (control.down ? "#254c61" :
-                (control.hovered ? "#24425a" :
-                 (control.accent ? "#1f4e65" : "#14283d")))
+               (control.useTileColor
+                 ? Qt.rgba(control.tileColor.r, control.tileColor.g,
+                           control.tileColor.b, control.tileOpacity)
+                 : (control.down ? "#254c61" :
+                    (control.hovered ? "#24425a" :
+                     (control.accent ? "#1f4e65" : "#14283d"))))
         border.width: showsLogo ? 0 : 1
-        border.color: control.accent ? "#3dc6d4" : "#45647a"
+        border.color: control.hovered && control.useTileColor ? "#86b3cc" :
+                      (control.accent ? "#3dc6d4" : "#45647a")
     }
 
     contentItem: Item {
