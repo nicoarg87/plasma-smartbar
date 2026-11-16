@@ -45,7 +45,9 @@ Item {
     property real soLogoPanY: 0
     property real soLogoRotation: 0
     property bool soLogoAnimate: true
-    readonly property url defaultSoLogo: Qt.resolvedUrl("assets/so-paw.png")
+    // Imagen tropical exacta todavía no recuperada: fallback seguro a texto SO.
+    // NO empaquetar la huella de Golden Dog sin permiso/licencia comprobados.
+    readonly property url defaultSoLogo: ""
     readonly property url activeSoLogo: soLogoMode === "text" ? "" :
         (soLogoMode === "custom" && soLogoPath.length > 0
          ? soLogoPath : defaultSoLogo)
