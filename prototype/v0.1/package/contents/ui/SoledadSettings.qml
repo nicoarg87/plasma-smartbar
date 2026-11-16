@@ -538,6 +538,11 @@ Window {
                             id: orbitSpeedInput
                             from: 1; to: 30; stepSize: 1
                             editable: true
+                            // SpinBox usa IntValidator por defecto; permitir "1.5" y
+                            // "1,5" con un decimal, sin alterar su valor interno.
+                            validator: RegularExpressionValidator {
+                                regularExpression: /^([0-3]|[0-2][.,][0-9]|3[.,]0)?$/
+                            }
                             enabled: settings.effectStyle === "orbit" && settings.allowMotion
                             value: Math.round(settings.orbitSpeed * 10)
                             textFromValue: function(v, locale) {
