@@ -28,7 +28,7 @@
     <entry name="soLogoMode" type="String"><default>default</default></entry>
     <entry name="soLogoPath" type="String"><default></default></entry>
     <entry name="soLogoShape" type="String"><default>square</default></entry>
-    <entry name="soLogoFitMode" type="String"><default>fit</default></entry>
+    <entry name="soLogoFitMode" type="String"><default>stretch</default></entry>
     <entry name="soLogoZoom" type="Double"><default>1.0</default></entry>
     <entry name="soLogoPanX" type="Double"><default>0.0</default></entry>
     <entry name="soLogoPanY" type="Double"><default>0.0</default></entry>
@@ -47,24 +47,31 @@
     <entry name="malvinaShape" type="String"><default>rounded</default></entry>
     <entry name="gripShape" type="String"><default>square</default></entry>
     <entry name="trayButtonShape" type="String"><default>rounded</default></entry>
-    <entry name="soButtonFrameShape" type="String"><default>square</default></entry>
-    <entry name="soButtonWidth" type="Double"><default>80</default></entry>
-    <entry name="soledadColor" type="String"><default>#101e31</default></entry>
+    <entry name="soButtonFrameShape" type="String"><default>capsule</default></entry>
+    <entry name="soButtonWidth" type="Double"><default>96</default></entry>
+    <entry name="soledadColor" type="String"><default>#010111</default></entry>
     <entry name="malvinaColor" type="String"><default>#101e31</default></entry>
     <entry name="backgroundColor" type="String"><default>#202333</default></entry>
-    <entry name="soledadOpacity" type="Double"><default>1.0</default></entry>
+    <entry name="soledadOpacity" type="Double"><default>0.5</default></entry>
     <entry name="malvinaOpacity" type="Double"><default>1.0</default></entry>
     <entry name="backgroundOpacity" type="Double"><default>0.5</default></entry>
     <entry name="showBackground" type="Bool"><default>false</default></entry>
+    <!-- Botones de bandeja y agarre heredan color y alfa de Soledad, salvo opt-in. -->
+    <entry name="trayButtonColorOverride" type="Bool"><default>false</default></entry>
+    <entry name="trayButtonColor" type="String"><default>#010111</default></entry>
+    <entry name="trayButtonOpacity" type="Double"><default>0.5</default></entry>
+    <entry name="gripButtonColorOverride" type="Bool"><default>false</default></entry>
+    <entry name="gripButtonColor" type="String"><default>#010111</default></entry>
+    <entry name="gripButtonOpacity" type="Double"><default>0.5</default></entry>
     <!-- Contorno opcional: alerta visual sin ventanas por defecto. -->
     <entry name="soActivityStyle" type="String"><default>orbit</default></entry>
     <entry name="soActivityShowWhenEmpty" type="Bool"><default>true</default></entry>
     <entry name="soActivityShowWhenOpen" type="Bool"><default>false</default></entry>
     <entry name="soActivityColor" type="String"><default>#35d7ff</default></entry>
-    <entry name="soActivityStroke" type="Double"><default>1.0</default></entry>
+    <entry name="soActivityStroke" type="Double"><default>0.75</default></entry>
     <entry name="soActivityMotion" type="Bool"><default>true</default></entry>
-    <entry name="soActivityOrbitSpeed" type="Double"><default>1.0</default></entry>
-    <entry name="soActivityTrailPercent" type="Int"><default>22</default></entry>
-    <entry name="soActivityTrailStyle" type="String"><default>solid</default></entry>
+    <entry name="soActivityOrbitSpeed" type="Double"><default>1.5</default></entry>
+    <entry name="soActivityTrailPercent" type="Int"><default>75</default></entry>
+    <entry name="soActivityTrailStyle" type="String"><default>dashed</default></entry>
   </group>
 </kcfg>
