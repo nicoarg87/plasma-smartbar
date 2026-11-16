@@ -45,9 +45,10 @@ Item {
     property real soLogoPanY: 0
     property real soLogoRotation: 0
     property bool soLogoAnimate: true
-    // Imagen tropical exacta todavía no recuperada: fallback seguro a texto SO.
-    // NO empaquetar la huella de Golden Dog sin permiso/licencia comprobados.
-    readonly property url defaultSoLogo: ""
+    // Imagen tropical elegida por el mantenedor: archivo local en assets/.
+    // Si aún no se copió al ensayo, el botón conserva respaldo de texto SO.
+    // No incluir logos externos sin derechos acreditados.
+    readonly property url defaultSoLogo: Qt.resolvedUrl("assets/so-tropical.png")
     readonly property url activeSoLogo: soLogoMode === "text" ? "" :
         (soLogoMode === "custom" && soLogoPath.length > 0
          ? soLogoPath : defaultSoLogo)
