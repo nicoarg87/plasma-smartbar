@@ -1,5 +1,5 @@
 // Borde de actividad del botón SO; fuera del contorno del logo.
-// Los trazos se dibujan en un Canvas diminuto (32x32). Timer activo
+// El Canvas coincide con el botón SO; el temporizador se activa
 // SOLO cuando hay ventanas y el usuario eligió animación opcional.
 import QtQuick
 
@@ -11,6 +11,10 @@ Canvas {
     property string effectStyle: "steady" // off, steady, orbit
     property bool hasWindows: false
     property bool allowMotion: true
+    // Velocidad en vueltas/segundo, longitud de la estela en % del borde.
+    property real orbitSpeed: 1.0
+    property int trailPercent: 22
+    property string trailStyle: "solid" // solid, dotted, dashed
     property real phase: 0
 
     readonly property bool enabledEffect: hasWindows && effectStyle !== "off"
@@ -80,17 +84,78 @@ Canvas {
     onEffectStyleChanged: requestPaint()
     onHasWindowsChanged: requestPaint()
     onAllowMotionChanged: requestPaint()
+    onOrbitSpeedChanged: requestPaint()
+    onTrailPercentChanged: requestPaint()
+    onTrailStyleChanged: requestPaint()
     onWidthChanged: requestPaint()
     onHeightChanged: requestPaint()
 
+    // Solo 30 repintados por segundo, mientras existan ventanas y se haya
+    // habilitado el efecto: sin consumo de reloj con cero ventanas.
     Timer {
-        interval: 66   // ~15 cuadros/segundo; suficiente para un detalle sutil
+        interval: 33
         repeat: true
         running: outline.moving && outline.visible
         onTriggered: {
-            outline.phase = (outline.phase + 0.009) % 1
+            const speed = Math.max(0.1, Math.min(3, outline.orbitSpeed))
+            outline.phase = (outline.phase + speed * interval / 1000) % 1
             outline.requestPaint()
         }
+    }
+
+    function perimeterForShape(margin) {
+        const w = Math.max(1, width - 2 * margin)
+        const h = Math.max(1, height - 2 * margin)
+        const minSide = Math.min(w, h)
+        if (shape === "circle") return Math.PI * minSide
+        if (shape === "oval") {
+            const a = w / 2
+            const b = h / 2
+            return Math.PI * (3 * (a + b) - Math.sqrt((3*a+b)*(a+3*b)))
+        }
+        if (shape === "diamond") return 2 * Math.hypot(w, h)
+        if (shape === "star") {
+            const outer = minSide * 0.48
+            const inner = minSide * 0.22
+            const side = Math.sqrt(outer*outer + inner*inner -
+                                  2*outer*inner*Math.cos(Math.PI/5))
+            return 10 * side
+        }
+        if (shape === "heart") return minSide * 3.2
+        if (shape === "capsule" || shape === "rounded") {
+            const radius = shape === "capsule" ? h/2 : Math.min(12, h/3)
+            return 2 * (w + h - 4*radius) + 2*Math.PI*radius
+        }
+        return 2 * (w + h)
+    }
+
+    // Un solo patrón de guiones por vuelta: el segmento luminoso ocupa
+    // trailPercent del contorno y el resto es un espacio transparente.
+    // En punteado/guiones, dividir solo ese segmento en trozos discretos.
+    function orbitDashPattern(perimeter, stroke) {
+        const length = perimeter * Math.max(5, Math.min(85, trailPercent)) / 100
+        const empty = perimeter - length
+        if (trailStyle === "solid") return [length, empty]
+        const dotted = trailStyle === "dotted"
+        const mark = dotted ? Math.max(0.35, stroke * 0.45)
+                            : Math.max(2, stroke * 4)
+        const gap = dotted ? Math.max(2.5, stroke * 3.2)
+                           : Math.max(2.5, stroke * 2.5)
+        const pattern = []
+        let left = length
+        let count = 0
+        while (left > 0.00001 && count < 150) {
+            const segment = Math.min(mark, left)
+            pattern.push(segment)
+            left -= segment
+            const interval = Math.min(gap, left)
+            pattern.push(interval)
+            left -= interval
+            count++
+        }
+        // El último intervalo completa la vuelta sin duplicar la luz.
+        pattern[pattern.length - 1] += empty
+        return pattern
     }
 
     onPaint: {
@@ -114,12 +179,8 @@ Canvas {
             // Desplazar un tramo luminoso por el perímetro, SIN girar el
             // logo ni alterar la geometría. Qt Quick Context2D soporta
             // setLineDash y lineDashOffset desde hace varias versiones.
-            const side = Math.min(width, height) - 2*margin
-            const perimeter = shape === "circle" ? Math.PI*side :
-                shape === "diamond" ? 2*Math.SQRT2*side :
-                shape === "star" ? side*7 :
-                shape === "heart" ? side*3.2 : side*4
-            ctx.setLineDash([perimeter*0.22, perimeter*0.78])
+            const perimeter = perimeterForShape(margin)
+            ctx.setLineDash(orbitDashPattern(perimeter, stroke))
             ctx.lineDashOffset = -phase * perimeter
             ctx.shadowColor = accentColor
             ctx.shadowBlur = 1.5
