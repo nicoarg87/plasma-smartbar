@@ -338,3 +338,11 @@ Registrar motivo, impactos y pruebas de cada cambio. Favorecer PRs pequeños, re
 **CONFIGURACIÓN:** casilla «Ocultar Malvina automáticamente (predeterminado)», activada por defecto. Al desactivarla, Malvina permanece visible mientras esté habilitada. La preferencia «Mostrar Malvina (isla 2)» sigue permitiendo habilitarla/deshabilitarla por completo y no se confunde con el autoocultamiento. Guardar la preferencia en KConfig, preservando el menú de recuperación existente.
 
 **INTERACCIÓN Y RIESGOS:** detector pasivo `HoverHandler`, sin `MouseArea` en la zona oculta para no consumir clics internos. Eso **no demuestra** que un plasmoide/panel KWin-Wayland deje pasar clics a pestañas de otra ventana que estén detrás de la superficie de Plasma; se debe validar la región real de entrada antes de comprometer ese comportamiento. Prototipo v0.1 únicamente, sin reemplazar el panel del usuario.
+
+## 10. Contorno luminoso SO: velocidad, estela y trazo (16/11/2026)
+
+**REQUISITO CONFIRMADO:** el efecto opcional «Luz que recorre el contorno» del botón SO permite controlar la velocidad mediante **valor numérico editable en vueltas por segundo**, la **longitud porcentual de la estela móvil** y la **apariencia del trazo**: línea continua, puntos o guiones. No alterar la imagen ni girar el logo, el grosor constante de la barra, las demás islas ni el modo de ficha/fijo/desactivado.
+
+**Valores iniciales de la prueba:** velocidad **1,0 vuelta/s** (rango 0,1–3,0 de 0,1 en 0,1), longitud **22 % del perímetro** (rango 5–85 %) y trazo continuo. El editor acepta punto o coma decimal. «Restablecer contorno» vuelve a estos valores; «Aplicar» los envía a la vista y, al usar un plasmoide real, KConfig los conserva. La representación de un ciclo es aproximada en formas irregulares.
+
+**IMPLEMENTACIÓN EN RAMA EXPERIMENTAL:** `SoActivityOutline.qml` dibuja sobre Canvas con `setLineDash` y `lineDashOffset`, actualizando a intervalos de ~33 ms solo con ventanas y movimiento optativo; `IslandButton.qml`, `SmartBarContent.qml`, `SoledadSettings.qml`, el visor Qt, `main.qml` y `main.xml` transmiten/persisten ajustes. **PENDIENTE:** prueba visual con Qt/CachyOS y pruebas de fluidez/rendimiento en diferentes formas; no afirmar funcionamiento validado en KDE/Wayland ni modificar panel instalado.
