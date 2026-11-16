@@ -1,6 +1,6 @@
 # Protocolo de continuidad entre conversaciones de ChatGPT
 
-**Proyecto:** Plasma SmartBar  
+**Proyecto:** Plasma SmartBar Islands (nombre público actual)  
 **Repositorio oficial:** https://github.com/nicoarg87/plasma-smartbar  
 **Propósito:** impedir pérdida de contexto, cambios de criterio no aprobados y afirmaciones incorrectas sobre el estado del software.
 
@@ -140,3 +140,7 @@ El Proyecto de ChatGPT organiza conversaciones e instrucciones, pero **no es el 
 - **NO INCLUIR** el recurso huella Golden Dog sin comprobar autoría/permiso. Mientras no se recupere imagen tropical, conservar fallback **texto SO**, sin generar un reemplazo visual ni afirmar que se distribuye la imagen exacta.
 - **EDITOR DE SO CONFIRMADO:** lista única de formas geométricas y anchas; modos encajar/rellenar/estirar con zoom que persiste y conserva la deformación, sin modificar bytes de archivos del usuario.
 - **PENDIENTE:** retest de la rama experimental PR #3 en CachyOS; los archivos de la imagen tropical no se pudieron recuperar de otros chats mediante herramientas de archivos. Ver [licencias gráficas](LICENCIAS_RECURSOS_GRAFICOS.md) y [Estado del Proyecto](ESTADO_PROYECTO.md).
+
+## 10. Nombre visible oficial (16/11/2026)
+
+**Plasma SmartBar Islands** es el nombre público confirmado. Actualizar textos de presentación, «Acerca de» y metadatos visibles sin cambiar nombres de Soledad/Malvina, identificadores técnicos del plasmoide ni la URL del repositorio `nicoarg87/plasma-smartbar`. No reescribir antecedentes históricos. La rama v0.1 continúa en fase experimental; probar el cambio de títulos en CachyOS.
