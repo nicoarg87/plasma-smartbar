@@ -114,7 +114,11 @@ Item {
     // En versión real se conectará a TasksModel KWin/Plasma.
     property bool demoHasRunningWindows: true
     readonly property int soWindowCount: demoHasRunningWindows ? demoApps.length : 0
-    property string soActivityStyle: "steady"  // off, steady, orbit
+    // Con cero ventanas, el brillo atrae la atención hacia el lanzador.
+    // Con ventanas abiertas, permanece apagado por defecto.
+    property string soActivityStyle: "orbit"  // off, steady, orbit
+    property bool soActivityShowWhenEmpty: true
+    property bool soActivityShowWhenOpen: false
     property color soActivityColor: "#35d7ff"
     property real soActivityStroke: 1.0
     property bool soActivityMotion: true
@@ -126,7 +130,8 @@ Item {
     }
     signal requestSoActivityChange(string style, string color,
                                    real stroke, bool allowMotion,
-                                   real speed, int tailLength, string lineStyle)
+                                   real speed, int tailLength, string lineStyle,
+                                   bool showWhenEmpty, bool showWhenOpen)
 
     signal requestSoLogoChange(string mode, string path, string shape,
                                string fitMode, real zoom, real panX, real panY,
@@ -281,10 +286,15 @@ Item {
             installedAppsPopup.close()
             return
         }
+        // Sin ventanas: un clic breve en SO lleva directamente al
+        // buscador de apps, sin desplegar una fila vacía.
+        if (soWindowCount === 0) {
+            openInstalledLauncher("so")
+            return
+        }
         if (soExpanded) {
             soExpanded = false
         } else {
-            if (soWindowCount === 0) return
             lastExpandedMode = "so"
             soExpanded = true
             // Si entra la bandeja junto a SO, conservar ambos.
@@ -408,6 +418,8 @@ Item {
             soledadSettings.orbitSpeed = root.soActivityOrbitSpeed
             soledadSettings.trailPercent = root.soActivityTrailPercent
             soledadSettings.trailStyle = root.soActivityTrailStyle
+            soledadSettings.showOutlineWhenEmpty = root.soActivityShowWhenEmpty
+            soledadSettings.showOutlineWhenOpen = root.soActivityShowWhenOpen
             soledadSettings.autoCollapseSO = root.autoCollapseSO
             soledadSettings.autoCollapseTray = root.autoCollapseTray
             soledadSettings.autoReturnRight = root.autoReturnRight
@@ -446,9 +458,11 @@ Item {
                                          bgOpacity)
         }
         onSaveActivityRequested: function(style, color, stroke, motion,
-                                          speed, tailLength, lineStyle) {
+                                          speed, tailLength, lineStyle,
+                                          showWhenEmpty, showWhenOpen) {
             root.requestSoActivityChange(style, color, stroke, motion,
-                                         speed, tailLength, lineStyle)
+                                         speed, tailLength, lineStyle,
+                                         showWhenEmpty, showWhenOpen)
         }
         onSaveAutoHideMalvinaRequested: function(value) {
             if (value !== root.autoHideMalvina)
@@ -759,6 +773,8 @@ Item {
                     activityOrbitSpeed: root.soActivityOrbitSpeed
                     activityTrailPercent: root.soActivityTrailPercent
                     activityTrailStyle: root.soActivityTrailStyle
+                    activityShowWhenEmpty: root.soActivityShowWhenEmpty
+                    activityShowWhenOpen: root.soActivityShowWhenOpen
                     iconSource: root.activeSoLogo
                     iconAnimated: root.activeSoLogoIsGif
                     iconAnimationEnabled: root.soLogoAnimate
@@ -774,7 +790,8 @@ Item {
                         ? Math.max(40, systemIsland.height - 8)
                         : Math.max(44, root.soButtonWidth)
 
-                    // Clic corto: ventanas abiertas. Mantener unos 400 ms:
+                    // Clic corto: ventanas abiertas si hay alguna; con cero
+                    // ventanas, abrir el lanzador. Mantener unos 400 ms:
                     // lanzador de muestra. El clic de soltado NO debe activar
                     // también SO después de una pulsación sostenida.
                     onPressed: {
