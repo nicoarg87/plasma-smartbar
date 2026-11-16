@@ -65,6 +65,7 @@ Window {
     property bool autoCollapseTray: false
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
+    property bool autoHideMalvina: true
     property bool alignedRight: true
     property real panelHeight: 48
     property real soledadHeight: 44
@@ -96,6 +97,7 @@ Window {
                                    real bgOpacity)
     signal saveActivityRequested(string style, string color,
                                  real stroke, bool motion)
+    signal saveAutoHideMalvinaRequested(bool enabled)
     signal saveBehaviorRequested(bool collapseSO, bool collapseTray,
                                  bool returnRight, bool showMalvina,
                                  bool alignRight, bool alignmentEdited)
@@ -129,6 +131,7 @@ Window {
                                 backgroundOpacity)
         saveActivityRequested(effectStyle, toHex(accentColor),
                               strokeSize, allowMotion)
+        saveAutoHideMalvinaRequested(autoHideMalvina)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
                               alignedRight, alignmentEdited)
@@ -640,8 +643,13 @@ Window {
                         checked: settings.launcherIslandVisible
                         onToggled: settings.launcherIslandVisible = checked
                     }
+                    QQC2.CheckBox {
+                        text: "Ocultar Malvina automáticamente (predeterminado)"
+                        checked: settings.autoHideMalvina
+                        onToggled: settings.autoHideMalvina = checked
+                    }
                     QQC2.Label {
-                        text: "Malvina permanece visible por defecto. Podés recuperarla desde el menú de los seis puntos."
+                        text: "Con esta opción activada, Malvina aparece solo si dejás el cursor 0,6 segundos en su ubicación. Al salir vuelve a ocultarse. Si desactivás esta opción, permanece a la vista. «Mostrar Malvina» permite habilitarla o quitarla por completo."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
