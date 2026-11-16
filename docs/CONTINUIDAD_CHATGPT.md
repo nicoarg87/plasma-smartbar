@@ -158,3 +158,14 @@ El Proyecto de ChatGPT organiza conversaciones e instrucciones, pero **no es el 
 **CONFIRMADO POR EL MANTENEDOR, CON PRIORIDAD SOBRE EL COMPORTAMIENTO ANTIGUO:** ahora **0 ventanas → luz giratoria predeterminada** y **1+ ventanas → contorno apagado predeterminado**. No interpretar las reglas históricas anteriores que dicen «cero ventanas sin efecto» como vigentes. En «Configuración de Soledad» → «Contorno» hay dos casillas independientes: `soActivityShowWhenEmpty=true` y `soActivityShowWhenOpen=false` al restablecer. `soActivityStyle=orbit` predeterminado; seleccionar «Desactivado» apaga todo. Las combinaciones de casillas permiten ambos, ninguno o uno u otro estado. El reloj de Canvas solo corre si corresponde mostrar la luz móvil en el estado actual.
 
 **SO con cero ventanas:** clic izquierdo breve abre directamente el lanzador/buscador de aplicaciones de muestra; con ventanas mantiene apertura de tareas, clic derecho y pulsación sostenida siguen lanzando búsqueda. No afirmar inicio de apps reales (prototipo). Para probar, cambiar «Simular ventanas abiertas» en la vista previa y «Simular SO SIN ventanas / CON ventanas» en el menú de seis puntos. Aplicar sin cerrar; Restablecer vuelve a los nuevos defaults. Pendiente de prueba visual Qt/CachyOS, persistencia KConfig y TasksModel real. No modificar el panel de usuario.
+
+
+## 13. Defaults visuales provisionales y autoaparición segura (16/11/2026)
+
+**SO aprobado como diseño inicial:** logo tropical exacto, **cápsula horizontal** de ancho de ensayo 96 px, modo **Estirar** (no cuadrado/encajar), incluido botón «Restablecer logo». El PNG original está en ZIP local del chat; aún no dentro de GitHub.
+
+**Contorno PROVISIONAL para prueba a la espera de OK final:** luz móvil orbit, **1,5 vueltas/s**, **0,75 px**, cola **75 %**, **guiones**, sin ventanas encendido y con ventanas apagado. Aplicar y Restablecer usan esos valores ahora; Qt/CachyOS sin ejecutar tras estos commits.
+
+**Apariencia:** Soledad color muy oscuro `#010111` provisional (el código hexadecimal dictado contenía siete cifras, por lo que se eligió uno válido de seis temporalmente), opacidad 50 %. Bandeja y agarre de seis puntos heredan color y alfa de Soledad, pero cada categoría ofrece color y opacidad propios mediante selector, con persistencia experimental KConfig.
+
+**SEGURIDAD de Malvina e islas futuras autoaparecibles:** prohibido autoabrir islas o lanzadores sobre ventanas maximizadas/fullscreen (juegos, videos). En visor, simulaciones y estado maximizado/fullscreen de ventana Qt bloquean aparición; en plasmoide experimental `windowStateKnown=false` impide toda autoaparición hasta que KWin informe estado global real. No afirmar que se probó con videojuegos ni que el clic atraviesa otras ventanas. No modificar panel del usuario.
