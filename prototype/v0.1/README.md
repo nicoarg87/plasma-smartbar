@@ -742,3 +742,27 @@ Abrí «Configuración de Soledad» desde el clic derecho en los seis puntos y e
 En la ventana principal del ensayo, el menú de los seis puntos permite cambiar «Simular SO SIN ventanas (0)» / «CON ventanas (3)». **Con cero ventanas**, un clic izquierdo breve sobre SO abre directamente el buscador de aplicaciones de muestra; con tres ventanas, abre/cierra la lista de tareas ficticias. Ni estas apps ni esas ventanas son reales: aún no hay integración KWin/TasksModel. Con cero ventanas y contorno desactivado, el lienzo y el reloj de animación deben quedar inactivos.
 
 **Por probar en CachyOS:** cambios visuales de estado, casillas independientes, perfil guardado durante la sesión Qt, atajos de teclado, cierre del popup y rendimiento. La versión del plasmoide y la persistencia real KConfig siguen pendientes; no instalarlo como reemplazo del panel diario.
+
+
+## Predeterminados para el siguiente ensayo y bloqueo preventivo Malvina (16/11/2026)
+
+**SO se abre por defecto con** imagen tropical `assets/so-tropical.png`, **cápsula horizontal (ancho 96 px)** y **Estirar**. Estos mismos valores aparecen en «Logo SO» y tras «Restablecer logo y formato». **Importante:** el PNG original exacto todavía NO está en GitHub; tenés que extraer el ZIP con la imagen en la raíz del repositorio, sin reemplazar el código de la rama.
+
+**Contorno PROVISIONAL hasta el OK del mantenedor:** «Luz que recorre el contorno», velocidad **1,5 vueltas por segundo**, grosor **0,75 píxeles**, largo de cola **75 %**, tipo **Guiones**. Estos son ahora los valores iniciales del visor, KConfig y «Restablecer contorno». La preferencia anterior con cero ventanas encendido y con ventanas apagado continúa.
+
+**Apariencia:** Soledad color oscuro `#010111` **provisional** (el hexadecimal dictado tenía siete cifras), **50 % de opacidad**. En «Apariencia» elegí «Botones de bandeja» o «Botón de seis puntos (agarre)» para comprobar que **heredan el color y alfa de Soledad** cuando está desmarcada «Usar color y opacidad propios». Activando esa casilla podés ponerles otros colores/opacidades por separado; probá «Aplicar», cerrar/reabrir y «Restablecer colores».
+
+**Malvina:** no debe aparecer al pasar el ratón mientras se simula una ventana maximizada o fullscreen. Abrí el menú de los seis puntos, activá «Simular ventana maximizada» o «Simular pantalla completa (bloquea Malvina)» y dejá el cursor 600 ms en su posición. **No debería aparecer ni abrir lanzador**. Si desactivás esas simulaciones, debería volver el funcionamiento de hover. Cuando el **visor** Qt está maximizado/fullscreen también se bloquea. El plasmoide real **todavía NO consulta KWin**: por seguridad desactiva toda autoaparición hasta resolver el estado global de ventanas. Esto no acredita protección sobre juegos reales.
+
+**Instrucciones Fish (sin instalar ni reemplazar el panel):**
+
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+# Solo si falta la imagen tropical en la ruta de assets:
+unzip -o ~/Descargas/Plasma-SmartBar-Islands-prueba-v0.1.zip -d .
+bash prototype/v0.1/probar_ancho.sh
+```
+
+Validar en CachyOS: logo/imagen/máscara, estiramiento, 1,5 vueltas/s y trazo en guiones, vista previa, alfa 50 %, herencia y controles independientes de color de bandeja/agarre, bloqueo por simulación maximizada/fullscreen, retorno al modo normal, guardado/Restablecer y rendimiento. **El código está publicado y revisado estáticamente; pruebas Qt/Wayland de esta tanda aún pendientes.**
