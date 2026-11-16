@@ -90,7 +90,7 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 
 - [ ] **Logo de SO personalizado:** huella PNG predeterminada o imagen fija/GIF elegida por usuario; modo texto SO, posibilidad de branding de distribuciones. Editor para escala, encuadre no destructivo y recorte **cuadrado/círculo/rombo/corazón/estrella**; aplicar el mismo recorte a GIF. **Implementado en código de PR #3, pendiente de prueba en CachyOS y persistencia en Plasma**. [Issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
 - [ ] **Color y opacidad de cada isla:** Soledad y Malvina independientes; **fondo general opcional** con color/transparencia y desactivado por defecto. El fondo no cambia altura ni controles; la antigua isla 3 buscadora sigue reservada, numeración del fondo pendiente de decisión explícita.
-- [ ] **Contorno SO por ventanas abiertas:** **cero ventanas → sin trazo y sin temporizador**; una o más → efecto opcional off/fijo/luz recorriendo perímetro de la máscara, color ajustable, grosor 0,5–2 px, movimiento opcional. Brillo fijo predeterminado. Demo con alternancia 0/3 ventanas; **conexión al modelo KDE de ventanas reales pendiente de prueba**. Consumo/performance y accesibilidad pendientes.
+- [ ] **Contorno SO configurable por estado (actualización 16/11/2026):** cero ventanas → luz giratoria por defecto; una o más → contorno apagado por defecto; casillas independientes habilitan cada estado. Efecto apagado/fijo/luz móvil, color, grosor, movimiento, velocidad, cola y trazo. **Implementado en rama v0.1, falta prueba real y conexión a KDE TasksModel**. El temporizador se limita a los estados habilitados; revisar recursos y accesibilidad.
 - [ ] **No introducir animaciones generales de barra:** GIF elegido y contorno SO animado optativo son excepciones explícitas limitadas; nada de MPRIS, animaciones de fichas ni de minimización en MVP.
 
 
@@ -134,3 +134,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Estilo del trazo: continuo, punteado y guiones, para la luz móvil.
 - [x] Cableado a vista previa de SO, aplicación de cambios, «Restablecer contorno» y KConfig en rama experimental v0.1.
 - [ ] Probar en CachyOS con cero y varias ventanas simuladas, el cambio de velocidad, formas geométricas y trazo; verificar persistencia y coste de repintado.
+
+
+## Contorno SO invertido para buscar aplicaciones (16/11/2026)
+
+- [x] Mostrar luz móvil en SO con **cero ventanas por defecto**; apagarla con ventanas abiertas salvo habilitación explícita.
+- [x] Dos casillas independientes para mostrar contorno sin ventanas y con ventanas; «Efecto: Desactivado» apaga ambos.
+- [x] Clic izquierdo en SO sin ventanas abre buscador de aplicaciones simulado; con ventanas conserva listado de tareas.
+- [x] Conectar opciones en QML del botón, vista previa, centro Contorno, Main y KConfig; `soActivityStyle=orbit`, `soActivityShowWhenEmpty=true`, `soActivityShowWhenOpen=false` al restaurar valores.
+- [ ] Probar en CachyOS con simulación 0/3, ambas casillas, off/fijo/móvil, clic izquierdo, Aplicar/Restablecer, cero consumo cuando está desactivado y fluidez.
+- [ ] Validar el cambio cuando KDE TasksModel informe ventanas reales; el visor v0.1 no detecta apps abiertas verdaderas.
