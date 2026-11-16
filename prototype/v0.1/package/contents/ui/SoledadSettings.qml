@@ -218,7 +218,12 @@ Window {
                         LogoArtwork {
                             anchors.centerIn: parent
                             width: 204
-                            height: 204
+                            // La vista previa de las figuras anchas mantiene la
+                            // misma proporción del botón SO real, no una miniatura cuadrada.
+                            height: settings.soButtonFrameShape === "square" ? 204 :
+                                Math.max(54, Math.min(204,
+                                    204 * Math.max(30, settings.soledadHeight - 10) /
+                                    Math.max(44, settings.soButtonWidth)))
                             imageUrl: settings.selectedImage
                             animateGif: settings.isGif
                             animationAllowed: settings.enableGif
