@@ -29,6 +29,9 @@ QQC2.Button {
     property color activityColor: "#35d7ff"
     property real activityStroke: 1.0
     property bool activityMotionAllowed: true
+    property real activityOrbitSpeed: 1.0
+    property int activityTrailPercent: 22
+    property string activityTrailStyle: "solid"
 
     implicitHeight: preferredButtonHeight > 0 ? preferredButtonHeight : 34
     implicitWidth: preferredButtonWidth > 0 ? preferredButtonWidth :
@@ -104,6 +107,9 @@ QQC2.Button {
                     strokeSize: control.activityStroke
                     effectStyle: control.activityEffect
                     allowMotion: control.activityMotionAllowed
+                    orbitSpeed: control.activityOrbitSpeed
+                    trailPercent: control.activityTrailPercent
+                    trailStyle: control.activityTrailStyle
                     hasWindows: control.activityCount > 0
                 }
             }
