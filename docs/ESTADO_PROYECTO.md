@@ -380,3 +380,10 @@ Actualizar cuando cambie algún hito: fecha, decisión confirmada, qué cambió 
 **REVISIÓN ESTÁTICA:** se verificó que QML editado tiene delimitadores balanceados, que `LogoArtwork` usa el modo `stretch` en imagen fija y GIF, y que no hay referencias activas a `so-paw.png` en los QML revisados. **NO** se ejecutó Qt/CachyOS/KWin ni se probó la UI/persistencia real; no afirmar que el escalado es correcto visualmente hasta ensayo. **Sin cambios en el panel instalado**. [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) continúa experimental, [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5) abierto.
 
 **Pendiente del mismo pedido:** recuperar el archivo tropical seleccionado en el chat de diseño e incorporarlo exactamente con CC0 1.0, SHA-256 y referencia en el inventario; validar el resultado en CachyOS/Qt/Wayland. No afirmar que la imagen se incluyó ni que la prueba de comportamiento visual y KConfig fue satisfactoria. Golden Dog: mantener fuera hasta tener derechos verificables. No cambiar requisitos de barra, ventanas y fullscreen sin nuevas pruebas/decisión.
+
+
+## Nombre público oficial (16/11/2026)
+
+**CONFIRMADO:** el proyecto pasa a llamarse **Plasma SmartBar Islands**. Se mantienen los nombres funcionales de Soledad y Malvina, la licencia MIT y las licencias de recursos gráficos separadas.
+
+**IMPLEMENTADO EN LA RAMA v0.1:** el nombre visible está actualizado en `KPlugin.Name`, títulos de ventanas de prueba y «Acerca de». **NO se modificaron** el identificador técnico `KPlugin.Id`, el repositorio `nicoarg87/plasma-smartbar` ni el panel instalado. Los cambios de presentación siguen pendientes de prueba visual en CachyOS, al igual que la integración general del prototipo.
