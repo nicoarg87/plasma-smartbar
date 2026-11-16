@@ -273,7 +273,7 @@ Window {
                         Layout.fillWidth: true
                         QQC2.ComboBox {
                             Layout.fillWidth: true
-                            model: ["Predeterminada tropical (archivo pendiente)", "Imagen propia", "Texto SO"]
+                            model: ["Predeterminada tropical", "Imagen propia", "Texto SO"]
                             currentIndex: settings.logoMode === "text" ? 2 :
                                 (settings.logoMode === "custom" ? 1 : 0)
                             onActivated: function(i) {
