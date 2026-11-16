@@ -30,38 +30,74 @@ Window {
     property string logoMode: "default"
     property string filePath: ""
     property string shape: "square"
-    property string cropFitMode: "fit"
+    property string cropFitMode: "stretch"
     property real cropZoom: 1
     property real cropPanX: 0
     property real cropPanY: 0
     property real cropRotation: 0
-    property string soButtonFrameShape: "square"
-    property real soButtonWidth: 80
+    property string soButtonFrameShape: "capsule"
+    property real soButtonWidth: 96
     property bool enableGif: true
     readonly property url selectedImage: logoMode === "text" ? "" :
         (logoMode === "custom" && filePath.length > 0 ? filePath : defaultImage)
     readonly property bool isGif: logoMode === "custom" &&
         filePath.toLowerCase().endsWith(".gif")
 
-    property color soledadColor: "#101e31"
+    property color soledadColor: "#010111"
     property color malvinaColor: "#101e31"
     property color backgroundColor: "#202333"
-    property real soledadOpacity: 1
+    property real soledadOpacity: 0.5
     property real malvinaOpacity: 1
     property real backgroundOpacity: 0.5
     property bool showBackground: false
-    readonly property color activeColor: appearanceTarget.currentIndex === 0 ? soledadColor :
-        (appearanceTarget.currentIndex === 1 ? malvinaColor : backgroundColor)
-    readonly property real activeOpacity: appearanceTarget.currentIndex === 0 ? soledadOpacity :
-        (appearanceTarget.currentIndex === 1 ? malvinaOpacity : backgroundOpacity)
+    property bool trayButtonColorOverride: false
+    property color trayButtonColor: "#010111"
+    property real trayButtonOpacity: 0.5
+    property bool gripButtonColorOverride: false
+    property color gripButtonColor: "#010111"
+    property real gripButtonOpacity: 0.5
+    readonly property color activeColor:
+        appearanceTarget.currentIndex === 0 ? soledadColor :
+        appearanceTarget.currentIndex === 1 ? malvinaColor :
+        appearanceTarget.currentIndex === 2 ? backgroundColor :
+        appearanceTarget.currentIndex === 3
+            ? (trayButtonColorOverride ? trayButtonColor : soledadColor)
+            : (gripButtonColorOverride ? gripButtonColor : soledadColor)
+    readonly property real activeOpacity:
+        appearanceTarget.currentIndex === 0 ? soledadOpacity :
+        appearanceTarget.currentIndex === 1 ? malvinaOpacity :
+        appearanceTarget.currentIndex === 2 ? backgroundOpacity :
+        appearanceTarget.currentIndex === 3
+            ? (trayButtonColorOverride ? trayButtonOpacity : soledadOpacity)
+            : (gripButtonColorOverride ? gripButtonOpacity : soledadOpacity)
+    readonly property bool appearanceCanEdit:
+        appearanceTarget.currentIndex < 3 ||
+        (appearanceTarget.currentIndex === 3 ? trayButtonColorOverride
+                                              : gripButtonColorOverride)
+    function setAppearanceOverride(enabled) {
+        if (appearanceTarget.currentIndex === 3) {
+            if (enabled && !trayButtonColorOverride) {
+                trayButtonColor = soledadColor
+                trayButtonOpacity = soledadOpacity
+            }
+            trayButtonColorOverride = enabled
+        } else if (appearanceTarget.currentIndex === 4) {
+            if (enabled && !gripButtonColorOverride) {
+                gripButtonColor = soledadColor
+                gripButtonOpacity = soledadOpacity
+            }
+            gripButtonColorOverride = enabled
+        }
+    }
 
     property string effectStyle: "orbit"
     property color accentColor: "#35d7ff"
-    property real strokeSize: 1
+    property real strokeSize: 0.75
     property bool allowMotion: true
-    property real orbitSpeed: 1.0 // vueltas por segundo
-    property int trailPercent: 22 // porcentaje del perímetro
-    property string trailStyle: "solid" // solid, dotted, dashed
+    // Valores de contorno provisoriamente elegidos para esta prueba.
+    property real orbitSpeed: 1.5 // vueltas por segundo
+    property int trailPercent: 75 // porcentaje del perímetro
+    property string trailStyle: "dashed" // solid, dotted, dashed
     property bool showOutlineWhenEmpty: true
     property bool showOutlineWhenOpen: false
     property bool simulateHasWindows: false
@@ -99,7 +135,10 @@ Window {
     signal saveAppearanceRequested(string soColor, real soOpacity,
                                    string malColor, real malOpacity,
                                    bool backgroundShown, string bgColor,
-                                   real bgOpacity)
+                                   real bgOpacity, bool trayOverride,
+                                   string trayColor, real trayOpacity,
+                                   bool gripOverride, string gripColor,
+                                   real gripOpacity)
     signal saveActivityRequested(string style, string color,
                                  real stroke, bool motion, real speed,
                                  int tailLength, string lineStyle,
@@ -120,7 +159,11 @@ Window {
     function chooseOpacity(value) {
         if (appearanceTarget.currentIndex === 0) soledadOpacity = value
         else if (appearanceTarget.currentIndex === 1) malvinaOpacity = value
-        else backgroundOpacity = value
+        else if (appearanceTarget.currentIndex === 2) backgroundOpacity = value
+        else if (appearanceTarget.currentIndex === 3 && trayButtonColorOverride)
+            trayButtonOpacity = value
+        else if (appearanceTarget.currentIndex === 4 && gripButtonColorOverride)
+            gripButtonOpacity = value
     }
     function applyChanges() {
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
@@ -135,7 +178,10 @@ Window {
         saveAppearanceRequested(toHex(soledadColor), soledadOpacity,
                                 toHex(malvinaColor), malvinaOpacity,
                                 showBackground, toHex(backgroundColor),
-                                backgroundOpacity)
+                                backgroundOpacity, trayButtonColorOverride,
+                                toHex(trayButtonColor), trayButtonOpacity,
+                                gripButtonColorOverride,
+                                toHex(gripButtonColor), gripButtonOpacity)
         saveActivityRequested(effectStyle, toHex(accentColor),
                               strokeSize, allowMotion, orbitSpeed,
                               trailPercent, trailStyle,
@@ -167,7 +213,11 @@ Window {
         onAccepted: {
             if (editingTarget === 0) settings.soledadColor = selectedColor
             else if (editingTarget === 1) settings.malvinaColor = selectedColor
-            else settings.backgroundColor = selectedColor
+            else if (editingTarget === 2) settings.backgroundColor = selectedColor
+            else if (editingTarget === 3 && settings.trayButtonColorOverride)
+                settings.trayButtonColor = selectedColor
+            else if (editingTarget === 4 && settings.gripButtonColorOverride)
+                settings.gripButtonColor = selectedColor
         }
     }
     ColorDialog {
@@ -413,15 +463,15 @@ Window {
                         onClicked: {
                             settings.logoMode = "default"
                             settings.filePath = ""
-                            settings.soButtonFrameShape = "square"
-                            settings.soButtonWidth = 80
+                            settings.soButtonFrameShape = "capsule"
+                            settings.soButtonWidth = 96
                             settings.cropRotation = 0
                             settings.enableGif = true
                             settings.cropZoom = 1
                             settings.cropPanX = 0
                             settings.cropPanY = 0
                             settings.shape = "square"
-                            settings.cropFitMode = "fit"
+                            settings.cropFitMode = "stretch"
                         }
                     }
                 }
@@ -628,11 +678,11 @@ Window {
                         onClicked: {
                             settings.effectStyle = "orbit"
                             settings.accentColor = "#35d7ff"
-                            settings.strokeSize = 1
+                            settings.strokeSize = 0.75
                             settings.allowMotion = true
-                            settings.orbitSpeed = 1.0
-                            settings.trailPercent = 22
-                            settings.trailStyle = "solid"
+                            settings.orbitSpeed = 1.5
+                            settings.trailPercent = 75
+                            settings.trailStyle = "dashed"
                             settings.showOutlineWhenEmpty = true
                             settings.showOutlineWhenOpen = false
                         }
@@ -654,7 +704,7 @@ Window {
                         color: "white"
                     }
                     QQC2.Label {
-                        text: "Elegí Soledad, Malvina o el fondo continuo opcional."
+                        text: "Color por isla y fondo; bandeja y agarre heredan Soledad salvo personalización."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -662,7 +712,25 @@ Window {
                     QQC2.ComboBox {
                         id: appearanceTarget
                         Layout.fillWidth: true
-                        model: ["Soledad (isla 1)", "Malvina (isla 2)", "Fondo opcional"]
+                        model: ["Soledad (isla 1)", "Malvina (isla 2)", "Fondo opcional",
+                                "Botones de bandeja", "Botón de seis puntos (agarre)"]
+                    }
+                    QQC2.CheckBox {
+                        Layout.fillWidth: true
+                        visible: appearanceTarget.currentIndex >= 3
+                        text: "Usar color y opacidad propios (sin heredar de Soledad)"
+                        checked: appearanceTarget.currentIndex === 3
+                            ? settings.trayButtonColorOverride
+                            : settings.gripButtonColorOverride
+                        onToggled: settings.setAppearanceOverride(checked)
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        visible: appearanceTarget.currentIndex >= 3 &&
+                                 !settings.appearanceCanEdit
+                        text: "Este botón usa automáticamente el color y la opacidad actuales de Soledad."
+                        color: "#ddd6e8"
+                        wrapMode: Text.WordWrap
                     }
                     RowLayout {
                         Layout.fillWidth: true
@@ -676,6 +744,7 @@ Window {
                         }
                         QQC2.Button {
                             text: "Elegir color…"
+                            enabled: settings.appearanceCanEdit
                             onClicked: {
                                 islandColorDialog.editingTarget = appearanceTarget.currentIndex
                                 islandColorDialog.selectedColor = settings.activeColor
@@ -692,6 +761,7 @@ Window {
                         Layout.fillWidth: true
                         QQC2.Slider {
                             Layout.fillWidth: true
+                            enabled: settings.appearanceCanEdit
                             from: 0; to: 1; stepSize: 0.05
                             value: settings.activeOpacity
                             onMoved: settings.chooseOpacity(value)
@@ -716,13 +786,19 @@ Window {
                     QQC2.Button {
                         text: "Restablecer colores"
                         onClicked: {
-                            settings.soledadColor = "#101e31"
+                            settings.soledadColor = "#010111"
                             settings.malvinaColor = "#101e31"
                             settings.backgroundColor = "#202333"
-                            settings.soledadOpacity = 1
+                            settings.soledadOpacity = 0.5
                             settings.malvinaOpacity = 1
                             settings.backgroundOpacity = 0.5
                             settings.showBackground = false
+                            settings.trayButtonColorOverride = false
+                            settings.trayButtonColor = "#010111"
+                            settings.trayButtonOpacity = 0.5
+                            settings.gripButtonColorOverride = false
+                            settings.gripButtonColor = "#010111"
+                            settings.gripButtonOpacity = 0.5
                         }
                     }
                 }
