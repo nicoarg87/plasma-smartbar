@@ -42,6 +42,9 @@ PlasmoidItem {
         autoReturnRight: Plasmoid.configuration.autoReturnRight
         launcherIslandVisible: Plasmoid.configuration.showLauncherIsland
         autoHideMalvina: Plasmoid.configuration.autoHideMalvina
+        // Seguridad: sin consulta real a KWin todavía, NO revelar islas
+        // por hover sobre otras aplicaciones. Evitar interrupciones.
+        windowStateKnown: false
         autoCollapseSO: Plasmoid.configuration.autoCollapseSO
         autoCollapseTray: Plasmoid.configuration.autoCollapseTray
         soLogoMode: Plasmoid.configuration.soLogoMode
