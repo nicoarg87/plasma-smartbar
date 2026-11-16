@@ -118,3 +118,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **Idea diferida:** posible botón «Añadir isla extra» (mencionado por el mantenedor, NO desarrollar ahora). No sustituir ni renumerar isla 3 buscadora existente, ni definir el comportamiento de otra isla sin decisión posterior.
 
 **Siguiente prueba reversible:** rama `prototype/v0.1-islas-so`; `git pull` y `bash prototype/v0.1/probar_ancho.sh` con la ventana aislada; verificar las seis pestañas, aplicar sin cerrar, tamaño en pantalla pequeña, cerrar, colores/logo/GIF y opciones de comportamiento. Seguir documentando en issues #1 y #5, sin tocar el panel de KDE instalado.
+
+## Nueva prueba: Malvina autooculta y logo tropical (16/11/2026)
+
+- [x] Autoocultamiento de Malvina por defecto en rama v0.1, aparición tras hover 600 ms y ocultamiento tras salida 250 ms; opción para desactivar en Configuración.
+- [x] Imagen tropical original adjuntada en ZIP de prueba, referencia predeterminada de SO en QML.
+- [ ] Confirmar el comportamiento en el visor Qt de CachyOS y revisar la persistencia KConfig.
+- [ ] Verificar en KWin/Wayland que el área oculta no dificulta clics sobre pestañas de ventanas subyacentes; el detector QML no garantiza transferencia de clics entre ventanas.
+- [ ] Incorporar el PNG original al repositorio (ahora está solo en ZIP adjunto a la conversación).
