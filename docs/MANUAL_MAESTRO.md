@@ -879,7 +879,7 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 
 ## 48. Licencias por separado, logo tropical y ajuste del botón SO (v0.39, 16/11/2026)
 
-**CONFIRMADO POR EL MANTENEDOR:** pasar el software/documentación propia de GPL-3.0 a **MIT**, sin imponer esa licencia a las imágenes. Imagen tropical con palmera, barra rústica y atardecer producida en ChatGPT autorizada bajo **CC0 1.0** para permitir su uso comercial, reproducción e impresión en productos por terceros, conforme a los derechos disponibles. Identificar el archivo original exacto antes de distribuirlo: **no está incorporado a GitHub**. Ver [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md).
+**CONFIRMADO POR EL MANTENEDOR:** pasar el software/documentación propia de GPL-3.0 a **MIT**, sin imponer esa licencia a las imágenes. Imagen tropical con palmera, barra rústica y atardecer producida en ChatGPT autorizada bajo **CC0 1.0** para permitir su uso comercial, reproducción e impresión en productos por terceros, conforme a los derechos disponibles. El archivo original exacto se recibió después y se entrega solo en un **ZIP de prueba local; aún no está incorporado a GitHub**. Ver [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md).
 
 **Golden Dog:** suspender la huella/logo como recurso predeterminado o alternativa empaquetada hasta acreditar su origen, licencia y permiso de redistribución. No asumir que el hecho de estar en otra distribución permite copiarla. Durante la espera, el prototipo usa el texto **SO** como opción segura sin reemplazar el archivo tropical ausente por otra ilustración.
 
