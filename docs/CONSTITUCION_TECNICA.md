@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar Islands
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.31 (actualización de denominación pública; 16/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.32 (activación del contorno SO según presencia de ventanas; 16/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -345,4 +345,14 @@ Registrar motivo, impactos y pruebas de cada cambio. Favorecer PRs pequeños, re
 
 **Valores iniciales de la prueba:** velocidad **1,0 vuelta/s** (rango 0,1–3,0 de 0,1 en 0,1), longitud **22 % del perímetro** (rango 5–85 %) y trazo continuo. El editor acepta punto o coma decimal. «Restablecer contorno» vuelve a estos valores; «Aplicar» los envía a la vista y, al usar un plasmoide real, KConfig los conserva. La representación de un ciclo es aproximada en formas irregulares.
 
-**IMPLEMENTACIÓN EN RAMA EXPERIMENTAL:** `SoActivityOutline.qml` dibuja sobre Canvas con `setLineDash` y `lineDashOffset`, actualizando a intervalos de ~33 ms solo con ventanas y movimiento optativo; `IslandButton.qml`, `SmartBarContent.qml`, `SoledadSettings.qml`, el visor Qt, `main.qml` y `main.xml` transmiten/persisten ajustes. **PENDIENTE:** prueba visual con Qt/CachyOS y pruebas de fluidez/rendimiento en diferentes formas; no afirmar funcionamiento validado en KDE/Wayland ni modificar panel instalado.
+**IMPLEMENTACIÓN EN RAMA EXPERIMENTAL:** `SoActivityOutline.qml` dibuja sobre Canvas con `setLineDash` y `lineDashOffset`, actualizando a intervalos de ~33 ms solo en estados habilitados por la configuración y con movimiento optativo; `IslandButton.qml`, `SmartBarContent.qml`, `SoledadSettings.qml`, el visor Qt, `main.qml` y `main.xml` transmiten/persisten ajustes. **PENDIENTE:** prueba visual con Qt/CachyOS y pruebas de fluidez/rendimiento en diferentes formas; no afirmar funcionamiento validado en KDE/Wayland ni modificar panel instalado.
+
+## 11. Indicador luminoso SO con y sin ventanas (16/11/2026)
+
+**CORRECCIÓN FUNCIONAL EXPLÍCITA DEL MANTENEDOR, PREVALECE SOBRE LA REGLA ANTERIOR DEL 14/11:** el contorno de SO sirve principalmente como **señal de acceso al lanzador cuando no existen ventanas abiertas**. En ese estado, el contorno luminoso **gira por defecto**. Cuando hay una o más ventanas abiertas, se **apaga por defecto**. No es solo un indicador de ventanas activas: la ausencia de ventanas debe poder activar el efecto visual.
+
+**CONFIGURACIÓN INDEPENDIENTE:** en la pestaña «Contorno» agregar «Mostrar contorno cuando NO hay ventanas» (**activado por defecto**) y «Mostrar contorno cuando HAY ventanas» (**desactivado por defecto**). Combinaciones admitidas: solo sin ventanas, solo con ventanas, ambos o ninguno. «Efecto → Desactivado» anula las dos casillas y mantiene el trazo apagado en cualquier estado; «Borde brillante fijo» sigue disponible como alternativa a la luz giratoria. El efecto seleccionado por defecto cambia a **«Luz que recorre el contorno»**. «Restablecer contorno» recupera los nuevos predeterminados; guardar las casillas en KConfig y aplicarlas al visor Qt.
+
+**ACCIÓN SO CON CERO VENTANAS:** clic izquierdo breve en SO abre directamente el lanzador/buscador de aplicaciones (simulado en v0.1). Con ventanas, el clic izquierdo conserva la expansión de la lista de tareas. El clic derecho y la pulsación sostenida continúan abriendo el lanzador. La selección de una app en el visor no inicia aplicaciones reales: la conexión a TasksModel sigue pendiente. Cuando pase de 0 a 1 o más ventanas reales, el contorno debe responder al estado sin alterar geometría ni pulsaciones.
+
+**RENDIMIENTO Y PRUEBAS:** crear Canvas y activar temporizador únicamente si la configuración autoriza dibujar en el estado actual; por decisión explícita, **el temporizador sí puede girar con cero ventanas**. Mantener un solo lienzo ligero, sin afectar los demás botones, panel instalado ni dimensiones de la barra. **IMPLEMENTADO en PR #3 experimental; sin validación Qt/CachyOS/KWin/Wayland en esta sesión.**
