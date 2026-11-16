@@ -1,4 +1,4 @@
-# Licencias y procedencia de recursos gráficos — Plasma SmartBar
+# Licencias y procedencia de recursos gráficos — Plasma SmartBar Islands
 
 **Decisión del mantenedor:** 16 de noviembre de 2026.  
 **Proyecto oficial:** https://github.com/nicoarg87/plasma-smartbar
@@ -7,7 +7,7 @@
 
 - **Código fuente y documentación propia**: licencia **MIT**, archivo [LICENSE](../LICENSE). La licencia del código **no se aplica automáticamente** a las imágenes de terceros.
 - **Recursos gráficos**: cada archivo debe tener origen, titular/autorización y licencia asentados en un inventario, y respetar posibles derechos de terceros. Publicar una imagen bajo CC0 **no convierte otros gráficos ni marcas en CC0**.
-- **Imagen tropical/palmera con bar rústico y atardecer, generada con OpenAI**: el mantenedor autorizó publicarla **bajo CC0 1.0 Universal**, hasta donde tenga derechos para hacerlo. Texto y alcance: https://creativecommons.org/publicdomain/zero/1.0/ . La dedicatoria permite reproducción, modificación, impresión en remeras/tazas y venta por terceros, en la medida legalmente aplicable. **El archivo original exacto todavía no está recuperado ni incluido en este repositorio**: no declarar falsamente que ya existe el recurso descargable o que se validó su hash. Al incorporarlo, incluir nombre/ruta y SHA-256, dimensiones, fecha y esta nota.
+- **Imagen tropical/palmera con bar rústico y atardecer, generada con OpenAI**: el mantenedor autorizó publicarla **bajo CC0 1.0 Universal**, hasta donde tenga derechos para hacerlo. Texto y alcance: https://creativecommons.org/publicdomain/zero/1.0/ . La dedicatoria permite reproducción, modificación, impresión en remeras/tazas y venta por terceros, en la medida legalmente aplicable. **El archivo exacto está recuperado en un ZIP de prueba local, pero todavía no está incluido en GitHub**: no declarar falsamente que ya existe el recurso descargable o que se validó su hash. Al incorporarlo, incluir nombre/ruta y SHA-256, dimensiones, fecha y esta nota.
 - **Logo/huella de Golden Dog**: origen y derechos de autor **sin verificar** (podría provenir de una persona/artista o de la distribución mencionada). **No se autoriza incluirlo como predeterminado ni como opción descargable dentro de la distribución** hasta contar con autorización/licencia verificable. Esto no impide que cada usuario elija por su cuenta un archivo local sobre el que tenga derechos.
 
 ## Registro de recursos
@@ -33,3 +33,10 @@ Según https://openai.com/policies/terms-of-use/ , entre el usuario y OpenAI y e
 5. Mantener el antiguo logo de Golden Dog **excluido**, incluso si aparece en versiones históricas del repositorio.
 
 **Estado:** política y decisión **confirmadas**; dedicatoria CC0 para la imagen tropical **autorizada**, pero recurso exacto **no incluido y no probado** en la aplicación a 16/11/2026. Este documento no constituye una certificación jurídica de derechos de terceros.
+
+
+## Archivo original recibido y prueba local (16/11/2026)
+
+El mantenedor volvió a suministrar la **imagen tropical exacta** en la conversación del proyecto: PNG RGBA de **1774 × 887** píxeles, SHA-256 `0c6e646886ba293db5b53d13f81a7421b4ceaee56d6bd92ed99745da273d4137`. Para probarla se entrega el archivo intacto `so-tropical.png` en un ZIP local, con destino `prototype/v0.1/package/contents/ui/assets/so-tropical.png`; su licencia prevista y autorizada por el mantenedor es **CC0 1.0 Universal**, en la medida legalmente aplicable.
+
+**Distribución real:** la imagen se recuperó y existe en el paquete de prueba adjunto a la conversación; **aún no está incorporada al repositorio GitHub**. La rama experimental ya referencia esa ruta, pero requiere copiar el archivo o extraer el ZIP. No confundir «archivo recibido para prueba local» con «archivo publicado en GitHub». No incluir el recurso Golden Dog.
