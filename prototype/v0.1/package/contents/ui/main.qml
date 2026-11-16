@@ -60,6 +60,12 @@ PlasmoidItem {
         malvinaOpacity: Plasmoid.configuration.malvinaOpacity
         backgroundOpacity: Plasmoid.configuration.backgroundOpacity
         showBackground: Plasmoid.configuration.showBackground
+        trayButtonColorOverride: Plasmoid.configuration.trayButtonColorOverride
+        trayButtonColor: Plasmoid.configuration.trayButtonColor
+        trayButtonOpacity: Plasmoid.configuration.trayButtonOpacity
+        gripButtonColorOverride: Plasmoid.configuration.gripButtonColorOverride
+        gripButtonColor: Plasmoid.configuration.gripButtonColor
+        gripButtonOpacity: Plasmoid.configuration.gripButtonOpacity
         soActivityStyle: Plasmoid.configuration.soActivityStyle
         soActivityColor: Plasmoid.configuration.soActivityColor
         soActivityStroke: Plasmoid.configuration.soActivityStroke
@@ -110,7 +116,10 @@ PlasmoidItem {
             Plasmoid.configuration.gripShape = gripButtonShape
             Plasmoid.configuration.trayButtonShape = trayShape
         }
-        onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg, alphaBg) {
+        onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
+                                            alphaBg, trayOverride, trayColor,
+                                            trayOpacity, gripOverride,
+                                            gripColor, gripOpacity) {
             Plasmoid.configuration.soledadColor = a
             Plasmoid.configuration.soledadOpacity = alphaA
             Plasmoid.configuration.malvinaColor = b
@@ -118,6 +127,12 @@ PlasmoidItem {
             Plasmoid.configuration.showBackground = shown
             Plasmoid.configuration.backgroundColor = bg
             Plasmoid.configuration.backgroundOpacity = alphaBg
+            Plasmoid.configuration.trayButtonColorOverride = trayOverride
+            Plasmoid.configuration.trayButtonColor = trayColor
+            Plasmoid.configuration.trayButtonOpacity = trayOpacity
+            Plasmoid.configuration.gripButtonColorOverride = gripOverride
+            Plasmoid.configuration.gripButtonColor = gripColor
+            Plasmoid.configuration.gripButtonOpacity = gripOpacity
         }
         onRequestAutoReturnRightChange: function(newValue) {
             Plasmoid.configuration.autoReturnRight = newValue
