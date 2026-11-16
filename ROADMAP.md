@@ -126,3 +126,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Confirmar el comportamiento en el visor Qt de CachyOS y revisar la persistencia KConfig.
 - [ ] Verificar en KWin/Wayland que el área oculta no dificulta clics sobre pestañas de ventanas subyacentes; el detector QML no garantiza transferencia de clics entre ventanas.
 - [ ] Incorporar el PNG original al repositorio (ahora está solo en ZIP adjunto a la conversación).
+
+## Contorno SO con parámetros de luz móvil (16/11/2026)
+
+- [x] Control numérico de velocidad de la luz móvil (0,1–3,0 vueltas/s, paso 0,1; inicial 1,0) en «Contorno».
+- [x] Longitud editable de la cola, 5–85 % del perímetro, inicial 22 %.
+- [x] Estilo del trazo: continuo, punteado y guiones, para la luz móvil.
+- [x] Cableado a vista previa de SO, aplicación de cambios, «Restablecer contorno» y KConfig en rama experimental v0.1.
+- [ ] Probar en CachyOS con cero y varias ventanas simuladas, el cambio de velocidad, formas geométricas y trazo; verificar persistencia y coste de repintado.
