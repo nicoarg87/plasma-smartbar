@@ -1,7 +1,7 @@
 {
   "KPlugin": {
     "Id": "org.github.nicoarg87.plasmasmartbar.preview",
-    "Name": "Plasma SmartBar — Vista previa v0.1",
+    "Name": "Plasma SmartBar Islands — Vista previa v0.1",
     "Description": "Prueba visual aislada de las islas y del selector SO, sin ventanas reales.",
     "Icon": "preferences-system-windows",
     "Category": "Windows and Tasks",
