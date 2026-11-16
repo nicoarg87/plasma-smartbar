@@ -2,7 +2,7 @@
 
 **Barra inteligente, minimalista y modular para Linux con KDE Plasma 6: arriba por defecto, abajo como modo configurable previsto.**
 
-> **Estado del proyecto:** fase de diseño y documentación. **No existe todavía un complemento funcional ni una versión instalable; tampoco están implementados los modos superior o inferior.** CachyOS será el primer entorno de pruebas; el objetivo es funcionar también en otras distribuciones Linux con Plasma compatible.
+> **Estado del proyecto:** documentación en main y prototipo visual v0.1 en rama experimental, con ensayos parciales ya realizados en CachyOS. **Todavía no hay versión instalable validada ni control real de ventanas.** El modo inferior sigue pendiente de implementación y pruebas.
 
 ## Idea principal
 Plasma SmartBar Islands busca concentrar la gestión de ventanas en **islas de una barra horizontal de grosor constante**, sin llenar el escritorio de tareas visibles de forma permanente. **Se desarrolla primero arriba y se admite como modo oficial configurable abajo:**
@@ -47,3 +47,6 @@ Este repositorio es **público**. El código y la documentación propia se publi
 - [ ] Lanzamiento experimental.
 
 **No usar las imágenes conceptuales previamente rechazadas como especificación.**
+
+
+**Prueba actual v0.1:** interfaz con nombre público Plasma SmartBar Islands, imagen SO tropical incluida en ZIP de ensayo por separado, y Malvina con autoocultamiento predeterminado y hover retardado configurable. Código experimental en rama `prototype/v0.1-islas-so`; para instrucciones ver [README de prueba](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/README.md). No reemplazar el panel existente.
