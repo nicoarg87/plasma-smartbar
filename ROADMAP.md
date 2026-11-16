@@ -5,11 +5,15 @@
 
 ## Fase 0 — Fundamentos y organización
 - [x] Abrir repositorio público para Linux con KDE Plasma.
-- [x] Establecer licencia GPL-3.0, constitución, Manual Maestro y gobernanza.
+- [x] Establecer constitución, Manual Maestro y gobernanza; licencia inicial GPL-3.0, **relicenciamiento del código propio a MIT aprobado el 16/11/2026**.
 - [x] Redactar reglas de contribución y visión inicial.
 - [x] Activar regla de protección de rama main (bloqueo de borrado y force push; confirmado 14/11/2026).
 - [ ] Revisar periódicamente colaboradores autorizados y evaluar exigencia de PRs cuando haya equipo.
 - [ ] Investigar qué piezas de Plasma/KWin/Qt pueden reutilizarse y bajo qué licencias.
+
+- [x] Documentar separación entre licencia MIT del código y licencia de recursos gráficos (CC0 1.0 previsto para imagen tropical de OpenAI, aún falta recuperar su archivo exacto). No incluir logo Golden Dog de procedencia no verificada.
+- [ ] Integrar imagen tropical original cuando esté disponible y registrar integridad/autoría; no usar sustitutos visuales como si fueran el original.
+- [ ] Retest en CachyOS de forma única del botón SO (figuras normales y anchas) y ajuste `Estirar` + zoom y desplazamiento sin reescribir la imagen.
 
 ## Fase 1 — MVP funcional y estable (sin animaciones)
 - [ ] **Modo superior predeterminado**, con islas separadas, cuyo grosor configurado permanece **constante** durante cada interacción. Diseñar la base de estados y vistas para permitir cambiar de orientación más adelante sin reescribir la gestión de ventanas.
