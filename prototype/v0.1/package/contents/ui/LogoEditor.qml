@@ -1,4 +1,5 @@
-// Editor visual e independiente del panel instalado.
+// Editor visual LEGADO, no instanciado por la ruta habitual (SoledadSettings).
+// Independiente del panel instalado.
 // Cambia únicamente parámetros de encuadre: NO edita el archivo del usuario.
 import QtQuick
 import QtQuick.Window
@@ -78,7 +79,7 @@ Window {
                 zoom: editor.cropZoom
                 panX: editor.cropPanX
                 panY: editor.cropPanY
-                visible: editor.logoMode !== "text"
+                visible: editor.logoMode !== "text" && editor.selectedImage.toString().length > 0
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.SizeAllCursor
@@ -101,7 +102,7 @@ Window {
             QQC2.Label {
                 anchors.centerIn: parent
                 text: "SO"
-                visible: editor.logoMode === "text"
+                visible: editor.logoMode === "text" || editor.selectedImage.toString().length === 0
                 color: "white"
                 font.pixelSize: 40
             }
@@ -116,7 +117,7 @@ Window {
             QQC2.ComboBox {
                 id: modeChooser
                 Layout.fillWidth: true
-                model: ["Huella predeterminada", "Imagen propia", "Texto SO"]
+                model: ["Tropical predeterminada (archivo pendiente)", "Imagen propia", "Texto SO"]
                 currentIndex: editor.logoMode === "text" ? 2 :
                               (editor.logoMode === "custom" ? 1 : 0)
                 onActivated: function(i) {
@@ -143,9 +144,9 @@ Window {
 
         QQC2.ComboBox {
             Layout.fillWidth: true
-            model: ["Imagen completa (encajar)", "Rellenar forma (recortar)"]
-            currentIndex: editor.cropFitMode === "crop" ? 1 : 0
-            onActivated: function(i) { editor.cropFitMode = i === 1 ? "crop" : "fit" }
+            model: ["Imagen completa (encajar)", "Rellenar forma (recortar)", "Estirar (deformar)"]
+            currentIndex: editor.cropFitMode === "stretch" ? 2 : (editor.cropFitMode === "crop" ? 1 : 0)
+            onActivated: function(i) { editor.cropFitMode = ["fit", "crop", "stretch"][i] }
         }
         RowLayout {
             QQC2.Label { text: "Escala"; color: "white"; Layout.preferredWidth: 72 }
