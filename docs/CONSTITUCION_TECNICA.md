@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.29 (terminaciones configurables de islas y orden de Acerca de; 15/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.30 (licencia MIT, política CC0 y botón SO con estiramiento; 16/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -314,7 +314,7 @@ Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la 
 El mantenedor del repositorio oficial define y aprueba el comportamiento fundamental. Cualquier persona puede proponer ideas o soluciones, pero **ningún issue ni pull request modifica esta constitución por sí solo**. Una modificación sustancial requiere discusión previa y aprobación explícita del mantenedor, con actualización versionada del Manual Maestro y de las pruebas de aceptación.
 
 ## 5. Software libre y contribuciones
-El código oficial se publica bajo la **GPL-3.0** indicada en [LICENSE](../LICENSE). Se permiten forks, modificaciones y redistribuciones con las obligaciones de esa licencia. La GPL **no otorga a terceros permisos de escritura** en este repositorio. Las contribuciones son aportes de sus respectivos autores según los términos aplicables; el control de la línea oficial no implica poseer automáticamente derechos sobre todo el código aportado.
+**Decisión posterior explícita (16/11/2026):** el código y la documentación propios del proyecto oficial se publican bajo **MIT** (ver [LICENSE](../LICENSE)). La licencia no concede acceso de escritura a terceros. La licencia del código **no alcanza automáticamente** a archivos gráficos de origen externo; consultar [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md). Las autorizaciones GPL-3.0 de versiones antiguas no quedan revocadas. Las contribuciones son aportes de sus respectivos autores según los términos aplicables; el control de la línea oficial no implica poseer automáticamente derechos sobre todo el código aportado.
 
 ## 6. Autoridad documental
 En caso de contradicción: (1) esta constitución y requisitos confirmados del [Manual Maestro](MANUAL_MAESTRO.md); (2) decisiones aprobadas para la versión; (3) propuestas no aprobadas; (4) mockups. **Los renders recargados y rechazados no constituyen requisitos.**
@@ -323,3 +323,10 @@ En caso de contradicción: (1) esta constitución y requisitos confirmados del [
 Registrar motivo, impactos y pruebas de cada cambio. Favorecer PRs pequeños, revisables y con pruebas. Nadie debe recibir acceso directo a la rama principal solo por colaborar. Configurar reglas de protección de ramas desde GitHub: este documento por sí solo no activa controles técnicos de la plataforma.
 
 **Este documento es una base acordada para el proyecto oficial, no una prohibición de que la comunidad desarrolle forks diferentes.**
+
+## 8. Licencias y edición visual confirmadas (16/11/2026)
+
+- **LICENCIA CONFIRMADA:** MIT para software/documentación propios; recursos gráficos separados. Imagen tropical original generada mediante OpenAI autorizada para **CC0 1.0 Universal**, con comercialización y reproducción permitidas en la medida de los derechos disponibles. **Pendiente recuperar archivo exacto**: no afirmar que ya es predeterminada descargable sin incorporarla ni comprobarla.
+- **NO INCLUIR** la huella/logotipo Golden Dog de origen/autoría no acreditados como recurso predeterminado ni opción empaquetada. El usuario podrá usar sus imágenes locales bajo su responsabilidad.
+- **BOTÓN SO CONFIRMADO:** un **único selector desplegable de forma** reúne cuadrado, círculo, rombo, corazón, estrella y figuras anchas (rectángulo recto, redondeado, cápsula y óvalo); el ancho horizontal es ajustable sin modificar el grosor de barra. La imagen admite **encajar**, **rellenar recortando** y **estirar/deformar proporcionalmente a la superficie**. En modo estirado, **zoom y desplazamiento deben conservar la deformación**; los parámetros son de vista, no se reescribe el archivo.
+- **IMPLEMENTACIÓN/PRUEBA:** estos cambios se realizan exclusivamente en la rama experimental v0.1 y necesitan ensayos visuales de Qt 6 en CachyOS. No instalar ni reemplazar el panel real, no alterar el funcionamiento aprobado de las islas ni dar por resuelta la superposición KWin/Wayland.
