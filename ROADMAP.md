@@ -118,10 +118,3 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **Idea diferida:** posible botón «Añadir isla extra» (mencionado por el mantenedor, NO desarrollar ahora). No sustituir ni renumerar isla 3 buscadora existente, ni definir el comportamiento de otra isla sin decisión posterior.
 
 **Siguiente prueba reversible:** rama `prototype/v0.1-islas-so`; `git pull` y `bash prototype/v0.1/probar_ancho.sh` con la ventana aislada; verificar las seis pestañas, aplicar sin cerrar, tamaño en pantalla pequeña, cerrar, colores/logo/GIF y opciones de comportamiento. Seguir documentando en issues #1 y #5, sin tocar el panel de KDE instalado.
-
-
-## Nombre público (16/11/2026)
-
-- [x] Establecer **Plasma SmartBar Islands** como nombre visible del proyecto.
-- [x] Mantener Soledad/Malvina, el slug GitHub y el identificador del plasmoide sin cambios.
-- [ ] Validar en la prueba aislada v0.1 el nombre que muestra la ventana, «Acerca de» y el catálogo de widgets de Plasma, sin instalarlo sobre el panel existente.
