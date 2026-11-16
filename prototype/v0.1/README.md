@@ -722,3 +722,23 @@ Hacé clic derecho sobre los seis puntos de Soledad → «Configuración de Sole
 Pulsá **Aplicar**, comprobá que la ventana sigue abierta, luego **Cerrar** y reabríla para verificar la preferencia. En la **prueba Qt** los cambios persisten mientras dura la sesión de la ventana; KConfig está conectado para el plasmoide, pero todavía **no fue comprobado con el panel real**. «Restablecer contorno» vuelve al estado inicial de los tres parámetros. Si simulás cero ventanas o desactivás el contorno, no debe ejecutarse el temporizador de animación.
 
 **Estado:** implementación y revisión estática publicadas; **prueba visual en CachyOS pendiente**. No instalar ni reemplazar el panel KDE existente. En formas irregulares, velocidad y tamaño se calculan mediante estimaciones del perímetro y pueden ser aproximados.
+
+
+## SO: luz giratoria cuando no hay ventanas (16/11/2026)
+
+**Cambio funcional aprobado y aplicado en esta rama:** por defecto, **sin ventanas de muestra** el botón SO presenta la luz giratoria; **con ventanas de muestra** se apaga. «Configuración de Soledad» → «Contorno» contiene dos opciones independientes: **«Mostrar contorno cuando NO hay ventanas»** (activada por defecto) y **«Mostrar contorno cuando HAY ventanas»** (desactivada por defecto). Podés usar cualquiera, ambas o ninguna. «Efecto → Desactivado» apaga todo. El estilo inicial del efecto pasa a «Luz que recorre el contorno»; velocidad, estela y tipos de trazo conservan sus ajustes.
+
+**Cómo probar en Fish sin tocar el panel:**
+
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+bash prototype/v0.1/probar_ancho.sh
+```
+
+Abrí «Configuración de Soledad» desde el clic derecho en los seis puntos y elegí «Contorno». La casilla **«Simular ventanas abiertas en esta vista previa»** comienza desactivada, así que la luz debe estar girando. Activala: la luz debe detenerse y desaparecer. Volvé a desactivarla: la luz debe reaparecer. Probá las dos casillas nuevas y el modo «Desactivado». Pulsá «Aplicar» sin cerrar el diálogo, luego «Cerrar» y reabrilo para comprobar los valores.
+
+En la ventana principal del ensayo, el menú de los seis puntos permite cambiar «Simular SO SIN ventanas (0)» / «CON ventanas (3)». **Con cero ventanas**, un clic izquierdo breve sobre SO abre directamente el buscador de aplicaciones de muestra; con tres ventanas, abre/cierra la lista de tareas ficticias. Ni estas apps ni esas ventanas son reales: aún no hay integración KWin/TasksModel. Con cero ventanas y contorno desactivado, el lienzo y el reloj de animación deben quedar inactivos.
+
+**Por probar en CachyOS:** cambios visuales de estado, casillas independientes, perfil guardado durante la sesión Qt, atajos de teclado, cierre del popup y rendimiento. La versión del plasmoide y la persistencia real KConfig siguen pendientes; no instalarlo como reemplazo del panel diario.
