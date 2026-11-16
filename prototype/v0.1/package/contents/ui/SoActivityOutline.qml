@@ -1,6 +1,6 @@
 // Borde de actividad del botón SO; fuera del contorno del logo.
 // El Canvas coincide con el botón SO; el temporizador se activa
-// SOLO cuando hay ventanas y el usuario eligió animación opcional.
+// solo cuando el estado configurado permite mostrar el borde móvil.
 import QtQuick
 
 Canvas {
@@ -9,7 +9,7 @@ Canvas {
     property color accentColor: "#35d7ff"
     property real strokeSize: 1.0
     property string effectStyle: "steady" // off, steady, orbit
-    property bool hasWindows: false
+    property bool activeForState: false
     property bool allowMotion: true
     // Velocidad en vueltas/segundo, longitud de la estela en % del borde.
     property real orbitSpeed: 1.0
@@ -17,7 +17,8 @@ Canvas {
     property string trailStyle: "solid" // solid, dotted, dashed
     property real phase: 0
 
-    readonly property bool enabledEffect: hasWindows && effectStyle !== "off"
+    // La política de mostrar con/sin ventanas la calcula IslandButton.
+    readonly property bool enabledEffect: activeForState && effectStyle !== "off"
     readonly property bool moving: enabledEffect && allowMotion && effectStyle === "orbit"
     visible: enabledEffect
     antialiasing: true
@@ -82,7 +83,7 @@ Canvas {
     onAccentColorChanged: requestPaint()
     onStrokeSizeChanged: requestPaint()
     onEffectStyleChanged: requestPaint()
-    onHasWindowsChanged: requestPaint()
+    onActiveForStateChanged: requestPaint()
     onAllowMotionChanged: requestPaint()
     onOrbitSpeedChanged: requestPaint()
     onTrailPercentChanged: requestPaint()
@@ -90,8 +91,9 @@ Canvas {
     onWidthChanged: requestPaint()
     onHeightChanged: requestPaint()
 
-    // Solo 30 repintados por segundo, mientras existan ventanas y se haya
-    // habilitado el efecto: sin consumo de reloj con cero ventanas.
+    // ~30 repintados por segundo SOLO en el estado habilitado por la
+    // configuración. Si se apaga el efecto o no corresponde al estado,
+    // el temporizador no corre (aunque haya cero ventanas).
     Timer {
         interval: 33
         repeat: true
