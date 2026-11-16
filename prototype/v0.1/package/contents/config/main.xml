@@ -61,5 +61,8 @@
     <entry name="soActivityColor" type="String"><default>#35d7ff</default></entry>
     <entry name="soActivityStroke" type="Double"><default>1.0</default></entry>
     <entry name="soActivityMotion" type="Bool"><default>true</default></entry>
+    <entry name="soActivityOrbitSpeed" type="Double"><default>1.0</default></entry>
+    <entry name="soActivityTrailPercent" type="Int"><default>22</default></entry>
+    <entry name="soActivityTrailStyle" type="String"><default>solid</default></entry>
   </group>
 </kcfg>
