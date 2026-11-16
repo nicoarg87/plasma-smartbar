@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar Islands
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.31 (nombre oficial Plasma SmartBar Islands; 16/11/2026).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.31 (actualización de denominación pública; 16/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -330,10 +330,3 @@ Registrar motivo, impactos y pruebas de cada cambio. Favorecer PRs pequeños, re
 - **NO INCLUIR** la huella/logotipo Golden Dog de origen/autoría no acreditados como recurso predeterminado ni opción empaquetada. El usuario podrá usar sus imágenes locales bajo su responsabilidad.
 - **BOTÓN SO CONFIRMADO:** un **único selector desplegable de forma** reúne cuadrado, círculo, rombo, corazón, estrella y figuras anchas (rectángulo recto, redondeado, cápsula y óvalo); el ancho horizontal es ajustable sin modificar el grosor de barra. La imagen admite **encajar**, **rellenar recortando** y **estirar/deformar proporcionalmente a la superficie**. En modo estirado, **zoom y desplazamiento deben conservar la deformación**; los parámetros son de vista, no se reescribe el archivo.
 - **IMPLEMENTACIÓN/PRUEBA:** estos cambios se realizan exclusivamente en la rama experimental v0.1 y necesitan ensayos visuales de Qt 6 en CachyOS. No instalar ni reemplazar el panel real, no alterar el funcionamiento aprobado de las islas ni dar por resuelta la superposición KWin/Wayland.
-## 9. Identidad oficial y significado del nombre (16/11/2026)
-
-**DECISIÓN EXPRESA DEL MANTENEDOR:** el nombre público oficial del programa pasa de **Plasma SmartBar** a **Plasma SmartBar Islands**. El nombre describe la interfaz formada por islas independientes. Los nombres funcionales siguen siendo **Soledad (isla 1)** y **Malvina (isla 2)**; incorporar otras islas requiere decisión funcional posterior.
-
-**ALCANCE:** actualizar nombre visible, interfaz de «Acerca de», metadatos de presentación, README y documentación. **No se renombra** por este cambio el repositorio técnico `nicoarg87/plasma-smartbar`, la rama experimental, los nombres de archivos QML, rutas ni el identificador `KPlugin.Id`; su posible migración se estudiará aparte para no comprometer configuración, historial o pruebas. No cambia ningún requisito técnico previo ni las licencias (código MIT y recursos gráficos separados/CC0 según inventario).
-
-**ESTADO:** identidad aprobada; textos y metadatos visibles actualizados en rama v0.1 experimental, **pendientes de prueba de interfaz en CachyOS**. Ver [Estado](ESTADO_PROYECTO.md).
