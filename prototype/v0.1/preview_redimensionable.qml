@@ -12,7 +12,7 @@ Window {
     minimumWidth: 760
     minimumHeight: 210
     visible: true
-    title: "Plasma SmartBar v0.1 — prueba redimensionable (sin panel)"
+    title: "Plasma SmartBar Islands v0.1 — prueba redimensionable (sin panel)"
     color: "#242236"
 
     property bool demoAutoReturnRight: true
