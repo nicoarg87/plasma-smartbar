@@ -13,7 +13,7 @@ QQC2.ApplicationWindow {
     minimumWidth: 650
     minimumHeight: 360
     visible: true
-    title: "Plasma SmartBar — ventanas reales (solo lectura)"
+    title: "Plasma SmartBar Islands — ventanas reales (solo lectura)"
     color: "#192b3a"
 
     TaskManager.TasksModel {
