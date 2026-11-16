@@ -5,8 +5,6 @@
 > **Estado del proyecto:** fase de diseño y documentación. **No existe todavía un complemento funcional ni una versión instalable; tampoco están implementados los modos superior o inferior.** CachyOS será el primer entorno de pruebas; el objetivo es funcionar también en otras distribuciones Linux con Plasma compatible.
 
 ## Idea principal
-**Nombre oficial elegido por el mantenedor el 16/11/2026:** **Plasma SmartBar Islands** (antes Plasma SmartBar). El nombre refleja las islas independientes que componen la interfaz. Las islas funcionales actuales conservan sus nombres **Soledad** y **Malvina**. Se mantiene por ahora la dirección técnica del repositorio `nicoarg87/plasma-smartbar` y sus identificadores internos para proteger las pruebas v0.1.
-
 Plasma SmartBar Islands busca concentrar la gestión de ventanas en **islas de una barra horizontal de grosor constante**, sin llenar el escritorio de tareas visibles de forma permanente. **Se desarrolla primero arriba y se admite como modo oficial configurable abajo:**
 
 - Un **lanzador izquierdo** permite buscar e iniciar programas instalados.
