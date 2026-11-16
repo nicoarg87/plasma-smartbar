@@ -407,3 +407,20 @@ Actualizar cuando cambie algún hito: fecha, decisión confirmada, qué cambió 
 **IMPLEMENTADO, no ejecutado** en la rama `prototype/v0.1-islas-so`, PR #3: `SoActivityOutline.qml` deja de depender rígidamente de `hasWindows`; `IslandButton.qml` solo carga Canvas para un estado habilitado y no anima otros botones. `SoledadSettings.qml` agrega dos casillas, previsualiza inicialmente cero ventanas y restablece ambos predeterminados; `SmartBarContent.qml`, `main.qml`, `preview_redimensionable.qml` y `main.xml` propagan y guardan las opciones. **Importante:** un contador de ventanas cero NO debe impedir el efecto si su casilla está habilitada; se mantiene el apagado del temporizador cuando no es necesario.
 
 **PENDIENTE:** prueba visual en CachyOS (0/3 ventanas simuladas, clic SO con cero ventanas, velocidad y trazo, Aplicar, Restablecer, persistencia de sesión). Las apps del popup siguen siendo muestras, no se lanzan realmente. Las preferencias antiguas ya guardadas en un plasmoide real podrían conservar valores previos hasta que se restablezca el contorno; ningún panel instalado se modificó. No afirmar que KWin/Wayland detecta todavía ventanas reales.
+
+
+## SO: valores iniciales para prueba visual y color configurable de botones (16/11/2026)
+
+**IMPLEMENTADO en la rama experimental `prototype/v0.1-islas-so`:** SO predeterminado en **cápsula horizontal (96 px)**, **imagen tropical original** buscada en `assets/so-tropical.png` y modo **Estirar**. El archivo original continúa disponible en el ZIP de prueba del chat y NO se subió como binario al repositorio GitHub. «Restablecer logo» y las propiedades por defecto del visor, diálogo y KConfig reflejan cápsula/estirar. La foto puede ajustarse sin editar su archivo.
+
+**CONTORNO COMO VALORES INICIALES DE PRUEBA, AÚN SIN OK DEFINITIVO:** `orbit`, **1,5 vueltas/s**, grosor **0,75 px**, largo de cola **75 %**, trazo **guiones**. «Restablecer contorno» vuelve a esos valores. Conserva «mostrar sin ventanas» activado y «mostrar con ventanas» desactivado.
+
+**APARIENCIA:** Soledad `#010111` (provisional: el número de color dictado tenía 7 cifras y requerirá ratificación), opacidad **50 %**. Los botones de bandeja (activación y muestras) y el agarre de seis puntos heredan color/opacidad **efectivos** de Soledad. En «Apariencia» hay opciones separadas «Botones de bandeja» y «Botón de seis puntos» con interruptores de **colores/alfas propios**; `false` por defecto implica heredar, y el modo propio se guarda en KConfig. No afecta los colores de Malvina ni habilita el fondo continuo.
+
+**VERIFICADO ESTÁTICAMENTE:** QML de SmartBarContent, IslandButton, SoledadSettings, visor, main y claves KConfig; predeterminados, conexiones y delimitadores balanceados. **NO probado aún** en Qt gráfico/CachyOS tras estos cambios. El visor conserva valores durante su sesión; KConfig aún requiere prueba de persistencia real. El panel en uso no se modificó.
+
+## Seguridad: autoaparición de Malvina ante maximizada/fullscreen (16/11/2026)
+
+**CONFIRMADO PARA TODA ISLA FUTURA CON AUTOAPARICIÓN:** no revelar islas ni disparar lanzadores por hover encima de aplicaciones maximizadas o pantalla completa (videojuegos/reproductores), ni invadir su área de clics. **IMPLEMENTADO SOLO COMO GUARDIA EN EL VISOR:** estados «Simular ventana maximizada» y «Simular pantalla completa» o ventana de ensayo realmente maximizada/fullscreen cancelan temporizador, ocultan Malvina y cierran su lanzador si estaba abierto. En `main.qml`, la ausencia de datos fiables del estado global de KWin deja `windowStateKnown=false`, por lo que el auto-hover queda preventivamente **bloqueado en el plasmoide experimental**, también cuando no hay ventanas máximas, hasta conectar la fuente real. Esta protección fail-closed evita afirmar una seguridad que aún no se puede garantizar.
+
+**PENDIENTE INELUDIBLE:** detección real por KWin/Wayland de aplicaciones externas maximizadas, fullscreen y modo multi-monitor; pruebas de que ventanas emergentes no roban foco ni obstaculizan pestañas/juegos. El visor **NO demuestra** bloqueo de superposición sobre videojuegos reales; no integrar como barra operativa sin validarlo.
