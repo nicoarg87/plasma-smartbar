@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
-## Proyecto: barra superior inteligente para un entorno de escritorio
+## Proyecto: Plasma SmartBar Islands
 
-**Versión:** 0.39 — Licencia MIT, recursos gráficos separados y unificación de forma/estiramiento de SO  
+**Versión:** 0.40 — Actualización de nombre visible  
 **Fecha de actualización:** 16 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia MIT para código/documentación propios; gráficos por separado).  
@@ -886,3 +886,9 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 **CONFIRMADO PARA LA PRUEBA DE SO:** sustituir controles separados de «forma del recorte» y «formato del botón» por un solo desplegable de forma que incluya **cuadrado, círculo, rombo, corazón, estrella, rectángulo recto, rectángulo redondeado, cápsula y óvalo**. Mantener el ancho configurable en formatos anchos. Agregar al modo de imagen **«Estirar (deformar)»**, junto a «Encajar» y «Rellenar». El estiramiento debe mantenerse con zoom posterior, sin perder los controles de escala/encuadre y sin modificar el archivo original. Aclarar que ampliar una imagen de baja resolución no genera detalle nuevo.
 
 **ESTADO:** implementación en rama experimental `prototype/v0.1-islas-so`, PR #3; **prueba visual/funcional pendiente en CachyOS y en KWin/Wayland**. La imagen tropical exacta requiere recuperación; el logo no verificado queda fuera de los recursos distribuidos. Cambiar el texto de licencia de «Acerca de» a MIT y ofrecer referencia separada a CC0.
+
+## 49. Autoocultamiento de Malvina (16/11/2026)
+
+**REQUISITO VIGENTE, posterior a decisiones sobre visibilidad inicial:** Malvina permanece **habilitada pero oculta visualmente** por defecto. Reaparece al mantener el puntero durante **600 milisegundos** en su lugar, y vuelve a ocultarse al salir (temporizador de tolerancia de **250 ms**). La apertura del lanzador desde Malvina la mantiene visible mientras se usa. El usuario puede desactivar el autoocultamiento en «Configuración de Soledad» → «Islas y posición»; entonces Malvina queda visible normalmente. El control independiente «Mostrar Malvina» deshabilita/habilita la isla, no el comportamiento al pasar el puntero.
+
+**IMPLEMENTADO COMO PRUEBA QML:** `HoverHandler` pasivo + temporizadores y preferencia persistible KConfig `autoHideMalvina=true` en la rama experimental. No agregar capturadores de clic en un espacio invisible, no desplazar pestañas ni redimensionar ventanas o grosor por el efecto. **PENDIENTE DE VALIDACIÓN:** eventos de ratón y regiones de entrada de Plasma/KWin/Wayland cuando las pestañas de un navegador estén bajo la posición de Malvina; el visor aislado no acredita ese caso real.
