@@ -33,11 +33,27 @@ Item {
     property bool launcherIslandVisible: true
     property bool autoHideMalvina: true
     property bool malvinaHoverRevealed: false
+    // Política general para islas que se autoactivan: nunca aparecer sobre
+    // una superficie maximizada/fullscreen. Si KWin aún NO informó estado
+    // real, bloquear por seguridad (fail-closed) en el plasmoide.
+    property bool windowStateKnown: true  // true solo en visor simulado
+    property bool previewFullscreen: false
+    readonly property bool autoRevealBlocked:
+        !windowStateKnown || previewMaximized || previewFullscreen
+    onAutoRevealBlockedChanged: {
+        if (autoRevealBlocked) {
+            malvinaRevealTimer.stop()
+            malvinaHideTimer.stop()
+            malvinaHoverRevealed = false
+            if (malvinaPopupActive)
+                installedAppsPopup.close()
+        }
+    }
     readonly property bool malvinaPopupActive:
         installedAppsPopup.visible && installedLauncherSource === "malvina"
     readonly property bool malvinaActuallyVisible:
-        launcherIslandVisible && (!autoHideMalvina || malvinaHoverRevealed ||
-                                   malvinaPopupActive)
+        !autoRevealBlocked && launcherIslandVisible &&
+        (!autoHideMalvina || malvinaHoverRevealed || malvinaPopupActive)
     onLauncherIslandVisibleChanged: {
         if (!launcherIslandVisible) {
             malvinaRevealTimer.stop()
@@ -59,8 +75,8 @@ Item {
         onTriggered: {
             // El puntero debe permanecer todo el intervalo sobre el lugar
             // de la isla. No usar un MouseArea que capture clics.
-            if (root.autoHideMalvina && root.launcherIslandVisible &&
-                    malvinaHotspotHover.hovered)
+            if (!root.autoRevealBlocked && root.autoHideMalvina &&
+                    root.launcherIslandVisible && malvinaHotspotHover.hovered)
                 root.malvinaHoverRevealed = true
         }
     }
@@ -326,6 +342,10 @@ Item {
 
     function openInstalledLauncher(source) {
         const requestedSource = source === "malvina" ? "malvina" : "so"
+        // No permitir abrir lanzadores por autoaparición sobre un juego,
+        // video o ventana maximizada: la protección va antes del popup.
+        if (requestedSource === "malvina" && autoRevealBlocked)
+            return
         // Un segundo clic sobre Malvina debe cerrar el popup existente.
         // Sólo cambiar la isla de origen cuando realmente cambia de botón.
         if (installedAppsPopup.visible && installedLauncherSource === requestedSource) {
@@ -629,11 +649,13 @@ Item {
 
             HoverHandler {
                 id: malvinaHotspotHover
-                enabled: root.launcherIslandVisible && root.autoHideMalvina
+                enabled: !root.autoRevealBlocked &&
+                         root.launcherIslandVisible && root.autoHideMalvina
                 onHoveredChanged: {
                     if (hovered) {
                         malvinaHideTimer.stop()
-                        malvinaRevealTimer.restart()
+                        if (!root.autoRevealBlocked)
+                            malvinaRevealTimer.restart()
                     } else {
                         malvinaRevealTimer.stop()
                         if (!root.malvinaPopupActive)
@@ -1061,6 +1083,12 @@ Item {
                             checkable: true
                             checked: root.previewMaximized
                             onTriggered: root.setPreviewMaximized(!root.previewMaximized)
+                        }
+                        QQC2.MenuItem {
+                            text: "Simular pantalla completa (bloquea Malvina)"
+                            checkable: true
+                            checked: root.previewFullscreen
+                            onTriggered: root.previewFullscreen = !root.previewFullscreen
                         }
                         QQC2.MenuItem {
                             id: alignRightMenuItem
