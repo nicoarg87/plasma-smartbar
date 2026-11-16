@@ -836,9 +836,11 @@ Item {
                     }
 
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: root.launcherIslandVisible
-                        ? "SO: izquierdo ventanas · derecho o mantener 0,4 s lanzador"
-                        : "SO: derecho o mantener pulsado abre apps · seis puntos: Mostrar Malvina"
+                    QQC2.ToolTip.text: root.soWindowCount === 0
+                        ? "SO: izquierdo abre buscador de apps · derecho o mantener pulsado también"
+                        : (root.launcherIslandVisible
+                           ? "SO: izquierdo ventanas · derecho o mantener 0,4 s lanzador"
+                           : "SO: derecho o mantener pulsado abre apps · seis puntos: Mostrar Malvina")
                 }
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
