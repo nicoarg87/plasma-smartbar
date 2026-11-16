@@ -89,6 +89,10 @@ Window {
         autoReturnRight: previewWindow.demoAutoReturnRight
         launcherIslandVisible: previewWindow.demoLauncherIslandVisible
         autoHideMalvina: previewWindow.demoAutoHideMalvina
+        // Visor: estados de la ventana Qt conocidos; no hay TasksModel real.
+        windowStateKnown: true
+        hostMaximized: previewWindow.visibility === Window.Maximized
+        hostFullscreen: previewWindow.visibility === Window.FullScreen
         autoCollapseSO: previewWindow.demoAutoCollapseSO
         autoCollapseTray: previewWindow.demoAutoCollapseTray
         soLogoMode: previewWindow.demoSoLogoMode
