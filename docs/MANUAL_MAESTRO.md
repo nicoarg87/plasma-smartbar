@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: Plasma SmartBar Islands
 
-**Versión:** 0.40 — Actualización de nombre visible  
+**Versión:** 0.41 — Contorno SO configurable con y sin ventanas  
 **Fecha de actualización:** 16 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia MIT para código/documentación propios; gráficos por separado).  
@@ -782,7 +782,7 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 
 **NUEVO REQUISITO CONDICIONAL:** si el selector SO **NO tiene ventanas** abiertas que mostrar, el botón muestra el logo normal **sin borde luminoso ni animación del contorno**. Si SO sí tiene ventanas, se puede resaltar con contorno brillante que **respeta la forma seleccionada** (cuadrada, circular, rombo, corazón o estrella). Preferencias independientes: efecto desactivado, color fijo iluminado o tramo luminoso que recorre suavemente el borde; color/tono, grosor **0,5–2 px** y permiso de movimiento. El modo predeterminado experimental es **borde fijo sin movimiento**, evitando animación espontánea. No confundir «tener ventanas» con «mostrar SO expandido»: una ventana minimizada sigue contando cuando el modelo de tareas real la incluya.
 
-**Requisitos de rendimiento/accesibilidad:** no instanciar efectos ni ejecutar temporizadores con cero ventanas. No animar la geometría ni bloquear el botón. La vista experimental usa un lienzo de 32×32 y refresco opcional moderado (~15 fps); su consumo debe verificarse en CachyOS con las ventanas reales antes de integrarlo. Un GIF personalizado es animación independiente, configurable por separado.
+**Requisito histórico actualizado (16/11/2026):** solo instanciar efectos y ejecutar temporizadores cuando el estado actual lo autorice; ahora está permitido (y es predeterminado) el brillo móvil con cero ventanas. No animar la geometría ni bloquear el botón. La vista experimental usa un lienzo de 32×32 y refresco opcional moderado (~15 fps); su consumo debe verificarse en CachyOS con las ventanas reales antes de integrarlo. Un GIF personalizado es animación independiente, configurable por separado.
 
 **IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL:** menú de seis puntos (clic derecho) con «Personalizar logo de SO», «Colores y transparencia de islas y fondo» y «Contorno de actividad de SO». Archivos `LogoArtwork.qml`, `LogoEditor.qml`, `SoActivityOutline.qml`, `SoActivityEditor.qml`, `AppearanceEditor.qml`, `IslandButton.qml` y el botón de `SmartBarContent.qml`; KConfig y vista Qt están conectados, pero **no ejecutados ni validados después del cambio en CachyOS**, ni probados en plasmoide instalado. En la maqueta se puede alternar **3 ventanas de muestra o cero** desde el menú de opciones para verificar la desaparición total del borde. Documentación y seguimiento en [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5) y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) (borrador). El panel KDE del mantenedor permanece intacto.
 
@@ -806,7 +806,7 @@ Véanse [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [PR #
 ### Logo con una sola forma
 
 - Cuando se muestra una imagen en SO, el marco permanente del botón no debe agregar un círculo redondeado visualmente diferente a la máscara elegida. Forma seleccionable: **cuadrado, círculo, rombo, corazón o estrella**.
-- El contorno luminoso de actividad (off/fijo/recorrido) utiliza esa **misma forma**, no otra superpuesta; cuando las ventanas son cero debe estar completamente apagado. No deformar el logo ni alterar el tamaño de SO o el grosor fijo.
+- El contorno luminoso de actividad (off/fijo/recorrido) utiliza esa **misma forma**, no otra superpuesta; el estado con cero ventanas queda sujeto a la configuración; por defecto debe tener brillo móvil tras la corrección del 16/11. No deformar el logo ni alterar el tamaño de SO o el grosor fijo.
 - El editor de logo conserva encuadre, zoom, desplazamiento horizontal/vertical, opciones encajar/rellenar y restablecer. **El mantenedor todavía no comprobó si todos estos controles funcionan**; no anunciar una corrección inexistente del editor.
 
 ### Implementación y criterios de validación
@@ -897,4 +897,12 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 
 **CONFIRMADO POR EL MANTENEDOR:** cuando se elige «Luz que recorre el contorno» en «Configuración de Soledad» → «Contorno», ofrecer tres nuevos parámetros: **velocidad numérica en vueltas/s**, **longitud porcentual de la estela** y **trazo continuo/punteado/guiones**. Velocidad inicial 1,0 vuelta/s (de 0,1 a 3,0, incrementos 0,1, aceptando coma o punto); estela inicial 22 % del perímetro (de 5 a 85 %); estilo inicial continuo. Deben verse en la vista previa, restaurarse con «Restablecer contorno» y guardarse al pulsar «Aplicar», sin cerrar. El borde apagado/fijo, el color y el grosor previos permanecen intactos.
 
-**PRUEBA V0.1:** Canvas con un segmento luminoso que recorre el perímetro de la forma seleccionada y patrones alternados con `Context2D.setLineDash`. Solo se ejecuta el reloj de repintado si hay ventanas y está activado el efecto de movimiento. Valores conectados al visor independiente y a las claves KConfig `soActivityOrbitSpeed`, `soActivityTrailPercent`, `soActivityTrailStyle`. El tiempo por vuelta y longitud pueden verse aproximados en máscaras geométricas complejas. **No se ha ejecutado Qt en la sesión de esta implementación; probar en CachyOS** y mantener el panel cotidiano intacto.
+**PRUEBA V0.1:** Canvas con un segmento luminoso que recorre el perímetro de la forma seleccionada y patrones alternados con `Context2D.setLineDash`. Solo se ejecuta el reloj de repintado si la condición con/sin ventanas está habilitada y está activado el efecto de movimiento. Valores conectados al visor independiente y a las claves KConfig `soActivityOrbitSpeed`, `soActivityTrailPercent`, `soActivityTrailStyle`. El tiempo por vuelta y longitud pueden verse aproximados en máscaras geométricas complejas. **No se ha ejecutado Qt en la sesión de esta implementación; probar en CachyOS** y mantener el panel cotidiano intacto.
+
+## 51. Contorno de SO cuando NO hay ventanas (16/11/2026)
+
+**CAMBIO APROBADO Y PRIORITARIO SOBRE EL DISEÑO PREVIO:** cuando **no hay ventanas abiertas**, mostrar **por defecto la luz girando alrededor de SO** para señalar el acceso al buscador de aplicaciones. Al abrir una o más ventanas, la luz **deja de mostrarse por defecto**. Se permiten dos casillas independientes en «Contorno»: «Mostrar contorno cuando NO hay ventanas» (sí, predeterminado) y «Mostrar contorno cuando HAY ventanas» (no, predeterminado). Esto permite invertir la condición, activar ambos estados o ninguno; el efecto «Desactivado» apaga todo. Los modos de borde fijo y luz en movimiento, color, grosor, velocidad numérica, largo de estela y tipo de trazo siguen disponibles.
+
+**INTERACCIÓN:** con 0 ventanas, un clic izquierdo breve en SO abre el lanzador/buscador; con 1+ ventanas abre/cierra el listado de tareas. Se mantienen clic derecho y pulsación sostenida para el buscador. En v0.1 las apps y ventanas son simuladas; abrir una app de muestra no crea una ventana real ni reemplaza la integración KDE TasksModel.
+
+**IMPLEMENTACIÓN:** `IslandButton.qml` selecciona la condición sin cargar el contorno en botones de bandeja/fichas; `SoActivityOutline.qml` repinta solo cuando el estado está habilitado. `SoledadSettings.qml` muestra casillas y vista previa 0/3; `SmartBarContent.qml`, vista Qt, envoltorio de Plasma y KConfig transportan/guardan los dos valores. Nuevas claves `soActivityShowWhenEmpty=true` y `soActivityShowWhenOpen=false`, efecto inicial `soActivityStyle=orbit`. No dar por probado el resultado en CachyOS/Wayland hasta ejecutar la ventana Qt.
