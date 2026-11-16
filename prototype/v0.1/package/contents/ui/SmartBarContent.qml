@@ -27,8 +27,52 @@ Item {
     property real soButtonWidth: 80
     implicitHeight: fixedHeight
     property bool autoReturnRight: true
-    // Isla 2 visible por defecto. Se oculta solo por elección del usuario.
+    // Malvina está disponible por defecto, pero su superficie se oculta
+    // cuando no se usa. El usuario puede desactivar el autoocultamiento.
     property bool launcherIslandVisible: true
+    property bool autoHideMalvina: true
+    property bool malvinaHoverRevealed: false
+    readonly property bool malvinaPopupActive:
+        installedAppsPopup.visible && installedLauncherSource === "malvina"
+    readonly property bool malvinaActuallyVisible:
+        launcherIslandVisible && (!autoHideMalvina || malvinaHoverRevealed ||
+                                   malvinaPopupActive)
+    onLauncherIslandVisibleChanged: {
+        if (!launcherIslandVisible) {
+            malvinaRevealTimer.stop()
+            malvinaHideTimer.stop()
+            malvinaHoverRevealed = false
+        }
+    }
+    onAutoHideMalvinaChanged: {
+        if (!autoHideMalvina) {
+            malvinaRevealTimer.stop()
+            malvinaHideTimer.stop()
+            malvinaHoverRevealed = false
+        }
+    }
+    Timer {
+        id: malvinaRevealTimer
+        interval: 600
+        repeat: false
+        onTriggered: {
+            // El puntero debe permanecer todo el intervalo sobre el lugar
+            // de la isla. No usar un MouseArea que capture clics.
+            if (root.autoHideMalvina && root.launcherIslandVisible &&
+                    malvinaHotspotHover.hovered)
+                root.malvinaHoverRevealed = true
+        }
+    }
+    Timer {
+        id: malvinaHideTimer
+        interval: 250
+        repeat: false
+        onTriggered: {
+            if (root.autoHideMalvina && !malvinaHotspotHover.hovered &&
+                    !root.malvinaPopupActive)
+                root.malvinaHoverRevealed = false
+        }
+    }
     // Preferencias independientes: no contraer por abrir la otra sección
     // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
     property bool autoCollapseSO: true
@@ -97,6 +141,7 @@ Item {
 
     signal requestAutoReturnRightChange(bool newValue)
     signal requestLauncherIslandVisibilityChange(bool newValue)
+    signal requestAutoHideMalvinaChange(bool newValue)
     signal requestAutoCollapseSOChange(bool newValue)
     signal requestAutoCollapseTrayChange(bool newValue)
     onWidthChanged: console.log("SmartBar v0.1: ancho útil de las islas =", width)
@@ -360,6 +405,7 @@ Item {
             soledadSettings.autoCollapseTray = root.autoCollapseTray
             soledadSettings.autoReturnRight = root.autoReturnRight
             soledadSettings.launcherIslandVisible = root.launcherIslandVisible
+            soledadSettings.autoHideMalvina = root.autoHideMalvina
             soledadSettings.alignedRight = root.alignRightSelected
             soledadSettings.alignmentEdited = false
             soledadSettings.currentTab = tabIndex
@@ -394,6 +440,10 @@ Item {
         }
         onSaveActivityRequested: function(style, color, stroke, motion) {
             root.requestSoActivityChange(style, color, stroke, motion)
+        }
+        onSaveAutoHideMalvinaRequested: function(value) {
+            if (value !== root.autoHideMalvina)
+                root.requestAutoHideMalvinaChange(value)
         }
         onSaveBehaviorRequested: function(collapseSO, collapseTray,
                                           returnRight, showMalvina, alignRight,
@@ -441,6 +491,10 @@ Item {
         // El botón está DENTRO del padre root; preservar ese evento y
         // cerrar por botón, Escape o clic fuera de la zona de la barra.
         closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+        onClosed: {
+            if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
+                malvinaHideTimer.restart()
+        }
         background: Rectangle {
             radius: 12
             color: "#102538"
@@ -509,12 +563,35 @@ Item {
                            root.backgroundColor.b, root.backgroundOpacity)
         }
 
-        // Isla 2: lanzador de ejemplo. Isla 3 sigue oculta por defecto.
-        Rectangle {
-            id: launcherIsland
-            visible: root.launcherIslandVisible
+        // Zona pasiva de hover: no captura clics ni modifica el grosor.
+        // Esta zona siempre existe para detectar la posición de Malvina.
+        // El paso efectivo de clics a ventanas ajenas requiere validar KWin.
+        Item {
+            id: malvinaHotspot
             width: Math.max(launcherButton.implicitWidth + 12, root.malvinaWidth)
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+
+            HoverHandler {
+                id: malvinaHotspotHover
+                enabled: root.launcherIslandVisible && root.autoHideMalvina
+                onHoveredChanged: {
+                    if (hovered) {
+                        malvinaHideTimer.stop()
+                        malvinaRevealTimer.restart()
+                    } else {
+                        malvinaRevealTimer.stop()
+                        if (!root.malvinaPopupActive)
+                            malvinaHideTimer.restart()
+                    }
+                }
+            }
+
+            Rectangle {
+            id: launcherIsland
+            visible: root.malvinaActuallyVisible
+            anchors.fill: parent
             radius: root.malvinaShape === "square" ? 0 :
                 Math.max(0, Math.min(root.malvinaRadius, height / 2))
             topLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
@@ -525,9 +602,6 @@ Item {
                            root.malvinaColor.b, root.malvinaOpacity)
             border.color: "#4e8499"
             border.width: 1
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
-
             IslandButton {
                 id: launcherButton
                 anchors.centerIn: parent
@@ -549,6 +623,7 @@ Item {
                         onTriggered: root.setLauncherIslandVisible(false)
                     }
                 }
+            }
             }
         }
 
