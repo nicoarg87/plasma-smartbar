@@ -67,8 +67,11 @@ PlasmoidItem {
         soActivityOrbitSpeed: Plasmoid.configuration.soActivityOrbitSpeed
         soActivityTrailPercent: Plasmoid.configuration.soActivityTrailPercent
         soActivityTrailStyle: Plasmoid.configuration.soActivityTrailStyle
+        soActivityShowWhenEmpty: Plasmoid.configuration.soActivityShowWhenEmpty
+        soActivityShowWhenOpen: Plasmoid.configuration.soActivityShowWhenOpen
         onRequestSoActivityChange: function(style, color, stroke, allowMotion,
-                                             speed, tailLength, lineStyle) {
+                                             speed, tailLength, lineStyle,
+                                             showWhenEmpty, showWhenOpen) {
             Plasmoid.configuration.soActivityStyle = style
             Plasmoid.configuration.soActivityColor = color
             Plasmoid.configuration.soActivityStroke = stroke
@@ -76,6 +79,8 @@ PlasmoidItem {
             Plasmoid.configuration.soActivityOrbitSpeed = speed
             Plasmoid.configuration.soActivityTrailPercent = tailLength
             Plasmoid.configuration.soActivityTrailStyle = lineStyle
+            Plasmoid.configuration.soActivityShowWhenEmpty = showWhenEmpty
+            Plasmoid.configuration.soActivityShowWhenOpen = showWhenOpen
         }
         onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             Plasmoid.configuration.soLogoMode = mode
