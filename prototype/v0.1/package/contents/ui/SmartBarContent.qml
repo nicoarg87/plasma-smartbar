@@ -23,8 +23,9 @@ Item {
     property string malvinaShape: "rounded"
     property string gripShape: "square"
     property string trayButtonShape: "rounded"
-    property string soButtonFrameShape: "square"
-    property real soButtonWidth: 80
+    // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
+    property string soButtonFrameShape: "capsule"
+    property real soButtonWidth: 96
     implicitHeight: fixedHeight
     property bool autoReturnRight: true
     // Malvina está disponible por defecto, pero su superficie se oculta
@@ -83,7 +84,7 @@ Item {
     property string soLogoMode: "default"  // default/custom/text
     property string soLogoPath: ""
     property string soLogoShape: "square"
-    property string soLogoFitMode: "fit"
+    property string soLogoFitMode: "stretch"
     property real soLogoZoom: 1
     property real soLogoPanX: 0
     property real soLogoPanY: 0
@@ -101,13 +102,29 @@ Item {
 
     // Colores y opacidad por isla; fondo continuo opcional y APAGADO.
     // Es una capa de fondo y no sustituye la isla 3 buscadora pendiente.
-    property color soledadColor: "#101e31"
+    property color soledadColor: "#010111"
     property color malvinaColor: "#101e31"
     property color backgroundColor: "#202333"
-    property real soledadOpacity: 1
+    property real soledadOpacity: 0.5
     property real malvinaOpacity: 1
     property real backgroundOpacity: 0.5
     property bool showBackground: false
+    // Bandeja y agarre heredan Soledad salvo que la persona elija un
+    // color y opacidad independientes para cada tipo de botón.
+    property bool trayButtonColorOverride: false
+    property color trayButtonColor: "#010111"
+    property real trayButtonOpacity: 0.5
+    property bool gripButtonColorOverride: false
+    property color gripButtonColor: "#010111"
+    property real gripButtonOpacity: 0.5
+    readonly property color effectiveTrayButtonColor: trayButtonColorOverride
+        ? trayButtonColor : soledadColor
+    readonly property real effectiveTrayButtonOpacity: trayButtonColorOverride
+        ? trayButtonOpacity : soledadOpacity
+    readonly property color effectiveGripButtonColor: gripButtonColorOverride
+        ? gripButtonColor : soledadColor
+    readonly property real effectiveGripButtonOpacity: gripButtonColorOverride
+        ? gripButtonOpacity : soledadOpacity
 
     // Indicador de actividad de SO: no simular "ventanas reales".
     // La maqueta puede alternar 0/3 ventanas desde Opciones de Soledad.
@@ -120,11 +137,12 @@ Item {
     property bool soActivityShowWhenEmpty: true
     property bool soActivityShowWhenOpen: false
     property color soActivityColor: "#35d7ff"
-    property real soActivityStroke: 1.0
+    property real soActivityStroke: 0.75
     property bool soActivityMotion: true
-    property real soActivityOrbitSpeed: 1.0
-    property int soActivityTrailPercent: 22
-    property string soActivityTrailStyle: "solid"
+    // Valores iniciales PROVISORIOS para revisión visual del mantenedor.
+    property real soActivityOrbitSpeed: 1.5
+    property int soActivityTrailPercent: 75
+    property string soActivityTrailStyle: "dashed"
     onSoWindowCountChanged: {
         if (soWindowCount === 0) soExpanded = false
     }
@@ -146,7 +164,10 @@ Item {
     signal requestAppearanceChange(string soledadColor, real soledadOpacity,
                                    string malvinaColor, real malvinaOpacity,
                                    bool showBackground, string backgroundColor,
-                                   real backgroundOpacity)
+                                   real backgroundOpacity, bool trayOverride,
+                                   string trayColor, real trayOpacity,
+                                   bool gripOverride, string gripColor,
+                                   real gripOpacity)
 
     signal requestAutoReturnRightChange(bool newValue)
     signal requestLauncherIslandVisibilityChange(bool newValue)
@@ -411,6 +432,12 @@ Item {
             soledadSettings.malvinaOpacity = root.malvinaOpacity
             soledadSettings.backgroundOpacity = root.backgroundOpacity
             soledadSettings.showBackground = root.showBackground
+            soledadSettings.trayButtonColorOverride = root.trayButtonColorOverride
+            soledadSettings.trayButtonColor = root.trayButtonColor
+            soledadSettings.trayButtonOpacity = root.trayButtonOpacity
+            soledadSettings.gripButtonColorOverride = root.gripButtonColorOverride
+            soledadSettings.gripButtonColor = root.gripButtonColor
+            soledadSettings.gripButtonOpacity = root.gripButtonOpacity
             soledadSettings.effectStyle = root.soActivityStyle
             soledadSettings.accentColor = root.soActivityColor
             soledadSettings.strokeSize = root.soActivityStroke
@@ -452,10 +479,14 @@ Item {
         }
         onSaveAppearanceRequested: function(soColor, soOpacity, malColor,
                                              malOpacity, backgroundShown,
-                                             bgColor, bgOpacity) {
+                                             bgColor, bgOpacity, trayOverride,
+                                             trayColor, trayOpacity,
+                                             gripOverride, gripColor, gripOpacity) {
             root.requestAppearanceChange(soColor, soOpacity, malColor,
                                          malOpacity, backgroundShown, bgColor,
-                                         bgOpacity)
+                                         bgOpacity, trayOverride, trayColor,
+                                         trayOpacity, gripOverride, gripColor,
+                                         gripOpacity)
         }
         onSaveActivityRequested: function(style, color, stroke, motion,
                                           speed, tailLength, lineStyle,
@@ -722,6 +753,9 @@ Item {
                 IslandButton {
                     text: root.trayExpanded ? "▶" : "◀"
                     frameShape: root.trayButtonShape
+                    useTileColor: true
+                    tileColor: root.effectiveTrayButtonColor
+                    tileOpacity: root.effectiveTrayButtonOpacity
                     onClicked: root.toggleTray()
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: "Abrir/cerrar bandeja simulada"
@@ -731,6 +765,9 @@ Item {
                     model: root.trayExpanded ? root.demoTray : []
                     delegate: IslandButton {
                         text: modelData
+                        useTileColor: true
+                        tileColor: root.effectiveTrayButtonColor
+                        tileOpacity: root.effectiveTrayButtonOpacity
                         onClicked: root.selectDemoTray(modelData)
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Bandeja simulada: " + modelData
@@ -879,9 +916,12 @@ Item {
                     }
                     background: Rectangle {
                         radius: root.gripShape === "square" ? 0 : 17
-                        color: moveGrip.hovered ? "#24425a" : "#14283d"
+                        color: Qt.rgba(root.effectiveGripButtonColor.r,
+                                       root.effectiveGripButtonColor.g,
+                                       root.effectiveGripButtonColor.b,
+                                       root.effectiveGripButtonOpacity)
                         border.width: 1
-                        border.color: "#45647a"
+                        border.color: moveGrip.hovered ? "#86b3cc" : "#45647a"
                     }
                     contentItem: Item {
                         Grid {
