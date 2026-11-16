@@ -1,5 +1,5 @@
 # Constitución técnica de Plasma SmartBar
-**Estado:** documento rector del proyecto oficial. **Versión:** 1.3 (orientación superior/inferior aprobada el 14/11/2026; sin implementación).
+**Estado:** documento rector del proyecto oficial. **Versión:** 1.30 (licencia MIT, política CC0 y botón SO con estiramiento; 16/11/2026).
 **Dirección funcional y de diseño:** mantenedor del repositorio oficial [nicoarg87](https://github.com/nicoarg87).
 **Manual de especificación:** [Manual Maestro](MANUAL_MAESTRO.md).
 
@@ -10,8 +10,8 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 1. La barra y todos los menús que se **expanden horizontalmente** mantienen idéntico **grosor**. En modo horizontal (superior/inferior), la altura puede configurarse como preferencia del usuario, pero no cambia al maximizar, restaurar, abrir una bandeja o navegar entre ventanas.
 2. El botón **SO** muestra aplicaciones/ventanas que ya están abiertas; el lanzador del extremo izquierdo busca programas **instalados**. Son controles diferentes.
 3. SO despliega fichas **hacia la izquierda, en una sola fila**. Agrupa por aplicación de manera predeterminada (por ejemplo, tres ventanas Dolphin en una ficha). Se puede desagrupar por configuración.
-4. La flecha de bandeja es **izquierda al abrir (◀)** y **derecha al cerrar (▶)**. SO y bandeja **son mutuamente excluyentes**.
-5. Cuando una ventana está maximizada, los botones de SmartBar **minimizar, restaurar/maximizar y cerrar** aparecen en la zona derecha de la barra, **en el mismo borde elegido**: arriba si está arriba, **abajo si está abajo**. En ventanas normales siguen existiendo los controles propios de cada aplicación. El tamaño y la alineación respecto de la barra permanecen constantes. El destino exacto de los botones originales de cada aplicación está sujeto a validación técnica y no se presume que KWin pueda trasladarlos universalmente.
+4. La flecha de bandeja es **izquierda al abrir (◀)** y **derecha al cerrar (▶)**. **SO y bandeja pueden permanecer expandidos simultáneamente si hay espacio físico; si no lo hay, al abrir uno se contrae el anterior** (sección 2.12).
+5. Cuando una ventana está maximizada, los botones de SmartBar **minimizar, restaurar/maximizar y cerrar** aparecen **anclados al extremo derecho de la ventana/franja horizontal**, **en el mismo borde elegido**: arriba si está arriba, **abajo si está abajo**. **No se arrastran junto a la isla 1**, no siguen a SO ni cambian de posición al abrir su bandeja. **La isla 1 debe apartarse a la izquierda de los botones al maximizar**, y el agarre solo mueve la isla. En ventanas normales siguen existiendo los controles propios de cada aplicación. El tamaño y la alineación respecto de la barra permanecen constantes. El destino exacto de los botones originales de cada aplicación está sujeto a validación técnica y no se presume que KWin pueda trasladarlos universalmente.
 6. Las islas y sus expansiones tienen prioridad de capa en el borde horizontal elegido sobre la **interfaz de las ventanas maximizadas**; en modo superior esto incluye las pestañas del navegador, cuya convivencia sigue pendiente de validación. Se puede cubrir contenido temporalmente, pero jamás desplazar pestañas, redimensionar ventanas o crear otra fila.
 7. En **pantalla completa real** (video o videojuego), los controles de escritorio no deben superponerse al contenido.
 8. Seleccionar una ventana desde SO la activa y **contrae SO por defecto**; el usuario puede configurar que permanezca abierto. También existen modos de SO contraído, expandido o adaptativo.
@@ -22,19 +22,19 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 
 ## 2.1. Distribución predeterminada en islas — confirmada
 
-- **Isla 1, derecha:** identidad del sistema (botón SO con logo configurable), flecha de bandeja y **agarre punteado muy pequeño inmediatamente a la derecha de SO**; los controles de la ventana permanecen todavía más a la derecha al maximizar. El agarre permite reubicar horizontalmente la isla 1; **SO y agarre mantienen posición mientras bandeja/SO expanden su contenido hacia la izquierda**. El agarre no forma parte del menú expandible, no se oculta ni se mueve por su apertura. No desplazar pestañas ni cambiar la altura.
-- **Isla 2, izquierda:** lanzador que busca programas instalados.
+- **Isla 1, derecha:** identidad del sistema (botón SO con logo configurable), flecha de bandeja y **agarre de seis puntos inmediatamente a la derecha de SO**. **Los controles de ventana forman un bloque separado, fijo en el extremo derecho**, no pertenecen al contenido arrastrable de isla 1. Al maximizar, la isla se coloca a la izquierda de esos controles; el agarre solo reubica la isla. **SO y agarre mantienen posición mientras bandeja/SO expanden su contenido hacia la izquierda**. El agarre no forma parte del menú expandible. No desplazar pestañas ni cambiar la altura.
+- **Isla 2, izquierda:** lanzador que busca programas instalados; es un componente **secundario respecto de la isla 1**. Su presencia por defecto se mantiene; el usuario puede ocultarlo por configuración sin desactivar las funciones de SO.
 - **Isla 3, junto al lanzador:** campo de búsqueda visible **opcional y oculto por defecto**.
 - **Separación visual por defecto:** solo las islas, sin fondo continuo entre ellas. El usuario puede activar un tema con **fondo continuo/entrelazado** sin modificar geometría ni conducta.
 - La minimización con animación tipo **gaveta/ranura temporal de SO** se contempla **únicamente como efecto optativo futuro**, no como requisito del MVP. Su duración objetivo inicial rondaría medio segundo, sujeto a pruebas. La ventana se minimiza igualmente sin efectos.
 - **La superposición sobre las pestañas de navegadores maximizados sigue pendiente de validación técnica** y no se considera resuelta por ninguna imagen conceptual.
-- **El agarre horizontal es un requisito de diseño confirmado, no una función probada.** Debe ser discreto (tres o cuatro puntos de aspecto arrastrable), pero tener un área de interacción utilizable. Sus límites de movimiento, posición guardada y coordinación con la maximización se validarán en KWin/Wayland; no será obligatorio en la primera prueba v0.1.
+- **El agarre horizontal es un requisito de diseño confirmado, no una función probada.** Debe tener **exactamente seis puntos en dos columnas de tres**, con apariencia discreta y arrastrable, pero tener un área de interacción utilizable. Sus límites de movimiento, posición guardada y coordinación con la maximización se validarán en KWin/Wayland; no será obligatorio en la primera prueba v0.1.
 
 ## 2.2. Orientación y preparación para extensibilidad — decisión confirmada (14/11/2026)
 
 **Modos oficiales de diseño:**
 - **Superior (predeterminado):** las islas 2 y 1 permanecen respectivamente a izquierda y derecha en el borde superior; se conserva la integración superior aprobada y los controles SmartBar de ventanas maximizadas arriba.
-- **Inferior (configurable):** las mismas islas mantienen sus funciones y extremos izquierdo/derecho en el borde inferior. **Los controles SmartBar de minimizar, restaurar/maximizar y cerrar para la ventana maximizada también deben estar abajo, junto a la isla 1, nunca separados arriba de ella.**
+- **Inferior (configurable):** las mismas islas mantienen sus funciones y extremos izquierdo/derecho en el borde inferior. **Los controles SmartBar de minimizar, restaurar/maximizar y cerrar para la ventana maximizada deben estar abajo, fijos en el extremo derecho**, con isla 1 a su izquierda por defecto, **nunca en una barra superior ni moviéndose con la isla**.
 - En ambos modos, SO y bandeja siguen extendiéndose **horizontalmente hacia la izquierda en una fila**, con altura invariable; el agarre punteado está **inmediatamente a la derecha de SO**, no se desplaza por abrir la bandeja y permite el ajuste horizontal deliberado de isla 1.
 - Paneles secundarios flotan **hacia adentro** de la pantalla y no aumentan el grosor.
 
@@ -44,6 +44,269 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 
 **Orden de ejecución:** implementar y probar primero el modo superior y sus reglas vigentes; planificar la compatibilidad inferior desde el diseño del código, habilitarla tras pruebas específicas. No introducir modo inferior o lateral como funcionalidad «probada» solo por existir en Plasma una opción de mover paneles.
 
+
+## 2.3. Retorno horizontal automático de isla 1 — decisión confirmada
+
+- **Al maximizar una ventana**, el agarre punteado inmediatamente a la derecha de SO debe permitir **mover manualmente la isla 1 en el eje horizontal**, sin modificar la altura. El agarre siempre acompaña SO, sin saltar por las expansiones de SO o bandeja.
+- **Al dejar de estar maximizada la ventana**, la isla 1 **vuelve automáticamente a su posición predeterminada en el extremo derecho**, salvo que el usuario haya desactivado expresamente la opción.
+- La preferencia «**Volver automáticamente a la derecha al desmaximizar**» está **activada por defecto** y debe ser **configurable y persistente** en las opciones de Plasma SmartBar. Si está desactivada, puede conservarse el desplazamiento manual al dejar de estar maximizada.
+- La coordinación con los controles de ventana, los márgenes válidos, el tratamiento de múltiples monitores y la lectura real del estado de KWin/Wayland deben investigarse y probarse. No se permite que el agarre o la isla queden fuera de pantalla o tapen controles indispensables de forma irreversible.
+- La **v0.1 experimental** puede simular el estado maximizado para probar el movimiento y los ajustes, **sin afirmar que ya se detectan las ventanas reales**.
+
+## 2.4. Controles de ventana independientes de las islas — corrección aprobada tras prueba real
+
+- **CONFIRMADO:** al maximizar, los botones de SmartBar `− □ ×` ocupan una **zona fija en el extremo derecho del borde horizontal activo** y no participan del arrastre de isla 1. En modo superior quedan arriba a la derecha; en modo inferior, abajo a la derecha.
+- **Composición:** isla 1 (bandeja, SO, seis puntos) es el bloque desplazable; el grupo de controles es **otro bloque independiente**. En su posición predeterminada son vecinos; si el usuario mueve la isla hacia el centro, **los tres controles permanecen en la esquina derecha**, con separación visible.
+- **Maximización:** al entrar en estado maximizado se reserva el espacio de controles en el borde; al salir desaparecen los controles SmartBar simulados y se aplica el retorno automático de isla 1 según la preferencia aprobada. Abrir SO o bandeja no modifica los controles.
+- **Prevención:** no desplazar ni redimensionar la ventana real, sus controles originales ni sus pestañas. **La viabilidad en ventanas reales de KWin/Wayland aún no está demostrada**; un boceto o simulador no la certifica.
+- **Origen:** el mantenedor detectó durante la prueba v0.1 en CachyOS que la maqueta arrastraba incorrectamente los tres controles junto con isla 1 y exigió mantenerlos en el extremo derecho. Esta corrección sustituye cualquier referencia anterior a controles que se desplazan junto al agarre.
+
+## 2.5. Posición recordada de isla 1 por aplicación — decisión confirmada (14/11/2026)
+
+- **Prioridad funcional:** **isla 1**, con SO, bandeja y agarre de seis puntos, es el elemento principal de Plasma SmartBar. **Isla 2** es el lanzador de programas instalados, secundario y ocultable por preferencia, **visible por defecto** hasta decisión diferente.
+- **Guardar por elección del usuario:** con una aplicación maximizada y activa (Steam, Dolphin, Brave u otra), el usuario **arrastra horizontalmente la isla 1** hasta el punto deseado y realiza **clic derecho sobre la isla 1** para acceder a «**Recordar esta posición para [aplicación]**». La posición queda guardada localmente para esa aplicación. Debe poder **modificarse o borrarse** luego mediante ajustes/contexto, sin obligar a editar archivos.
+- **Recuperación automática:** cuando vuelve a estar **activa y maximizada** la misma aplicación, Plasma SmartBar identifica su pertenencia y **recoloca isla 1 en el lugar guardado**, sin exigir un nuevo arrastre ni clic. Si se activa otra aplicación maximizada con su propia posición guardada, se usa la de esa otra aplicación. Con ninguna regla almacenada, se usa la ubicación general predeterminada.
+- **No basta con que una app siga abierta en segundo plano**: la aplicación **activa/maximizada** determina el perfil aplicable. Así pueden coexistir Steam y Dolphin sin órdenes contradictorias de posicionamiento.
+- **Precedencia con retorno global ya aprobado:** mientras una aplicación esté activa/maximizada, **su perfil guardado prevalece** sobre la ubicación general; al desmaximizar, continúa rigiendo «Volver automáticamente a la derecha» (activada por defecto), salvo que el usuario la desactive. Un desplazamiento manual **no modifica el perfil almacenado hasta que se elija guardar**.
+- **Controles independientes:** los botones propios de SmartBar `− □ ×` permanecen **fijos en el extremo derecho**, sin seguir a isla 1. Los perfiles no trasladan los controles originales de la aplicación, ni alteran pestañas, tamaño de ventana, grosor de SmartBar o fullscreen real.
+- **Persistencia y seguridad:** guardar la relación con un identificador estable de aplicación (no solo el título variable de la ventana), aplicar límites válidos en cada pantalla/escala y garantizar una forma de restaurar posiciones predeterminadas. Determinar compatibilidad con KWin/Wayland, Steam/XWayland, múltiples ventanas y varios monitores mediante pruebas.
+- **Estado de desarrollo:** **CONFIRMADO COMO REQUISITO FUNCIONAL, NO IMPLEMENTADO NI PROBADO**. Su construcción depende de poder identificar ventanas reales y su aplicación, todavía pendiente de la prueba v0.1. Se registra en [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4).
+- **Altura:** **no se autoriza** cambiar automáticamente el grosor según Steam u otra aplicación; permanece la altura común y constante aprobada. Medir o alinear visualmente títulos de aplicaciones será investigación separada, sin cambios de diseño hasta nueva aprobación.
+
+## 2.6. Alineación derecha de isla 1 — control de estado y arrastre (14/11/2026)
+
+**CONFIRMADO:** la casilla contextual **«Alinear isla 1 a la derecha»** representa la alineación **actual** y comienza marcada en la posición predeterminada. No es la misma opción que la preferencia persistente «Volver automáticamente a la derecha al desmaximizar».
+
+- **Arrastre directo:** cuando el usuario mueve isla 1 mediante los seis puntos, **la casilla «Alinear a la derecha» se destilda automáticamente**. La isla permanece en la posición horizontal elegida cuando se suelta el agarre. No se exige destildar manualmente nada antes de arrastrar.
+- **Activar alineación:** al tildar **«Alinear isla 1 a la derecha»**, la isla regresa **inmediatamente** a su posición predeterminada: a la izquierda del bloque de controles `− □ ×` si hay ventana maximizada y esos controles están visibles, o al extremo derecho si no están. Los controles de ventana permanecen en el borde derecho y **no se desplazan**.
+- **Desactivar alineación manualmente:** simplemente deja libre el posicionamiento; no mueve la isla por sí sola.
+- **Retorno al desmaximizar:** la preferencia independiente, configurada **activada por defecto**, conserva su regla anterior: cuando una ventana deja de estar maximizada, la isla regresa a la derecha si el usuario no la desactivó. **No se aplica al soltar el agarre.**
+- **Perfiles por aplicación:** si Steam, Dolphin u otra aplicación tiene una posición guardada, debe poder recuperarse sin tener que modificar a mano la casilla. Un movimiento manual destilda la alineación, **pero no guarda ni sobrescribe perfiles**; el guardado requiere la acción contextual «Recordar esta posición para [aplicación]» ya aprobada.
+- **Invariantes:** no alterar altura, expansión en una sola fila, bandeja/SO simultáneos cuando haya espacio y con prioridad a la expansión reciente si falta, fullscreen real, compatibilidad de aplicaciones ni el posicionamiento fijo de controles de ventana.
+- **Estado:** lógica de alineación incorporada **solo a la maqueta QML en la rama v0.1**, **todavía sin repetir pruebas en CachyOS**; integración con ventanas reales/KWin pendiente. La persistencia de preferencias globales continúa por validar.
+
+## 2.7. Mantener la posición física al retirar los controles de ventana (14/11/2026)
+
+**CONFIRMADO por comportamiento ya aprobado:** cuando la opción «Volver a la derecha al desmaximizar» está **desactivada** y una ventana deja de estar maximizada, la isla 1 debe **permanecer en la misma coordenada visual horizontal**, en vez de correrse hacia la derecha por la mera desaparición de los controles `− □ ×`.
+
+- El bloque de controles está fijo a la derecha y deja libre un ancho al desaparecer. Si el desplazamiento se mide respecto al espacio disponible a la izquierda de los controles, ese cambio **NO debe arrastrar la isla**: el posicionamiento debe compensar la diferencia geométrica.
+- **Retorno activado:** al desmaximizar, sigue rigiendo el regreso al extremo derecho. **Retorno desactivado:** conservar posición visual salvo ajuste mínimo imprescindible por límites físicos de pantalla.
+- La casilla contextual «Alinear isla 1 a la derecha» mantiene su independencia: al arrastrar se destilda, al tildar retorna inmediatamente. Un perfil de posición por aplicación guardado mediante clic derecho no se modifica solo por desmaximizar.
+- **Estado:** la corrección existe **solo en QML experimental del PR #3, no probada aún en CachyOS tras ese parche**. El posicionamiento con ventanas reales y varios monitores sigue pendiente. No cambia el grosor ni la separación de controles.
+
+## 2.8. Adaptación al ancho disponible (14/11/2026)
+
+- **CONFIRMADO:** en orientación horizontal, SmartBar debe **distribuir sus islas a lo largo de todo el ancho útil disponible** del panel/contenedor, sin conservar un ancho máximo fijo que deje la isla 1 lejos del extremo derecho.
+- **Respuesta a cambios:** si la pantalla, resolución, escalado, contenedor o ventana de ensayo cambian de ancho, la **isla 2 sigue anclada al extremo izquierdo útil** y **la isla 1 y los controles independientes de ventana siguen el extremo derecho útil**, respetando desplazamiento manual, reserva para controles y límites de pantalla. No se exige recargar el widget para reajustarlo.
+- **No confundir ancho con aspecto:** «ocupar el ancho disponible» significa que **las posiciones/anclajes usan el ancho completo**, **NO** que deba aparecer un fondo continuo entre islas. De forma predeterminada solo se ven islas separadas, como se aprobó.
+- **Altura invariable:** cambios en el ancho no hacen que aparezcan segundas filas ni cambian el grosor de SmartBar. Al reducirse mucho el ancho, el comportamiento ante falta de espacio debe probarse y decidirse antes de sacrificar requisitos confirmados.
+- **Limitación de prueba:** `plasmoidviewer` puede agregar márgenes o restricciones propias. Esto no exime a SmartBar de redimensionarse correctamente cuando recibe nueva geometría. La integración de pantalla y KWin/Wayland **no está verificada** por la ventana de ensayo.
+- **Estado:** el QML del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) solicita `Layout.fillWidth` y registra cambios de anchura, pero **esta corrección no ha sido probada todavía en CachyOS**.
+
+## 2.9. Compensar reservas de controles en ambos sentidos (14/11/2026)
+
+**Aclaración técnica de reglas ya confirmadas, tras prueba del mantenedor en CachyOS:** cuando la isla 1 ha sido **desplazada manualmente** (casilla «Alinear a la derecha» destildada), **activar** la maximización no debe empujarla involuntariamente hacia la izquierda por el mero hecho de reservar espacio para los controles `− □ ×`. Del mismo modo, **desmaximizar** con retorno desactivado no debe moverla hacia la derecha por retirar esa reserva.
+
+- En ambas transiciones se debe conservar la **posición visual horizontal** elegida por el usuario, compensando el espacio que aparece o desaparece.
+- **Excepción de seguridad:** al maximizar, si la posición previa se superpondría al bloque fijo de controles, la isla se desplaza **únicamente lo necesario** para no taparlos. Los propios controles siguen fijos al extremo derecho.
+- Cuando la casilla «Alinear a la derecha» esté **tildada**, maximizar coloca isla 1 normalmente **inmediatamente a la izquierda** de los controles. La opción de retorno al **desmaximizar** conserva la conducta que ya fue aprobada y es independiente de la alineación contextual.
+- No modificar automáticamente el grosor, tamaño de ventanas reales ni sus controles originales. **Pendiente de verificar el parche en CachyOS; no probado con ventanas reales/KWin**.
+
+## 2.10. SO como acceso alternativo al lanzador, con isla 2 opcional (14/11/2026)
+
+**DECISIÓN CONFIRMADA:** se mantiene **isla 2 visible por defecto**, a la izquierda, como lanzador de aplicaciones instaladas, **pero el usuario puede ocultarla fácilmente** si prefiere una configuración simplificada con solo isla 1. La isla 2 no se elimina del diseño.
+
+- **SO, clic breve:** continúa abriendo/cerrando la lista de aplicaciones/ventanas **abiertas**, incluidas las minimizadas, agrupadas por aplicación. Esta función no se sustituye.
+- **SO, pulsación sostenida:** tras un intervalo inferior a medio segundo (referencia inicial para prueba **400 ms**), abre un **lanzador flotante de aplicaciones instaladas**. Al soltar después de una pulsación sostenida **NO** se ejecuta además el clic breve. Debe existir alternativa accesible por menú contextual/teclado.
+- **Isla 2, clic derecho:** muestra una acción directa **«Ocultar isla 2»**. Desde el menú contextual del botón SO debe poderse **«Mostrar isla 2»** de nuevo. La preferencia de visibilidad debe poder guardarse; estado inicial **visible**.
+- **Regla visual:** un lanzador flotante secundario sale hacia el interior de la pantalla, sin cambiar el grosor constante de las islas ni crear una segunda fila de SO/bandeja. En modo inferior el flotante deberá orientarse hacia arriba. SO, agarre de seis puntos y controles de ventana no cambian de posición por ello.
+- **Independencia del lanzador flotante:** abrirlo desde SO **no contrae las fichas de ventanas ni la bandeja** si estaban desplegadas. El menú se presenta debajo de la isla y no reemplaza su fila horizontal. Esta regla posterior sustituye cualquier exclusividad anterior entre lanzador y expansiones.
+- **Ocultación automática de isla 2:** **PROPUESTA EN ESTUDIO, NO APROBADA PARA IMPLEMENTAR TODAVÍA**. Deben especificarse el disparador, la recuperación accesible, la preferencia y compatibilidad con el foco antes de añadirla; no activar por defecto ni inventar temporizadores.
+- **Alcance actual:** el prototipo de prueba usa fichas de aplicaciones **simuladas**, con clic sostenido de 400 ms y opción de ocultación/restitución. **NO hay aún enumeración de aplicaciones instaladas ni lanzamiento real**, ni prueba posterior de esta nueva interacción en CachyOS. No se debe presentar la funcionalidad final como terminada.
+
+## 2.11. Anclaje del lanzador flotante a la isla 1 desplazable (14/11/2026)
+
+**CONFIRMADO POR OBSERVACIÓN DEL MANTENEDOR:** el menú flotante que abre una pulsación sostenida sobre **SO** pertenece a **isla 1**, y debe aparecer **inmediatamente debajo de su posición actual en el modo superior**, incluso si la isla fue arrastrada manualmente hacia el centro o hacia la izquierda. No debe reaparecer en el extremo derecho predeterminado mientras la isla permanezca desplazada.
+
+- **Geometría reactiva:** el lanzador sigue horizontalmente la posición de **isla 1** al arrastrarla o al redimensionar el contenedor. En modo superior se muestra **debajo** de la isla; en el modo inferior futuro debe abrirse **por encima** (según el diseño aprobado de los paneles secundarios).
+- **Límites:** el popup permanece dentro de los márgenes útiles de la pantalla/contenedor, incluso cerca de los bordes. El ajuste por límites no mueve isla 1 ni los controles independientes de ventana.
+- **No cambia:** clic breve SO para ventanas abiertas, pulsación de prueba ~400 ms para lanzador, islas separadas, bandeja/SO coexistentes si caben, grosor fijo, agarre de seis puntos ni controles anclados a la derecha.
+- **Estado técnico:** parche únicamente en la maqueta QML de [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), pasando a usar `systemIsland.x` y `systemIsland.width` como dependencias reactivas del popup. **Todavía no probado en CachyOS tras la corrección**, ni conectado al catálogo real de aplicaciones.
+
+## 2.12. Soledad, Malvina y expansión coexistente según espacio (14/11/2026)
+
+**CAMBIO FUNCIONAL CONFIRMADO POR EL MANTENEDOR, QUE SUSTITUYE LA EXCLUSIVIDAD ABSOLUTA ANTERIOR:**
+
+- **Soledad** es el nombre de la **isla 1 principal**, que contiene el botón **SO** (se conserva la abreviatura visible), bandeja de sistema y agarre horizontal de seis puntos. **Malvina** es el nombre de la **isla 2**, lanzador izquierdo secundario, visible por defecto y ocultable.
+- **SO y bandeja pueden permanecer expandidos al mismo tiempo** si las fichas de ambos conjuntos **entran en el espacio horizontal real disponible**, manteniendo una sola fila y sin afectar la altura. La apertura de uno **no contrae preventivamente** el otro por costumbre. Los dos se pueden dejar abiertos por voluntad del usuario.
+- **Cuando NO hay espacio para ambas expansiones**, se **conserva la expansión recién solicitada** y se contrae la que estaba abierta antes. La misma protección debe aplicarse si el usuario desplaza Soledad horizontalmente o cambia el ancho útil mientras están ambas abiertas.
+- El cálculo físico respeta la posición desplazada de Soledad, el espacio que ocupa Malvina cuando está visible y los controles independientes `− □ ×` de ventana maximizada. Las expansiones nunca alteran el anclaje de SO y el agarre, ni desplazan pestañas, controles originales o tamaño de ventanas. Si el espacio fuese insuficiente incluso para una sola expansión, debe tratarse en una prueba específica sin inventar nuevas filas ni variar el grosor.
+- El **lanzador flotante** de pulsación sostenida de SO es independiente de estas dos expansiones: al abrirlo **se mantienen SO y bandeja en el estado en que el usuario los dejó**. La falta de ancho sigue resolviéndose solo entre las expansiones de una misma fila, nunca por abrir el menú flotante.
+- **Recuperación de Malvina:** si está oculta, el lanzador flotante abierto desde SO debe mostrar una acción de **un clic «Mostrar Malvina (isla 2)»**, además de la opción existente del menú contextual de SO. No dejar la reaparición dependiente de un gesto poco descubrible. Su configuración por defecto sigue siendo visible.
+- **Nomenclatura:** quedan anotados los nombres **Soledad** e **Malvina** como nombres funcionales de las islas, sin renombrar aún el repositorio oficial `plasma-smartbar` ni su licencia. La posible denominación pública del **proyecto completo** como «Malvina» queda pendiente de confirmación explícita para no interpretar una frase ambigua como autorización de renombrar infraestructura.
+- **Estado:** la demostración QML del PR #3 implementa la lógica de capacidad y la recuperación directa de Malvina, **pendiente de prueba en CachyOS**. Sigue usando aplicaciones y bandeja ficticias. No implica integración con bandeja/ventanas reales ni prueba definitiva de todos los anchos.
+
+Esta sección más reciente **prevalece sobre cualquier formulación anterior de «SO y bandeja mutuamente excluyentes»** en este documento o manuales históricos.
+
+## 2.13. Autocontracción opcional e independiente de SO y bandeja (14/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** la configuración de Plasma SmartBar debe permitir activar o desactivar la **autocontracción de la expansión de SO y de la bandeja por separado**, mediante acciones accesibles de configuración.
+
+- **SO — predeterminado activado:** luego de seleccionar una aplicación/ventana desde las fichas de SO, la expansión se contrae, como ya estaba aprobado. Si el usuario desmarca la preferencia, SO permanece abierto después de seleccionar. El clic breve sobre SO sigue pudiendo cerrarlo manualmente.
+- **Bandeja — predeterminado desactivado:** en la primera prueba funcional la autocontracción se dispara **después de utilizar un icono**. Si la opción se activa, la bandeja se contrae luego de esa acción; si no, permanece abierta. Esto no autoriza cerrar subpaneles antes de que el usuario haya terminado una interacción real; los casos de iconos de bandeja que abren menús o subpaneles necesitan validación posterior.
+- **Independencia:** las dos casillas no se afectan mutuamente. Tampoco se activan por abrir otra expansión cuando ambas caben. La **regla de capacidad horizontal de la sección 2.12 siempre tiene prioridad cuando falta espacio**, aun si ambas autocontracciones están desactivadas.
+- **Acceso:** menú del agarre de seis puntos → «Configuración de autocontracción». Las preferencias deben ser persistentes en el plasmoide real y accesibles sin editar archivos. La maqueta Qt independiente puede usar estado de sesión.
+- **Sin autocontracción por tiempo:** no se ha aprobado ninguna duración, pérdida de foco ni temporizador de inactividad como disparador. No introducirlo por inferencia. SO y bandeja deben permitir permanecer abiertos de forma intencional.
+- **Estado:** casillas y acciones implementadas **solo en QML de muestra de PR #3**, pendientes de prueba en CachyOS, de persistencia y de integración con los iconos/ventanas reales.
+
+## 2.14. Separación visual de expansiones y origen del lanzador de Malvina (14/11/2026)
+
+**CAMBIOS FUNCIONALES CONFIRMADOS POR EL MANTENEDOR TRAS PROBAR LA CONVIVENCIA SO/BANDEJA EN CACHYOS:**
+
+- **Separador:** cuando **SO y bandeja están expandidos simultáneamente**, debe aparecer una **línea vertical discreta** entre los iconos de la bandeja y las fichas de ventanas abiertas de SO, para que sea claro a qué sección pertenece cada icono. Si se contrae uno de los dos conjuntos, el separador desaparece. No es una isla nueva ni cambia altura, anclajes, fondo transparente entre islas o la expansión en una sola fila; su anchura debe contarse al verificar el espacio disponible.
+- **Malvina abre su propio lanzador bajo su isla:** al hacer clic en **Malvina (isla 2, lado izquierdo)** el menú flotante de aplicaciones instaladas debe aparecer **directamente debajo de Malvina**, ajustado al borde izquierdo útil, y **NO junto a Soledad (isla 1)**. El usuario debe poder identificar intuitivamente qué botón abrió el menú.
+- **Soledad mantiene su acceso alternativo:** mantener SO presionado ~400 ms o usar su menú contextual abre el **mismo tipo de lanzador**, pero debajo de la **posición horizontal actual de Soledad**, incluso arrastrada; no se elimina ese acceso al permitir abrirlo desde Malvina.
+- **Coexistencia sin interrupciones gratuitas:** abrir el lanzador desde **Malvina o SO** no contrae automáticamente las fichas de SO ni la bandeja que el usuario dejó abiertas en Soledad. El único menú flotante reutilizable se ancla al botón de origen, sin modificar `soExpanded` ni `trayExpanded`.
+- **Modo inferior futuro:** cada lanzador deberá desplegarse hacia el interior, **encima de la isla que lo abrió**, conservando el anclaje horizontal respectivo.
+- **Estado:** ya programado en `SmartBarContent.qml` de la rama experimental [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin prueba en CachyOS tras este cambio**. Las fichas/menús siguen siendo de muestra y no se lanzan aplicaciones instaladas reales.
+
+**PRUEBA ANTERIOR CONFIRMADA:** el mantenedor comunicó que el despliegue y coexistencia de SO y bandeja funcionaron como esperaba en la ventana Qt experimental; la incorporación de una línea divisoria y del anclaje correcto de Malvina es una mejora visual/funcional posterior a esa prueba.
+
+## 2.15. Abrir el lanzador de Soledad sin contraer SO ni bandeja (14/11/2026)
+
+**CORRECCIÓN CONFIRMADA POR EL MANTENEDOR tras prueba en CachyOS:** cuando SO y bandeja están expandidos, **mantener SO presionado unos 400 ms** debe abrir el menú flotante de aplicaciones **sin contraer ninguna de esas expansiones**. El mantenimiento del estado también rige si solo una estaba expandida.
+
+- **Tres contenidos independientes:** las fichas horizontales de SO, los iconos horizontales de bandeja y el **lanzador flotante debajo de la isla** pueden coexistir cuando el usuario así lo decida. El lanzador no altera la fila ni su altura.
+- **Prioridades y excepciones vigentes:** la limitación de ancho **entre fichas SO y bandeja** puede contraer la sección anterior cuando no caben ambas; la selección de una ficha o icono puede generar autocontracción **solo** si su preferencia está activada; el usuario puede contraer manualmente. **La apertura del lanzador NO es uno de esos disparadores**.
+- **Origen del lanzador:** tanto SO sostenido como Malvina pueden mostrarlo debajo de su isla correspondiente, sin forzar cierres en Soledad. SO breve y la flecha siguen siendo controles manuales de sus respectivas expansiones.
+- **Estado técnico:** se retiró la contracción incondicional de `openInstalledLauncher()` en la rama experimental [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3). **Aún pendiente de retest en CachyOS** tras el cambio; sin interacción con ventanas o bandeja reales.
+
+Esta decisión sustituye las reglas previas que hacían cerrar SO y bandeja al abrir el lanzador desde SO.
+
+## 2.16. Clic breve SO: cerrar primero el lanzador flotante sin contraer las fichas (14/11/2026)
+
+**COMPORTAMIENTO CONFIRMADO POR EL MANTENEDOR:** con las fichas de ventanas SO expandidas (y eventualmente también la bandeja), después de abrir el **lanzador flotante de aplicaciones** mediante pulsación sostenida de SO, un **clic breve posterior en SO debe cerrar únicamente el lanzador**, sin contraer las fichas SO ni la bandeja. El estado anterior de esas expansiones se conserva tal como el usuario lo dejó.
+
+- **Prioridad del gesto:** si el lanzador está visible, el clic breve sobre SO lo cierra y **termina la operación**; no ejecuta además la alternancia de `soExpanded`. Si no hay lanzador visible, el clic breve conserva su comportamiento normal de abrir/cerrar las fichas SO.
+- **Independencia:** la selección de una ficha de ventana real/simulada y la interacción con un icono de bandeja siguen sujetas a sus dos preferencias independientes de autocontracción. La falta física de espacio entre expansiones también se conserva como regla distinta. Ninguna se dispara por cerrar el lanzador.
+- **Accesos sin cambios:** SO sostenido (~400 ms) abre lanzador bajo Soledad; Malvina abre/cierra lanzador bajo Malvina con clics alternos; posición de islas, agarre de seis puntos, separador, controles fijos y altura permanecen invariantes.
+- **Estado:** corrección en la maqueta QML de [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendiente de retest en CachyOS** tras el nuevo cambio. No controla ventanas reales ni toca el panel instalado.
+
+## 2.17. Recuperación de Malvina mediante el agarre de Soledad (14/11/2026)
+
+**PROBLEMA COMPROBADO POR EL MANTENEDOR:** después de ocultar **Malvina (isla 2)** en la maqueta de CachyOS, no encontró una opción accesible dentro de Soledad que le permitiera volver a mostrarla. Los accesos ya existentes —menú contextual de SO y botón del lanzador flotante tras sostener SO— **no resultaron fáciles de descubrir**, por lo que la recuperación debe tener una entrada visible en la configuración usual.
+
+- **CONFIRMADO, con gesto de apertura actualizado en la sección 2.18:** el agarre de **seis puntos** de **Soledad (isla 1)** conserva el menú de opciones; la **primera acción** siempre disponible será **«Mostrar Malvina (isla 2)»** si Malvina está oculta, y **«Ocultar Malvina (isla 2)»** cuando esté visible. El menú se abre con **clic derecho**, no con clic breve izquierdo; existe alternativa de teclado. El clic sobre el ítem ejecuta la acción.
+- **No se rediseña el panel:** no se agrega otra isla, no cambia el orden de SO/agarre, la altura constante, el movimiento horizontal, las expansiones, los controles de ventana ni la visibilidad predeterminada (**Malvina sigue visible de inicio**).
+- **Rutas adicionales conservadas:** menú contextual de SO y botón «Mostrar Malvina» dentro del lanzador flotante permanecen disponibles. El estado de visibilidad debe sincronizarse con `showLauncherIsland=true` en la configuración KConfig del plasmoide real; en la vista Qt independiente rige el estado de sesión.
+- **IMPLEMENTADO SOLO EN MAQUETA QML EXPERIMENTAL:** `gripMenu` ahora presenta la acción en su primera posición, y las ayudas de SO/agarre indican cómo recuperarla cuando está oculta. **PENDIENTE de prueba en CachyOS**. La persistencia de KConfig real no está validada.
+
+## 2.18. Gesto del agarre: arrastrar con izquierdo, opciones con derecho (14/11/2026)
+
+**DECISIÓN FUNCIONAL POSTERIOR, QUE SUSTITUYE LA APERTURA CON CLIC IZQUIERDO DE LA SECCIÓN 2.17:** el mantenedor observó en CachyOS que el menú de los seis puntos se desplegaba al tocar el agarre para mover Soledad y que un segundo clic podía cerrarlo y reabrirlo inmediatamente. Esto resulta intrusivo al arrastrar la isla.
+
+- **Botón izquierdo del ratón sobre el agarre de seis puntos:** reservado al **arrastre horizontal manual de Soledad**, sin abrir el menú por clic simple ni al soltar el agarre. El usuario no debe tener que cerrar opciones para mover la isla.
+- **Botón derecho del ratón sobre el agarre:** **abre o cierra** el menú de «Opciones de Soledad» con clics sucesivos. Se evita el fallo de cerrar por pulsación exterior y reabrir en el mismo clic.
+- **Teclado y accesibilidad:** cuando el agarre está enfocado, la **tecla Menú** o **Mayús+F10** alterna el menú. Esc y clic fuera del agarre deben cerrarlo. El tooltip puede indicar la nueva operación, evitando mostrarse durante el arrastre. **Doble clic izquierdo no se habilita por defecto**: el mantenedor señaló el derecho como preferencia y así no se mezcla con el movimiento horizontal.
+- **Recuperación de Malvina sin pérdida:** al abrir el menú por derecho o teclado, la primera opción sigue siendo «Mostrar Malvina (isla 2)» si está oculta, «Ocultar Malvina (isla 2)» si está visible. También siguen disponibles las rutas de menú contextual SO y lanzador flotante SO. Malvina sigue visible por defecto.
+- **Invariantes:** no cambian el agarre de seis puntos, la altura constante, la distancia entre islas, los controles fijos, el cálculo de espacio SO/bandeja ni el lanzamiento flotante de Malvina/Soledad.
+- **IMPLEMENTADO EN RAMA EXPERIMENTAL, PENDIENTE DE PRUEBA EN CACHYOS:** `SmartBarContent.qml` desactiva la acción del clic izquierdo en `moveGrip`, añade `MouseArea` que acepta solo botón derecho y una alternativa de teclado; `gripMenu` usa una política de cierre que no interfiere con el segundo clic derecho. Sin tocar el panel de KDE instalado.
+
+## 2.19. Cierre de opciones con clic izquierdo breve sin interferir con arrastre (14/11/2026)
+
+**CONFIRMADO Y OBSERVADO POR EL MANTENEDOR EN CACHYOS:** abrir las opciones de Soledad mediante clic derecho en el agarre funciona correctamente. A partir de esa prueba, el usuario pidió que un **clic izquierdo breve sobre el mismo agarre también cierre el menú si ya está abierto**. No pretende que el izquierdo abra opciones desde el estado cerrado.
+
+- **Menú cerrado:** clic izquierdo breve en los seis puntos **no lo abre**; el izquierdo permite **arrastrar horizontalmente** Soledad.
+- **Menú abierto:** clic izquierdo breve en el mismo agarre **lo cierra**, sin volver a abrirlo ni desplazar Soledad. Clic derecho continúa alternando abrir/cerrar opciones.
+- **Arrastre ≠ clic:** si el gesto izquierdo activó el arrastre, no debe interpretarse después como un clic de cierre del menú, para conservar la funcionalidad de mover Soledad. El arrastre permanece restringido a `Qt.LeftButton`; el menú contextual, a `Qt.RightButton`.
+- **Accesibilidad:** siguen disponibles tecla Menú, Mayús+F10 y Esc. Las opciones **«Mostrar/Ocultar Malvina (isla 2)»** se mantienen en primer lugar. No se añade otro botón ni se altera altura, controles, bandeja o SO.
+- **IMPLEMENTADO EN QML EXPERIMENTAL, PENDIENTE DE RETEST EN CACHYOS:** el `moveGrip.onClicked` ejecuta `gripMenu.close()` **solo** si el menú está visible y no hubo arrastre. El `DragHandler` marca cuándo se activó el desplazamiento. No se modificó el panel KDE existente.
+
+Esta sección actualiza la interpretación de «izquierdo solo arrastra» de la sección 2.18: **no abre opciones, pero sí permite cerrarlas cuando están visibles**, sin interferir con el arrastre.
+
+## 2.20. Logo personalizable de SO, GIF, formas y colores de islas (14/11/2026)
+
+**DECISIONES FUNCIONALES CONFIRMADAS DIRECTAMENTE POR EL MANTENEDOR:**
+
+1. **Logo de SO dentro de Soledad:** el botón «SO» puede mostrar la huella violeta/azul proporcionada, un icono estático o un **GIF animado personalizado**, o volver al texto «SO». El empaquetador de una distribución podrá reemplazar el logo predeterminado por el suyo, sin obligar al usuario a mantenerlo. La detección automática de la distro y logos de terceros **no está implementada**.
+2. **Editor visual de encuadre y escala:** al elegir una imagen/GIF, abrir una vista previa interactiva que permita **mover, agrandar o reducir (respetando el encuadre) y elegir la zona visible**, ajustándola a la forma del logo. Máscaras confirmadas: **cuadrado, círculo, rombo ♦ (cuadrado girado), corazón ♥ y estrella ★**. Para GIF, el mismo recorte fijo se aplica a todos los cuadros animados. Cambiar máscara o zoom **no debe modificar ni comprimir destructivamente** el archivo original; guardar escala/desplazamiento/forma como preferencias. La nitidez depende de la resolución del origen: ampliar imágenes de pocos píxeles no genera detalle nuevo.
+
+   - **Ajuste preciso de imagen completa:** el usuario puede elegir explícitamente entre **«encajar imagen completa»** (ver toda la foto/GIF dentro de la forma, sin deformarla) y **«rellenar forma»** (permitir recorte por los bordes), además del zoom y desplazamiento. La primera opción es predeterminada en la maqueta; su preferencia `soLogoFitMode` se guarda sin alterar el archivo de origen. Ajuste programado, pendiente de prueba en CachyOS.
+3. **GIF como excepción opcional:** la regla MVP general de **no agregar animaciones** sigue vigente para desplazamientos, apertura de islas, controles y fichas; **solo el logo escogido expresamente por el usuario** puede reproducir GIF. Debe existir interruptor para pausar animación, y la imagen estática predeterminada no debe consumir recursos de animación.
+4. **Colores, tonalidades y transparencias:** cada isla existente (Soledad y Malvina) admite color y opacidad independientes. Puede activarse **una capa de fondo continuo de toda la barra**, también con color/tono y transparencia independientes, pero **desactivada por defecto**; con ella apagada se conserva el diseño de islas separadas sin fondo general. La capa es únicamente decorativa: no modifica altura constante, reserva de espacio, ventanas, controles ni la expansión horizontal.
+5. **Nomenclatura «isla 3»: pendiente de resolución funcional:** ya se había aprobado una **isla 3 buscadora opcional, oculta por defecto**. El mantenedor llamó «como una isla 3, de fondo» a la nueva capa. **Se implementa provisionalmente como fondo opcional, sin eliminar ni renombrar la isla buscadora anterior.** Antes de numerarla como isla 3 o desplazar la buscadora, pedir decisión explícita para evitar contradicción.
+6. **Acceso a preferencias:** menú de opciones de los **seis puntos, por clic derecho o teclado** → «Personalizar logo de SO…» o «Colores y transparencia de islas y fondo…». Seguir mostrando «Mostrar/Ocultar Malvina» en primer lugar. Cambios de apariencia no alteran clic breve SO (ventanas), pulsación sostenida ~400 ms (lanzador), arrastre, bandeja, fullscreen ni controles.
+
+**ESTADO DE IMPLEMENTACIÓN:** se publicó solo en la rama `prototype/v0.1-islas-so`, [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador. La huella está incluida como PNG predeterminado (copia de 200×200 con paleta optimizada). `LogoArtwork.qml` usa `QtQuick.Effects.MultiEffect` con máscara y `AnimatedImage`; `LogoEditor.qml` presenta vista previa y encuadre no destructivo; `AppearanceEditor.qml` permite tintes y opacidad; `main.xml` guarda claves y `main.qml` las conecta a KConfig. `preview_redimensionable.qml` conserva las preferencias solo en esa sesión. **Todavía sin prueba ejecutada en CachyOS después de estos cambios**, ni validación de persistencia con plasmoide instalado. Se requiere verificar rendimiento en KWin/Wayland y en hardware real. [Issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+**Esta decisión posterior constituye una excepción explícita y limitada para GIF de logo respecto a la prioridad sin animaciones generales.**
+
+## 2.21. Indicador luminoso de SO solo cuando hay ventanas abiertas (14/11/2026)
+
+**NUEVA DECISIÓN FUNCIONAL CONFIRMADA POR EL MANTENEDOR:** el logo del botón SO dentro de Soledad debe ser **normal y sin contorno animado cuando no existan ventanas para mostrar**. Cuando hay una o más ventanas abiertas —incluidas minimizadas, según el modelo real de tareas aprobado—, puede identificarse el estado con un **contorno fino luminoso** alrededor del recorte elegido (cuadrado, círculo, rombo, corazón o estrella), llamativo pero sin desplazar ni alterar el logo.
+
+- **Condición de activación:** el efecto depende de la **existencia de ventanas/aplicaciones activas en el modelo SO**, NO del estado expandido/contraído de las fichas ni de una simulación fija cuando se implemente Plasma. Si el recuento es cero, el indicador queda **completamente apagado** y no debe ejecutar temporizadores de animación. El logo/GIF personalizado tiene su propia preferencia de reproducción; el indicador es independiente.
+- **Modos configurables:** **desactivado**, **borde luminoso fijo**, **tramo de luz que recorre el contorno**. El modo fijo, sin movimiento, es el predeterminado de esta prueba; el recorrido es opcional. También se configura **color/tonalidad** (por defecto cian), **grosor de 0,5 a 2 píxeles** y habilitación del movimiento. Se evita centelleo fuerte, parpadeos y animar el propio logo solo por tener ventanas.
+- **Forma y geometría:** el contorno sigue la forma visual del logo elegida por el usuario; está contenido dentro del botón existente, **sin alterar la altura fija, el ancho de Soledad, la fila SO/bandeja ni los controles**. El efecto puede ser reducido o desactivado por accesibilidad, ahorro de recursos o preferencia personal.
+- **Rendimiento:** cargar el pequeño lienzo únicamente cuando el indicador está activado **y hay ventanas**; el recorrido opcional usa temporizador moderado (~15 fotogramas/s en la prueba), desactivado si no hay ventanas. Optimizar/validar con KWin/Wayland y equipos reales antes de incorporarlo a una versión instalable.
+- **Vinculación:** la maqueta v0.1 tiene **tres ventanas FICTICIAS** por defecto y un control de prueba «Simular SO SIN ventanas (0)»/«CON ventanas (3)». **Esto NO equivale a detectar ventanas reales**: ese paso sigue pendiente con el modelo de tareas KDE.
+- **Acceso:** menú de los seis puntos de Soledad **con clic derecho** → «Contorno de actividad de SO…». Editor con vista previa de ambos estados, modo, color, grosor y movimiento; configuración conectada de forma experimental a KConfig (`soActivityStyle`, `soActivityColor`, `soActivityStroke`, `soActivityMotion`). Persistencia en plasmoide real todavía sin prueba.
+- **Estado:** `SoActivityOutline.qml`, `SoActivityEditor.qml` y `IslandButton.qml` implementados en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin validación en CachyOS después de este cambio**. No se toca el panel existente.
+
+**Esta excepción posterior amplía la autorización de efectos opcionales del botón SO** (antes solo GIF personalizable, sección 2.20), pero NO autoriza animar automáticamente islas, ventana, apertura de bandeja ni minimización. La propuesta queda sujeta a rendimiento y accesibilidad reales.
+
+## 2.22. Gestos de SO, ubicación del menú de Soledad y marco único de imagen (14/11/2026)
+
+**DECISIONES FUNCIONALES CONFIRMADAS POR EL MANTENEDOR TRAS OBSERVAR LA V0.1 EN CACHYOS.** Estas instrucciones **sustituyen expresamente** las indicaciones históricas de las secciones 2.10, 2.11, 2.17 y 2.18 que permitían abrir un menú contextual intermedio con **clic derecho en SO** para gestionar Malvina. Se mantienen las demás reglas no contradictorias.
+
+- **SO — clic izquierdo breve:** abre/contrae las fichas de **ventanas/aplicaciones abiertas**. Cuando un lanzador flotante está visible, se conserva la prioridad de cerrar únicamente ese flotante sin alterar las expansiones horizontales de SO/bandeja (sección 2.16).
+- **SO — clic derecho:** abre **directamente** el lanzador flotante de **aplicaciones instaladas**, sin paso intermedio ni menú de preferencias. **SO — izquierdo sostenido ~400 ms:** conserva su acceso alternativo al mismo lanzador. El acceso por teclado debe seguir siendo posible. En v0.1 el lanzador **solo contiene aplicaciones de muestra**, no detecta ni ejecuta programas instalados reales.
+- **Malvina y opciones:** «Mostrar/Ocultar Malvina (isla 2)» deja de figurar en el clic derecho de SO. Es la **primera acción del menú de los seis puntos** de Soledad, que mantiene las restantes preferencias. Siguen admitidos el acceso contextual del propio botón Malvina y el botón «Mostrar Malvina» en el lanzador flotante al estar oculta: esta decisión no elimina rutas alternativas ya aprobadas en otros controles.
+- **Menú del agarre de seis puntos:** clic derecho lo abre y cierra, pero debe aparecer **debajo de la posición horizontal ACTUAL de Soledad** en modo superior, sin tapar ninguna parte de la isla ni moverla. Debe limitarse al área útil y acompañar las reubicaciones de Soledad; en modo inferior futuro, abrir hacia arriba. Izquierdo breve solo lo cierra si estaba abierto; arrastre izquierdo desplaza la isla sin abrir opciones, como ya estaba aprobado.
+- **Una sola forma visual del logo:** la máscara elegida (cuadrado, círculo, rombo, corazón o estrella) determina la forma principal. **No superponer un marco redondeado de botón y otro contorno geométrico diferente**. El indicador opcional de actividad debe seguir la misma forma elegida; si no hay ventanas, no debe mostrar contorno ni usar temporizador, según sección 2.21.
+- **Encuadre:** mantener las opciones existentes de ajuste/zoom, centrado por desplazamiento, encajar/rellenar y restablecer, conservando el archivo original. El mantenedor todavía no informó de un fallo específico del editor; su usabilidad y funcionamiento deben probarse.
+
+**Estado de ingeniería:** correcciones redactadas en `SmartBarContent.qml` y `IslandButton.qml` del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), con guía de retest. Se usa un popup de Qt 6.8 para poder desplegar las opciones fuera de la altura fija de la barra; **comportamiento todavía no probado en CachyOS/KWin/Wayland** después de los parches. No se sustituye el panel KDE existente. [Issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+
+## 2.23. Centro de configuración unificado de Soledad (14/11/2026)
+
+**DECISIÓN FUNCIONAL CONFIRMADA POR EL MANTENEDOR:** en la maqueta v0.1 las ventanas separadas para personalizar logo, colores/transparencia y contorno resultaron incómodas: algunas opciones requerían agrandar la ventana manualmente y el botón «Aplicar» la cerraba. La solución aprobada es **una sola ventana «Configuración de Soledad» con pestañas**, accesible desde el menú de clic derecho de los **seis puntos** mediante una única entrada. Reemplaza las tres entradas de editores separadas, sin quitar funciones existentes.
+
+- **Pestañas separadas:** **Logo SO** (imagen/GIF/zoom/recorte/encuadre); **Apariencia** (colores/transparencias de Soledad, Malvina y fondo opcional); **Contorno** (estilo, forma, intensidad/color y movimiento opcional); **Autocontracción** (SO y bandeja independientes, con defaults vigentes); **Islas y posición** (mostrar/ocultar Malvina, alineación, regreso al desmaximizar y acción inmediata de retorno a la derecha).
+- **Geometría usable:** dimensionar la ventana tomando como referencia la pestaña más exigente, no el tamaño del menú contextual del agarre. Adaptar a pantalla; cuando no alcance el espacio, **cada pestaña permite desplazarse**, mientras los botones de confirmación permanecen visibles. Nada de esto debe modificar la **altura fija** de SmartBar.
+- **Aplicar**: guarda los cambios elegidos, **sin cerrar la ventana** ni obligar a abrirla de nuevo; permite continuar con las otras pestañas. **Cerrar**: botón distinto, cierra la ventana. Si hubo ajustes no aplicados, abrir nuevamente debe recuperar los últimos valores aplicados. En vista Qt independiente el estado puede ser solo de sesión; la persistencia KConfig real debe probarse.
+- **Preferencias previas protegidas:** mantener por separado SO tras seleccionar ventana (activado por defecto) y bandeja tras usar icono (desactivado por defecto); sin temporizador de inactividad. La opción «Mostrar/Ocultar Malvina» sigue accesible como **primera acción rápida** del menú de los seis puntos; no se reintroduce como clic derecho de SO. Los controles de alineación/retorno y el comando **«Mover isla 1 a la derecha AHORA»** se conservan. No mover Soledad al pulsar Aplicar si la persona no modificó la alineación.
+- **Posible isla extra — DIFERIDA:** el mantenedor mencionó una opción futura para agregar otra isla, pero **ordenó no desarrollarla ahora**. No añadir botón operativo, isla nueva, cambio de numeración ni sustitución de la isla 3 buscadora sin nueva aprobación.
+
+**ESTADO:** implementado en el componente QML experimental SoledadSettings.qml y enlazado con SmartBarContent.qml en [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **sin ejecución ni prueba en CachyOS/Wayland tras el cambio**. No se fusiona al plasmoide de uso diario. Seguimiento en [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) e [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+
+## 2.24. Personalización geométrica de islas y botón SO; rotación y pestaña Acerca de (15/11/2026)
+
+**DECISIONES CONFIRMADAS POR EL MANTENEDOR (PRIORIDAD SOBRE PROTOTIPO FIJO DE 48 PX):** la **altura general la determina el usuario** y sigue **constante durante interacciones y expansiones**, sin cambios por fichas, GIF ni paneles flotantes. No imponer 48 px como altura definitiva; sí conservar 48 como **valor inicial**. El usuario también puede configurar **alto, ancho y radio de esquinas de Soledad y Malvina** de modo independiente dentro de los límites de altura disponible. El ancho de Soledad responde a un mínimo seleccionable y al contenido real que se expande en **una sola fila**; no puede reducirse por debajo de las fichas visibles.
+
+- **Botón SO:** además del formato actual, admitir **botón más ancho en horizontal** (aprox. el doble) y formatos **rectángulo de esquinas rectas, rectángulo redondeado, cápsula horizontal y óvalo horizontal**, con ancho configurable. El botón no cambia por sí solo la altura fijada para la barra. La máscara visible, el contorno de actividad y el área de clic deben respetar una **única forma**, sin bordes dobles; las formas de recorte anteriores (círculo, cuadrado, rombo, corazón y estrella) siguen disponibles en el modo clásico. Las dimensiones mayores deben reducir el espacio horizontal disponible de manera previsible: no desplazar pestañas de aplicaciones externas, no crear segunda fila ni mover controles independientes de ventana.
+- **Editor de logo/GIF:** añadir **control de rotación gradual** para la imagen o GIF, además de escalado y desplazamientos. Aplicar la misma rotación a todos los cuadros del GIF sin modificar el archivo original. Valor predeterminado 0° y restablecimiento simple. La calidad visible depende del archivo fuente; evitar prometer mejoras de resolución por ampliar.
+- **Orden del centro de configuración:** **Logo SO → Contorno → Apariencia → Islas y posición → Autocontracción → Acerca de**. El editor sigue una sola ventana con pestañas independientes, scroll donde corresponda, «Aplicar» sin cierre y «Cerrar» separado.
+- **Restablecer por sección:** debe existir botón **Restablecer** en cada pestaña con preferencias editables (las cinco primeras). Los valores pasan al estado inicial correspondiente cuando luego se pulsa «Aplicar». No agregar un botón de restablecimiento a «Acerca de» porque solo muestra información.
+- **Acerca de:** mostrar nombre del proyecto, autor público **nicoarg87**, contacto público **nicoarg87@gmail.com** (expresamente autorizado para consultas) y licencia **GNU GPL versión 3**, con enlace al archivo [LICENSE](../LICENSE) oficial. Debe figurar un aviso visible y comprensible de que el software se distribuye **SIN NINGUNA GARANTÍA**, incluida la ausencia de garantía de comerciabilidad o adecuación a un propósito determinado, **en la medida permitida por la ley**; remitir al texto íntegro de la GPL v3. **PayPal y Cafecito quedan fuera de la interfaz por ahora**: el mantenedor pidió postergar las donaciones. No inventar enlaces ni datos personales.
+- **Alcance preservado:** personalización futura del icono de la bandeja y del agarre de seis puntos y «Añadir isla extra» siguen **diferidas**. La isla 3 buscadora no se reemplaza ni renumera. El panel KDE existente no debe tocarse.
+
+**ESTADO DE INGENIERÍA:** se agregaron controles, propiedades QML y entradas KConfig en la rama experimental del [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3), **pendientes de ejecución y validación en CachyOS/Wayland**. La altura del plasmoide en un panel KDE real depende también de la geometría que asigne el contenedor; no se presume compatibilidad final. La vista `probar_ancho.sh` es reversible y no instala paneles. Seguimiento: [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [issue #5](https://github.com/nicoarg87/plasma-smartbar/issues/5).
+
+
+## 2.25. Terminaciones visuales por isla y orden de Acerca de (15/11/2026)
+
+**REQUISITOS CONFIRMADOS POR EL MANTENEDOR TRAS OBSERVAR LA VISTA QT:**
+- **Orden de «Acerca de»:** nombre de proyecto/autor público `nicoarg87`, correo `nicoarg87@gmail.com` y botón de consultas, **inmediatamente después** la dirección y botón «Abrir repositorio oficial», y **debajo** la información de licencia GNU GPL versión 3 y el aviso visible **SIN NINGUNA GARANTÍA**, con acceso al texto completo de [LICENSE](../LICENSE). Se excluyen PayPal y Cafecito.
+- **Soledad por defecto:** el fondo de isla 1 tiene el **extremo izquierdo redondeado y el extremo derecho recto/cuadrado**. El **agarre de seis puntos** es **cuadrado por defecto**, manteniendo intactos el arrastre izquierdo, el clic derecho para opciones, las áreas de acceso y el movimiento horizontal de Soledad. El botón SO con logo no cambia de gesto.
+- **Personalización de forma de islas:** agregar en «Islas y posición» terminaciones **toda redondeada**, **toda cuadrada** y **mixta en cualquiera de los dos sentidos**. Soledad admite, además, **punta triangular izquierda como opción experimental** con el icono de bandeja alineado dentro de la zona utilizable. Malvina mantiene formato redondeado inicial y sus propias terminaciones configurables. Se conservan alto/ancho y radio de esquinas previos.
+- **Controles asociados:** permitir elegir **agarre de seis puntos cuadrado o redondeado**; el botón de **abrir bandeja simulada** puede ser redondeado o cuadrado. La personalización posterior de los glifos o iconos propios de esos controles sigue diferida, y **añadir isla extra** no se habilita.
+- **Restricciones:** las formas no modifican el grosor constante elegido por usuario, no crean segunda fila, no invaden el área de controles de ventana, no impiden arrastre a ambos lados, no alteran ventanas ni pestañas externas y no perjudican la accesibilidad. El dibujo triangular es solo una decoración visual; su área clicable se conserva accesible y requiere prueba real.
+
+**ESTADO TÉCNICO:** se modificaron `SmartBarContent.qml`, `SoledadSettings.qml`, `IslandButton.qml`, `preview_redimensionable.qml`, `main.qml` y KConfig en el [PR #3 experimental](https://github.com/nicoarg87/plasma-smartbar/pull/3). Las propiedades por esquina de `QtQuick.Rectangle` existen desde Qt 6.7; en Qt 6.8 constan como API técnica preliminar (*tech preview*), por lo que compatibilidad visual y de estilo **requieren validación en CachyOS/KWin/Wayland**. Hasta verificar las formas, la punta triangular y el agarre, **no dar por probadas estas opciones ni fusionar PR #3**. No sustituir el panel KDE habitual.
+
 ## 3. Prioridad técnica
 **Estabilidad, seguridad, rendimiento, compatibilidad real y accesibilidad preceden a las animaciones y decoración.** Reutilizar componentes de KDE/Plasma/KWin cuando su licencia y API lo permitan. No introducir capas pesadas innecesarias. La base prevista es **Qt 6 / QML / Plasma / KWin**.
 
@@ -51,7 +314,7 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 El mantenedor del repositorio oficial define y aprueba el comportamiento fundamental. Cualquier persona puede proponer ideas o soluciones, pero **ningún issue ni pull request modifica esta constitución por sí solo**. Una modificación sustancial requiere discusión previa y aprobación explícita del mantenedor, con actualización versionada del Manual Maestro y de las pruebas de aceptación.
 
 ## 5. Software libre y contribuciones
-El código oficial se publica bajo la **GPL-3.0** indicada en [LICENSE](../LICENSE). Se permiten forks, modificaciones y redistribuciones con las obligaciones de esa licencia. La GPL **no otorga a terceros permisos de escritura** en este repositorio. Las contribuciones son aportes de sus respectivos autores según los términos aplicables; el control de la línea oficial no implica poseer automáticamente derechos sobre todo el código aportado.
+**Decisión posterior explícita (16/11/2026):** el código y la documentación propios del proyecto oficial se publican bajo **MIT** (ver [LICENSE](../LICENSE)). La licencia no concede acceso de escritura a terceros. La licencia del código **no alcanza automáticamente** a archivos gráficos de origen externo; consultar [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md). Las autorizaciones GPL-3.0 de versiones antiguas no quedan revocadas. Las contribuciones son aportes de sus respectivos autores según los términos aplicables; el control de la línea oficial no implica poseer automáticamente derechos sobre todo el código aportado.
 
 ## 6. Autoridad documental
 En caso de contradicción: (1) esta constitución y requisitos confirmados del [Manual Maestro](MANUAL_MAESTRO.md); (2) decisiones aprobadas para la versión; (3) propuestas no aprobadas; (4) mockups. **Los renders recargados y rechazados no constituyen requisitos.**
@@ -60,3 +323,10 @@ En caso de contradicción: (1) esta constitución y requisitos confirmados del [
 Registrar motivo, impactos y pruebas de cada cambio. Favorecer PRs pequeños, revisables y con pruebas. Nadie debe recibir acceso directo a la rama principal solo por colaborar. Configurar reglas de protección de ramas desde GitHub: este documento por sí solo no activa controles técnicos de la plataforma.
 
 **Este documento es una base acordada para el proyecto oficial, no una prohibición de que la comunidad desarrolle forks diferentes.**
+
+## 8. Licencias y edición visual confirmadas (16/11/2026)
+
+- **LICENCIA CONFIRMADA:** MIT para software/documentación propios; recursos gráficos separados. Imagen tropical original generada mediante OpenAI autorizada para **CC0 1.0 Universal**, con comercialización y reproducción permitidas en la medida de los derechos disponibles. **Pendiente recuperar archivo exacto**: no afirmar que ya es predeterminada descargable sin incorporarla ni comprobarla.
+- **NO INCLUIR** la huella/logotipo Golden Dog de origen/autoría no acreditados como recurso predeterminado ni opción empaquetada. El usuario podrá usar sus imágenes locales bajo su responsabilidad.
+- **BOTÓN SO CONFIRMADO:** un **único selector desplegable de forma** reúne cuadrado, círculo, rombo, corazón, estrella y figuras anchas (rectángulo recto, redondeado, cápsula y óvalo); el ancho horizontal es ajustable sin modificar el grosor de barra. La imagen admite **encajar**, **rellenar recortando** y **estirar/deformar proporcionalmente a la superficie**. En modo estirado, **zoom y desplazamiento deben conservar la deformación**; los parámetros son de vista, no se reescribe el archivo.
+- **IMPLEMENTACIÓN/PRUEBA:** estos cambios se realizan exclusivamente en la rama experimental v0.1 y necesitan ensayos visuales de Qt 6 en CachyOS. No instalar ni reemplazar el panel real, no alterar el funcionamiento aprobado de las islas ni dar por resuelta la superposición KWin/Wayland.
