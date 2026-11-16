@@ -59,6 +59,9 @@ Window {
     property color accentColor: "#35d7ff"
     property real strokeSize: 1
     property bool allowMotion: true
+    property real orbitSpeed: 1.0 // vueltas por segundo
+    property int trailPercent: 22 // porcentaje del perímetro
+    property string trailStyle: "solid" // solid, dotted, dashed
     property bool simulateHasWindows: true
 
     property bool autoCollapseSO: true
@@ -96,7 +99,8 @@ Window {
                                    bool backgroundShown, string bgColor,
                                    real bgOpacity)
     signal saveActivityRequested(string style, string color,
-                                 real stroke, bool motion)
+                                 real stroke, bool motion, real speed,
+                                 int tailLength, string lineStyle)
     signal saveAutoHideMalvinaRequested(bool enabled)
     signal saveBehaviorRequested(bool collapseSO, bool collapseTray,
                                  bool returnRight, bool showMalvina,
@@ -130,7 +134,8 @@ Window {
                                 showBackground, toHex(backgroundColor),
                                 backgroundOpacity)
         saveActivityRequested(effectStyle, toHex(accentColor),
-                              strokeSize, allowMotion)
+                              strokeSize, allowMotion, orbitSpeed,
+                              trailPercent, trailStyle)
         saveAutoHideMalvinaRequested(autoHideMalvina)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
@@ -457,6 +462,9 @@ Window {
                             activityColor: settings.accentColor
                             activityStroke: settings.strokeSize
                             activityMotionAllowed: settings.allowMotion
+                            activityOrbitSpeed: settings.orbitSpeed
+                            activityTrailPercent: settings.trailPercent
+                            activityTrailStyle: settings.trailStyle
                         }
                     }
                     QQC2.CheckBox {
@@ -513,6 +521,69 @@ Window {
                             color: "white"
                         }
                     }
+                    QQC2.Label {
+                        text: "Ajustes de la luz que recorre el contorno"
+                        color: "white"
+                        font.bold: true
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label {
+                            text: "Velocidad (vueltas/segundo)"
+                            color: "white"
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                        }
+                        QQC2.SpinBox {
+                            id: orbitSpeedInput
+                            from: 1; to: 30; stepSize: 1
+                            editable: true
+                            enabled: settings.effectStyle === "orbit" && settings.allowMotion
+                            value: Math.round(settings.orbitSpeed * 10)
+                            textFromValue: function(v, locale) {
+                                return (v / 10).toFixed(1)
+                            }
+                            valueFromText: function(t, locale) {
+                                const n = Number(String(t).trim().replace(",", "."))
+                                return isNaN(n) ? value : Math.round(n * 10)
+                            }
+                            onValueModified: settings.orbitSpeed = value / 10
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "1,0 = una vuelta por segundo; hasta 3,0"
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label {
+                            text: "Longitud de la cola (% del borde)"
+                            color: "white"
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                        }
+                        QQC2.SpinBox {
+                            from: 5; to: 85; stepSize: 1
+                            editable: true
+                            enabled: settings.effectStyle === "orbit" && settings.allowMotion
+                            value: settings.trailPercent
+                            onValueModified: settings.trailPercent = value
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "Qué porcentaje del contorno ocupa la luz móvil"
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Trazo de la luz móvil"
+                        color: "white"
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        enabled: settings.effectStyle === "orbit" && settings.allowMotion
+                        model: ["Línea continua", "Punteado", "Guiones"]
+                        currentIndex: settings.trailStyle === "dotted" ? 1 :
+                            (settings.trailStyle === "dashed" ? 2 : 0)
+                        onActivated: function(i) {
+                            settings.trailStyle = ["solid", "dotted", "dashed"][i]
+                        }
+                    }
                     QQC2.CheckBox {
                         text: "Permitir movimiento sutil del borde"
                         checked: settings.allowMotion
@@ -532,6 +603,9 @@ Window {
                             settings.accentColor = "#35d7ff"
                             settings.strokeSize = 1
                             settings.allowMotion = true
+                            settings.orbitSpeed = 1.0
+                            settings.trailPercent = 22
+                            settings.trailStyle = "solid"
                         }
                     }
                 }
