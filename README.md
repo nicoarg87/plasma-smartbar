@@ -9,7 +9,7 @@ Plasma SmartBar busca concentrar la gestión de ventanas en **islas de una barra
 
 - Un **lanzador izquierdo** permite buscar e iniciar programas instalados.
 - Un botón **SO** a la derecha abre hacia la **izquierda** una fila horizontal de fichas de **aplicaciones ya abiertas**. Por defecto agrupa todas las ventanas de una aplicación en una ficha; puede desagruparse por configuración.
-- Una **bandeja expandible** se abre horizontalmente a la izquierda. **SO y bandeja son excluyentes**.
+- Una **bandeja expandible** se abre horizontalmente a la izquierda. **SO y bandeja pueden coexistir si hay espacio; si no, se contrae la expansión previa**.
 - Los botones de minimizar, restaurar y cerrar se integran arriba al maximizar una ventana.
 - SO y bandeja pueden **cubrir temporalmente las pestañas del navegador**, pero jamás bajarlas, agrandar la barra o redimensionar la ventana.
 - Video y juegos en **pantalla completa real** ocultan los controles superiores.
@@ -33,12 +33,12 @@ Plasma SmartBar busca concentrar la gestión de ventanas en **islas de una barra
 Qt 6, QML/Qt Quick, KDE Plasma 6 y KWin. Prioridad: **rendimiento, estabilidad, compatibilidad y accesibilidad**. La primera versión se centrará en el núcleo funcional **sin animaciones complejas ni multimedia MPRIS**; los temas, efectos y herramientas llegarán más adelante.
 
 ## Código abierto y dirección
-Este repositorio es **público** y utiliza la licencia **GNU GPL versión 3** (ver [LICENSE](LICENSE)). Se permiten uso, estudio, cambios y forks conforme a sus condiciones.
+Este repositorio es **público** y el código/documentación propios se publican bajo licencia **MIT** (ver [LICENSE](LICENSE)). Las imágenes tienen licencias separadas; la imagen tropical de OpenAI está autorizada para **CC0 1.0**, pero aún no está incorporado su archivo exacto. La huella de Golden Dog queda excluida por falta de derechos acreditados. Ver [Licencias de recursos gráficos (rama principal)](https://github.com/nicoarg87/plasma-smartbar/blob/main/docs/LICENCIAS_RECURSOS_GRAFICOS.md).
 
 **El mantenedor dirige la versión oficial.** Las personas interesadas pueden reportar errores, proponer funcionalidades o crear sus propias versiones; los cambios externos solo se incorporan al proyecto oficial después de revisión y aprobación. La Constitución Técnica y el Manual Maestro son la referencia funcional del repositorio.
 
 ## Estado actual
-- [x] Repositorio público y licencia GPL-3.0.
+- [x] Repositorio público; software propio bajo MIT desde 16/11/2026.
 - [x] Especificación funcional y reglas de colaboración iniciales.
 - [ ] Diseño e investigación de las APIs necesarias.
 - [ ] Primer prototipo superior de barra y gestión de ventanas.
