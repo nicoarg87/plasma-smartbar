@@ -1,10 +1,10 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.38 — Terminaciones de islas, agarre cuadrado y orden de Acerca de  
-**Fecha de actualización:** 14 de noviembre de 2026  
+**Versión:** 0.39 — Licencia MIT, recursos gráficos separados y unificación de forma/estiramiento de SO  
+**Fecha de actualización:** 16 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
-**Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia GPL-3.0).  
+**Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia MIT para código/documentación propios; gráficos por separado).  
 **Propósito adicional:** Este documento debe poder entregarse a otra conversación o a un desarrollador para continuar sin empezar de cero.
 
 > **Para otro chat o desarrollador:** Este manual es la referencia de verdad. Respetar las decisiones CONFIRMADAS y separar los detalles POR DEFINIR, los complementos FUTUROS y las SUGERENCIAS TÉCNICAS. No inventar diseños ni crear renders sin que el autor lo pida. La última infografía sobrecargada y las láminas contradictorias se descartaron. El objetivo inicial no incluye reproductor multimedia ni efectos sofisticados. La meta de distribución es **Linux con KDE Plasma**, independiente de la distribución; GNOME, Cinnamon, Windows y macOS quedan fuera de alcance.
@@ -876,3 +876,13 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 **Aspectos técnicos y compatibilidad:** Qt 6.7 introdujo `Rectangle.topLeftRadius`, `topRightRadius`, `bottomLeftRadius` y `bottomRightRadius`, pero Qt 6.8 aún los documenta como tecnología preliminar; los estados de selección y guardado están conectados en `SmartBarContent.qml`, `SoledadSettings.qml`, el visor Qt, el envoltorio Plasma y KConfig. **La existencia de código y los chequeos estáticos NO demuestran funcionamiento en CachyOS/Wayland**. No instalar sobre el panel existente, mantener [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) en borrador e [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) abierto hasta que el mantenedor verifique.
 
 **Prueba reversible:** desde la rama `prototype/v0.1-islas-so`, actualizar con Git y ejecutar `bash prototype/v0.1/probar_ancho.sh`. Comparar forma inicial, opciones cuadradas/redondeadas/mixtas/triangular, botón de bandeja y agarre, arrastre de ida/vuelta, menú de seis puntos, SO/bandeja en una sola fila, seis pestañas y botón Restablecer, sin mover controles de ventana ni cambiar el grosor durante el uso.
+
+## 48. Licencias por separado, logo tropical y ajuste del botón SO (v0.39, 16/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** pasar el software/documentación propia de GPL-3.0 a **MIT**, sin imponer esa licencia a las imágenes. Imagen tropical con palmera, barra rústica y atardecer producida en ChatGPT autorizada bajo **CC0 1.0** para permitir su uso comercial, reproducción e impresión en productos por terceros, conforme a los derechos disponibles. Identificar el archivo original exacto antes de distribuirlo: **no está incorporado a GitHub**. Ver [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md).
+
+**Golden Dog:** suspender la huella/logo como recurso predeterminado o alternativa empaquetada hasta acreditar su origen, licencia y permiso de redistribución. No asumir que el hecho de estar en otra distribución permite copiarla. Durante la espera, el prototipo usa el texto **SO** como opción segura sin reemplazar el archivo tropical ausente por otra ilustración.
+
+**CONFIRMADO PARA LA PRUEBA DE SO:** sustituir controles separados de «forma del recorte» y «formato del botón» por un solo desplegable de forma que incluya **cuadrado, círculo, rombo, corazón, estrella, rectángulo recto, rectángulo redondeado, cápsula y óvalo**. Mantener el ancho configurable en formatos anchos. Agregar al modo de imagen **«Estirar (deformar)»**, junto a «Encajar» y «Rellenar». El estiramiento debe mantenerse con zoom posterior, sin perder los controles de escala/encuadre y sin modificar el archivo original. Aclarar que ampliar una imagen de baja resolución no genera detalle nuevo.
+
+**ESTADO:** implementación en rama experimental `prototype/v0.1-islas-so`, PR #3; **prueba visual/funcional pendiente en CachyOS y en KWin/Wayland**. La imagen tropical exacta requiere recuperación; el logo no verificado queda fuera de los recursos distribuidos. Cambiar el texto de licencia de «Acerca de» a MIT y ofrecer referencia separada a CC0.
