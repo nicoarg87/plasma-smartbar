@@ -889,7 +889,7 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 
 ## 49. Identidad de marca «Plasma SmartBar Islands» (v0.40, 16/11/2026)
 
-**CONFIRMADO:** **Plasma SmartBar Islands** sustituye el nombre público **Plasma SmartBar**. El nombre conserva «Plasma» como referencia a KDE Plasma, «SmartBar» para la barra inteligente e «Islands» por las islas funcionales y por un **homenaje del mantenedor a las Islas Malvinas argentinas**, especialmente las dos islas principales **Soledad y Gran Malvina**. La isla principal se denomina **Soledad** y la secundaria **Malvina**, como ya estaba acordado.
+**CONFIRMADO:** **Plasma SmartBar Islands** sustituye el nombre público **Plasma SmartBar**. «Plasma» alude al entorno de escritorio, «SmartBar» a su función y «Islands» al diseño modular mediante islas. La isla principal conserva el nombre **Soledad** y la secundaria **Malvina**, sin alterar los requisitos ya aprobados.
 
 **IMPLEMENTACIÓN DEL NOMBRE:** sustituir las referencias públicas del README, pantalla Acerca de, nombre descriptivo KPlugin y títulos de los visores, preservando nombres de componentes QML, IDs del paquete, el repositorio `nicoarg87/plasma-smartbar` y la rama v0.1. Las menciones históricas de decisiones hechas bajo «Plasma SmartBar» son antecedentes válidos y no se reescriben retroactivamente. La identidad no autoriza a agregar islas reales extra ni modificar geometría, interacción, funcionalidades o licencias.
 
