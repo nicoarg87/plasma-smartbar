@@ -146,3 +146,9 @@ El Proyecto de ChatGPT organiza conversaciones e instrucciones, pero **no es el 
 **Nombre público:** Plasma SmartBar Islands; repo técnico sin cambios. **Malvina:** autoocultamiento activo por defecto (`autoHideMalvina=true`), aparición tras 600 ms de hover sostenido, ocultamiento tras 250 ms de salida, opción de desactivar en «Islas y posición». No equiparar autoocultamiento con deshabilitar Malvina. Probar que el área de detección no intercepte clics sobre pestañas reales con KWin/Wayland: todavía no comprobado.
 
 **Imagen tropical:** original recuperado como PNG 1774×887, SHA-256 `0c6e646886ba293db5b53d13f81a7421b4ceaee56d6bd92ed99745da273d4137`. Ruta de la rama: `prototype/v0.1/package/contents/ui/assets/so-tropical.png`; binario solo en ZIP local del chat, no en GitHub. El fallback de texto SO sigue disponible. Ejecutar únicamente el visor Qt con `bash prototype/v0.1/probar_ancho.sh` y registrar pruebas; no instalar panel.
+
+## 11. Contorno luminoso SO: velocidad, estela y tipo de trazo (16/11/2026)
+
+**CONFIRMADO:** agregar en «Configuración de Soledad» → «Contorno» velocidad por número editable (vueltas/s), longitud de la cola (porcentaje del perímetro) y estilo de la luz en movimiento (continuo, puntos o guiones). La rama experimental v0.1 usa valores por defecto 1,0 vuelta/s, 22 % de estela y trazo continuo; permite 0,1–3,0 vueltas/s (paso 0,1), 5–85 % de estela. Coma y punto decimales aceptados. «Restablecer contorno» debe resetear también los tres nuevos controles; «Aplicar» conserva parámetros en la sesión de Qt o KConfig del applet. Cambios en `SoActivityOutline.qml`, `IslandButton.qml`, `SoledadSettings.qml`, `SmartBarContent.qml`, visor Qt y KConfig; el efecto no repinta cuando hay cero ventanas.
+
+**PROBADO:** análisis estático de propiedades/cableado y API Qt; **NO probado** en el entorno gráfico CachyOS. No alterar el panel existente ni presentar integración KWin/Wayland como resuelta.
