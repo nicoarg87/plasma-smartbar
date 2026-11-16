@@ -17,6 +17,7 @@ Window {
 
     property bool demoAutoReturnRight: true
     property bool demoLauncherIslandVisible: true
+    property bool demoAutoHideMalvina: true
     property bool demoAutoCollapseSO: true
     property bool demoAutoCollapseTray: false
     // Estados de sesión de la maqueta (el panel KDE no se instala).
@@ -76,6 +77,7 @@ Window {
 
         autoReturnRight: previewWindow.demoAutoReturnRight
         launcherIslandVisible: previewWindow.demoLauncherIslandVisible
+        autoHideMalvina: previewWindow.demoAutoHideMalvina
         autoCollapseSO: previewWindow.demoAutoCollapseSO
         autoCollapseTray: previewWindow.demoAutoCollapseTray
         soLogoMode: previewWindow.demoSoLogoMode
@@ -98,6 +100,9 @@ Window {
         soActivityColor: previewWindow.demoSoActivityColor
         soActivityStroke: previewWindow.demoSoActivityStroke
         soActivityMotion: previewWindow.demoSoActivityMotion
+        onRequestAutoHideMalvinaChange: function(newValue) {
+            previewWindow.demoAutoHideMalvina = newValue
+        }
         onRequestSoActivityChange: function(style, color, stroke, allowMotion) {
             previewWindow.demoSoActivityStyle = style
             previewWindow.demoSoActivityColor = color
@@ -185,7 +190,8 @@ Window {
               " · efecto SO: " + bar.soActivityStyle +
               " · " + (bar.soExpanded ? "SO abierto" : "SO cerrado") +
               " · " + (bar.trayExpanded ? "bandeja abierta" : "bandeja cerrada") +
-              " · Malvina: " + (bar.launcherIslandVisible ? "visible" : "oculta") +
+              " · Malvina: " + (bar.malvinaActuallyVisible ? "visible" : "oculta") +
+              (bar.autoHideMalvina ? " (autoocultar activo)" : " (siempre visible)") +
               " · SO autocierre: " + (bar.autoCollapseSO ? "sí" : "no") +
               " · bandeja autocierre: " + (bar.autoCollapseTray ? "sí" : "no") +
               "\nAncho Soledad: " + Math.round(bar.actualIslandWidth) +
