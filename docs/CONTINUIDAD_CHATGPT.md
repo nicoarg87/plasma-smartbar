@@ -136,10 +136,10 @@ El Proyecto de ChatGPT organiza conversaciones e instrucciones, pero **no es el 
 
 ## 9. Decisión más reciente: MIT, imagen CC0 y SO estirable (16/11/2026)
 
-- **CONFIRMADO:** cambiar software/documentación propia a MIT; mantener licencias gráficas separadas. Imagen tropical de OpenAI destinada a CC0 1.0 con permiso de explotación comercial en la medida que se posean los derechos; **falta recuperar el archivo exacto** para incluirlo como imagen predeterminada.
-- **NO INCLUIR** el recurso huella Golden Dog sin comprobar autoría/permiso. Mientras no se recupere imagen tropical, conservar fallback **texto SO**, sin generar un reemplazo visual ni afirmar que se distribuye la imagen exacta.
+- **CONFIRMADO:** cambiar software/documentación propia a MIT; mantener licencias gráficas separadas. Imagen tropical de OpenAI destinada a CC0 1.0 con permiso de explotación comercial en la medida que se posean los derechos; **archivo exacto recuperado en ZIP de prueba**, pero falta incorporar el binario a GitHub.
+- **NO INCLUIR** el recurso huella Golden Dog sin comprobar autoría/permiso. Mientras la imagen tropical no esté disponible en el checkout, conservar fallback **texto SO**, sin generar un reemplazo visual ni afirmar que se distribuye la imagen exacta.
 - **EDITOR DE SO CONFIRMADO:** lista única de formas geométricas y anchas; modos encajar/rellenar/estirar con zoom que persiste y conserva la deformación, sin modificar bytes de archivos del usuario.
-- **PENDIENTE:** retest de la rama experimental PR #3 en CachyOS; los archivos de la imagen tropical no se pudieron recuperar de otros chats mediante herramientas de archivos. Ver [licencias gráficas](LICENCIAS_RECURSOS_GRAFICOS.md) y [Estado del Proyecto](ESTADO_PROYECTO.md).
+- **PENDIENTE:** retest de la rama experimental PR #3 en CachyOS; se recibió el original tropical durante la conversación y se empaquetó para prueba local, no se distribuye aún desde GitHub. Ver [licencias gráficas](LICENCIAS_RECURSOS_GRAFICOS.md) y [Estado del Proyecto](ESTADO_PROYECTO.md).
 
 ## 10. Estado de prueba v0.1 (16/11/2026)
 
