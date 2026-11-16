@@ -921,7 +921,7 @@ Window {
                     width: aboutScroll.availableWidth - 8
                     spacing: 16
                     QQC2.Label {
-                        text: "Acerca de Plasma SmartBar"
+                        text: "Acerca de Plasma SmartBar Islands"
                         color: "white"; font.bold: true; font.pixelSize: 18
                     }
                     QQC2.Label { text: "Autor: nicoarg87"; color: "white" }
