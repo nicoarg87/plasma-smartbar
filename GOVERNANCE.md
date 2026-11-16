@@ -5,7 +5,7 @@ El repositorio oficial **nicoarg87/plasma-smartbar** es administrado por su mant
 
 ## Qué puede hacer la comunidad
 - Leer el código, reportar fallos y sugerir mejoras.
-- Crear forks y redistribuir versiones propias de acuerdo con la GPL-3.0.
+- Crear forks y redistribuir versiones propias de acuerdo con la licencia MIT del código y la licencia específica de cada recurso gráfico.
 - Enviar pull requests para que el proyecto oficial considere integrar cambios.
 - Participar en discusiones técnicas y documentación.
 
@@ -29,4 +29,4 @@ El repositorio oficial **nicoarg87/plasma-smartbar** es administrado por su mant
 Requieren discusión pública o privada documentada y aprobación explícita del mantenedor. Se actualizan en un PR separado con explicación de los requisitos alterados y su impacto.
 
 ## Licencia y autoría
-El repositorio ya incluye LICENSE bajo GPL-3.0. La licencia permite usar y crear derivados con sus condiciones; **no restringe la libertad de crear forks**. El control del repositorio oficial es independiente de los derechos sobre contribuciones de terceros y de eventuales marcas.
+El código y la documentación propia del repositorio se distribuyen bajo MIT (archivo [LICENSE](LICENSE)); los recursos gráficos tienen licencias separadas, documentadas en [LICENCIAS_RECURSOS_GRAFICOS.md](docs/LICENCIAS_RECURSOS_GRAFICOS.md). La licencia MIT permite usos comerciales y crear forks, preservando los avisos requeridos. Las versiones históricas publicadas bajo GPL-3.0 conservan las autorizaciones previamente otorgadas. El control del repositorio oficial es independiente de los derechos sobre contribuciones de terceros y de eventuales marcas.
