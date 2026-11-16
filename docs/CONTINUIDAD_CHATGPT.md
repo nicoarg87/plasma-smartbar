@@ -140,3 +140,9 @@ El Proyecto de ChatGPT organiza conversaciones e instrucciones, pero **no es el 
 - **NO INCLUIR** el recurso huella Golden Dog sin comprobar autoría/permiso. Mientras no se recupere imagen tropical, conservar fallback **texto SO**, sin generar un reemplazo visual ni afirmar que se distribuye la imagen exacta.
 - **EDITOR DE SO CONFIRMADO:** lista única de formas geométricas y anchas; modos encajar/rellenar/estirar con zoom que persiste y conserva la deformación, sin modificar bytes de archivos del usuario.
 - **PENDIENTE:** retest de la rama experimental PR #3 en CachyOS; los archivos de la imagen tropical no se pudieron recuperar de otros chats mediante herramientas de archivos. Ver [licencias gráficas](LICENCIAS_RECURSOS_GRAFICOS.md) y [Estado del Proyecto](ESTADO_PROYECTO.md).
+
+## 10. Estado de prueba v0.1 (16/11/2026)
+
+**Nombre público:** Plasma SmartBar Islands; repo técnico sin cambios. **Malvina:** autoocultamiento activo por defecto (`autoHideMalvina=true`), aparición tras 600 ms de hover sostenido, ocultamiento tras 250 ms de salida, opción de desactivar en «Islas y posición». No equiparar autoocultamiento con deshabilitar Malvina. Probar que el área de detección no intercepte clics sobre pestañas reales con KWin/Wayland: todavía no comprobado.
+
+**Imagen tropical:** original recuperado como PNG 1774×887, SHA-256 `0c6e646886ba293db5b53d13f81a7421b4ceaee56d6bd92ed99745da273d4137`. Ruta de la rama: `prototype/v0.1/package/contents/ui/assets/so-tropical.png`; binario solo en ZIP local del chat, no en GitHub. El fallback de texto SO sigue disponible. Ejecutar únicamente el visor Qt con `bash prototype/v0.1/probar_ancho.sh` y registrar pruebas; no instalar panel.
