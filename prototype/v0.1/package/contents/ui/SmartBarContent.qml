@@ -118,11 +118,15 @@ Item {
     property color soActivityColor: "#35d7ff"
     property real soActivityStroke: 1.0
     property bool soActivityMotion: true
+    property real soActivityOrbitSpeed: 1.0
+    property int soActivityTrailPercent: 22
+    property string soActivityTrailStyle: "solid"
     onSoWindowCountChanged: {
         if (soWindowCount === 0) soExpanded = false
     }
     signal requestSoActivityChange(string style, string color,
-                                   real stroke, bool allowMotion)
+                                   real stroke, bool allowMotion,
+                                   real speed, int tailLength, string lineStyle)
 
     signal requestSoLogoChange(string mode, string path, string shape,
                                string fitMode, real zoom, real panX, real panY,
@@ -401,6 +405,9 @@ Item {
             soledadSettings.accentColor = root.soActivityColor
             soledadSettings.strokeSize = root.soActivityStroke
             soledadSettings.allowMotion = root.soActivityMotion
+            soledadSettings.orbitSpeed = root.soActivityOrbitSpeed
+            soledadSettings.trailPercent = root.soActivityTrailPercent
+            soledadSettings.trailStyle = root.soActivityTrailStyle
             soledadSettings.autoCollapseSO = root.autoCollapseSO
             soledadSettings.autoCollapseTray = root.autoCollapseTray
             soledadSettings.autoReturnRight = root.autoReturnRight
@@ -438,8 +445,10 @@ Item {
                                          malOpacity, backgroundShown, bgColor,
                                          bgOpacity)
         }
-        onSaveActivityRequested: function(style, color, stroke, motion) {
-            root.requestSoActivityChange(style, color, stroke, motion)
+        onSaveActivityRequested: function(style, color, stroke, motion,
+                                          speed, tailLength, lineStyle) {
+            root.requestSoActivityChange(style, color, stroke, motion,
+                                         speed, tailLength, lineStyle)
         }
         onSaveAutoHideMalvinaRequested: function(value) {
             if (value !== root.autoHideMalvina)
@@ -747,6 +756,9 @@ Item {
                     activityColor: root.soActivityColor
                     activityStroke: root.soActivityStroke
                     activityMotionAllowed: root.soActivityMotion
+                    activityOrbitSpeed: root.soActivityOrbitSpeed
+                    activityTrailPercent: root.soActivityTrailPercent
+                    activityTrailStyle: root.soActivityTrailStyle
                     iconSource: root.activeSoLogo
                     iconAnimated: root.activeSoLogoIsGif
                     iconAnimationEnabled: root.soLogoAnimate
