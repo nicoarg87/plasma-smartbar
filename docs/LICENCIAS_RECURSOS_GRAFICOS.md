@@ -14,7 +14,7 @@
 
 | Recurso | Procedencia | Licencia autorizada | Distribución en el proyecto |
 |---|---|---|---|
-| Imagen tropical con palmera, barra rústica y atardecer | Generación solicitada al servicio de OpenAI por el mantenedor; archivo definitivo aún no recuperado | **CC0 1.0**, para derechos que el mantenedor pueda dedicar | **Pendiente** de archivo exacto, SHA-256 y revisión visual |
+| Imagen tropical con palmera, barra rústica y atardecer | Generación solicitada al servicio de OpenAI por el mantenedor; archivo definitivo recuperado en el chat, no subido a GitHub | **CC0 1.0**, para derechos que el mantenedor pueda dedicar | **Disponible en ZIP local**, SHA-256 registrado; pendiente de inclusión en GitHub y prueba Qt |
 | Huella/logo vinculado a Golden Dog | Autoría/licencia no acreditadas | **Sin licencia de redistribución acreditada** | **No incluir**; retirar recurso del prototipo hasta aclararlo |
 | Fotos/logos/GIF que el usuario cargue localmente | Aportados individualmente por cada usuario | **No heredan MIT ni CC0** | Solo referencias locales; no copiar ni redistribuir archivos |
 
