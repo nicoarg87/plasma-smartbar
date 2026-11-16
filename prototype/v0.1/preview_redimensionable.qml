@@ -54,6 +54,9 @@ Window {
     property color demoSoActivityColor: "#35d7ff"
     property real demoSoActivityStroke: 1.0
     property bool demoSoActivityMotion: true
+    property real demoSoActivityOrbitSpeed: 1.0
+    property int demoSoActivityTrailPercent: 22
+    property string demoSoActivityTrailStyle: "solid"
 
     SmartBarContent {
         id: bar
@@ -100,14 +103,21 @@ Window {
         soActivityColor: previewWindow.demoSoActivityColor
         soActivityStroke: previewWindow.demoSoActivityStroke
         soActivityMotion: previewWindow.demoSoActivityMotion
+        soActivityOrbitSpeed: previewWindow.demoSoActivityOrbitSpeed
+        soActivityTrailPercent: previewWindow.demoSoActivityTrailPercent
+        soActivityTrailStyle: previewWindow.demoSoActivityTrailStyle
         onRequestAutoHideMalvinaChange: function(newValue) {
             previewWindow.demoAutoHideMalvina = newValue
         }
-        onRequestSoActivityChange: function(style, color, stroke, allowMotion) {
+        onRequestSoActivityChange: function(style, color, stroke, allowMotion,
+                                             speed, tailLength, lineStyle) {
             previewWindow.demoSoActivityStyle = style
             previewWindow.demoSoActivityColor = color
             previewWindow.demoSoActivityStroke = stroke
             previewWindow.demoSoActivityMotion = allowMotion
+            previewWindow.demoSoActivityOrbitSpeed = speed
+            previewWindow.demoSoActivityTrailPercent = tailLength
+            previewWindow.demoSoActivityTrailStyle = lineStyle
         }
         onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             previewWindow.demoSoLogoMode = mode
