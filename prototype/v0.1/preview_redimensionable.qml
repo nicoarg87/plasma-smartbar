@@ -50,13 +50,15 @@ Window {
     property real demoMalvinaOpacity: 1
     property real demoBackgroundOpacity: 0.5
     property bool demoShowBackground: false
-    property string demoSoActivityStyle: "steady"
+    property string demoSoActivityStyle: "orbit"
     property color demoSoActivityColor: "#35d7ff"
     property real demoSoActivityStroke: 1.0
     property bool demoSoActivityMotion: true
     property real demoSoActivityOrbitSpeed: 1.0
     property int demoSoActivityTrailPercent: 22
     property string demoSoActivityTrailStyle: "solid"
+    property bool demoSoActivityShowWhenEmpty: true
+    property bool demoSoActivityShowWhenOpen: false
 
     SmartBarContent {
         id: bar
@@ -106,11 +108,14 @@ Window {
         soActivityOrbitSpeed: previewWindow.demoSoActivityOrbitSpeed
         soActivityTrailPercent: previewWindow.demoSoActivityTrailPercent
         soActivityTrailStyle: previewWindow.demoSoActivityTrailStyle
+        soActivityShowWhenEmpty: previewWindow.demoSoActivityShowWhenEmpty
+        soActivityShowWhenOpen: previewWindow.demoSoActivityShowWhenOpen
         onRequestAutoHideMalvinaChange: function(newValue) {
             previewWindow.demoAutoHideMalvina = newValue
         }
         onRequestSoActivityChange: function(style, color, stroke, allowMotion,
-                                             speed, tailLength, lineStyle) {
+                                             speed, tailLength, lineStyle,
+                                             showWhenEmpty, showWhenOpen) {
             previewWindow.demoSoActivityStyle = style
             previewWindow.demoSoActivityColor = color
             previewWindow.demoSoActivityStroke = stroke
@@ -118,6 +123,8 @@ Window {
             previewWindow.demoSoActivityOrbitSpeed = speed
             previewWindow.demoSoActivityTrailPercent = tailLength
             previewWindow.demoSoActivityTrailStyle = lineStyle
+            previewWindow.demoSoActivityShowWhenEmpty = showWhenEmpty
+            previewWindow.demoSoActivityShowWhenOpen = showWhenOpen
         }
         onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             previewWindow.demoSoLogoMode = mode
