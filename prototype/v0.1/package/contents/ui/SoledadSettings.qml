@@ -229,7 +229,7 @@ Window {
                             zoom: settings.cropZoom
                             panX: settings.cropPanX
                             panY: settings.cropPanY
-                            visible: settings.logoMode !== "text"
+                            visible: settings.logoMode !== "text" && settings.selectedImage.toString().length > 0
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.SizeAllCursor
@@ -253,7 +253,7 @@ Window {
                         QQC2.Label {
                             anchors.centerIn: parent
                             text: "SO"
-                            visible: settings.logoMode === "text"
+                            visible: settings.logoMode === "text" || settings.selectedImage.toString().length === 0
                             color: "white"
                             font.pixelSize: 40
                         }
@@ -268,7 +268,7 @@ Window {
                         Layout.fillWidth: true
                         QQC2.ComboBox {
                             Layout.fillWidth: true
-                            model: ["Huella predeterminada", "Imagen propia", "Texto SO"]
+                            model: ["Predeterminada tropical (archivo pendiente)", "Imagen propia", "Texto SO"]
                             currentIndex: settings.logoMode === "text" ? 2 :
                                 (settings.logoMode === "custom" ? 1 : 0)
                             onActivated: function(i) {
@@ -281,20 +281,38 @@ Window {
                             onClicked: chooseImage.open()
                         }
                     }
-                    QQC2.Label { text: "Forma de recorte"; color: "white" }
+                    QQC2.Label { text: "Forma del botón SO y del recorte"; color: "white" }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
-                        model: ["Cuadrado", "Círculo", "Rombo ♦", "Corazón ♥", "Estrella ★"]
-                        currentIndex: ["square","circle","diamond","heart","star"].indexOf(settings.shape)
+                        model: ["Cuadrado", "Círculo", "Rombo ♦", "Corazón ♥", "Estrella ★",
+                                "Rectángulo recto", "Rectángulo redondeado",
+                                "Cápsula horizontal", "Óvalo horizontal"]
+                        currentIndex: ["square", "circle", "diamond", "heart", "star",
+                                       "rectangle", "rounded", "capsule", "oval"]
+                            .indexOf(settings.soButtonFrameShape === "square"
+                                     ? settings.shape : settings.soButtonFrameShape)
                         onActivated: function(i) {
-                            settings.shape = ["square","circle","diamond","heart","star"][i]
+                            const choice = ["square", "circle", "diamond", "heart", "star",
+                                            "rectangle", "rounded", "capsule", "oval"][i]
+                            if (i < 5) {
+                                settings.shape = choice
+                                settings.soButtonFrameShape = "square"
+                            } else {
+                                settings.shape = "square"
+                                settings.soButtonFrameShape = choice
+                            }
                         }
                     }
+                    QQC2.Label { text: "Ajuste de la imagen"; color: "white" }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
-                        model: ["Imagen completa (encajar)", "Rellenar forma (recortar)"]
-                        currentIndex: settings.cropFitMode === "crop" ? 1 : 0
-                        onActivated: function(i) { settings.cropFitMode = i === 1 ? "crop" : "fit" }
+                        model: ["Imagen completa (encajar)", "Rellenar forma (recortar)",
+                                "Estirar (deformar la imagen)"]
+                        currentIndex: settings.cropFitMode === "stretch" ? 2 :
+                            (settings.cropFitMode === "crop" ? 1 : 0)
+                        onActivated: function(i) {
+                            settings.cropFitMode = ["fit", "crop", "stretch"][i]
+                        }
                     }
                     RowLayout {
                         Layout.fillWidth: true
@@ -345,18 +363,7 @@ Window {
                             Layout.preferredWidth: 52
                         }
                     }
-                    QQC2.Label { text: "Formato del botón SO"; color: "white"; font.bold: true }
-                    QQC2.ComboBox {
-                        Layout.fillWidth: true
-                        model: ["Cuadrado", "Rectángulo recto", "Rectángulo redondeado",
-                                "Cápsula horizontal", "Óvalo horizontal"]
-                        currentIndex: ["square","rectangle","rounded","capsule","oval"]
-                            .indexOf(settings.soButtonFrameShape)
-                        onActivated: function(i) {
-                            settings.soButtonFrameShape =
-                                ["square","rectangle","rounded","capsule","oval"][i]
-                        }
-                    }
+                    QQC2.Label { text: "Ancho de los formatos horizontales"; color: "white"; font.bold: true }
                     RowLayout {
                         Layout.fillWidth: true
                         enabled: settings.soButtonFrameShape !== "square"
@@ -374,7 +381,7 @@ Window {
                         }
                     }
                     QQC2.Label {
-                        text: "El formato horizontal determina también la máscara y el borde. En el modo cuadrado se utiliza la forma de recorte elegida arriba."
+                        text: "Elegí todas las formas desde el mismo desplegable. Estirar mantiene la deformación al aumentar el zoom. El archivo original no se modifica; una imagen pequeña no gana detalle al ampliarse."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -934,21 +941,31 @@ Window {
                         onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar")
                     }
                     QQC2.Label {
-                        text: "Plasma SmartBar es software libre publicado bajo la Licencia Pública General de GNU, versión 3 (GNU GPL-3.0). Puede utilizarse, estudiarse, modificarse y redistribuirse bajo los términos de esa licencia."
+                        text: "Plasma SmartBar es software libre: código y documentación propios bajo licencia MIT. Permite uso, modificación, redistribución y comercialización, conservando los avisos de copyright y licencia. Los recursos gráficos se licencian por separado."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
-                        text: "SIN NINGUNA GARANTÍA: el programa se distribuye tal cual, sin garantía de comerciabilidad ni de adecuación para un propósito particular, en la medida permitida por la legislación aplicable. Consultá el texto completo de la GNU GPL v3."
+                        text: "SIN NINGUNA GARANTÍA: el programa se distribuye tal cual, sin garantía de comerciabilidad ni de adecuación para un propósito particular, en la medida permitida por la legislación aplicable. Consultá el texto completo de MIT."
                         color: "#ffd6aa"
                         font.bold: true
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Button {
-                        text: "Leer licencia GNU GPL versión 3"
+                        text: "Leer licencia MIT"
                         onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar/blob/main/LICENSE")
+                    }
+                    QQC2.Label {
+                        text: "Imágenes: licencias independientes. La imagen tropical de OpenAI se destina a CC0 1.0; todavía falta integrar su archivo exacto. El logo Golden Dog queda excluido hasta verificar sus derechos."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Licencias de recursos gráficos"
+                        onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar/blob/main/docs/LICENCIAS_RECURSOS_GRAFICOS.md")
                     }
 
                 }
