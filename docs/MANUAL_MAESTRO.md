@@ -1,7 +1,7 @@
 # Manual maestro de diseño y funcionamiento
 ## Proyecto: barra superior inteligente para un entorno de escritorio
 
-**Versión:** 0.40 — Nombre público oficial Plasma SmartBar Islands y su significado  
+**Versión:** 0.40 — Actualización de nombre visible  
 **Fecha de actualización:** 16 de noviembre de 2026  
 **Plataforma de referencia:** Linux con KDE Plasma 6, KWin y Wayland; CachyOS es la plataforma inicial de desarrollo y pruebas  
 **Estado:** Especificación conceptual; todavía no existe un prototipo funcional. Repositorio oficial público: https://github.com/nicoarg87/plasma-smartbar (rama main, licencia MIT para código/documentación propios; gráficos por separado).  
@@ -886,11 +886,3 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 **CONFIRMADO PARA LA PRUEBA DE SO:** sustituir controles separados de «forma del recorte» y «formato del botón» por un solo desplegable de forma que incluya **cuadrado, círculo, rombo, corazón, estrella, rectángulo recto, rectángulo redondeado, cápsula y óvalo**. Mantener el ancho configurable en formatos anchos. Agregar al modo de imagen **«Estirar (deformar)»**, junto a «Encajar» y «Rellenar». El estiramiento debe mantenerse con zoom posterior, sin perder los controles de escala/encuadre y sin modificar el archivo original. Aclarar que ampliar una imagen de baja resolución no genera detalle nuevo.
 
 **ESTADO:** implementación en rama experimental `prototype/v0.1-islas-so`, PR #3; **prueba visual/funcional pendiente en CachyOS y en KWin/Wayland**. La imagen tropical exacta requiere recuperación; el logo no verificado queda fuera de los recursos distribuidos. Cambiar el texto de licencia de «Acerca de» a MIT y ofrecer referencia separada a CC0.
-
-## 49. Identidad de marca «Plasma SmartBar Islands» (v0.40, 16/11/2026)
-
-**CONFIRMADO:** **Plasma SmartBar Islands** sustituye el nombre público **Plasma SmartBar**. «Plasma» alude al entorno de escritorio, «SmartBar» a su función y «Islands» al diseño modular mediante islas. La isla principal conserva el nombre **Soledad** y la secundaria **Malvina**, sin alterar los requisitos ya aprobados.
-
-**IMPLEMENTACIÓN DEL NOMBRE:** sustituir las referencias públicas del README, pantalla Acerca de, nombre descriptivo KPlugin y títulos de los visores, preservando nombres de componentes QML, IDs del paquete, el repositorio `nicoarg87/plasma-smartbar` y la rama v0.1. Las menciones históricas de decisiones hechas bajo «Plasma SmartBar» son antecedentes válidos y no se reescriben retroactivamente. La identidad no autoriza a agregar islas reales extra ni modificar geometría, interacción, funcionalidades o licencias.
-
-**PRUEBA PENDIENTE:** comprobar en CachyOS que el título de la ventana de ensayo, nombre descriptivo del plasmoide y la sección Acerca de se leen correctamente. El repositorio mantiene su URL técnica existente. No se modificó el panel instalado.
