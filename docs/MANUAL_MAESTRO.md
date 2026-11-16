@@ -1,5 +1,5 @@
 # Manual maestro de diseño y funcionamiento
-## Proyecto: barra superior inteligente para un entorno de escritorio
+## Proyecto: Plasma SmartBar Islands
 
 **Versión:** 0.40 — Actualización de nombre visible  
 **Fecha de actualización:** 16 de noviembre de 2026  
