@@ -1,4 +1,4 @@
-# Plasma SmartBar — Prototipo visual v0.1 (rama experimental)
+# Plasma SmartBar Islands — Prototipo visual v0.1 (rama experimental)
 
 **Estado: prototipo QML preliminar YA probado parcialmente en CachyOS con SO, bandeja, arrastre de isla 1 y retorno al desmaximizar simulados.** No es una versión instalable ni un reemplazo de tu panel. Una corrección reciente del menú de retorno todavía debe verificarse en el equipo. Relacionado con el [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1).
 
@@ -268,7 +268,7 @@ bash prototype/v0.1/probar_ancho.sh
 
 ## Soledad y Malvina: coexistencia de expansiones y autocontracción independiente (14/11/2026)
 
-**CAMBIO CONFIRMADO POR EL MANTENEDOR:** isla 1 se llama **Soledad**, isla 2 **Malvina** (por ahora se conserva el texto «SO» del botón). El renombrado de todo el repositorio/producto sigue pendiente de confirmación. **SO y bandeja ya NO deben excluirse automáticamente**: si las dos expansiones caben horizontalmente, permanecen visibles las dos hasta que el usuario decida cerrarlas. Si falta espacio, la expansión pedida más recientemente prevalece y se contrae la anterior. El ancho se mide respecto del lugar actual de Soledad, la visibilidad de Malvina y la reserva de controles `− □ ×`.
+**CAMBIO CONFIRMADO POR EL MANTENEDOR:** isla 1 se llama **Soledad**, isla 2 **Malvina** (por ahora se conserva el texto «SO» del botón). El nombre visible actual del programa es Plasma SmartBar Islands; el repositorio mantiene su ruta técnica. **SO y bandeja ya NO deben excluirse automáticamente**: si las dos expansiones caben horizontalmente, permanecen visibles las dos hasta que el usuario decida cerrarlas. Si falta espacio, la expansión pedida más recientemente prevalece y se contrae la anterior. El ancho se mide respecto del lugar actual de Soledad, la visibilidad de Malvina y la reserva de controles `− □ ×`.
 
 **Recuperación accesible:** si ocultaste Malvina por clic derecho, mantené pulsado **SO** para abrir el menú flotante. Verás un botón **«Mostrar Malvina (isla 2)»**. Un clic la restaura, sin necesidad de abrir el menú de clic derecho de SO.
 
@@ -690,3 +690,12 @@ Continuar solo si la rama es `prototype/v0.1-islas-so` y no hay cambios locales 
 - En **Configuración de Soledad → Logo SO**, el **único selector de forma** muestra cuadrado, círculo, rombo, corazón, estrella, rectángulo recto, rectángulo redondeado, cápsula y óvalo. Ancho modificable para formas horizontales. Ajustes: **Encajar**, **Rellenar** y **Estirar (deformar)**. La escala/zoom y el desplazamiento se aplican después de elegir el modo, conservándolo y sin modificar archivo original.
 - **Cómo probar**: `bash prototype/v0.1/probar_ancho.sh` (solo ventana Qt de prueba, nunca instalar en panel). Seleccionar una foto local apaisada/vertical con autorización propia, probar Estirar → zoom 150–250 % → mover imagen → Aplicar; reabrir la configuración y verificar que sigue elegido «Estirar». Repetir en formatos anchos (cápsula, rectángulo, óvalo) y formas normales; comprobar que el ancho no aumenta la altura y el control sigue en una fila. Restaurar «Predeterminada» mientras el archivo tropical no existe debe mostrar texto SO en vez de imagen rota.
 - **Verificación**: los cambios se han escrito en QML y están pendientes de ejecución en CachyOS/Qt/Wayland. La incorporación exacta del archivo tropical y su SHA-256 es **pendiente**. Ver [registro de licencias](https://github.com/nicoarg87/plasma-smartbar/blob/main/docs/LICENCIAS_RECURSOS_GRAFICOS.md).
+
+
+## Prueba del logo tropical original (16/11/2026)
+
+**Nombre visible del prototipo:** Plasma SmartBar Islands. El identificador de Plasma y la dirección del repositorio NO se modificaron. El archivo predeterminado de SO se busca en `prototype/v0.1/package/contents/ui/assets/so-tropical.png`. Se utiliza la imagen suministrada directamente por el mantenedor; la copia original en alta resolución puede colocarse allí sin renombrar ni modificar el código. Si el archivo no está presente, el botón tiene respaldo de texto `SO`. La imagen original **no se ha subido a GitHub desde esta sesión**, por eso el archivo se distribuye en un paquete de prueba aparte.
+
+Desde la carpeta del repositorio en la rama `prototype/v0.1-islas-so`, copiá el `so-tropical.png` original a la ruta indicada, o extraé el ZIP de prueba preparado con la estructura exacta de carpetas. Después ejecutá `bash prototype/v0.1/probar_ancho.sh`, **sin modificar el panel instalado**. En «Configuración de Soledad» → «Logo SO», verificá Predeterminada tropical, Encajar/Rellenar/Estirar, zoom y arrastre, las nueve formas y ancho horizontal; pulsá Aplicar (no cierra), y luego Cerrar. Revisá si guarda al volver a abrir la ventana; los valores de la vista Qt solo viven en la sesión. La prueba de KConfig del plasmoide real y el comportamiento KWin/Wayland siguen pendientes.
+
+La imagen se considera recurso gráfico separado, destinado a CC0 1.0 dentro de los derechos disponibles; ver `docs/LICENCIAS_RECURSOS_GRAFICOS.md`.
