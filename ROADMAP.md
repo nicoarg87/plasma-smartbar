@@ -144,3 +144,15 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Conectar opciones en QML del botón, vista previa, centro Contorno, Main y KConfig; `soActivityStyle=orbit`, `soActivityShowWhenEmpty=true`, `soActivityShowWhenOpen=false` al restaurar valores.
 - [ ] Probar en CachyOS con simulación 0/3, ambas casillas, off/fijo/móvil, clic izquierdo, Aplicar/Restablecer, cero consumo cuando está desactivado y fluidez.
 - [ ] Validar el cambio cuando KDE TasksModel informe ventanas reales; el visor v0.1 no detecta apps abiertas verdaderas.
+
+
+## Defaults para probar e interacción segura (16/11/2026)
+
+- [x] SO cápsula horizontal (96 px de ensayo), imagen tropical predeterminada con modo Estirar; editor y visor tienen defaults y Restablecer coherentes.
+- [x] Contorno de prueba 1,5 vueltas/s, 0,75 px, cola 75 %, guiones; **pendiente aprobación final** después de la prueba.
+- [x] Soledad color provisional `#010111` y opacidad 50 %; bandeja y agarre heredan color/alfa o permiten valores independientes.
+- [x] En visor, impedir que Malvina se revele por hover cuando se simula maximizada/fullscreen o la ventana Qt está así.
+- [x] En applet sin KWin real, bloquear autoaparición por estado de ventana desconocido, como medida precautoria.
+- [ ] Validar aspecto, selector de colores, guardar/restablecer y QML en CachyOS.
+- [ ] Detectar estado real de KWin/Wayland, ventanas maximizadas y fullscreen, por pantalla; permitir autoaparición solo cuando no interfiera en juegos, videos y clics.
+- [ ] Incorporar imagen binaria exacta al repositorio GitHub (por ahora está solo en ZIP adjunto).
