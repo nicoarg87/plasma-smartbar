@@ -353,11 +353,19 @@ Item {
     // no debe empujar el agarre ni SO, aun después de un arrastre.
     readonly property real controlsReservation: root.previewMaximized
         ? windowControls.width + 6 : 0
-    readonly property real maxIslandOffset: Math.max(
-        0, root.width - (root.launcherIslandVisible ? launcherIsland.width : 0)
-           - 460 - Math.max(0, soButton.implicitWidth - 40) - 12
-           - controlsReservation
-    )
+    // Zona reservada para Malvina aunque esté oculta temporalmente:
+    // su hotspot debe quedar alcanzable con el puntero.
+    readonly property real leftReserved: launcherIslandVisible
+        ? malvinaHotspot.width + 12 : 8
+    readonly property real rightReserved: controlsReservation + 8
+    readonly property real maxIslandOffset: Math.max(0,
+        root.width - leftReserved - rightReserved -
+        Math.max(0, systemIsland.width))
+    readonly property real naturalIslandWidth:
+        systemRow.implicitWidth + 12 + (soledadShape === "leftTip" ? 28 : 0)
+    // Máximo que puede ocupar una isla sin invadir Malvina ni controles.
+    readonly property real physicalIslandLimit: Math.max(0,
+        root.width - leftReserved - rightReserved)
     // Espacio físico desde el borde izquierdo libre hasta la derecha de
     // Soledad. Se calcula en el ancho REAL, respetando Malvina si está visible.
     readonly property real availableIslandWidth: centeredPresentation
@@ -387,10 +395,16 @@ Item {
 
     function alignCenterNow() {
         if (positionMode !== "center") requestPositionModeChange("center")
-        centeredPositionDragged = false
         soExpanded = false
         trayExpanded = false
+        centeredPositionDragged = false
         alignRightSelected = false
+    }
+
+    function returnToConfiguredPosition() {
+        // El menú no cambia la preferencia right/center.
+        if (positionMode === "center") alignCenterNow()
+        else alignRightNow()
     }
 
     function setPreviewMaximized(value) {
@@ -967,12 +981,9 @@ Item {
             // Centro: ancho natural de los botones (sin mínimo histórico
             // que podía dejar 593 px incluso con SO y bandeja cerrados).
             // Derecha: conserva exactamente el ancho mínimo configurado.
-            width: root.centeredPresentation
-                ? systemRow.implicitWidth + 12 +
-                  (root.soledadShape === "leftTip" ? 28 : 0)
-                : Math.max(systemRow.implicitWidth + 12 +
-                           (root.soledadShape === "leftTip" ? 28 : 0),
-                           root.soledadMinWidth)
+            width: Math.min(root.physicalIslandLimit,
+                root.centeredPresentation ? root.naturalIslandWidth
+                : Math.max(root.naturalIslandWidth, root.soledadMinWidth))
             // Al cambiar fichas o espacio por arrastre, mantener ambas
             // expansiones salvo que realmente dejen de caber.
             onWidthChanged: root.ensureExpansionFits()
@@ -1110,7 +1121,8 @@ Item {
             anchors.right: root.centeredPresentation ? undefined : parent.right
             anchors.left: root.centeredPresentation ? parent.left : undefined
             anchors.leftMargin: root.centeredPresentation
-                ? root.soAnchorCenterX - systemRow.x -
+                ? root.soAnchorCenterX - (6 +
+                  (root.soledadShape === "leftTip" ? 12 : 0)) -
                   soButton.x - soButton.width / 2 : 0
             // Los controles de ventana quedan en el extremo derecho INMÓVILES.
             // La isla 1 se arrastra solo a la izquierda del espacio reservado.
@@ -1514,18 +1526,20 @@ Item {
                                 if (root.centeredPresentation) {
                                     // Mover la referencia del botón SO, sin
                                     // cambiar el anclaje ni el orden de iconos.
-                                    const minX = root.launcherIslandVisible &&
-                                        launcherIsland.visible
-                                        ? launcherIsland.x + launcherIsland.width +
-                                          soButton.width / 2 + 8
-                                        : soButton.width / 2
-                                    const maxX = root.width -
-                                        root.controlsReservation -
-                                        soButton.width / 2 - moveGrip.width - 8
-                                    root.manualSoCenterX = Math.max(minX,
-                                        Math.min(maxX,
-                                            root.dragStartSoCenterX +
-                                            activeTranslation.x))
+                                    const anchorLeft = (6 +
+                                        (root.soledadShape === "leftTip" ? 12 : 0)) +
+                                        soButton.x + soButton.width / 2
+                                    // Reservar los extremos REALES de la isla,
+                                    // incluida la bandeja a la izquierda y
+                                    // las fichas/agarre a la derecha.
+                                    const minX = root.leftReserved + anchorLeft
+                                    const maxX = root.width - root.rightReserved -
+                                        (systemIsland.width - anchorLeft)
+                                    if (maxX >= minX) {
+                                        root.manualSoCenterX = Math.max(minX,
+                                            Math.min(maxX, root.dragStartSoCenterX +
+                                                activeTranslation.x))
+                                    }
                                 } else {
                                     root.setIslandOffset(
                                         root.offsetAtDragStart - activeTranslation.x)
@@ -1605,37 +1619,18 @@ Item {
                             onTriggered: root.previewFullscreen = !root.previewFullscreen
                         }
                         QQC2.MenuItem {
-                            id: alignRightMenuItem
-                            text: "Alinear isla 1 a la derecha"
-                            checkable: true
-                            // Binding dedicado: evita que el control conserve
-                            // un checked antiguo tras arrastrar el agarre.
-                            Binding {
-                                target: alignRightMenuItem
-                                property: "checked"
-                                value: root.alignRightSelected
-                            }
-                            onTriggered: {
-                                if (root.alignRightSelected) {
-                                    // El usuario destilda sin mover todavía.
-                                    root.alignRightSelected = false
-                                } else {
-                                    // Tildar vuelve a colocar la isla AHORA.
-                                    root.alignRightNow()
-                                }
-                            }
+                            text: root.positionMode === "center"
+                                ? "Volver al centro configurado"
+                                : "Volver a la derecha configurada"
+                            onTriggered: root.returnToConfiguredPosition()
                         }
                         QQC2.MenuItem {
+                            visible: root.positionMode === "right"
                             text: "Volver a la derecha al desmaximizar"
                             checkable: true
                             checked: root.autoReturnRight
                             onTriggered: root.setAutoReturnRight(
-                                !root.autoReturnRight
-                            )
-                        }
-                        QQC2.MenuItem {
-                            text: "Mover isla 1 a la derecha AHORA"
-                            onTriggered: root.alignRightNow()
+                                !root.autoReturnRight)
                         }
 
                     }
