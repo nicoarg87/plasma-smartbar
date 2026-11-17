@@ -41,6 +41,14 @@ QQC2.Button {
     property real activityOrbitSpeed: 1.0
     property int activityTrailPercent: 22
     property string activityTrailStyle: "solid"
+    // Presentación temporal de hora y fecha dentro de SO, sin popup ni
+    // cambios de tamaño y sin interceptar gestos de ratón.
+    property bool clockVisible: false
+    property string clockTime: ""
+    property string clockDate: ""
+    property string clockFontFamily: "Sans Serif"
+    property int clockFontSize: 16
+    property color clockTextColor: "#ffffff"
 
     implicitHeight: preferredButtonHeight > 0 ? preferredButtonHeight : 34
     implicitWidth: preferredButtonWidth > 0 ? preferredButtonWidth :
@@ -84,7 +92,8 @@ QQC2.Button {
             anchors.centerIn: parent
             width: Math.max(14, control.width - 12)
             height: Math.max(14, control.height - 6)
-            active: control.iconSource.toString().length > 0
+            active: !control.clockVisible &&
+                    control.iconSource.toString().length > 0
             sourceComponent: Component {
                 LogoArtwork {
                     width: iconLoader.width
@@ -109,7 +118,8 @@ QQC2.Button {
             anchors.centerIn: parent
             width: Math.max(18, control.width - 8)
             height: Math.max(18, control.height - 2)
-            active: control.activityActiveForState &&
+            active: !control.clockVisible &&
+                    control.activityActiveForState &&
                     control.activityEffect !== "off"
             sourceComponent: Component {
                 SoActivityOutline {
@@ -128,13 +138,48 @@ QQC2.Button {
             }
         }
 
+        // Dentro de la cápsula: el GIF queda sustituido solo tres
+        // segundos. La superficie y el clic del botón permanecen iguales.
+        Rectangle {
+            id: clockOverlay
+            anchors.fill: parent
+            visible: control.clockVisible
+            radius: control.frameShape === "square" ||
+                    control.frameShape === "rectangle" ? 0 :
+                    (control.frameShape === "rounded"
+                        ? Math.min(12, height / 3) : height / 2)
+            color: "#010111"
+            clip: true
+
+            Column {
+                anchors.centerIn: parent
+                spacing: -1
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: control.clockTime
+                    font.family: control.clockFontFamily
+                    font.pixelSize: Math.max(9, control.clockFontSize)
+                    font.bold: true
+                    color: control.clockTextColor
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: control.clockDate
+                    font.family: control.clockFontFamily
+                    font.pixelSize: Math.max(8, Math.round(control.clockFontSize * 0.62))
+                    color: control.clockTextColor
+                }
+            }
+        }
+
         Text {
             id: label
             anchors.fill: parent
             text: control.text
             // Si la imagen no existe, nunca perder el control SO.
-            visible: control.iconSource.toString().length === 0 ||
-                     (iconLoader.item && iconLoader.item.loadError)
+            visible: !control.clockVisible &&
+                     (control.iconSource.toString().length === 0 ||
+                      (iconLoader.item && iconLoader.item.loadError))
             color: control.enabled ? "#eaf7ff" : "#91a8b8"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
