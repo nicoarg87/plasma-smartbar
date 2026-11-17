@@ -568,6 +568,7 @@ Item {
             soledadSettings.alignedRight = root.alignRightSelected
             soledadSettings.alignmentEdited = false
             soledadSettings.currentTab = tabIndex
+            soledadSettings.refreshOutlinePreview()
         }
         soledadSettings.show()
         soledadSettings.raise()
