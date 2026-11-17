@@ -44,6 +44,7 @@ QQC2.Button {
     // Presentación temporal de hora y fecha dentro de SO, sin popup ni
     // cambios de tamaño y sin interceptar gestos de ratón.
     property bool clockVisible: false
+    property string clockPhase: "off"
     property string clockTime: ""
     property string clockDate: ""
     property string clockFontFamily: "Sans Serif"
@@ -54,6 +55,8 @@ QQC2.Button {
     implicitWidth: preferredButtonWidth > 0 ? preferredButtonWidth :
         (iconSource.toString().length > 0 ? 40 :
          Math.max(40, label.implicitWidth + 18))
+    // Evitar que el contenido temporal modifique el área útil del botón.
+    padding: 0
     hoverEnabled: true
     focusPolicy: Qt.StrongFocus
 
@@ -140,7 +143,7 @@ QQC2.Button {
         }
 
         // Hora/fecha encima de la foto, SIN fondo opaco y SIN ocultar
-        // ni recrear el GIF. A los tres segundos desaparecen solo las letras.
+        // ni recrear el GIF. Hora y fecha aparecen un segundo cada una.
         Item {
             id: clockOverlay
             anchors.fill: parent
@@ -152,39 +155,23 @@ QQC2.Button {
                  control.clockTextColor.g * 0.587 +
                  control.clockTextColor.b * 0.114) > 0.5
                     ? "#e6000000" : "#eeffffff"
-            Column {
-                anchors.centerIn: parent
-                width: Math.max(12, parent.width - 6)
-                spacing: -1
-                Text {
-                    width: parent.width
-                    height: Math.max(12, control.height * 0.47)
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    text: control.clockTime
-                    font.family: control.clockFontFamily
-                    font.pixelSize: Math.max(9, control.clockFontSize)
-                    fontSizeMode: Text.Fit
-                    minimumPixelSize: 8
-                    font.bold: true
-                    color: control.clockTextColor
-                    style: Text.Outline
-                    styleColor: clockOverlay.contrastOutline
-                }
-                Text {
-                    width: parent.width
-                    height: Math.max(9, control.height * 0.32)
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    text: control.clockDate
-                    font.family: control.clockFontFamily
-                    font.pixelSize: Math.max(8, Math.round(control.clockFontSize * 0.68))
-                    fontSizeMode: Text.Fit
-                    minimumPixelSize: 7
-                    color: control.clockTextColor
-                    style: Text.Outline
-                    styleColor: clockOverlay.contrastOutline
-                }
+            // Una sola línea por etapa, sin fondo ni cambio de dimensiones.
+            Text {
+                anchors.fill: parent
+                anchors.leftMargin: 4
+                anchors.rightMargin: 4
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: control.clockPhase === "time" ? control.clockTime :
+                      (control.clockPhase === "date" ? control.clockDate : "")
+                font.family: control.clockFontFamily
+                font.pixelSize: Math.max(9, control.clockFontSize)
+                fontSizeMode: Text.Fit
+                minimumPixelSize: 7
+                font.bold: true
+                color: control.clockTextColor
+                style: Text.Outline
+                styleColor: clockOverlay.contrastOutline
             }
         }
 
