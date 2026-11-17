@@ -118,6 +118,43 @@ Window {
     property bool showOutlineWhenEmpty: true
     property bool showOutlineWhenOpen: false
     property bool simulateHasWindows: false
+    // Copia de los valores realmente aplicados: nunca seguir ediciones pendientes.
+    property var appliedOutlinePreview: ({})
+    function refreshOutlinePreview() {
+        appliedOutlinePreview = {
+            iconSource: selectedImage,
+            iconAnimated: isGif,
+            iconAnimationEnabled: enableGif,
+            iconShape: shape,
+            frameShape: soButtonFrameShape,
+            frameWidth: soButtonWidth,
+            frameHeight: Math.max(30, Math.min(soledadHeight, panelHeight - 4) - 10),
+            iconRotation: cropRotation,
+            iconFitMode: cropFitMode,
+            iconZoom: cropZoom,
+            iconPanX: cropPanX,
+            iconPanY: cropPanY,
+            activityCount: simulateHasWindows ? 3 : 0,
+            activityEffect: effectStyle,
+            activityColor: accentColor,
+            activityStroke: strokeSize,
+            activityMotionAllowed: allowMotion,
+            activityOrbitSpeed: orbitSpeed,
+            activityTrailPercent: trailPercent,
+            activityTrailStyle: trailStyle,
+            activityGlowColor: glowColor,
+            activityGlowIntensity: glowIntensity,
+            activityGlowSpread: glowSpread,
+            activityPulseSpeed: pulseSpeed,
+            activityPulseDepth: pulseDepth,
+            activityGlowGradient: glowGradient,
+            activityShowWhenEmpty: showOutlineWhenEmpty,
+            activityShowWhenOpen: showOutlineWhenOpen
+        }
+    }
+    readonly property bool outlineIsOrbit: effectStyle === "orbit" || effectStyle === "orbitGlow"
+    readonly property bool outlineUsesGlow: effectStyle === "glow" || effectStyle === "breathe" || effectStyle === "orbitGlow"
+    readonly property bool outlineCanMove: outlineIsOrbit || effectStyle === "breathe"
 
     property bool autoCollapseSO: true
     property bool autoCollapseTray: false
@@ -203,6 +240,7 @@ Window {
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
+        refreshOutlinePreview()
         saveIslandGradientRequested(soledadGradientEnabled, toHex(soledadGradientEnd),
                                    soledadGradientDirection, malvinaGradientEnabled,
                                    toHex(malvinaGradientEnd), malvinaGradientDirection)
@@ -630,19 +668,10 @@ Window {
                 }
             }
 
-            // 2. Contorno: solo si hay ventanas, respetando forma y rendimiento.
-            QQC2.ScrollView {
-                id: outlineScroll
-                clip: true
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
-                ColumnLayout {
-                    width: outlineScroll.availableWidth - 8
-                    spacing: 13
-                    QQC2.Label {
-                        text: "Contorno de actividad del botón SO"
-                        color: "white"
-                        font.bold: true
-                    }
+            // 2. Contorno con vista previa fija y opciones contextuales.
+            ColumnLayout {
+                spacing: 8
+                QQC2.Label { text: "Contorno de actividad del botón SO"; color: "white"; font.bold: true }
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 92
@@ -655,64 +684,77 @@ Window {
                             scale: 1.45
                             text: "SO"
                             accent: true
-                            iconSource: settings.selectedImage
-                            iconAnimated: settings.isGif
-                            iconAnimationEnabled: settings.enableGif
-                            iconShape: settings.shape
-                            frameShape: settings.soButtonFrameShape
-                            preferredButtonWidth: settings.soButtonFrameShape === "square" ? 40 : settings.soButtonWidth
-                            preferredButtonHeight: Math.max(30, Math.min(settings.soledadHeight, settings.panelHeight - 4) - 10)
-                            iconRotation: settings.cropRotation
-                            iconFitMode: settings.cropFitMode
-                            iconZoom: settings.cropZoom
-                            iconPanX: settings.cropPanX
-                            iconPanY: settings.cropPanY
-                            activityCount: settings.simulateHasWindows ? 3 : 0
-                            activityEffect: settings.effectStyle
-                            activityColor: settings.accentColor
-                            activityStroke: settings.strokeSize
-                            activityMotionAllowed: settings.allowMotion
-                            activityOrbitSpeed: settings.orbitSpeed
-                            activityTrailPercent: settings.trailPercent
-                            activityTrailStyle: settings.trailStyle
-                            activityGlowColor: settings.glowColor
-                            activityGlowIntensity: settings.glowIntensity
-                            activityGlowSpread: settings.glowSpread
-                            activityPulseSpeed: settings.pulseSpeed
-                            activityPulseDepth: settings.pulseDepth
-                            activityGlowGradient: settings.glowGradient
-                            activityShowWhenEmpty: settings.showOutlineWhenEmpty
-                            activityShowWhenOpen: settings.showOutlineWhenOpen
+                            iconSource: settings.appliedOutlinePreview.iconSource
+                            iconAnimated: settings.appliedOutlinePreview.iconAnimated
+                            iconAnimationEnabled: settings.appliedOutlinePreview.iconAnimationEnabled
+                            iconShape: settings.appliedOutlinePreview.iconShape
+                            frameShape: settings.appliedOutlinePreview.frameShape
+                            preferredButtonWidth: settings.appliedOutlinePreview.frameShape === "square" ? 40 : (settings.appliedOutlinePreview.frameWidth || 96)
+                            preferredButtonHeight: settings.appliedOutlinePreview.frameHeight || 34
+                            iconRotation: settings.appliedOutlinePreview.iconRotation
+                            iconFitMode: settings.appliedOutlinePreview.iconFitMode
+                            iconZoom: settings.appliedOutlinePreview.iconZoom
+                            iconPanX: settings.appliedOutlinePreview.iconPanX
+                            iconPanY: settings.appliedOutlinePreview.iconPanY
+                            activityCount: settings.appliedOutlinePreview.activityCount
+                            activityEffect: settings.appliedOutlinePreview.activityEffect
+                            activityColor: settings.appliedOutlinePreview.activityColor
+                            activityStroke: settings.appliedOutlinePreview.activityStroke
+                            activityMotionAllowed: settings.appliedOutlinePreview.activityMotionAllowed
+                            activityOrbitSpeed: settings.appliedOutlinePreview.activityOrbitSpeed
+                            activityTrailPercent: settings.appliedOutlinePreview.activityTrailPercent
+                            activityTrailStyle: settings.appliedOutlinePreview.activityTrailStyle
+                            activityGlowColor: settings.appliedOutlinePreview.activityGlowColor
+                            activityGlowIntensity: settings.appliedOutlinePreview.activityGlowIntensity
+                            activityGlowSpread: settings.appliedOutlinePreview.activityGlowSpread
+                            activityPulseSpeed: settings.appliedOutlinePreview.activityPulseSpeed
+                            activityPulseDepth: settings.appliedOutlinePreview.activityPulseDepth
+                            activityGlowGradient: settings.appliedOutlinePreview.activityGlowGradient
+                            activityShowWhenEmpty: settings.appliedOutlinePreview.activityShowWhenEmpty
+                            activityShowWhenOpen: settings.appliedOutlinePreview.activityShowWhenOpen
                         }
                     }
-                    QQC2.Label {
-                        text: "Vista previa ampliada para apreciar el halo. Deslizá hacia abajo para configurar el segundo color, intensidad, difusión y velocidad."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
+
+                QQC2.Label {
+                    text: "Muestra de los últimos ajustes aplicados. Pulsá Aplicar para ver los cambios."
+                    color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                }
+                QQC2.ScrollView {
+                    id: outlineScroll
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                    ColumnLayout {
+                        width: outlineScroll.availableWidth - 8
+                        spacing: 13
                     QQC2.CheckBox {
+                        visible: settings.effectStyle !== "off"
                         text: "Simular ventanas abiertas en esta vista previa"
                         checked: settings.simulateHasWindows
                         onToggled: settings.simulateHasWindows = checked
                     }
                     QQC2.Label {
+                        visible: settings.effectStyle !== "off"
                         text: "Elegí cuándo mostrar el contorno. Sin ventanas, la luz puede invitar a abrir aplicaciones; con ventanas, podés ocultarla."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.CheckBox {
+                        visible: settings.effectStyle !== "off"
                         text: "Mostrar contorno cuando NO hay ventanas (predeterminado)"
                         checked: settings.showOutlineWhenEmpty
                         onToggled: settings.showOutlineWhenEmpty = checked
                     }
                     QQC2.CheckBox {
+                        visible: settings.effectStyle !== "off"
                         text: "Mostrar contorno cuando HAY ventanas"
                         checked: settings.showOutlineWhenOpen
                         onToggled: settings.showOutlineWhenOpen = checked
                     }
                     QQC2.Label {
+                        visible: settings.effectStyle !== "off"
                         text: "Podés activar ambos estados, uno solo o ninguno. El efecto «Desactivado» apaga el contorno en todos los casos."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
@@ -735,6 +777,7 @@ Window {
                     RowLayout {
                         Layout.fillWidth: true
                         QQC2.Button {
+                        visible: settings.effectStyle !== "off"
                             text: "Elegir color…"
                             onClicked: {
                                 outlineColorDialog.selectedColor = settings.accentColor
@@ -754,6 +797,7 @@ Window {
                     RowLayout {
                         Layout.fillWidth: true
                         QQC2.Label { text: "Grosor"; color: "white"; Layout.preferredWidth: 80 }
+                        visible: settings.effectStyle !== "off"
                         QQC2.Slider {
                             Layout.fillWidth: true
                             from: 0.5; to: 2; stepSize: 0.25
@@ -766,13 +810,16 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                         text: "Ajustes de la luz que recorre el contorno"
                         color: "white"
                         font.bold: true
                     }
                     RowLayout {
+                        visible: settings.effectStyle !== "off"
                         Layout.fillWidth: true
                         QQC2.Label {
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                             text: "Velocidad (vueltas/segundo)"
                             color: "white"
                             Layout.fillWidth: true
@@ -802,8 +849,10 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                         Layout.fillWidth: true
                         QQC2.Label {
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                             text: "Longitud de la cola (% del borde)"
                             color: "white"
                             Layout.fillWidth: true
@@ -820,10 +869,12 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                         text: "Trazo de la luz móvil"
                         color: "white"
                     }
                     QQC2.ComboBox {
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                         Layout.fillWidth: true
                         enabled: (settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow") && settings.allowMotion
                         model: ["Línea continua", "Punteado", "Guiones"]
@@ -834,23 +885,28 @@ Window {
                         }
                     }
                     QQC2.CheckBox {
+                        visible: settings.outlineCanMove
                         text: "Permitir movimiento sutil del borde"
                         checked: settings.allowMotion
                         enabled: settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow" || settings.effectStyle === "breathe"
                         onToggled: settings.allowMotion = checked
                     }
                     QQC2.Label {
+                        visible: settings.outlineCanMove
                         text: "El movimiento del borde es opcional. No se anima la isla."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
+                        visible: settings.outlineUsesGlow
                         text: "Iluminación exterior y degradado"
                         color: "white"
                         font.bold: true
                     }
                     RowLayout {
+                        visible: settings.outlineUsesGlow
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                         Layout.fillWidth: true
                         QQC2.Button {
                             text: "Color exterior…"
@@ -863,17 +919,20 @@ Window {
                         QQC2.Label { text: settings.toHex(settings.glowColor); color: "white" }
                     }
                     QQC2.CheckBox {
+                        visible: settings.outlineUsesGlow
                         text: "Degradado: centro brillante y exterior más suave"
                         checked: settings.glowGradient
                         onToggled: settings.glowGradient = checked
                     }
                     QQC2.Label {
+                        visible: settings.outlineUsesGlow
                         text: "El color principal se elige arriba. El color exterior se elige aquí; en el degradado se combinan ambos."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Button {
+                        visible: settings.outlineUsesGlow
                         text: "Usar colores cálidos (dorado y naranja)"
                         onClicked: {
                             settings.accentColor = "#ffd27a"
@@ -881,7 +940,9 @@ Window {
                         }
                     }
                     QQC2.Label { text: "Intensidad del brillo"; color: "white" }
+                        visible: settings.outlineUsesGlow
                     RowLayout {
+                        visible: settings.outlineUsesGlow
                         Layout.fillWidth: true
                         QQC2.Slider {
                             Layout.fillWidth: true
@@ -892,7 +953,9 @@ Window {
                         QQC2.Label { text: Math.round(settings.glowIntensity * 100) + "%"; color: "white" }
                     }
                     QQC2.Label { text: "Difusión del brillo"; color: "white" }
+                        visible: settings.outlineUsesGlow
                     RowLayout {
+                        visible: settings.outlineUsesGlow
                         Layout.fillWidth: true
                         QQC2.Slider {
                             Layout.fillWidth: true
@@ -903,7 +966,9 @@ Window {
                         QQC2.Label { text: settings.glowSpread.toFixed(1) + " px"; color: "white" }
                     }
                     QQC2.Label { text: "Velocidad de respiración"; color: "white" }
+                        visible: settings.effectStyle === "breathe" && settings.allowMotion
                     RowLayout {
+                        visible: settings.effectStyle === "breathe" && settings.allowMotion
                         Layout.fillWidth: true
                         QQC2.Slider {
                             Layout.fillWidth: true
@@ -915,7 +980,9 @@ Window {
                         QQC2.Label { text: settings.pulseSpeed.toFixed(1) + " ciclos/s"; color: "white" }
                     }
                     QQC2.Label { text: "Profundidad de la respiración"; color: "white" }
+                        visible: settings.effectStyle === "breathe" && settings.allowMotion
                     RowLayout {
+                        visible: settings.effectStyle === "breathe" && settings.allowMotion
                         Layout.fillWidth: true
                         QQC2.Slider {
                             Layout.fillWidth: true
@@ -949,6 +1016,7 @@ Window {
                             settings.showOutlineWhenOpen = false
                         }
                     }
+                }
                 }
             }
 
