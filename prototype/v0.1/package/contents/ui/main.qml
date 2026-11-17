@@ -45,6 +45,20 @@ PlasmoidItem {
             Plasmoid.configuration.taskActiveGlowEnabled = glowEnabled
             Plasmoid.configuration.taskActiveDoubleBorderEnabled = doubleBorderEnabled
         }
+        malvinaGoogleUrl: Plasmoid.configuration.malvinaGoogleUrl
+        malvinaDuckUrl: Plasmoid.configuration.malvinaDuckUrl
+        malvinaYahooUrl: Plasmoid.configuration.malvinaYahooUrl
+        malvinaChatGptUrl: Plasmoid.configuration.malvinaChatGptUrl
+        malvinaGeminiUrl: Plasmoid.configuration.malvinaGeminiUrl
+        malvinaClaudeUrl: Plasmoid.configuration.malvinaClaudeUrl
+        onRequestMalvinaProvidersChange: function(google, duck, yahoo, chatGpt, gemini, claude) {
+            Plasmoid.configuration.malvinaGoogleUrl = google
+            Plasmoid.configuration.malvinaDuckUrl = duck
+            Plasmoid.configuration.malvinaYahooUrl = yahoo
+            Plasmoid.configuration.malvinaChatGptUrl = chatGpt
+            Plasmoid.configuration.malvinaGeminiUrl = gemini
+            Plasmoid.configuration.malvinaClaudeUrl = claude
+        }
         taskDisplayMode: Plasmoid.configuration.taskDisplayMode
         onRequestTaskDisplayModeChange: function(mode) {
             Plasmoid.configuration.taskDisplayMode = mode
