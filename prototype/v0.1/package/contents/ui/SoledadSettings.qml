@@ -53,6 +53,8 @@ Window {
     property bool soledadGradientEnabled: false
     property color soledadGradientEnd: "#ee9852"
     property string soledadGradientDirection: "topBottom"
+    property bool soledadGradientSyncBreathing: false
+    property real soledadGradientBreathingIntensity: 0.6
     property bool malvinaGradientEnabled: false
     property color malvinaGradientEnd: "#445577"
     property string malvinaGradientDirection: "topBottom"
@@ -184,6 +186,7 @@ Window {
         outlineConfig = next
     }
     signal saveOutlineRequested(var updated)
+    signal saveGradientBreathingRequested(bool enabled, real intensity)
     signal saveIslandGradientRequested(bool soEnabled, string soEnd, string soDirection,
                                        bool malEnabled, string malEnd, string malDirection)
 
@@ -241,6 +244,8 @@ Window {
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
         refreshOutlinePreview()
+        saveGradientBreathingRequested(soledadGradientSyncBreathing,
+                                     soledadGradientBreathingIntensity)
         saveIslandGradientRequested(soledadGradientEnabled, toHex(soledadGradientEnd),
                                    soledadGradientDirection, malvinaGradientEnabled,
                                    toHex(malvinaGradientEnd), malvinaGradientDirection)
@@ -1256,6 +1261,8 @@ Window {
                             settings.soledadColor = "#010111"
                             settings.malvinaColor = "#101e31"
                             settings.soledadGradientEnabled = false
+                            settings.soledadGradientSyncBreathing = false
+                            settings.soledadGradientBreathingIntensity = 0.6
                             settings.soledadGradientEnd = "#ee9852"
                             settings.soledadGradientDirection = "topBottom"
                             settings.malvinaGradientEnabled = false
