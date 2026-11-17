@@ -19,7 +19,7 @@ Item {
     property int webIndex: 0
     property int aiIndex: 0
     signal requestSettings()
-    signal requestExpansion()
+    signal requestInstalledApps()
     readonly property var webNames: ["Google", "DuckDuckGo", "Yahoo"]
     readonly property var aiNames: ["ChatGPT", "Gemini", "Claude"]
     readonly property var webUrls: [googleTemplate, duckTemplate, yahooTemplate]
@@ -132,7 +132,7 @@ Item {
         x: 0
         y: search.height + 6
         width: 396
-        height: 112
+        height: 152
         padding: 8
         modal: false
         focus: false
@@ -181,6 +181,16 @@ Item {
                             search.openSelected()
                         }
                     }
+                }
+            }
+            QQC2.Button {
+                Layout.fillWidth: true
+                text: "Aplicaciones (maqueta)"
+                icon.name: "applications-all"
+                onClicked: {
+                    options.close()
+                    search.expanded = false
+                    search.requestInstalledApps()
                 }
             }
         }
