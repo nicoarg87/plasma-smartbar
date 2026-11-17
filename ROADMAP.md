@@ -218,3 +218,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Automatizar verificaciones estaticas y unitarias de politicas puras; medir memoria, CPU, repintado e inicializacion antes/despues.
 - [ ] Investigar atajo global Super+Espacio y seleccion de navegador en KWin/Wayland, sin ejecutar comandos de shell fabricados con la consulta.
 - [ ] Mantener lectura KDE de solo lectura, fullscreen y controles/pestanas como tareas independientes pendientes de validacion.
+
+## Selector Malvina por teclado (17/11/2026)
+
+- [x] Implementar Google predeterminado y Enter para buscar con proveedor elegido.
+- [x] Tab y Mayus+Tab recorren los seis proveedores Web/IA.
+- [x] Espacio/clic elige proveedor sin lanzar la URL; retorna al texto conservado.
+- [ ] Validar foco y secuencia Tab → Espacio → escritura → Enter en visor Qt real de CachyOS, incluyendo Shift+Tab, Esc y cambios repetidos de proveedor.
+- [ ] Revisar accesibilidad visual del proveedor enfocado en popup y comportamiento de atajos con lector de pantalla.
