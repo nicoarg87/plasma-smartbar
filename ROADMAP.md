@@ -207,3 +207,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Disminuir tamaño inicial de hora de 16 px a 11 px, ajustar fecha, conservar tipografía/tamaño/color configurables y restablecimiento coherente.
 - [x] Mantener gesto de 180 ms sobre seis puntos y desaparición **solo del texto** tras tres segundos.
 - [ ] **Probar visualmente en CachyOS** continuidad del GIF sin reinicio, legibilidad, fuentes alternativas, restablecer y que el texto no sobresalga de la cápsula.
+
+## Modularidad, mantenibilidad y seguridad (aprobado 17/11/2026)
+
+- [x] Formalizar responsabilidad unica, contratos Qt/QML, bajo acoplamiento, validacion, permisos minimos, pruebas aisladas y gobernanza en [docs/ARQUITECTURA_MODULAR.md](docs/ARQUITECTURA_MODULAR.md).
+- [x] Separar la politica de URL de Malvina en `MalvinaUrlPolicy.js`; delegar desde `MalvinaSearch.qml` y definir cierre del buscador existente.
+- [ ] Probar politica URL, navegador KDE predeterminado, Web/IA, Tab/Shift+Tab/Enter/Esc y configuracion en el visor aislado CachyOS.
+- [ ] Desacoplar el formulario Malvina de propiedades internas de Soledad conservando la unica entrada a preferencias.
+- [ ] Extraer progresivamente componentes de `SmartBarContent.qml` y `SoledadSettings.qml`, con contratos claros y retest en cada etapa.
+- [ ] Automatizar verificaciones estaticas y unitarias de politicas puras; medir memoria, CPU, repintado e inicializacion antes/despues.
+- [ ] Investigar atajo global Super+Espacio y seleccion de navegador en KWin/Wayland, sin ejecutar comandos de shell fabricados con la consulta.
+- [ ] Mantener lectura KDE de solo lectura, fullscreen y controles/pestanas como tareas independientes pendientes de validacion.
