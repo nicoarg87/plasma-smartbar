@@ -945,3 +945,11 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 **APARIENCIA DEL TEXTO:** valor inicial 11 px (en lugar de 16), fecha aún más pequeña, Sans Serif, blanco, borde de contraste contra la foto; fondo del reloj transparente. Sigue habiendo controles para personalizar la familia, tamaño y color en «Logo SO», y botón de restablecer. Ajustar texto automáticamente al espacio del botón (Qt Quick `Text.Fit` con dimensiones explícitas). KConfig `soClockFontSize` ahora tiene `default=11` pero no anular configuraciones personales existentes.
 
 **PRUEBA PENDIENTE:** ejecutar el visor Qt CachyOS y observar el GIF durante los tres segundos completos para confirmar que no desaparece ni vuelve al primer cuadro cuando termina; comprobar legibilidad, tamaños y cancelación por gesto. Implementación en rama del PR #3, sin reemplazar el panel.
+
+## Arquitectura modular aprobada — 17/11/2026
+
+**DECISION FUNCIONAL:** separar el codigo de Soledad, Malvina, coordinacion general, adaptadores KDE, configuracion y reglas de seguridad para evitar acoplamiento y crecimiento monolitico. Se preservan la geometria, los gestos, la apariencia, los atajos confirmados y la disposicion de islas. La configuracion global sigue teniendo una entrada central, con secciones propias por modulo.
+
+Malvina expone solicitudes al contenedor y no controla ventanas KDE. Su buscador se limita a seleccionar proveedor y solicitar apertura HTTPS mediante una politica compartida de validacion; las URLs web requieren el marcador `{query}`, con consulta codificada. Los sitios de IA se abren sin envio automatico del prompt. La seleccion de navegador especifico y Super+Espacio global siguen pendientes de integracion real KWin/Wayland.
+
+**Implementacion parcial:** `MalvinaIsland.qml`, `MalvinaSearch.qml`, `MalvinaProvidersPage.qml` y `MalvinaUrlPolicy.js` en la rama de prueba v0.1; la division de grandes componentes de Soledad y la comprobacion en CachyOS siguen pendientes. Referencia: [Arquitectura modular](ARQUITECTURA_MODULAR.md).
