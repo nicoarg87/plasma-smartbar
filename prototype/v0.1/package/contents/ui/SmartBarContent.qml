@@ -1117,16 +1117,16 @@ Item {
                 bottomLeft: systemIsland.bottomLeftRadius
                 bottomRight: systemIsland.bottomRightRadius
             }
-            anchors.right: root.centeredPresentation ? undefined : parent.right
-            anchors.left: root.centeredPresentation ? parent.left : undefined
-            anchors.leftMargin: root.centeredPresentation
-                ? root.soAnchorCenterX - (6 +
-                  (root.soledadShape === "leftTip" ? 12 : 0)) -
-                  soButton.x - soButton.width / 2 : 0
-            // Los controles de ventana quedan en el extremo derecho INMÓVILES.
-            // La isla 1 se arrastra solo a la izquierda del espacio reservado.
-            anchors.rightMargin: root.centeredPresentation ? 0 :
-                root.islandOffset + root.controlsReservation
+            // Posición horizontal EXCLUSIVA, sin anchors.left/right dinámicos:
+            // cambiar un anchor a undefined podía conservar ambas anclas
+            // activas y estirar la isla a TODO el ancho de la ventana.
+            // Centro = posición del propio botón SO, no del borde de la isla.
+            x: root.centeredPresentation
+                ? root.soAnchorCenterX - systemRow.x -
+                  soButton.x - soButton.width / 2
+                : root.width - width - root.islandOffset -
+                  root.controlsReservation
+            // Controles maximizados permanecen fijos al extremo derecho.
             anchors.verticalCenter: parent.verticalCenter
 
             // Punta triangular opcional. Solo se pinta cuando cambia algo,
