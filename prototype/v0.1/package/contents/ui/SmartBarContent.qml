@@ -23,6 +23,11 @@ Item {
     property string malvinaShape: "rounded"
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
+    property string taskFrameShape: "rounded"
+    property color taskFrameColor: "#ffffff"
+    property real taskFrameOpacity: 0.12
+    property real taskFrameWidth: 1
+    signal requestTaskFrameChange(string shape, string color, real opacity, real width)
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     signal requestOutlineChange(var updated)
     signal requestIslandGradientChange(bool soEnabled, string soEnd, string soDirection,
@@ -618,6 +623,10 @@ Item {
             soledadSettings.soledadShape = root.soledadShape
             soledadSettings.malvinaShape = root.malvinaShape
             soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
+            soledadSettings.taskFrameShape = root.taskFrameShape
+            soledadSettings.taskFrameColor = root.taskFrameColor
+            soledadSettings.taskFrameOpacity = root.taskFrameOpacity
+            soledadSettings.taskFrameWidth = root.taskFrameWidth
             soledadSettings.gripShape = root.gripShape
             soledadSettings.trayButtonShape = root.trayButtonShape
             soledadSettings.soButtonFrameShape = root.soButtonFrameShape
@@ -709,6 +718,9 @@ Item {
         }
         onSaveIslandGradientRequested: function(a, b, c, d, e, f) {
             root.requestIslandGradientChange(a, b, c, d, e, f)
+        }
+        onSaveTaskFrameRequested: function(shape, color, opacity, width) {
+            root.requestTaskFrameChange(shape, color, opacity, width)
         }
         onSaveOutlineRequested: function(updated) {
             root.requestOutlineChange(updated)
@@ -1247,6 +1259,10 @@ Item {
                         // El propio relleno de la isla aparece debajo:
                         // no añadir otra cápsula azul sobre el degradado.
                         inheritIslandFill: true
+                        taskFrameShape: root.taskFrameShape
+                        taskFrameColor: root.taskFrameColor
+                        taskFrameOpacity: root.taskFrameOpacity
+                        taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
@@ -1265,6 +1281,10 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
+                        taskFrameShape: root.taskFrameShape
+                        taskFrameColor: root.taskFrameColor
+                        taskFrameOpacity: root.taskFrameOpacity
+                        taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
                         required property var model
                         readonly property string appName:
@@ -1653,6 +1673,10 @@ Item {
                         // El propio relleno de la isla aparece debajo:
                         // no añadir otra cápsula azul sobre el degradado.
                         inheritIslandFill: true
+                        taskFrameShape: root.taskFrameShape
+                        taskFrameColor: root.taskFrameColor
+                        taskFrameOpacity: root.taskFrameOpacity
+                        taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
@@ -1671,6 +1695,10 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
+                        taskFrameShape: root.taskFrameShape
+                        taskFrameColor: root.taskFrameColor
+                        taskFrameOpacity: root.taskFrameOpacity
+                        taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
                         required property var model
                         readonly property string appName:
