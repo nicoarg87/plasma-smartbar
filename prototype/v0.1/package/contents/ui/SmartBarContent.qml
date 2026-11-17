@@ -918,7 +918,7 @@ Item {
                     function onSoledadGradientEndChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientDirectionChanged() { islandSurface.requestPaint() }
                     function onGradientBreathingFactorChanged() {
-                        if (root.sharedBreathingActive) islandSurface.requestPaint()
+                        if (root.soledadGradientEnabled) islandSurface.requestPaint()
                     }
                     function onSoledadOpacityChanged() { islandSurface.requestPaint() }
                     function onSoledadShapeChanged() { islandSurface.requestPaint() }
@@ -1046,7 +1046,7 @@ Item {
                     function onSoledadGradientEndChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientDirectionChanged() { soTipBackground.requestPaint() }
                     function onGradientBreathingFactorChanged() {
-                        if (root.sharedBreathingActive) soTipBackground.requestPaint()
+                        if (root.soledadGradientEnabled) soTipBackground.requestPaint()
                     }
                     function onSoledadOpacityChanged() { soTipBackground.requestPaint() }
                     function onSoledadShapeChanged() { soTipBackground.requestPaint() }
