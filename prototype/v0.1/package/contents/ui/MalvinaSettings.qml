@@ -54,7 +54,19 @@ Window {
             font.pixelSize: 18
         }
         QQC2.Label {
-            text: "Navegador: se utiliza el predeterminado de KDE. Elegir un ejecutable concreto requiere integrar un lanzador nativo; este visor no cambia el navegador del sistema."
+            text: "Navegador para búsquedas (prototipo)"
+            color: "white"
+            font.bold: true
+        }
+        QQC2.ComboBox {
+            Layout.fillWidth: true
+            model: ["Predeterminado del sistema KDE"]
+            currentIndex: 0
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.text: "Los navegadores alternativos se habilitarán cuando exista un lanzador nativo compatible con Wayland."
+        }
+        QQC2.Label {
+            text: "En esta prueba la búsqueda se abre en el navegador predeterminado de KDE. La selección de Brave, Firefox u otros navegadores concretos está pendiente de integración nativa."
             color: "#ddd6e8"
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
