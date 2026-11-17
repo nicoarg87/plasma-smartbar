@@ -1,6 +1,6 @@
 # Hoja de ruta de Plasma SmartBar Islands
 
-> **Estado real:** documentación disponible. **No hay aún código funcional ni versión instalable.**
+> **Estado real (17/11/2026):** prototipo visual QML en rama experimental y diagnóstico independiente de **ventanas reales KDE probado en CachyOS**, con actualización dinámica de la lista. **SO todavía usa fichas simuladas; no hay versión instalable validada para uso diario.**
 > Las etapas se subordinan a la [Constitución técnica](docs/CONSTITUCION_TECNICA.md).
 
 ## Fase 0 — Fundamentos y organización
@@ -182,5 +182,9 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 
 - [x] Ejecutar por primera vez el diagnóstico `probar_ventanas.sh` en CachyOS: **falló por siete declaraciones QML `required property` con mayúscula** antes de cargar el modelo.
 - [x] Corregir en `preview_ventanas_reales.qml` usando `required property var model` y roles `model.AppName`, etc. ([commit 486db01](https://github.com/nicoarg87/plasma-smartbar/commit/486db01dc1930129d96c1b8cbd79878df477b3a1)); revisión estática de sintaxis y bindings.
-- [ ] Repetir en CachyOS la ejecución de `bash prototype/v0.1/probar_ventanas.sh` y confirmar detección dinámica de ventanas reales abiertas/cerradas.
+- [x] **PROBADO en CachyOS 17/11/2026:** `bash prototype/v0.1/probar_ventanas.sh` carga y detecta ventanas reales; el mantenedor confirma que la lista cambia al abrir y cerrar aplicaciones (Alacritty, Brave y qml6 en captura).
 - [ ] Tras prueba positiva, empezar el enlace de solo lectura de tareas reales con SO; no conectar acciones de cerrar/activar ni instalar el panel antes de validar.
+
+- [ ] Conectar el mismo modelo en modo solo lectura al listado de fichas SO del visor experimental, sin tocar el panel CachyOS.
+- [ ] Comprobar agrupación real de dos o más ventanas de una aplicación, ancho de una sola fila y estabilidad del bloque SO al actualizar tareas.
+- [ ] Solo tras pruebas positivas, implementar activación/minimización por etapas, con pruebas KWin/Wayland de foco y fullscreen.
