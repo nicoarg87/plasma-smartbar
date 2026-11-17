@@ -54,6 +54,7 @@ Window {
     property string demoSoClockFontFamily: "Sans Serif"
     property int demoSoClockFontSize: 11
     property color demoSoClockTextColor: "#ffffff"
+    property var demoOutlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     property real demoPanelHeight: 48
     property real demoSoledadHeight: 44
     property real demoMalvinaHeight: 44
@@ -97,6 +98,10 @@ Window {
         anchors.right: parent.right
         anchors.top: parent.top
         height: fixedHeight
+        outlineConfig: previewWindow.demoOutlineConfig
+        onRequestOutlineChange: function(updated) {
+            previewWindow.demoOutlineConfig = JSON.parse(JSON.stringify(updated))
+        }
         panelHeight: previewWindow.demoPanelHeight
         soledadHeight: previewWindow.demoSoledadHeight
         malvinaHeight: previewWindow.demoMalvinaHeight
