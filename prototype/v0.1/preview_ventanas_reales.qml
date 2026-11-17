@@ -82,20 +82,23 @@ QQC2.ApplicationWindow {
                 spacing: 5
 
                 delegate: Rectangle {
-                    required property int index
-                    required property string AppName
-                    required property bool IsWindow
-                    required property bool IsGroupParent
-                    required property int ChildCount
-                    required property bool IsActive
-                    required property bool IsMaximized
-                    required property bool IsMinimized
+                    // Las propiedades QML no pueden comenzar con mayúscula.
+                    // KDE publica los roles AppName, IsActive, etc.; Qt los
+                    // ofrece a través del objeto "model" de cada delegado.
+                    required property var model
+                    readonly property string appName: model.AppName || ""
+                    readonly property bool isWindow: model.IsWindow === true
+                    readonly property bool isGroupParent: model.IsGroupParent === true
+                    readonly property int childCount: model.ChildCount || 0
+                    readonly property bool isActive: model.IsActive === true
+                    readonly property bool isMaximized: model.IsMaximized === true
+                    readonly property bool isMinimized: model.IsMinimized === true
 
                     width: ListView.view ? ListView.view.width - 12 : 700
                     height: 58
                     radius: 10
-                    color: IsActive ? "#245168" : "#142638"
-                    border.color: IsActive ? "#52b7cb" : "#36546a"
+                    color: isActive ? "#245168" : "#142638"
+                    border.color: isActive ? "#52b7cb" : "#36546a"
                     border.width: 1
 
                     RowLayout {
@@ -106,20 +109,20 @@ QQC2.ApplicationWindow {
 
                         QQC2.Label {
                             Layout.fillWidth: true
-                            text: AppName.length > 0 ? AppName : "(sin nombre de aplicación)"
+                            text: appName.length > 0 ? appName : "(sin nombre de aplicación)"
                             color: "#f0f9ff"
-                            font.bold: IsActive
+                            font.bold: isActive
                             elide: Text.ElideRight
                         }
 
                         QQC2.Label {
-                            text: IsGroupParent ? (ChildCount + " ventanas") : (IsWindow ? "Ventana" : "Otro")
+                            text: isGroupParent ? (childCount + " ventanas") : (isWindow ? "Ventana" : "Otro")
                             color: "#b6d9e7"
                         }
 
                         QQC2.Label {
-                            text: IsActive ? "Activa" : (IsMinimized ? "Minimizada" : (IsMaximized ? "Maximizada" : "Normal"))
-                            color: IsActive ? "#94ffdd" : "#c1ccd5"
+                            text: isActive ? "Activa" : (isMinimized ? "Minimizada" : (isMaximized ? "Maximizada" : "Normal"))
+                            color: isActive ? "#94ffdd" : "#c1ccd5"
                         }
                     }
                 }
