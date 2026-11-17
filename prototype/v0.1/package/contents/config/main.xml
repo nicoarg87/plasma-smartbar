@@ -76,5 +76,10 @@
     <entry name="soActivityOrbitSpeed" type="Double"><default>1.5</default></entry>
     <entry name="soActivityTrailPercent" type="Int"><default>75</default></entry>
     <entry name="soActivityTrailStyle" type="String"><default>dashed</default></entry>
+    <entry name="soActivityGlowColor" type="String"><default>#ffab52</default></entry>
+    <entry name="soActivityGlowIntensity" type="Double"><default>0.7</default></entry>
+    <entry name="soActivityGlowSpread" type="Double"><default>5</default></entry>
+    <entry name="soActivityPulseSpeed" type="Double"><default>0.6</default></entry>
+    <entry name="soActivityGlowGradient" type="Bool"><default>true</default></entry>
   </group>
 </kcfg>
