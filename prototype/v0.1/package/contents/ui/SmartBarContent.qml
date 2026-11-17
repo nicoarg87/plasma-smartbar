@@ -961,11 +961,11 @@ Item {
                             dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
                             dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
                         g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                                   root.soledadColor.b, root.soledadOpacity))
+                                                   root.soledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
                         g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r,
                                                    root.soledadGradientEnd.g,
                                                    root.soledadGradientEnd.b,
-                                                   root.soledadOpacity))
+                                                   root.soledadOpacity * root.gradientBreathingFactor))
                         ctx.fillStyle = g
                     } else {
                         ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
@@ -1069,9 +1069,9 @@ Item {
                             dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
                             dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
                         g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                                  root.soledadColor.b, root.soledadOpacity))
+                                                  root.soledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
                         g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r, root.soledadGradientEnd.g,
-                                                  root.soledadGradientEnd.b, root.soledadOpacity))
+                                                  root.soledadGradientEnd.b, root.soledadOpacity * root.gradientBreathingFactor))
                         ctx.fillStyle = g
                     } else {
                         ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
