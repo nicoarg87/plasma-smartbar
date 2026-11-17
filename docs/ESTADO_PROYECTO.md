@@ -748,3 +748,15 @@ Commits [91e8ff5](https://github.com/nicoarg87/plasma-smartbar/commit/91e8ff5834
 - [232e8c1](https://github.com/nicoarg87/plasma-smartbar/commit/232e8c1e8dffe490023a1a70751d8f552c37cdd5): `SoActivityOutline.qml` desplaza el centro del trazo hacia afuera del borde de la imagen, en lugar de sumarle medio grosor hacia adentro; halo y respiración permanecen activos sobre el fondo con hora/fecha sin apagar GIF.
 
 **AUDITORÍA ESTÁTICA:** llaves, paréntesis y corchetes equilibrados en los tres archivos; **PENDIENTE DE PRUEBA REAL** en CachyOS con fondo GIF en texto SO, cápsula/óvalo/rectángulo y distintas fuentes, tamaños y opacidades. No se subió la captura privada enviada por el mantenedor ni se tocaron otros repositorios o el panel KDE.
+
+
+## Estética de fichas de aplicaciones integrada al degradado de Soledad (17/11/2026)
+
+**OBSERVADO Y PEDIDO POR EL MANTENEDOR:** el menú de aplicaciones simuladas/abiertas en SO presenta fichas con fondo azul genérico y geometría de cápsula excesivamente redondeada, que desentonan con el degradado personalizado de la isla. Prefiere rectángulos de esquinas ligeramente redondeadas y que el fondo de las fichas sea el propio relleno/degradado de Soledad, sin un segundo color azul superpuesto.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL (PENDIENTE DE PRUEBA CACHYOS):**
+- [commit 130a099](https://github.com/nicoarg87/plasma-smartbar/commit/130a099ee4e4d7c1482f7ca895d725c63f9cccfa): `IslandButton.qml` incorpora `inheritIslandFill` (apagado en todos los botones existentes, prendido solo en fichas de aplicaciones) y forma `task` con radio máximo 7 px. El fondo queda transparente en reposo, revelando el mismo degradado sólido o respirante dibujado debajo en `islandSurface`, y ofrece una tenue iluminación neutra en hover/clic. Se apaga el borde genérico azulado de `OutlineStyle` solo en estas fichas.
+- [commit f94afe0](https://github.com/nicoarg87/plasma-smartbar/commit/f94afe00355c2d9e64ad63952f6e8738f6f63400): aplicado de manera consistente a los cuatro tipos de repetidores: ventanas simuladas y reales, en modo alineado a derecha o centrado. Se conserva el orden, la fila única, el comportamiento de clic (real **SOLO LECTURA**), ancho/altura y el GIF/contorno de SO.
+- No se cambian opacidades ni colores del degradado elegidos por el usuario; el efecto de respiración sincronizada permanece debajo de las fichas transparentes. Los botones de bandeja, agarre y logo conservan sus estilos independientes.
+
+**REVISADO ESTÁTICAMENTE:** llaves/paréntesis equilibrados y las cuatro instancias de fichas conectadas. **PENDIENTE DE PRUEBA VISUAL** con SO a derecha/centro, fichas simuladas y KDE TasksModel real, hover, contraste del texto con diferentes gradientes y temporizador de respiración. No se modifica panel KDE ni se publican capturas privadas.
