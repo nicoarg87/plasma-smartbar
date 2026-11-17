@@ -1244,6 +1244,10 @@ Item {
                            !root.usingRealTasks && root.demoHasRunningWindows
                            ? root.demoApps : []
                     delegate: IslandButton {
+                        // El propio relleno de la isla aparece debajo:
+                        // no añadir otra cápsula azul sobre el degradado.
+                        inheritIslandFill: true
+                        frameShape: "task"
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1260,6 +1264,8 @@ Item {
                     model: root.positionMode === "right" && root.soExpanded &&
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
+                        inheritIslandFill: true
+                        frameShape: "task"
                         required property var model
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
@@ -1644,6 +1650,10 @@ Item {
                            !root.usingRealTasks && root.demoHasRunningWindows
                            ? root.demoApps : []
                     delegate: IslandButton {
+                        // El propio relleno de la isla aparece debajo:
+                        // no añadir otra cápsula azul sobre el degradado.
+                        inheritIslandFill: true
+                        frameShape: "task"
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1660,6 +1670,8 @@ Item {
                     model: root.positionMode === "center" && root.soExpanded &&
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
+                        inheritIslandFill: true
+                        frameShape: "task"
                         required property var model
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
