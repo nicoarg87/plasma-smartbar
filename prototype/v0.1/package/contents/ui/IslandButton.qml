@@ -50,6 +50,8 @@ QQC2.Button {
     property real activityGlowSpread: 5
     property real activityPulseSpeed: 0.6
     property real activityPulseDepth: 0.7
+    property bool activityUseExternalPulse: false
+    property real activityExternalPulsePhase: 0
     property bool activityGlowGradient: true
     // Presentación temporal de hora y fecha dentro de SO, sin popup ni
     // cambios de tamaño y sin interceptar gestos de ratón.
@@ -169,6 +171,8 @@ QQC2.Button {
                     glowSpread: control.activityGlowSpread
                     pulseSpeed: control.activityPulseSpeed
                     pulseDepth: control.activityPulseDepth
+                    useExternalPulse: control.activityUseExternalPulse
+                    externalPulsePhase: control.activityExternalPulsePhase
                     glowGradient: control.activityGlowGradient
                     activeForState: control.activityActiveForState
                 }
