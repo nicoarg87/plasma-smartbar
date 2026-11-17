@@ -23,6 +23,9 @@ Item {
     property string malvinaShape: "rounded"
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
+    property bool taskActiveGlowEnabled: true
+    property bool taskActiveDoubleBorderEnabled: false
+    signal requestTaskActiveIndicatorChange(bool glowEnabled, bool doubleBorderEnabled)
     property string taskDisplayMode: "icon" // text, both, icon
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
@@ -634,6 +637,8 @@ Item {
             soledadSettings.soledadShape = root.soledadShape
             soledadSettings.malvinaShape = root.malvinaShape
             soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
+            soledadSettings.taskActiveGlowEnabled = root.taskActiveGlowEnabled
+            soledadSettings.taskActiveDoubleBorderEnabled = root.taskActiveDoubleBorderEnabled
             soledadSettings.taskDisplayMode = root.taskDisplayMode
             soledadSettings.taskFrameShape = root.taskFrameShape
             soledadSettings.taskFrameColor = root.taskFrameColor
@@ -730,6 +735,9 @@ Item {
         }
         onSaveIslandGradientRequested: function(a, b, c, d, e, f) {
             root.requestIslandGradientChange(a, b, c, d, e, f)
+        }
+        onSaveTaskActiveIndicatorRequested: function(glowEnabled, doubleBorderEnabled) {
+            root.requestTaskActiveIndicatorChange(glowEnabled, doubleBorderEnabled)
         }
         onSaveTaskDisplayModeRequested: function(mode) {
             root.requestTaskDisplayModeChange(mode)
@@ -1279,6 +1287,11 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        taskActiveGlowEnabled: root.taskActiveGlowEnabled
+                        taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
+                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
+                        taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
                         activityColor: root.soActivityColor
                         activityStroke: root.soActivityStroke
@@ -1317,6 +1330,11 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        taskActiveGlowEnabled: root.taskActiveGlowEnabled
+                        taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
+                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
+                        taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
                         activityColor: root.soActivityColor
                         activityStroke: root.soActivityStroke
@@ -1725,6 +1743,11 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        taskActiveGlowEnabled: root.taskActiveGlowEnabled
+                        taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
+                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
+                        taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
                         activityColor: root.soActivityColor
                         activityStroke: root.soActivityStroke
@@ -1763,6 +1786,11 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        taskActiveGlowEnabled: root.taskActiveGlowEnabled
+                        taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
+                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
+                        taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
                         activityColor: root.soActivityColor
                         activityStroke: root.soActivityStroke
