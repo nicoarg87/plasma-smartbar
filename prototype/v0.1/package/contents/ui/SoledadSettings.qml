@@ -225,10 +225,12 @@ Window {
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
+    property string taskDisplayMode: "text"
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
     property real taskFrameWidth: 1
+    signal saveTaskDisplayModeRequested(string mode)
     signal saveTaskFrameRequested(string shape, string color, real opacity, real width)
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     readonly property string outlineTargetKey: ["soledad","malvina","tray","grip"][outlineTarget.currentIndex]
@@ -301,6 +303,7 @@ Window {
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
+        saveTaskDisplayModeRequested(taskDisplayMode)
         saveTaskFrameRequested(taskFrameShape, toHex(taskFrameColor),
                                taskFrameOpacity, taskFrameWidth)
         refreshOutlinePreview()
@@ -1620,6 +1623,26 @@ Window {
                             text: Math.round(settings.soledadGradientBreathingIntensity * 100) + "%"
                             color: "white"
                         }
+                    }
+                    QQC2.Label {
+                        text: "Cómo mostrar cada aplicación"
+                        color: "white"
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Solo nombre", "Icono y nombre", "Solo icono"]
+                        currentIndex: Math.max(0, ["text", "both", "icon"]
+                            .indexOf(settings.taskDisplayMode))
+                        onActivated: function(i) {
+                            settings.taskDisplayMode = ["text", "both", "icon"][i]
+                        }
+                    }
+                    QQC2.Label {
+                        text: "En Solo icono, al pasar el cursor aparece el nombre de la aplicación."
+                        visible: settings.taskDisplayMode === "icon"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
                     }
                     QQC2.Label {
                         text: "Fichas de aplicaciones abiertas en SO"
