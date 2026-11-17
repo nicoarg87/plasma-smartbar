@@ -24,13 +24,15 @@ Canvas {
     property bool glowGradient: true
     property real phase: 0
     property real pulsePhase: 0
+    property bool useExternalPulse: false
+    property real externalPulsePhase: 0
 
     // La política de mostrar con/sin ventanas la calcula IslandButton.
     readonly property bool enabledEffect: activeForState && effectStyle !== "off"
     readonly property bool orbiting: effectStyle === "orbit" || effectStyle === "orbitGlow"
     readonly property bool pulsing: effectStyle === "breathe"
     readonly property bool glows: effectStyle === "glow" || pulsing || effectStyle === "orbitGlow"
-    readonly property bool moving: enabledEffect && allowMotion && (orbiting || pulsing)
+    readonly property bool moving: enabledEffect && allowMotion && (orbiting || (pulsing && !useExternalPulse))
     visible: enabledEffect
     antialiasing: true
     renderTarget: Canvas.Image
@@ -105,6 +107,8 @@ Canvas {
     onGlowSpreadChanged: requestPaint()
     onPulseSpeedChanged: requestPaint()
     onPulseDepthChanged: requestPaint()
+    onUseExternalPulseChanged: requestPaint()
+    onExternalPulsePhaseChanged: if (useExternalPulse && pulsing) requestPaint()
     onGlowGradientChanged: requestPaint()
     onWidthChanged: requestPaint()
     onHeightChanged: requestPaint()
@@ -203,7 +207,7 @@ Canvas {
         const marginY = 11 + stroke / 2
         const depth = Math.max(0, Math.min(1, pulseDepth))
         const breathing = pulsing && allowMotion
-            ? (1 - depth) + depth * (0.5 - 0.5 * Math.cos(2 * Math.PI * pulsePhase))
+            ? (1 - depth) + depth * (0.5 - 0.5 * Math.cos(2 * Math.PI * (useExternalPulse ? externalPulsePhase : pulsePhase)))
             : 1
 
         ctx.save()
