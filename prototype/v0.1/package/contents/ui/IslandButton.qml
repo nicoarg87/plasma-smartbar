@@ -19,6 +19,10 @@ QQC2.Button {
     // Cada categoría puede reemplazarlo desde Apariencia.
     // Fichas de ventanas sin color independiente: muestran el fondo de Soledad.
     property bool inheritIslandFill: false
+    property string taskDisplayMode: "text" // text, both, icon
+    property var taskIconSource: ""
+    readonly property bool taskUsesIcon: inheritIslandFill && taskDisplayMode !== "text"
+    readonly property bool taskUsesText: !inheritIslandFill || taskDisplayMode !== "icon"
     property string taskFrameShape: "rounded" // rounded, square, none
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
@@ -81,7 +85,8 @@ QQC2.Button {
     implicitHeight: preferredButtonHeight > 0 ? preferredButtonHeight : 34
     implicitWidth: preferredButtonWidth > 0 ? preferredButtonWidth :
         (iconSource.toString().length > 0 ? 40 :
-         Math.max(40, label.implicitWidth + 18))
+         (inheritIslandFill && taskDisplayMode === "icon" ? 38 :
+          Math.max(40, label.implicitWidth + (taskUsesIcon ? 42 : 18))))
     // Evitar que el contenido temporal modifique el área útil del botón.
     padding: 0
     hoverEnabled: true
@@ -263,12 +268,33 @@ QQC2.Button {
             }
         }
 
+        Loader {
+            id: taskIconLoader
+            active: control.taskUsesIcon
+            anchors.left: parent.left
+            anchors.leftMargin: control.taskDisplayMode === "icon" ? 0 : 6
+            anchors.verticalCenter: parent.verticalCenter
+            width: control.taskDisplayMode === "icon" ? parent.width : 23
+            height: 23
+            sourceComponent: Component {
+                TaskAppIcon {
+                    width: taskIconLoader.width
+                    height: taskIconLoader.height
+                    iconSource: control.taskIconSource
+                }
+            }
+        }
+
         Text {
             id: label
             anchors.fill: parent
+            anchors.leftMargin: control.taskUsesIcon &&
+                control.taskDisplayMode === "both" ? 31 : 0
+            anchors.rightMargin: control.taskUsesIcon &&
+                control.taskDisplayMode === "both" ? 5 : 0
             text: control.text
             // Si la imagen no existe, nunca perder el control SO.
-            visible: !control.clockVisible &&
+            visible: control.taskUsesText && !control.clockVisible &&
                      (control.iconSource.toString().length === 0 ||
                       (iconLoader.item && iconLoader.item.loadError))
             color: control.customTextMode ? control.customTextColor :
