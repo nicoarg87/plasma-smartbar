@@ -114,7 +114,7 @@ Window {
         }
     }
 
-    property string demoTaskDisplayMode: "text"
+    property string demoTaskDisplayMode: "icon"
     property string demoTaskFrameShape: "rounded"
     property color demoTaskFrameColor: "#ffffff"
     property real demoTaskFrameOpacity: 0.12
