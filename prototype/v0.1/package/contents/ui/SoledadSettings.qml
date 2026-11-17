@@ -39,7 +39,7 @@ Window {
     property real soButtonWidth: 96
     property bool enableGif: true
     property string clockFontFamily: "Sans Serif"
-    property int clockFontSize: 16
+    property int clockFontSize: 11
     property color clockTextColor: "#ffffff"
     readonly property url selectedImage: logoMode === "text" ? "" :
         (logoMode === "custom" && filePath.length > 0 ? filePath : defaultImage)
@@ -485,7 +485,7 @@ Window {
                         font.bold: true
                     }
                     QQC2.Label {
-                        text: "Dejá el cursor brevemente sobre los seis puntos: SO muestra la hora y fecha durante tres segundos, sin desplazar la barra ni cambiar sus gestos."
+                        text: "Al posar el cursor brevemente sobre los seis puntos, la hora y fecha se superponen sobre el GIF de SO durante tres segundos. La imagen nunca desaparece ni se reinicia."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -550,10 +550,10 @@ Window {
                         }
                     }
                     QQC2.Button {
-                        text: "Restablecer tipografía y color de la hora"
+                        text: "Restablecer texto del reloj (11 px, blanco)"
                         onClicked: {
                             settings.clockFontFamily = "Sans Serif"
-                            settings.clockFontSize = 16
+                            settings.clockFontSize = 11
                             settings.clockTextColor = "#ffffff"
                         }
                     }
