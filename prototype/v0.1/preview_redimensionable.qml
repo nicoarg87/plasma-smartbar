@@ -52,7 +52,7 @@ Window {
     property real demoSoLogoRotation: 0
     property bool demoSoLogoAnimate: true
     property string demoSoClockFontFamily: "Sans Serif"
-    property int demoSoClockFontSize: 16
+    property int demoSoClockFontSize: 11
     property color demoSoClockTextColor: "#ffffff"
     property real demoPanelHeight: 48
     property real demoSoledadHeight: 44
