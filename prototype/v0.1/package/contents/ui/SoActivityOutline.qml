@@ -20,6 +20,7 @@ Canvas {
     property real glowIntensity: 0.7
     property real glowSpread: 5
     property real pulseSpeed: 0.6
+    property real pulseDepth: 0.7 // 0 sin variación, 1 fuerte contraste
     property bool glowGradient: true
     property real phase: 0
     property real pulsePhase: 0
@@ -34,14 +35,15 @@ Canvas {
     antialiasing: true
     renderTarget: Canvas.Image
 
-    function traceShape(ctx, margin) {
+    function traceShape(ctx, margin, marginY) {
         const w = width
         const h = height
         const minSize = Math.min(w, h)
+        const insetY = marginY === undefined ? margin : marginY
         const left = margin
-        const top = margin
+        const top = insetY
         const right = w - margin
-        const bottom = h - margin
+        const bottom = h - insetY
         ctx.beginPath()
         if (shape === "rounded") {
             const radius = Math.min(12, (bottom - top) / 3)
@@ -102,6 +104,7 @@ Canvas {
     onGlowIntensityChanged: requestPaint()
     onGlowSpreadChanged: requestPaint()
     onPulseSpeedChanged: requestPaint()
+    onPulseDepthChanged: requestPaint()
     onGlowGradientChanged: requestPaint()
     onWidthChanged: requestPaint()
     onHeightChanged: requestPaint()
@@ -193,9 +196,14 @@ Canvas {
         // IslandButton amplía este Canvas 8 px por lado. El contorno
         // queda alineado con el borde REAL de la imagen, no encogido
         // dentro de ella como ocurría con la versión anterior.
-        const margin = 8 + stroke / 2
+        // El logo real ocupa control.width-12 y control.height-6.
+        // Este Canvas mide control.width+16 y control.height+16:
+        // por eso requiere márgenes diferentes: 14 horizontal y 11 vertical.
+        const margin = 14 + stroke / 2
+        const marginY = 11 + stroke / 2
+        const depth = Math.max(0, Math.min(1, pulseDepth))
         const breathing = pulsing && allowMotion
-            ? 0.15 + 0.85 * (0.5 - 0.5 * Math.cos(2 * Math.PI * pulsePhase))
+            ? (1 - depth) + depth * (0.5 - 0.5 * Math.cos(2 * Math.PI * pulsePhase))
             : 1
 
         ctx.save()
@@ -218,7 +226,8 @@ Canvas {
                     : Qt.rgba(glowColor.r, glowColor.g, glowColor.b, alpha)
                 ctx.strokeStyle = selected
                 ctx.lineWidth = 1.8 + 1.7 * (1 - t)
-                traceShape(ctx, Math.max(0.8, haloMargin))
+                traceShape(ctx, Math.max(0.8, haloMargin),
+                           Math.max(0.8, marginY - spread * t))
                 ctx.stroke()
             }
         }
@@ -230,7 +239,7 @@ Canvas {
                                   glows ? 0.25 + intensity * breathing * 0.75 :
                                   orbiting ? 0.32 : 0.92)
         ctx.lineWidth = stroke
-        traceShape(ctx, margin)
+        traceShape(ctx, margin, marginY)
         ctx.stroke()
 
         if (orbiting && allowMotion) {
@@ -242,12 +251,12 @@ Canvas {
                 ctx.strokeStyle = Qt.rgba(glowColor.r, glowColor.g,
                                           glowColor.b, intensity * 0.65)
                 ctx.lineWidth = stroke + 3
-                traceShape(ctx, margin)
+                traceShape(ctx, margin, marginY)
                 ctx.stroke()
             }
             ctx.strokeStyle = accentColor
             ctx.lineWidth = Math.max(1, stroke)
-            traceShape(ctx, margin)
+            traceShape(ctx, margin, marginY)
             ctx.stroke()
             ctx.setLineDash([])
         }
