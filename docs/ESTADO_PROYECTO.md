@@ -655,3 +655,19 @@ Commits [91e8ff5](https://github.com/nicoarg87/plasma-smartbar/commit/91e8ff5834
 - `Sugerir tonos de la imagen (experimental)` mantiene muestreo local de píxeles y ahora informa el estado del análisis mediante texto visible; si obtiene colores suficientes, propone tanto contorno como dos tonos de isla. La detección por muestreo de una imagen/GIF todavía **no ha sido validada en CachyOS**: no asumir que identifica los colores ideales del GIF ni que funciona para todos los archivos. No se suben archivos ni capturas; si falla, los presets manuales siguen disponibles.
 
 **REVISIÓN ESTÁTICA:** sin error evidente de equilibrio de delimitadores ni reglas `visible` situadas fuera de componentes; no hay pruebas QML reales desde este entorno. **PENDIENTE**: comprobar que el selector, el muestreo de GIF y el botón de sugerencias realmente funcionan en CachyOS; verificar flujo `Contorno` → `Apariencia` → `Aplicar`, persistencia, restauración del favorito y continuidad del GIF. No se modificó panel KDE ni rama `main`. Seguimiento relacionado [issue #8](https://github.com/nicoarg87/plasma-smartbar/issues/8).
+
+
+## Fallo observado en modo centrado y arrastre de Soledad: corrección preventiva (17/11/2026)
+
+**OBSERVADO POR EL MANTENEDOR EN CACHYOS:** al configurar Soledad centrada y arrastrarla hacia la derecha, la isla queda anormalmente ancha («maximizada» visualmente) y cambia el orden histórico de los iconos. Se entregó una captura de pantalla en conversación **privada**; **no adjuntar, subir ni publicar la captura ni posibles datos personales**.
+
+**CAUSA ANALIZADA EN QML:** el modo centrado nuevo había introducido `LayoutMirroring.enabled` en `systemRow`, invirtiendo todos los iconos, y al comenzar el `DragHandler` se cambiaba el anclaje sin antes normalizar la expansión. Además el ancho de la isla colapsada podía depender de `systemRow.implicitWidth` residual.
+
+**CORREGIDO EN LA RAMA EXPERIMENTAL, SIN PRUEBA AÚN:** [commit c3a8930](https://github.com/nicoarg87/plasma-smartbar/commit/c3a8930c75ff158d8d712e4fac574252f3467e97).
+- Retirado `LayoutMirroring`; orden de izquierda a derecha nuevamente **bandeja, fichas, botón SO, agarre de 6 puntos** tanto en modo derecha como en centrado. La flecha vuelve a indicar la bandeja como antes.
+- En modo centro, si ambas expansiones están cerradas, `systemIsland.width` adopta explícitamente `centerBaseWidth`, calculado a partir de controles visibles y ancho mínimo; evita que conserve ancho ampliado al contraerse.
+- Al iniciar el arrastre, memoriza coordenada visible, cierra SO y bandeja, abandona el anclaje automático centrado, traduce posición a margen derecho y comienza el arrastre desde ese valor para evitar saltos.
+- Al alinear manualmente a la derecha, contrae ambas expansiones antes de cambiar anclaje.
+- Se preservan GIF, colores, degradado de derecha a izquierda, respiración, configuración favorita y panel KDE instalado. **No se restauran valores predeterminados de estética.**
+
+**RIESGO PENDIENTE:** con orden histórico fijo, en modo centro abrir fichas **desplaza SO hacia la derecha** desde el borde izquierdo centrado en el estado contraído; no es todavía una validación del ideal de mantener el botón exactamente centrado durante la expansión. Verificar comportamiento con 3/6 ventanas, bandeja simultánea, ventana angosta, maximizada simulada y movimientos del agarre de centro a derecha y viceversa. En caso de irregularidad, no fusionar variante centrada a main. **Revisado estáticamente**, no ejecutado en el CachyOS del mantenedor.
