@@ -17,13 +17,13 @@ Window {
     // Tamaño de referencia: el editor de logo es la pestaña más alta.
     // Si la pantalla es pequeña, las pestañas permiten desplazamiento.
     width: Screen.desktopAvailableWidth > 0
-        ? Math.min(750, Math.max(420, Screen.desktopAvailableWidth - 64)) : 750
+        ? Math.min(940, Math.max(560, Screen.desktopAvailableWidth - 64)) : 940
     height: Screen.desktopAvailableHeight > 0
         ? Math.min(850, Math.max(510, Screen.desktopAvailableHeight - 64)) : 850
-    minimumWidth: 420
+    minimumWidth: 560
     minimumHeight: 510
 
-    property alias currentTab: tabs.currentIndex
+    property int currentTab: 0
     property url defaultImage: ""
 
     // Valores de trabajo. Se copian desde SmartBarContent al abrir.
@@ -533,20 +533,57 @@ Window {
             Layout.fillWidth: true
         }
 
-        QQC2.TabBar {
-            id: tabs
-            Layout.fillWidth: true
-            QQC2.TabButton { text: "Islas y posición"; width: implicitWidth }
-            QQC2.TabButton { text: "Logo SO"; width: implicitWidth }
-            QQC2.TabButton { text: "Apariencia"; width: implicitWidth }
-            QQC2.TabButton { text: "Acerca de"; width: implicitWidth }
-        }
-
-        StackLayout {
-            id: pages
-            currentIndex: tabs.currentIndex
+        RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            spacing: 12
+            Rectangle {
+                Layout.preferredWidth: Math.min(190, Math.max(146, settings.width * 0.23))
+                Layout.fillHeight: true
+                radius: 10
+                color: "#292c3f"
+                border.width: 1
+                border.color: "#41475e"
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    spacing: 5
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Islas y posición"
+                        icon.name: "preferences-desktop"
+                        highlighted: settings.currentTab === 0
+                        onClicked: settings.currentTab = 0
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Logo SO"
+                        icon.name: "image-x-generic"
+                        highlighted: settings.currentTab === 1
+                        onClicked: settings.currentTab = 1
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Apariencia"
+                        icon.name: "preferences-desktop-theme"
+                        highlighted: settings.currentTab === 2
+                        onClicked: settings.currentTab = 2
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Acerca de"
+                        icon.name: "help-about"
+                        highlighted: settings.currentTab === 3
+                        onClicked: settings.currentTab = 3
+                    }
+                    Item { Layout.fillHeight: true }
+                }
+            }
+            StackLayout {
+                id: pages
+                currentIndex: settings.currentTab
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
             ColumnLayout {
                 Layout.fillWidth: true
@@ -2298,6 +2335,7 @@ Window {
                     }
 
                 }
+            }
             }
         }
 
