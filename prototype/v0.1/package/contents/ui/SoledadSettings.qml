@@ -230,6 +230,9 @@ Window {
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
+    property bool taskActiveGlowEnabled: true
+    property bool taskActiveDoubleBorderEnabled: false
+    signal saveTaskActiveIndicatorRequested(bool glowEnabled, bool doubleBorderEnabled)
     property string taskDisplayMode: "icon"
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
@@ -308,6 +311,8 @@ Window {
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
+        saveTaskActiveIndicatorRequested(taskActiveGlowEnabled,
+                                         taskActiveDoubleBorderEnabled)
         saveTaskDisplayModeRequested(taskDisplayMode)
         saveTaskFrameRequested(taskFrameShape, toHex(taskFrameColor),
                                taskFrameOpacity, taskFrameWidth)
@@ -2143,6 +2148,28 @@ Window {
                         font.bold: true
                         color: "white"
                     }
+                    QQC2.Label {
+                        text: "Indicador de aplicación activa"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.CheckBox {
+                        text: "Iluminar la aplicación activa con el efecto de SO"
+                        checked: settings.taskActiveGlowEnabled
+                        onToggled: settings.taskActiveGlowEnabled = checked
+                    }
+                    QQC2.CheckBox {
+                        text: "Marcar la aplicación activa con doble línea"
+                        checked: settings.taskActiveDoubleBorderEnabled
+                        onToggled: settings.taskActiveDoubleBorderEnabled = checked
+                    }
+                    QQC2.Label {
+                        text: "La luz usa el efecto del botón SO. La doble línea usa el color, grosor y transparencia del contorno de Soledad. Podés activar ambos, uno solo o ninguno."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+
                     QQC2.Label {
                         text: "Cómo mostrar cada aplicación"
                         color: "white"
