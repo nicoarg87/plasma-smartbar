@@ -556,3 +556,17 @@ Tras el registro inicial, la rama experimental incorpora además `OutlineStyle.q
 - Commits: [e0c7170](https://github.com/nicoarg87/plasma-smartbar/commit/e0c71701f4cbbf7a7828eb74dcd4ed3ed71be638), [bf0a628](https://github.com/nicoarg87/plasma-smartbar/commit/bf0a628edce9f68df93026664303e9973f732444), [33eed22](https://github.com/nicoarg87/plasma-smartbar/commit/33eed22db5167ec12533dafdf99c05e75c9b3900), [be40337](https://github.com/nicoarg87/plasma-smartbar/commit/be40337e9385e4db5c3161f6025f2a95af4f7a0d), [2f56689](https://github.com/nicoarg87/plasma-smartbar/commit/2f566899a12067fc20abf1c870a9136b78f5b525), [ce65708](https://github.com/nicoarg87/plasma-smartbar/commit/ce657080dc3054d2588256c4c1349815a0d8e3e6), [4f524e2](https://github.com/nicoarg87/plasma-smartbar/commit/4f524e22765ec8a1ebbc457082822c04e0ddeb6c).
 - **REVISADO ESTÁTICAMENTE** el equilibrio básico de delimitadores y conexiones de los archivos. **PENDIENTE:** ejecutar Qt/QML en CachyOS, comparar brillo/pulsación, comprobar desactivación real del temporizador, efecto visual del degradado en cápsula GIF, persistencia local tras relanzar y uso de CPU. Si QML informa errores, conservar la salida. No instalar/reemplazar panel.
 - Seguimiento: [issue #7](https://github.com/nicoarg87/plasma-smartbar/issues/7).
+
+
+### Revisión tras captura de prueba: resplandor poco distinguible (17/11/2026)
+
+**OBSERVADO POR EL MANTENEDOR:** captura real de pestaña Contorno con `Luz móvil con resplandor` activada; el borde sigue viéndose principalmente como la luz celeste anterior y el nuevo efecto no es perceptiblemente diferente. El usuario comunica que «hace básicamente lo mismo». **No se considera aprobada la visualización ni probado el nuevo halo.**
+
+**DIAGNÓSTICO ESTÁTICO:** `SoActivityOutline.qml` dibujaba las capas hacia dentro de un `Canvas` casi del mismo tamaño del botón, con alpha exterior demasiado bajo. Además, la muestra de SO era pequeña, y la opción principal conservaba color celeste; el segundo color se encuentra más abajo en pestaña desplazable.
+
+**CAMBIOS EXPERIMENTALES (PENDIENTES DE RETEST):**
+- [c3367d1](https://github.com/nicoarg87/plasma-smartbar/commit/c3367d17d27cd8a8bd92c191a251c7241354e9b8): el Canvas del contorno se expande 8 píxeles por lado sin afectar dimensiones del botón, isla ni GIF.
+- [fa60be9](https://github.com/nicoarg87/plasma-smartbar/commit/fa60be97b0fbd2699e0faa3b6bf180aa74df7f56): nuevo halo exterior en nueve capas con atenuación progresiva, mezcla interpolada de colores y estela móvil iluminada; base alineada al borde real del botón.
+- [ac7e463](https://github.com/nicoarg87/plasma-smartbar/commit/ac7e4635731f5d04d8c64fb71abbca960fba95db): vista previa escalada solo visualmente ×1,45, texto de navegación a los controles y distinción entre color interior y exterior.
+
+**REVISADO ESTÁTICAMENTE:** equilibrio de llaves/paréntesis del QML afectado. **PENDIENTE DE CACHYOS/Qt:** comprobar que el halo se vea exterior en cápsula, que `breathe` realmente pulse, que los dos colores se distingan, que el temporizador no consuma recursos apagado, que no reaparezca el bug del GIF y que la configuración/persistencia mantengan valores previos. No modificar panel KDE.
