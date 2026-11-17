@@ -56,6 +56,14 @@ PlasmoidItem {
         soLogoPanY: Plasmoid.configuration.soLogoPanY
         soLogoRotation: Plasmoid.configuration.soLogoRotation
         soLogoAnimate: Plasmoid.configuration.soLogoAnimate
+        soClockFontFamily: Plasmoid.configuration.soClockFontFamily
+        soClockFontSize: Plasmoid.configuration.soClockFontSize
+        soClockTextColor: Plasmoid.configuration.soClockTextColor
+        onRequestSoClockAppearanceChange: function(family, size, color) {
+            Plasmoid.configuration.soClockFontFamily = family
+            Plasmoid.configuration.soClockFontSize = size
+            Plasmoid.configuration.soClockTextColor = color
+        }
         soledadColor: Plasmoid.configuration.soledadColor
         malvinaColor: Plasmoid.configuration.malvinaColor
         backgroundColor: Plasmoid.configuration.backgroundColor
