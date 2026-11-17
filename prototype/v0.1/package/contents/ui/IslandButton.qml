@@ -45,6 +45,11 @@ QQC2.Button {
     property real activityOrbitSpeed: 1.0
     property int activityTrailPercent: 22
     property string activityTrailStyle: "solid"
+    property color activityGlowColor: "#ffab52"
+    property real activityGlowIntensity: 0.7
+    property real activityGlowSpread: 5
+    property real activityPulseSpeed: 0.6
+    property bool activityGlowGradient: true
     // Presentación temporal de hora y fecha dentro de SO, sin popup ni
     // cambios de tamaño y sin interceptar gestos de ratón.
     property bool clockVisible: false
@@ -156,6 +161,11 @@ QQC2.Button {
                     orbitSpeed: control.activityOrbitSpeed
                     trailPercent: control.activityTrailPercent
                     trailStyle: control.activityTrailStyle
+                    glowColor: control.activityGlowColor
+                    glowIntensity: control.activityGlowIntensity
+                    glowSpread: control.activityGlowSpread
+                    pulseSpeed: control.activityPulseSpeed
+                    glowGradient: control.activityGlowGradient
                     activeForState: control.activityActiveForState
                 }
             }
