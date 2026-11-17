@@ -50,6 +50,12 @@ Window {
 
     property color soledadColor: "#010111"
     property color malvinaColor: "#101e31"
+    property bool soledadGradientEnabled: false
+    property color soledadGradientEnd: "#ee9852"
+    property string soledadGradientDirection: "topBottom"
+    property bool malvinaGradientEnabled: false
+    property color malvinaGradientEnd: "#445577"
+    property string malvinaGradientDirection: "topBottom"
     property color backgroundColor: "#202333"
     property real soledadOpacity: 0.5
     property real malvinaOpacity: 1
@@ -141,6 +147,8 @@ Window {
         outlineConfig = next
     }
     signal saveOutlineRequested(var updated)
+    signal saveIslandGradientRequested(bool soEnabled, string soEnd, string soDirection,
+                                       bool malEnabled, string malEnd, string malDirection)
 
     signal saveClockAppearanceRequested(string family, int size,
                                         string textColor)
@@ -195,6 +203,9 @@ Window {
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
+        saveIslandGradientRequested(soledadGradientEnabled, toHex(soledadGradientEnd),
+                                   soledadGradientDirection, malvinaGradientEnabled,
+                                   toHex(malvinaGradientEnd), malvinaGradientDirection)
         saveClockAppearanceRequested(clockFontFamily, clockFontSize,
                                      toHex(clockTextColor))
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
@@ -251,6 +262,15 @@ Window {
                 settings.trayButtonColor = selectedColor
             else if (editingTarget === 4 && settings.gripButtonColorOverride)
                 settings.gripButtonColor = selectedColor
+        }
+    }
+    ColorDialog {
+        id: islandGradientEndDialog
+        title: "Segundo color del degradado"
+        property int target: 0
+        onAccepted: {
+            if (target === 0) settings.soledadGradientEnd = selectedColor
+            else settings.malvinaGradientEnd = selectedColor
         }
     }
     ColorDialog {
@@ -1015,6 +1035,67 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        text: "Degradado de dos colores por isla"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.Label {
+                        text: "Soledad y Malvina conservan sus colores uniformes mientras el degradado está desactivado. Los botones transparentes dejan ver el degradado cuando está activo."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.ComboBox {
+                        id: gradientTarget
+                        Layout.fillWidth: true
+                        model: ["Soledad (isla 1)", "Malvina (isla 2)"]
+                    }
+                    QQC2.CheckBox {
+                        text: "Activar degradado de la isla seleccionada"
+                        checked: gradientTarget.currentIndex === 0
+                            ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled
+                        onToggled: {
+                            if (gradientTarget.currentIndex === 0)
+                                settings.soledadGradientEnabled = checked
+                            else settings.malvinaGradientEnabled = checked
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "Segundo color…"
+                            onClicked: {
+                                islandGradientEndDialog.target = gradientTarget.currentIndex
+                                islandGradientEndDialog.selectedColor =
+                                    gradientTarget.currentIndex === 0
+                                    ? settings.soledadGradientEnd : settings.malvinaGradientEnd
+                                islandGradientEndDialog.open()
+                            }
+                        }
+                        Rectangle {
+                            width: 36; height: 24; radius: 5
+                            color: gradientTarget.currentIndex === 0
+                                ? settings.soledadGradientEnd : settings.malvinaGradientEnd
+                        }
+                    }
+                    QQC2.Label { text: "Dirección del degradado"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Arriba → abajo", "Abajo → arriba",
+                                "Izquierda → derecha", "Derecha → izquierda"]
+                        currentIndex: Math.max(0,
+                            ["topBottom","bottomTop","leftRight","rightLeft"].indexOf(
+                                gradientTarget.currentIndex === 0
+                                    ? settings.soledadGradientDirection
+                                    : settings.malvinaGradientDirection))
+                        onActivated: function(i) {
+                            const d = ["topBottom","bottomTop","leftRight","rightLeft"][i]
+                            if (gradientTarget.currentIndex === 0)
+                                settings.soledadGradientDirection = d
+                            else settings.malvinaGradientDirection = d
+                        }
+                    }
+                    QQC2.Label {
                         text: "Contorno de islas y botones"
                         font.bold: true
                         color: "white"
@@ -1097,6 +1178,12 @@ Window {
                         onClicked: {
                             settings.soledadColor = "#010111"
                             settings.malvinaColor = "#101e31"
+                            settings.soledadGradientEnabled = false
+                            settings.soledadGradientEnd = "#ee9852"
+                            settings.soledadGradientDirection = "topBottom"
+                            settings.malvinaGradientEnabled = false
+                            settings.malvinaGradientEnd = "#445577"
+                            settings.malvinaGradientDirection = "topBottom"
                             settings.backgroundColor = "#202333"
                             settings.soledadOpacity = 0.5
                             settings.malvinaOpacity = 1
