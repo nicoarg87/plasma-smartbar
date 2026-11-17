@@ -1,7 +1,7 @@
 # Estado actual de Plasma SmartBar Islands
 
-**Fecha de corte:** 16 de noviembre de 2026  
-**Estado general:** prototipo visual v0.1 de Plasma SmartBar **ejecutado en CachyOS con interacciones básicas comprobadas** (SO/bandeja, arrastre de isla 1, menú del agarre). Sigue en rama experimental, sin conexión a ventanas reales ni fusión a main; la anomalía de recarga del visor continúa sin diagnosticar. **No existe todavía una barra instalable y validada para uso diario.**
+**Fecha de corte:** 17 de noviembre de 2026  
+**Estado general:** prototipo visual v0.1 de Plasma SmartBar Islands **ejecutado en CachyOS con interacciones básicas comprobadas** (SO/bandeja, arrastre de isla 1, menú del agarre). **El diagnóstico independiente ya lee ventanas reales de KDE y se actualiza al abrirlas/cerrarlas (prueba positiva del 17/11/2026); SO de la barra todavía utiliza fichas simuladas.** Sigue en rama experimental y PR #3 en borrador, sin fusión a main; la anomalía de recarga del visor continúa sin diagnosticar. **No existe todavía una barra instalable y validada para uso diario.**
 
 ## Realmente completado
 
@@ -453,3 +453,12 @@ Actualizar cuando cambie algún hito: fecha, decisión confirmada, qué cambió 
 **IMPLEMENTADO, NO PROBADO TODAVÍA EN CACHYOS:** [commit 486db01](https://github.com/nicoarg87/plasma-smartbar/commit/486db01dc1930129d96c1b8cbd79878df477b3a1) sustituye las siete declaraciones inválidas por `required property var model` y propiedades locales con minúscula (`appName`, `isActive`, etc.) que leen `model.AppName`, `model.IsActive`, etc. Este patrón se corresponde con la documentación de Qt 6 para roles de modelos dentro de delegados. Revisión estática: nombres, enlaces y llaves de QML coherentes; el entorno de esta sesión **no tiene Qt gráfico**, así que falta retest ejecutable en CachyOS.
 
 **SIGUIENTE PRUEBA:** `cd ~/plasma-smartbar; git pull --ff-only; bash prototype/v0.1/probar_ventanas.sh`. Abrir y cerrar Dolphin/Konsole para ver si cambian las filas, y registrar el resultado exacto en el [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1). Mantener **solo lectura** y no reemplazar ningún panel.
+
+
+## Hito probado: modelo de ventanas reales KDE funcionando en CachyOS (17/11/2026)
+
+**PROBADO POR EL MANTENEDOR DESPUÉS DEL PARCHE [486db01](https://github.com/nicoarg87/plasma-smartbar/commit/486db01dc1930129d96c1b8cbd79878df477b3a1):** el comando `bash prototype/v0.1/probar_ventanas.sh` abrió correctamente la aplicación QML independiente **«Plasma SmartBar Islands — ventanas reales (solo lectura)»** en CachyOS/KDE Plasma 6. Captura y confirmación explícita recibidas en la conversación del 17/11: **3 elementos** detectados, **Alacritty (Normal), Brave (Maximizada), qml6 (Activa)**. Al abrir o cerrar aplicaciones, el mantenedor confirma que **aparecen y desaparecen automáticamente** en la lista. Esto acredita importación de `org.kde.taskmanager`, uso del `TaskManager.TasksModel` y lectura reactiva de nombres/estados en el equipo de prueba; la agrupación está configurada `GroupApplications`, pero **no se probó aún el caso de varias ventanas de una misma aplicación**.
+
+**LÍMITE DE LA VALIDACIÓN:** solo se leyó información de tareas reales; **SO de `SmartBarContent.qml` sigue con fichas ficticias**, y todavía no se probó activar/minimizar/cerrar ventanas desde SmartBar, estado fullscreen/oclusiones de aplicaciones ajenas, focos, multi-monitor, empaquetado o panel instalado. El visor de diagnóstico permanece de **solo lectura**, sin afectar el panel CachyOS.
+
+**PRÓXIMO HITO TÉCNICO:** conectar `TaskManager.TasksModel` con el listado SO de la **vista experimental** primero en modo solo lectura, dejando sin acciones las fichas. Verificar crecimiento horizontal en una sola fila hacia la izquierda, agrupación por aplicación, estabilidad del agarre y controles, y ausencia de desplazamiento de ventanas/pestañas antes de permitir activar aplicaciones. Mantener el [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1) y el [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) abiertos para seguimiento.
