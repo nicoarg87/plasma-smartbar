@@ -212,3 +212,11 @@ La prueba aislada `probar_ventanas.sh` ya está **PROBADA** en CachyOS por el ma
 ## 19. Reloj del SO SIN ocultar/reiniciar el GIF: corrección solicitada (17/11/2026)
 
 **DECISIÓN POSTERIOR VIGENTE**: el reloj debe ser **pequeño y transparente encima del GIF**, no un panel opaco que reemplaza la imagen. Motivo: el mantenedor vio que al aparecer fecha/hora grandes, SO perdía la foto y luego reaparecía, lo cual es un bug. `IslandButton.qml` quitó `!clockVisible` del `iconLoader.active`, sustituyó `Rectangle` opaco por `Item` transparente, usa letras con `Text.Outline` y `Text.Fit` con espacio limitado. El GIF permanece activo todo el tiempo; solo aparecen/desaparecen los números al hover de 180 ms en seis puntos durante 3 s. Nueva fuente inicial Sans Serif, tamaño **11 px** en vez de 16, texto blanco personalizable en Logo SO. Cambios sincronizados en SmartBarContent, SoledadSettings/Restablecer, preview_redimensionable y KConfig. Los valores viejos guardados por usuarios no se sobrescriben automáticamente. **IMPLEMENTADO EN RAMA v0.1, PENDIENTE DE EJECUCIÓN CACHYOS**. El panel instalado sigue intacto.
+
+## 20. Modularidad y seguridad aprobadas, primer corte de Malvina (17/11/2026)
+
+**Fuente rectora nueva:** [Arquitectura modular](ARQUITECTURA_MODULAR.md). Mantenedor aprobo separar Soledad, Malvina, coordinador, adaptadores KDE, preferencias y politicas; interfaces por senales y propiedades; permisos minimos, calidad y testeo por etapas. No alterar requisitos aprobados.
+
+**Codigo en rama experimental:** `MalvinaUrlPolicy.js` (HTTPS y `{query}`), `MalvinaSearch.qml` delega, `closeSearch()` resuelve la llamada de `MalvinaIsland.qml`. El formulario `MalvinaProvidersPage.qml` sigue separado visualmente pero acoplado al `settingsTarget` global; separar despues de pruebas.
+
+**Pendiente prioritario:** `cd ~/plasma-smartbar; git switch prototype/v0.1-islas-so; git pull --ff-only; bash prototype/v0.1/probar_ancho.sh`; verificar Malvina, URLs web/IA y cierre. No se ejecuto Qt/CachyOS tras los commits. Luego dividir `SmartBarContent.qml` y `SoledadSettings.qml` en pasos reversibles y probados. Nunca reemplazar panel instalado para estas pruebas.
