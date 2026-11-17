@@ -313,6 +313,25 @@ Item {
     // Indica la selección manual de «Alinear a la derecha», independiente
     // de la preferencia de retorno al desmaximizar.
     property bool alignRightSelected: true
+    // Variante opcional. El modo tradicional conserva expansión a izquierda.
+    property string positionMode: "right" // right, center
+    property bool centeredPositionDragged: false
+    readonly property bool centeredPresentation:
+        positionMode === "center" && !centeredPositionDragged
+    // El centro se calcula con la isla CONTRAÍDA: al abrir SO la
+    // esquina izquierda permanece fija y las fichas crecen a derecha.
+    readonly property real centerBaseWidth: Math.max(soledadMinWidth,
+        12 + trayToggle.implicitWidth + soButton.implicitWidth +
+        moveGrip.implicitWidth + systemRow.spacing * 2)
+    signal requestPositionModeChange(string mode)
+    onPositionModeChanged: {
+        centeredPositionDragged = false
+        if (positionMode === "center") {
+            soExpanded = false
+            trayExpanded = false
+            alignRightSelected = false
+        }
+    }
     property real islandOffset: 0          // Distancia horizontal desde la derecha.
     property real offsetAtDragStart: 0
     property string lastDemoSelection: ""
@@ -349,9 +368,19 @@ Item {
     }
 
     function alignRightNow() {
+        if (positionMode !== "right") requestPositionModeChange("right")
+        centeredPositionDragged = false
         setIslandOffset(0)
         alignRightSelected = true
         console.log("SmartBar v0.1: isla 1 alineada a la derecha")
+    }
+
+    function alignCenterNow() {
+        if (positionMode !== "center") requestPositionModeChange("center")
+        centeredPositionDragged = false
+        soExpanded = false
+        trayExpanded = false
+        alignRightSelected = false
     }
 
     function setPreviewMaximized(value) {
@@ -367,7 +396,10 @@ Item {
         const nextReservation = value ? windowControls.width + 6 : 0
         previewMaximized = value
 
-        if (value) {
+        if (root.centeredPresentation) {
+            // El centro permanece centrado; controles maximizados
+            // continúan anclados al extremo derecho.
+        } else if (value) {
             if (wasAligned) {
                 // «Alinear a la derecha» seleccionada: ubicar SO al lado
                 // de los controles fijos, tal como indica esa opción.
@@ -380,7 +412,8 @@ Item {
             }
         } else if (root.autoReturnRight) {
             // Retorno al DESMAXIMIZAR, si la preferencia está habilitada.
-            alignRightNow()
+            if (root.positionMode === "center") alignCenterNow()
+            else alignRightNow()
         } else {
             // Retorno desactivado: conservar la posición visual al quitar
             // los controles (inverso exacto del caso de maximización).
@@ -610,6 +643,7 @@ Item {
             soledadSettings.launcherIslandVisible = root.launcherIslandVisible
             soledadSettings.autoHideMalvina = root.autoHideMalvina
             soledadSettings.alignedRight = root.alignRightSelected
+            soledadSettings.positionMode = root.positionMode
             soledadSettings.alignmentEdited = false
             soledadSettings.currentTab = tabIndex
             soledadSettings.refreshOutlinePreview()
@@ -693,6 +727,11 @@ Item {
                 else root.alignRightSelected = false
             }
         }
+        onSavePositionModeRequested: function(mode) {
+            if (mode === "center") root.alignCenterNow()
+            else root.alignRightNow()
+        }
+        onAlignCenterNowRequested: root.alignCenterNow()
         onAlignNowRequested: root.alignRightNow()
     }
 
@@ -1043,10 +1082,14 @@ Item {
                 bottomLeft: systemIsland.bottomLeftRadius
                 bottomRight: systemIsland.bottomRightRadius
             }
-            anchors.right: parent.right
+            anchors.right: root.centeredPresentation ? undefined : parent.right
+            anchors.left: root.centeredPresentation ? parent.left : undefined
+            anchors.leftMargin: root.centeredPresentation
+                ? Math.max(0, (root.width - root.centerBaseWidth) / 2) : 0
             // Los controles de ventana quedan en el extremo derecho INMÓVILES.
             // La isla 1 se arrastra solo a la izquierda del espacio reservado.
-            anchors.rightMargin: root.islandOffset + root.controlsReservation
+            anchors.rightMargin: root.centeredPresentation ? 0 :
+                root.islandOffset + root.controlsReservation
             anchors.verticalCenter: parent.verticalCenter
 
             // Punta triangular opcional. Solo se pinta cuando cambia algo,
@@ -1106,11 +1149,14 @@ Item {
             Row {
                 id: systemRow
                 spacing: 4
+                LayoutMirroring.enabled: root.centeredPresentation
+                LayoutMirroring.childrenInherit: false
                 anchors.verticalCenter: parent.verticalCenter
                 x: (parent.width - width) / 2 +
                     (root.soledadShape === "leftTip" ? 12 : 0)
 
                 IslandButton {
+                    id: trayToggle
                     text: root.trayExpanded ? "▶" : "◀"
                     frameShape: root.trayButtonShape
                     useTileColor: true
@@ -1425,7 +1471,10 @@ Item {
                                 if (gripMenu.visible) gripMenu.close()
                                 // Tomar el margen actual justo al iniciar
                                 // el gesto; no volver a una posición antigua.
-                                root.offsetAtDragStart = root.islandOffset
+                                root.offsetAtDragStart = root.centeredPresentation
+                                    ? Math.max(0, root.width - systemIsland.x -
+                                               systemIsland.width - root.controlsReservation)
+                                    : root.islandOffset
                             }
                             // Al soltar la isla, mantenerla donde el usuario
                             // la dejó; NO aplicar aquí el retorno automático.
@@ -1436,6 +1485,8 @@ Item {
                                 // «Alinear a la derecha» sin tocar el retorno
                                 // automático al desmaximizar.
                                 root.alignRightSelected = false
+                                if (root.centeredPresentation)
+                                    root.centeredPositionDragged = true
                                 root.setIslandOffset(
                                     root.offsetAtDragStart - activeTranslation.x
                                 )
