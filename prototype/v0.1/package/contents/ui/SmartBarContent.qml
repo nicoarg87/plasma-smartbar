@@ -23,11 +23,22 @@ Item {
     property string malvinaShape: "rounded"
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
+    property string taskDisplayMode: "text" // text, both, icon
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
     property real taskFrameWidth: 1
+    signal requestTaskDisplayModeChange(string mode)
     signal requestTaskFrameChange(string shape, string color, real opacity, real width)
+    function demoIconForApp(name) {
+        const label = String(name).toLowerCase()
+        if (label.includes("brave")) return "brave-browser"
+        if (label.includes("dolphin")) return "system-file-manager"
+        if (label.includes("konsole")) return "utilities-terminal"
+        if (label.includes("plasma")) return "plasma"
+        if (label.includes("qt")) return "qtcreator"
+        return "application-x-executable"
+    }
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     signal requestOutlineChange(var updated)
     signal requestIslandGradientChange(bool soEnabled, string soEnd, string soDirection,
@@ -623,6 +634,7 @@ Item {
             soledadSettings.soledadShape = root.soledadShape
             soledadSettings.malvinaShape = root.malvinaShape
             soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
+            soledadSettings.taskDisplayMode = root.taskDisplayMode
             soledadSettings.taskFrameShape = root.taskFrameShape
             soledadSettings.taskFrameColor = root.taskFrameColor
             soledadSettings.taskFrameOpacity = root.taskFrameOpacity
@@ -718,6 +730,9 @@ Item {
         }
         onSaveIslandGradientRequested: function(a, b, c, d, e, f) {
             root.requestIslandGradientChange(a, b, c, d, e, f)
+        }
+        onSaveTaskDisplayModeRequested: function(mode) {
+            root.requestTaskDisplayModeChange(mode)
         }
         onSaveTaskFrameRequested: function(shape, color, opacity, width) {
             root.requestTaskFrameChange(shape, color, opacity, width)
@@ -1259,11 +1274,13 @@ Item {
                         // El propio relleno de la isla aparece debajo:
                         // no añadir otra cápsula azul sobre el degradado.
                         inheritIslandFill: true
+                        taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
+                        taskIconSource: root.demoIconForApp(modelData)
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1281,12 +1298,14 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
+                        taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
                         required property var model
+                        taskIconSource: model.decoration || root.demoIconForApp(appName)
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
                         readonly property bool isGrouped: model.IsGroupParent === true
@@ -1673,11 +1692,13 @@ Item {
                         // El propio relleno de la isla aparece debajo:
                         // no añadir otra cápsula azul sobre el degradado.
                         inheritIslandFill: true
+                        taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
+                        taskIconSource: root.demoIconForApp(modelData)
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1695,12 +1716,14 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
+                        taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         frameShape: "task"
                         required property var model
+                        taskIconSource: model.decoration || root.demoIconForApp(appName)
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
                         readonly property bool isGrouped: model.IsGroupParent === true
