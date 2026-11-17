@@ -39,6 +39,12 @@ PlasmoidItem {
 
         // La configuración de Plasma se mantiene en el envoltorio;
         // SmartBarContent no depende de Plasmoid y es reutilizable.
+        taskActiveGlowEnabled: Plasmoid.configuration.taskActiveGlowEnabled
+        taskActiveDoubleBorderEnabled: Plasmoid.configuration.taskActiveDoubleBorderEnabled
+        onRequestTaskActiveIndicatorChange: function(glowEnabled, doubleBorderEnabled) {
+            Plasmoid.configuration.taskActiveGlowEnabled = glowEnabled
+            Plasmoid.configuration.taskActiveDoubleBorderEnabled = doubleBorderEnabled
+        }
         taskDisplayMode: Plasmoid.configuration.taskDisplayMode
         onRequestTaskDisplayModeChange: function(mode) {
             Plasmoid.configuration.taskDisplayMode = mode
