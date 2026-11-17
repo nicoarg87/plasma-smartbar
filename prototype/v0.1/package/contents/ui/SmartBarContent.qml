@@ -1617,10 +1617,12 @@ Item {
                             checked: root.previewFullscreen
                             onTriggered: root.previewFullscreen = !root.previewFullscreen
                         }
+                        // Atajo contextual del agarre: respeta la preferencia
+                        // elegida en Islas y posición, sin cambiar de modo.
                         QQC2.MenuItem {
                             text: root.positionMode === "center"
-                                ? "Volver al centro configurado"
-                                : "Volver a la derecha configurada"
+                                ? "Centrar isla 1 ahora"
+                                : "Alinear isla 1 a la derecha ahora"
                             onTriggered: root.returnToConfiguredPosition()
                         }
                         QQC2.MenuItem {
