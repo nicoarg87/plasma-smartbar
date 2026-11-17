@@ -21,7 +21,7 @@ Item {
     property real malvinaWidth: 52
     property string soledadShape: "leftRoundRightSquare"
     property string malvinaShape: "rounded"
-    property string gripShape: "square"
+    property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
     property string soButtonFrameShape: "capsule"
@@ -1048,7 +1048,7 @@ Item {
                         }
                     }
                     background: Rectangle {
-                        radius: root.gripShape === "square" ? 0 : 17
+                        radius: root.gripShape === "square" ? 0 : 8
                         color: Qt.rgba(root.effectiveGripButtonColor.r,
                                        root.effectiveGripButtonColor.g,
                                        root.effectiveGripButtonColor.b,
