@@ -128,6 +128,31 @@ Window {
     property bool showOutlineWhenEmpty: true
     property bool showOutlineWhenOpen: false
     property bool simulateHasWindows: false
+    // Sugerencias del editor, nunca se aplican a la barra sin pulsar Aplicar.
+    property color suggestedIslandBase: "#e9c58b"
+    property color suggestedIslandEnd: "#ad623f"
+    property bool hasSuggestedPalette: false
+    property string suggestedPaletteName: ""
+    property string paletteFeedback: "Elegí una paleta o analizá tu imagen; nada cambia en la barra hasta pulsar Aplicar."
+    function chooseCoordinatedPalette(name, contour, outer, islandBase, islandEnd) {
+        accentColor = contour
+        glowColor = outer
+        glowGradient = true
+        suggestedIslandBase = islandBase
+        suggestedIslandEnd = islandEnd
+        suggestedPaletteName = name
+        hasSuggestedPalette = true
+        paletteFeedback = "Sugerencia «" + name + "» lista. Contorno pendiente de Aplicar; " +
+                          "en Apariencia podés pasar estos tonos también al degradado de Soledad."
+    }
+    function putSuggestedPaletteOnSoledad() {
+        if (!hasSuggestedPalette) return
+        soledadColor = suggestedIslandBase
+        soledadGradientEnd = suggestedIslandEnd
+        soledadGradientEnabled = true
+        // Conservar dirección elegida (por ejemplo, derecha a izquierda).
+        paletteFeedback = "Tonos propuestos para Soledad. Pulsá Aplicar para confirmarlos."
+    }
     // Copia de los valores realmente aplicados: nunca seguir ediciones pendientes.
     property var appliedOutlinePreview: ({})
     function refreshOutlinePreview() {
@@ -371,11 +396,19 @@ Window {
         opacity: 0
         property string requestedUrl: ""
         property bool pending: false
+        property string previousUrl: ""
         onImageLoaded: if (pending) requestPaint()
         function suggestFromImage() {
-            if (settings.logoMode === "text") return
+            if (settings.logoMode === "text") {
+                settings.paletteFeedback = "El modo texto no tiene imagen principal para analizar."
+                return
+            }
             requestedUrl = settings.selectedImage.toString()
-            if (requestedUrl.length === 0) return
+            if (requestedUrl.length === 0) {
+                settings.paletteFeedback = "No hay imagen para analizar."
+                return
+            }
+            settings.paletteFeedback = "Analizando una muestra local de la imagen…"
             pending = true
             if (isImageLoaded(requestedUrl)) requestPaint()
             else loadImage(requestedUrl)
@@ -414,14 +447,21 @@ Window {
                 }
                 if (count > 0 && bins[winner] > 0) {
                     const hue = hues[winner]/bins[winner]
-                    settings.accentColor = Qt.hsva(hue,0.72,1.0,1)
-                    settings.glowColor = Qt.hsva((hue+0.055)%1,0.82,0.9,1)
-                    settings.glowGradient = true
-                    console.log("SmartBar: paleta estimada localmente; pulsar Aplicar para confirmarla")
+                    // Tres variantes relacionadas por luminosidad/saturación,
+                    // sin asumir que la imagen completa tiene un único tono.
+                    settings.chooseCoordinatedPalette("imagen seleccionada (aproximación)",
+                        Qt.hsva(hue,0.60,1.0,1),
+                        Qt.hsva((hue+0.045)%1,0.85,0.92,1),
+                        Qt.hsva(hue,0.32,0.93,1),
+                        Qt.hsva((hue+0.035)%1,0.62,0.60,1))
+                    settings.paletteFeedback = "Se analizó una muestra de la imagen. Revisá la sugerencia en Apariencia; no se aplicó todavía."
+                    console.log("SmartBar: paleta local estimada; confirmar con Aplicar")
                 } else {
+                    settings.paletteFeedback = "No se detectaron colores dominantes suficientes. Probá una paleta manual."
                     console.warn("SmartBar: imagen sin colores dominantes detectables")
                 }
             } catch (e) {
+                settings.paletteFeedback = "No fue posible analizar este archivo. Elegí una paleta manual."
                 console.warn("SmartBar: muestreo no disponible; usar paleta manual:",e)
             }
         }
@@ -1196,15 +1236,17 @@ Window {
                                 "Océano azul y celeste", "Bosque verde",
                                 "Lavanda y violeta", "Neutro blanco y gris"]
                         onActivated: function(i) {
-                            const pairs = [
-                                ["",""], ["#ffd27a","#ff963c"], ["#75d7ff","#2563cf"],
-                                ["#a3e78d","#2e9564"], ["#d5b4ff","#734cae"],
-                                ["#f8f8f6","#848e9d"]
+                            const palettes = [
+                                null,
+                                ["Atardecer", "#ffd27a", "#ff963c", "#e9c58b", "#ad623f"],
+                                ["Océano", "#75d7ff", "#2563cf", "#a0d5e4", "#275d91"],
+                                ["Bosque", "#a3e78d", "#2e9564", "#b1d0a0", "#38734d"],
+                                ["Lavanda", "#d5b4ff", "#734cae", "#dfc8ec", "#694c91"],
+                                ["Neutro", "#f8f8f6", "#848e9d", "#e7e2db", "#58616b"]
                             ]
                             if (i > 0) {
-                                settings.accentColor = pairs[i][0]
-                                settings.glowColor = pairs[i][1]
-                                settings.glowGradient = true
+                                const p = palettes[i]
+                                settings.chooseCoordinatedPalette(p[0],p[1],p[2],p[3],p[4])
                             }
                         }
                     }
@@ -1217,18 +1259,10 @@ Window {
                     }
                     QQC2.Label {
                         visible: settings.outlineUsesGlow
-                        text: "Las paletas son sugerencias. El análisis de imágenes es experimental; cualquier cambio se confirma con Aplicar."
+                        text: settings.paletteFeedback
                         color: "#ddd6e8"
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
-                    }
-                    QQC2.Button {
-                        visible: settings.outlineUsesGlow
-                        text: "Usar colores cálidos (dorado y naranja)"
-                        onClicked: {
-                            settings.accentColor = "#ffd27a"
-                            settings.glowColor = "#ff963c"
-                        }
                     }
                     QQC2.Label {
                         text: "Intensidad del brillo"
@@ -1423,6 +1457,31 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 0 && settings.hasSuggestedPalette
+                        text: "Sugerencia para Soledad: «" + settings.suggestedPaletteName + "». " +
+                              "Base " + settings.toHex(settings.suggestedIslandBase) +
+                              " y segundo color " + settings.toHex(settings.suggestedIslandEnd) + "."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex === 0 && settings.hasSuggestedPalette
+                        Layout.fillWidth: true
+                        Rectangle {
+                            width: 52; height: 28; radius: 6
+                            color: settings.suggestedIslandBase
+                        }
+                        Rectangle {
+                            width: 52; height: 28; radius: 6
+                            color: settings.suggestedIslandEnd
+                        }
+                        QQC2.Button {
+                            text: "Usar tonos sugeridos en Soledad"
+                            onClicked: settings.putSuggestedPaletteOnSoledad()
+                        }
                     }
                     QQC2.CheckBox {
                         visible: appearanceTarget.currentIndex <= 1
