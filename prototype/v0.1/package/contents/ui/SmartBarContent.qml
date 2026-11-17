@@ -19,6 +19,14 @@ Item {
     property real malvinaRadius: 22
     property real soledadMinWidth: 0 // 0 = automático según fichas
     property real malvinaWidth: 52
+    property string malvinaGoogleUrl: "https://www.google.com/search?q={query}"
+    property string malvinaDuckUrl: "https://duckduckgo.com/?q={query}"
+    property string malvinaYahooUrl: "https://search.yahoo.com/search?p={query}"
+    property string malvinaChatGptUrl: "https://chatgpt.com/"
+    property string malvinaGeminiUrl: "https://gemini.google.com/app"
+    property string malvinaClaudeUrl: "https://claude.ai/new"
+    signal requestMalvinaProvidersChange(string google, string duck, string yahoo,
+                                         string chatGpt, string gemini, string claude)
     property string soledadShape: "leftRoundRightSquare"
     property string malvinaShape: "rounded"
     property string gripShape: "rounded"
@@ -80,12 +88,15 @@ Item {
             malvinaRevealTimer.stop()
             malvinaHideTimer.stop()
             malvinaHoverRevealed = false
-            if (malvinaPopupActive)
+            if (malvinaPopupActive) {
                 installedAppsPopup.close()
+                malvinaSearch.expanded = false
+            }
         }
     }
     readonly property bool malvinaPopupActive:
-        installedAppsPopup.visible && installedLauncherSource === "malvina"
+        (installedAppsPopup.visible && installedLauncherSource === "malvina") ||
+        malvinaSearch.expanded || malvinaSettings.visible
     readonly property bool malvinaActuallyVisible:
         !autoRevealBlocked && launcherIslandVisible &&
         (!autoHideMalvina || malvinaHoverRevealed || malvinaPopupActive)
@@ -533,6 +544,32 @@ Item {
         }
     }
 
+    function openMalvinaSettings() {
+        malvinaSettings.googleTemplate = malvinaGoogleUrl
+        malvinaSettings.duckTemplate = malvinaDuckUrl
+        malvinaSettings.yahooTemplate = malvinaYahooUrl
+        malvinaSettings.chatGptUrl = malvinaChatGptUrl
+        malvinaSettings.geminiUrl = malvinaGeminiUrl
+        malvinaSettings.claudeUrl = malvinaClaudeUrl
+        malvinaSettings.show()
+        malvinaSettings.raise()
+        malvinaSettings.requestActivate()
+    }
+    // Solo funciona dentro de la ventana Qt que ya tenga el foco.
+    // Meta+Espacio GLOBAL necesita una acción KF6/KGlobalAccel posterior.
+    Shortcut {
+        sequence: "Meta+Space"
+        context: Qt.WindowShortcut
+        enabled: root.launcherIslandVisible && !root.autoRevealBlocked
+        onActivated: malvinaSearch.focusSearch()
+    }
+    MalvinaSettings {
+        id: malvinaSettings
+        onSaveRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
+            root.requestMalvinaProvidersChange(google, duck, yahoo,
+                                                chatGpt, gemini, claude)
+        }
+    }
     function openInstalledLauncher(source) {
         const requestedSource = source === "malvina" ? "malvina" : "so"
         // No permitir abrir lanzadores por autoaparición sobre un juego,
@@ -905,7 +942,8 @@ Item {
         // El paso efectivo de clics a ventanas ajenas requiere validar KWin.
         Item {
             id: malvinaHotspot
-            width: Math.max(launcherButton.implicitWidth + 12, root.malvinaWidth)
+            width: Math.max(malvinaSearch.implicitWidth + 10,
+                            root.malvinaWidth)
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
@@ -984,15 +1022,18 @@ Item {
                 bottomLeft: launcherIsland.bottomLeftRadius
                 bottomRight: launcherIsland.bottomRightRadius
             }
-            IslandButton {
-                id: launcherButton
-                anchors.centerIn: parent
-                text: root.launcherPreview ? "Apps" : "M"
-                accent: true
-                onClicked: root.openInstalledLauncher("malvina")
-                QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: "Malvina: clic abre/cierra lanzador; derecho: ocultar."
-
+            MalvinaSearch {
+                id: malvinaSearch
+                anchors.left: parent.left
+                anchors.leftMargin: 5
+                anchors.verticalCenter: parent.verticalCenter
+                googleTemplate: root.malvinaGoogleUrl
+                duckTemplate: root.malvinaDuckUrl
+                yahooTemplate: root.malvinaYahooUrl
+                chatGptUrl: root.malvinaChatGptUrl
+                geminiUrl: root.malvinaGeminiUrl
+                claudeUrl: root.malvinaClaudeUrl
+                onRequestSettings: root.openMalvinaSettings()
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.RightButton
@@ -1000,6 +1041,10 @@ Item {
                 }
                 QQC2.Menu {
                     id: launcherContextMenu
+                    QQC2.MenuItem {
+                        text: "Configuración de Malvina…"
+                        onTriggered: root.openMalvinaSettings()
+                    }
                     QQC2.MenuItem {
                         text: "Ocultar Malvina (isla 2)"
                         onTriggered: root.setLauncherIslandVisible(false)
