@@ -21,7 +21,7 @@ Window {
     // Persistencia local SOLO del visor Qt: no modifica ningún panel KDE.
     // Se guardan los valores elegidos, no una estética inventada en GitHub.
     property bool appearanceRestored: false
-    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage"]
+    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth"]
     QtCore.Settings {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
@@ -114,6 +114,10 @@ Window {
         }
     }
 
+    property string demoTaskFrameShape: "rounded"
+    property color demoTaskFrameColor: "#ffffff"
+    property real demoTaskFrameOpacity: 0.12
+    property real demoTaskFrameWidth: 1
     property bool demoAutoReturnRight: true
     property string demoPositionMode: "right"
     property bool demoLauncherIslandVisible: true
@@ -199,6 +203,16 @@ Window {
         anchors.right: parent.right
         anchors.top: parent.top
         height: fixedHeight
+        taskFrameShape: previewWindow.demoTaskFrameShape
+        taskFrameColor: previewWindow.demoTaskFrameColor
+        taskFrameOpacity: previewWindow.demoTaskFrameOpacity
+        taskFrameWidth: previewWindow.demoTaskFrameWidth
+        onRequestTaskFrameChange: function(shape, color, opacity, width) {
+            previewWindow.demoTaskFrameShape = shape
+            previewWindow.demoTaskFrameColor = color
+            previewWindow.demoTaskFrameOpacity = opacity
+            previewWindow.demoTaskFrameWidth = width
+        }
         outlineConfig: previewWindow.demoOutlineConfig
         onRequestOutlineChange: function(updated) {
             previewWindow.demoOutlineConfig = JSON.parse(JSON.stringify(updated))
@@ -497,6 +511,10 @@ Window {
     onDemoPositionModeChanged: {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
+    onDemoTaskFrameShapeChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoTaskFrameColorChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoTaskFrameOpacityChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoTaskFrameWidthChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
     onDemoAutoReturnRightChanged: {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
