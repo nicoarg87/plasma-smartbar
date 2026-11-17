@@ -236,7 +236,7 @@ Canvas {
         const core = glows && !glowGradient ? glowColor : accentColor
         ctx.setLineDash([])
         ctx.strokeStyle = Qt.rgba(core.r, core.g, core.b,
-                                  glows ? 0.25 + intensity * breathing * 0.75 :
+                                  glows ? 0.05 + intensity * breathing * 0.95 :
                                   orbiting ? 0.32 : 0.92)
         ctx.lineWidth = stroke
         traceShape(ctx, margin, marginY)
