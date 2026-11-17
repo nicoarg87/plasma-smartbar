@@ -109,6 +109,41 @@ Item {
     property real soLogoPanY: 0
     property real soLogoRotation: 0
     property bool soLogoAnimate: true
+    // Reloj breve en SO, activado por hover sobre el agarre de seis puntos.
+    property bool soClockVisible: false
+    property string soClockTime: ""
+    property string soClockDate: ""
+    property string soClockFontFamily: "Sans Serif"
+    property int soClockFontSize: 16
+    property color soClockTextColor: "#ffffff"
+
+    function dismissSoClock() {
+        soClockRevealTimer.stop()
+        soClockReturnTimer.stop()
+        soClockVisible = false
+    }
+    function showSoClock() {
+        if (!moveGrip.hovered || moveGrip.pressed || gripDrag.active ||
+                gripMenu.visible)
+            return
+        const now = new Date()
+        soClockTime = Qt.formatTime(now, "HH:mm")
+        soClockDate = Qt.formatDate(now, "dd/MM/yyyy")
+        soClockVisible = true
+        soClockReturnTimer.restart()
+    }
+    Timer {
+        id: soClockRevealTimer
+        interval: 180 // breve espera para distinguir hover del arrastre
+        repeat: false
+        onTriggered: root.showSoClock()
+    }
+    Timer {
+        id: soClockReturnTimer
+        interval: 3000 // luego volver al GIF original
+        repeat: false
+        onTriggered: root.soClockVisible = false
+    }
     // Imagen tropical elegida por el mantenedor: archivo local en assets/.
     // Si aún no se copió al ensayo, el botón conserva respaldo de texto SO.
     // No incluir logos externos sin derechos acreditados.
@@ -174,6 +209,8 @@ Item {
                                    real speed, int tailLength, string lineStyle,
                                    bool showWhenEmpty, bool showWhenOpen)
 
+    signal requestSoClockAppearanceChange(string fontFamily, int fontSize,
+                                          string textColor)
     signal requestSoLogoChange(string mode, string path, string shape,
                                string fitMode, real zoom, real panX, real panY,
                                bool allowGif, real rotation)
@@ -439,6 +476,9 @@ Item {
             soledadSettings.cropPanY = root.soLogoPanY
             soledadSettings.cropRotation = root.soLogoRotation
             soledadSettings.enableGif = root.soLogoAnimate
+            soledadSettings.clockFontFamily = root.soClockFontFamily
+            soledadSettings.clockFontSize = root.soClockFontSize
+            soledadSettings.clockTextColor = root.soClockTextColor
             soledadSettings.panelHeight = root.fixedHeight
             soledadSettings.soledadHeight = root.soledadHeight
             soledadSettings.malvinaHeight = root.malvinaHeight
@@ -491,6 +531,9 @@ Item {
     SoledadSettings {
         id: soledadSettings
         defaultImage: root.defaultSoLogo
+        onSaveClockAppearanceRequested: function(family, size, color) {
+            root.requestSoClockAppearanceChange(family, size, color)
+        }
         onSaveLogoRequested: function(mode, path, shape, fitMode, zoom, panX, panY,
                                       animate, rotation) {
             root.requestSoLogoChange(mode, path, shape, fitMode,
@@ -844,6 +887,12 @@ Item {
                     iconSource: root.activeSoLogo
                     iconAnimated: root.activeSoLogoIsGif
                     iconAnimationEnabled: root.soLogoAnimate
+                    clockVisible: root.soClockVisible
+                    clockTime: root.soClockTime
+                    clockDate: root.soClockDate
+                    clockFontFamily: root.soClockFontFamily
+                    clockFontSize: root.soClockFontSize
+                    clockTextColor: root.soClockTextColor
                     iconShape: root.soLogoShape
                     iconFitMode: root.soLogoFitMode
                     iconZoom: root.soLogoZoom
@@ -924,9 +973,16 @@ Item {
                     // cuando el agarre se desplaza o hay un menú abierto.
                     property bool suppressGripTooltip: false
                     onHoveredChanged: {
+                        if (hovered && !pressed && !gripDrag.active &&
+                                !gripMenu.visible) {
+                            soClockRevealTimer.restart()
+                        } else {
+                            soClockRevealTimer.stop()
+                        }
                         if (!hovered) suppressGripTooltip = false
                     }
                     onPressed: {
+                        root.dismissSoClock()
                         draggedDuringPress = false
                         suppressGripTooltip = true
                         // Cerrar ANTES de iniciar el arrastre. Si el menú
@@ -986,7 +1042,8 @@ Item {
                             event.accepted = true
                         }
                     }
-                    QQC2.ToolTip.visible: hovered && !moveGrip.pressed &&
+                    QQC2.ToolTip.visible: hovered && !root.soClockVisible &&
+                        !moveGrip.pressed &&
                         !gripDrag.active && !gripMenu.visible &&
                         !moveGrip.suppressGripTooltip
                     QQC2.ToolTip.delay: 850
@@ -1006,6 +1063,7 @@ Item {
                         cursorShape: Qt.SizeHorCursor
                         onActiveChanged: {
                             if (active) {
+                                root.dismissSoClock()
                                 moveGrip.draggedDuringPress = true
                                 moveGrip.suppressGripTooltip = true
                                 // Resguardo para los casos en que Qt entregue
@@ -1034,6 +1092,7 @@ Item {
                     QQC2.Menu {
                         id: gripMenu
                         title: "Opciones de Soledad"
+                        onOpened: root.dismissSoClock()
                         // Anclar el menú directamente al agarre que lo abrió,
                         // NO a root: el cálculo anterior con root.width - width
                         // podía desplazarlo hasta Malvina (extremo izquierdo).
