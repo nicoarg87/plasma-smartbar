@@ -822,3 +822,21 @@ En la ventana redimensionable, **marcá** la nueva casilla **«Usar ventanas rea
 **Seguridad:** las fichas reales se muestran **solo para lectura**: el clic sobre una ficha únicamente escribe un mensaje de diagnóstico en Konsole; **NO activa, minimiza, cierra ni cambia el foco** de aplicaciones. La bandeja y el buscador de aplicaciones siguen simulados. El plasmoide `main.qml` **NO se ha conectado todavía** a este modelo; no instalarlo como reemplazo del panel en uso. El visor no cambia el tamaño de las ventanas del escritorio. **PENDIENTE:** prueba real de esta integración, rendimiento, comportamiento al haber muchos grupos/ancho insuficiente, agrupación con varias ventanas, posicionamiento y KWin/Wayland. No dar por resuelta la superposición sobre pestañas ni el fullscreen.
 
 Para volver a las fichas de muestra, desmarcá el control. Si falla QML, conservá el error exacto de Konsole y agregalo al [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1). El módulo de tareas utilizado es `org.kde.taskmanager 0.1`, que el mantenedor ya confirmó disponible en su CachyOS.
+
+
+## Reloj compacto superpuesto al GIF de SO (17/11/2026)
+
+**Corrección solicitada tras prueba visual:** el reloj anterior era grande y, durante los 3 segundos en que aparecía, **tapaba/descargaba el GIF**. Ahora el GIF **nunca se oculta, pausa ni se vuelve a cargar** cuando aparece la hora. Un `Item` transparente superpone **solo las letras de la hora y fecha**, con contorno para contraste sobre el video animado. La hora usa **11 px por defecto** (antes 16), la fecha se muestra aún más pequeña; la tipografía, tamaño y color siguen editables en «Configuración de Soledad» → «Logo SO». «Restablecer texto del reloj» recupera Sans Serif, 11 px y blanco.
+
+**Prueba en CachyOS (Fish, no instala nada):**
+
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+bash prototype/v0.1/probar_ancho.sh
+```
+
+Con el GIF tropical presente en `prototype/v0.1/package/contents/ui/assets/so-tropical.gif`, colocá el cursor quieto sobre los **seis puntos** unos 180 ms: fecha y hora aparecen por **3 segundos superpuestas al GIF**. Observá que la animación del atardecer sigue avanzando durante el reloj y no vuelve a comenzar cuando se ocultan los números. Probá cambiar fuente, tamaño y color y pulsá **Aplicar**. Si el GIF falta, `probar_ancho.sh` lo anuncia en Konsole y SO muestra el fallback de texto; para comprobar continuidad del GIF debe estar copiado el recurso original del ZIP.
+
+**Estado:** publicado y revisado en código; falta el retest visual del mantenedor. El panel KDE habitual no cambia y las acciones de ventanas reales continúan en modo solo lectura experimental.
