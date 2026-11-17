@@ -22,6 +22,13 @@ QQC2.Button {
     // La actividad de una ficha se determina fuera, por su modelo o por
     // una selección simulada; jamás se infiere por hover.
     property bool taskIsActive: false
+    // Dos indicadores independientes; el borde doble hereda la línea
+    // de contorno de Soledad. Ambos pueden apagarse.
+    property bool taskActiveGlowEnabled: true
+    property bool taskActiveDoubleBorderEnabled: false
+    property color taskActiveBorderColor: "#4e8499"
+    property real taskActiveBorderOpacity: 1
+    property real taskActiveBorderWidth: 1
     property string taskDisplayMode: "icon" // text, both, icon
     property var taskIconSource: ""
     readonly property bool taskUsesIcon: inheritIslandFill && taskDisplayMode !== "text"
@@ -59,7 +66,7 @@ QQC2.Button {
     property bool activityShowWhenEmpty: false
     property bool activityShowWhenOpen: true
     readonly property bool activityActiveForState: inheritIslandFill
-        ? taskIsActive
+        ? (taskIsActive && taskActiveGlowEnabled)
         : (activityCount > 0 ? activityShowWhenOpen : activityShowWhenEmpty)
     property string activityEffect: "steady"  // off, steady, orbit
     property color activityColor: "#35d7ff"
@@ -162,6 +169,23 @@ QQC2.Button {
         lineWidth: control.outlineWidth
         lineColor: control.outlineColor
         lineOpacity: control.outlineOpacity
+        topLeft: parent.radius
+        topRight: parent.radius
+        bottomLeft: parent.radius
+        bottomRight: parent.radius
+    }
+
+    // Doble línea para indicar el foco aunque no se use luz; también
+    // aparece cuando las fichas normales están en "Sin recuadro".
+    OutlineStyle {
+        parent: control.background
+        anchors.fill: parent
+        visible: control.inheritIslandFill && control.taskIsActive &&
+                 control.taskActiveDoubleBorderEnabled
+        lineStyle: visible ? "double" : "off"
+        lineWidth: control.taskActiveBorderWidth
+        lineColor: control.taskActiveBorderColor
+        lineOpacity: control.taskActiveBorderOpacity
         topLeft: parent.radius
         topRight: parent.radius
         bottomLeft: parent.radius
