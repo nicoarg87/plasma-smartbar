@@ -31,6 +31,13 @@ Item {
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
     property string soButtonFrameShape: "capsule"
     property real soButtonWidth: 96
+    property string soTextLabel: "SO"
+    property color soTextColor: "#ffffff"
+    property color soTextBackground: "#192536"
+    property real soTextBackgroundOpacity: 0.9
+    property string soTextFontFamily: "Sans Serif"
+    property int soTextFontSize: 13
+    property bool soTextBold: true
     implicitHeight: fixedHeight
     property bool autoReturnRight: true
     // Malvina está disponible por defecto, pero su superficie se oculta
@@ -269,6 +276,9 @@ Item {
                                real pulseSpeed, real pulseDepth, bool gradient)
     signal requestSoClockAppearanceChange(string fontFamily, int fontSize,
                                           string textColor)
+    signal requestSoTextChange(string label, string textColor,
+                               string background, real opacity,
+                               string fontFamily, int fontSize, bool bold)
     signal requestSoLogoChange(string mode, string path, string shape,
                                string fitMode, real zoom, real panX, real panY,
                                bool allowGif, real rotation)
@@ -551,6 +561,13 @@ Item {
             soledadSettings.trayButtonShape = root.trayButtonShape
             soledadSettings.soButtonFrameShape = root.soButtonFrameShape
             soledadSettings.soButtonWidth = root.soButtonWidth
+            soledadSettings.soTextLabel = root.soTextLabel
+            soledadSettings.soTextColor = root.soTextColor
+            soledadSettings.soTextBackground = root.soTextBackground
+            soledadSettings.soTextBackgroundOpacity = root.soTextBackgroundOpacity
+            soledadSettings.soTextFontFamily = root.soTextFontFamily
+            soledadSettings.soTextFontSize = root.soTextFontSize
+            soledadSettings.soTextBold = root.soTextBold
             soledadSettings.soledadColor = root.soledadColor
             soledadSettings.malvinaColor = root.malvinaColor
             soledadSettings.soledadGradientEnabled = root.soledadGradientEnabled
@@ -607,6 +624,9 @@ Item {
         defaultImage: root.defaultSoLogo
         onSaveClockAppearanceRequested: function(family, size, color) {
             root.requestSoClockAppearanceChange(family, size, color)
+        }
+        onSaveSoTextRequested: function(label, color, background, opacity, fontFamily, fontSize, bold) {
+            root.requestSoTextChange(label, color, background, opacity, fontFamily, fontSize, bold)
         }
         onSaveLogoRequested: function(mode, path, shape, fitMode, zoom, panX, panY,
                                       animate, rotation) {
@@ -1180,7 +1200,14 @@ Item {
 
                 IslandButton {
                     id: soButton
-                    text: "SO"
+                    text: root.soLogoMode === "text" ? root.soTextLabel : "SO"
+                    customTextMode: root.soLogoMode === "text"
+                    customTextColor: root.soTextColor
+                    customTextBackground: root.soTextBackground
+                    customTextBackgroundOpacity: root.soTextBackgroundOpacity
+                    customTextFontFamily: root.soTextFontFamily
+                    customTextFontSize: root.soTextFontSize
+                    customTextBold: root.soTextBold
                     accent: true
                     activityCount: root.soWindowCount
                     activityEffect: root.soActivityStyle
