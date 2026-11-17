@@ -48,6 +48,13 @@ PlasmoidItem {
         autoCollapseSO: Plasmoid.configuration.autoCollapseSO
         autoCollapseTray: Plasmoid.configuration.autoCollapseTray
         soLogoMode: Plasmoid.configuration.soLogoMode
+        soTextLabel: Plasmoid.configuration.soTextLabel
+        soTextColor: Plasmoid.configuration.soTextColor
+        soTextBackground: Plasmoid.configuration.soTextBackground
+        soTextBackgroundOpacity: Plasmoid.configuration.soTextBackgroundOpacity
+        soTextFontFamily: Plasmoid.configuration.soTextFontFamily
+        soTextFontSize: Plasmoid.configuration.soTextFontSize
+        soTextBold: Plasmoid.configuration.soTextBold
         soLogoPath: Plasmoid.configuration.soLogoPath
         soLogoShape: Plasmoid.configuration.soLogoShape
         soLogoFitMode: Plasmoid.configuration.soLogoFitMode
@@ -120,6 +127,15 @@ PlasmoidItem {
             Plasmoid.configuration.soActivityTrailStyle = lineStyle
             Plasmoid.configuration.soActivityShowWhenEmpty = showWhenEmpty
             Plasmoid.configuration.soActivityShowWhenOpen = showWhenOpen
+        }
+        onRequestSoTextChange: function(label, textColor, background, opacity, fontFamily, fontSize, bold) {
+            Plasmoid.configuration.soTextLabel = label
+            Plasmoid.configuration.soTextColor = textColor
+            Plasmoid.configuration.soTextBackground = background
+            Plasmoid.configuration.soTextBackgroundOpacity = opacity
+            Plasmoid.configuration.soTextFontFamily = fontFamily
+            Plasmoid.configuration.soTextFontSize = fontSize
+            Plasmoid.configuration.soTextBold = bold
         }
         onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             Plasmoid.configuration.soLogoMode = mode
