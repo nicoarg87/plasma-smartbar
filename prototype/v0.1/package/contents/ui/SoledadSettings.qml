@@ -803,7 +803,7 @@ Window {
                     QQC2.CheckBox {
                         text: "Permitir movimiento sutil del borde"
                         checked: settings.allowMotion
-                        enabled: settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow" || settings.effectStyle === "breathe" || settings.effectStyle === "orbitGlow"
+                        enabled: settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow" || settings.effectStyle === "breathe"
                         onToggled: settings.allowMotion = checked
                     }
                     QQC2.Label {
