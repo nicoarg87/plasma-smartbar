@@ -6,6 +6,13 @@ import QtQuick.Controls as QQC2
 QQC2.Button {
     id: control
     property bool accent: false
+    property bool customTextMode: false
+    property color customTextColor: "#ffffff"
+    property color customTextBackground: "#192536"
+    property real customTextBackgroundOpacity: 0.9
+    property string customTextFontFamily: "Sans Serif"
+    property int customTextFontSize: 13
+    property bool customTextBold: true
     // Bandeja: mismo color y opacidad de la isla por defecto.
     // Cada categoría puede reemplazarlo desde Apariencia.
     property bool useTileColor: false
@@ -85,6 +92,11 @@ QQC2.Button {
                     ? Math.min(17, control.height / 2)
                     : control.height / 2)
         color: showsLogo ? "transparent" :
+               control.customTextMode
+                 ? Qt.rgba(control.customTextBackground.r,
+                           control.customTextBackground.g,
+                           control.customTextBackground.b,
+                           control.customTextBackgroundOpacity) :
                (control.useTileColor
                  ? Qt.rgba(control.tileColor.r, control.tileColor.g,
                            control.tileColor.b, control.tileOpacity)
@@ -220,11 +232,16 @@ QQC2.Button {
             visible: !control.clockVisible &&
                      (control.iconSource.toString().length === 0 ||
                       (iconLoader.item && iconLoader.item.loadError))
-            color: control.enabled ? "#eaf7ff" : "#91a8b8"
+            color: control.customTextMode ? control.customTextColor :
+                (control.enabled ? "#eaf7ff" : "#91a8b8")
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: 13
-            font.weight: control.accent ? Font.DemiBold : Font.Normal
+            font.family: control.customTextMode ? control.customTextFontFamily : "Sans Serif"
+            font.pixelSize: control.customTextMode ? control.customTextFontSize : 13
+            fontSizeMode: Text.Fit
+            minimumPixelSize: 8
+            font.weight: control.customTextMode && control.customTextBold
+                ? Font.Bold : (control.accent ? Font.DemiBold : Font.Normal)
             elide: Text.ElideRight
         }
     }
