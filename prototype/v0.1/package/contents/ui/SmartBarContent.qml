@@ -323,7 +323,8 @@ Item {
     // El centro se calcula con la isla CONTRAÍDA: al abrir SO la
     // esquina izquierda permanece fija y las fichas crecen a derecha.
     readonly property real centerBaseWidth: Math.max(soledadMinWidth,
-        12 + trayToggle.implicitWidth + soButton.implicitWidth +
+        12 + (soledadShape === "leftTip" ? 28 : 0) +
+        trayToggle.implicitWidth + soButton.implicitWidth +
         moveGrip.implicitWidth + systemRow.spacing * 2)
     signal requestPositionModeChange(string mode)
     onPositionModeChanged: {
@@ -373,6 +374,9 @@ Item {
     }
 
     function alignRightNow() {
+        // Cambiar de referencia no debe transportar una isla expandida.
+        soExpanded = false
+        trayExpanded = false
         if (positionMode !== "right") requestPositionModeChange("right")
         centeredPositionDragged = false
         setIslandOffset(0)
@@ -969,9 +973,11 @@ Item {
         Rectangle {
             id: systemIsland
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.soledadHeight))
-            width: Math.max(systemRow.implicitWidth + 12 +
-                            (root.soledadShape === "leftTip" ? 28 : 0),
-                            root.soledadMinWidth)
+            width: root.centeredPresentation && !root.soExpanded && !root.trayExpanded
+                ? root.centerBaseWidth
+                : Math.max(systemRow.implicitWidth + 12 +
+                           (root.soledadShape === "leftTip" ? 28 : 0),
+                           root.soledadMinWidth)
             // Al cambiar fichas o espacio por arrastre, mantener ambas
             // expansiones salvo que realmente dejen de caber.
             onWidthChanged: root.ensureExpansionFits()
@@ -1173,17 +1179,13 @@ Item {
             Row {
                 id: systemRow
                 spacing: 4
-                LayoutMirroring.enabled: root.centeredPresentation
-                LayoutMirroring.childrenInherit: false
                 anchors.verticalCenter: parent.verticalCenter
                 x: (parent.width - width) / 2 +
                     (root.soledadShape === "leftTip" ? 12 : 0)
 
                 IslandButton {
                     id: trayToggle
-                    text: root.centeredPresentation
-                        ? (root.trayExpanded ? "◀" : "▶")
-                        : (root.trayExpanded ? "▶" : "◀")
+                    text: root.trayExpanded ? "▶" : "◀"
                     frameShape: root.trayButtonShape
                     useTileColor: true
                     tileColor: root.effectiveTrayButtonColor
@@ -1490,7 +1492,20 @@ Item {
                         cursorShape: Qt.SizeHorCursor
                         onActiveChanged: {
                             if (active) {
+                                // Congelar la posición VISIBLE antes de abandonar
+                                // el anclaje centrado. De lo contrario Qt cambia
+                                // de ancla con la anchura de las fichas y SO salta.
+                                const wasCentered = root.centeredPresentation
+                                const visibleX = systemIsland.x
                                 root.dismissSoClock()
+                                if (root.soExpanded) root.soExpanded = false
+                                if (root.trayExpanded) root.trayExpanded = false
+                                if (wasCentered) {
+                                    root.centeredPositionDragged = true
+                                    root.setIslandOffset(Math.max(0,
+                                        root.width - visibleX -
+                                        root.centerBaseWidth - root.controlsReservation))
+                                }
                                 moveGrip.draggedDuringPress = true
                                 moveGrip.suppressGripTooltip = true
                                 // Resguardo para los casos en que Qt entregue
@@ -1498,10 +1513,7 @@ Item {
                                 if (gripMenu.visible) gripMenu.close()
                                 // Tomar el margen actual justo al iniciar
                                 // el gesto; no volver a una posición antigua.
-                                root.offsetAtDragStart = root.centeredPresentation
-                                    ? Math.max(0, root.width - systemIsland.x -
-                                               systemIsland.width - root.controlsReservation)
-                                    : root.islandOffset
+                                root.offsetAtDragStart = root.islandOffset
                             }
                             // Al soltar la isla, mantenerla donde el usuario
                             // la dejó; NO aplicar aquí el retorno automático.
@@ -1512,8 +1524,6 @@ Item {
                                 // «Alinear a la derecha» sin tocar el retorno
                                 // automático al desmaximizar.
                                 root.alignRightSelected = false
-                                if (root.centeredPresentation)
-                                    root.centeredPositionDragged = true
                                 root.setIslandOffset(
                                     root.offsetAtDragStart - activeTranslation.x
                                 )
