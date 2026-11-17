@@ -1771,6 +1771,20 @@ Window {
 
                 }
             }
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: 6
+                QQC2.TabBar {
+                    id: appearanceSubtabs
+                    Layout.fillWidth: true
+                    QQC2.TabButton { text: "Colores y degradados"; width: implicitWidth }
+                    QQC2.TabButton { text: "Fichas y líneas"; width: implicitWidth }
+                }
+                StackLayout {
+                    currentIndex: appearanceSubtabs.currentIndex
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
             // 3. Apariencia: las islas mantienen sus preferencias independientes.
             QQC2.ScrollView {
                 id: appearanceScroll
@@ -1995,6 +2009,60 @@ Window {
                             color: "white"
                         }
                     }
+                    QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex === 2
+                        text: "Mostrar fondo continuo opcional"
+                        checked: settings.showBackground
+                        onToggled: settings.showBackground = checked
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 2
+                        text: "El fondo está desactivado por defecto. No cambia la altura ni reemplaza una isla."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Restablecer colores"
+                        onClicked: {
+                            settings.soledadColor = "#010111"
+                            settings.malvinaColor = "#101e31"
+                            settings.soledadGradientEnabled = false
+                            settings.soledadGradientSyncBreathing = false
+                            settings.soledadGradientBreathingIntensity = 0.6
+                            settings.soledadGradientEnd = "#ee9852"
+                            settings.soledadGradientDirection = "topBottom"
+                            settings.malvinaGradientEnabled = false
+                            settings.malvinaGradientEnd = "#445577"
+                            settings.malvinaGradientDirection = "topBottom"
+                            settings.backgroundColor = "#202333"
+                            settings.soledadOpacity = 0.5
+                            settings.malvinaOpacity = 1
+                            settings.backgroundOpacity = 0.5
+                            settings.showBackground = false
+                            settings.trayButtonColorOverride = false
+                            settings.trayButtonColor = "#010111"
+                            settings.trayButtonOpacity = 0.5
+                            settings.gripButtonColorOverride = false
+                            settings.gripButtonColor = "#010111"
+                            settings.gripButtonOpacity = 0.5
+                        }
+                    }
+                }
+            }
+
+            QQC2.ScrollView {
+                id: taskStylesScroll
+                clip: true
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                ColumnLayout {
+                    width: taskStylesScroll.availableWidth - 8
+                    spacing: 14
+                    QQC2.Label {
+                        text: "Presentación de aplicaciones y líneas"
+                        font.bold: true
+                        color: "white"
+                    }
                     QQC2.Label {
                         text: "Cómo mostrar cada aplicación"
                         color: "white"
@@ -2162,45 +2230,8 @@ Window {
                             settings.setOutlineField("opacity", 1)
                         }
                     }
-                    QQC2.CheckBox {
-                        visible: appearanceTarget.currentIndex === 2
-                        text: "Mostrar fondo continuo opcional"
-                        checked: settings.showBackground
-                        onToggled: settings.showBackground = checked
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 2
-                        text: "El fondo está desactivado por defecto. No cambia la altura ni reemplaza una isla."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Button {
-                        text: "Restablecer colores"
-                        onClicked: {
-                            settings.soledadColor = "#010111"
-                            settings.malvinaColor = "#101e31"
-                            settings.soledadGradientEnabled = false
-                            settings.soledadGradientSyncBreathing = false
-                            settings.soledadGradientBreathingIntensity = 0.6
-                            settings.soledadGradientEnd = "#ee9852"
-                            settings.soledadGradientDirection = "topBottom"
-                            settings.malvinaGradientEnabled = false
-                            settings.malvinaGradientEnd = "#445577"
-                            settings.malvinaGradientDirection = "topBottom"
-                            settings.backgroundColor = "#202333"
-                            settings.soledadOpacity = 0.5
-                            settings.malvinaOpacity = 1
-                            settings.backgroundOpacity = 0.5
-                            settings.showBackground = false
-                            settings.trayButtonColorOverride = false
-                            settings.trayButtonColor = "#010111"
-                            settings.trayButtonOpacity = 0.5
-                            settings.gripButtonColorOverride = false
-                            settings.gripButtonColor = "#010111"
-                            settings.gripButtonOpacity = 0.5
-                        }
-                    }
+                }
+            }
                 }
             }
 
