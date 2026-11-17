@@ -122,7 +122,7 @@ Window {
     property real malvinaWidth: 52
     property string soledadShape: "leftRoundRightSquare"
     property string malvinaShape: "rounded"
-    property string gripShape: "square"
+    property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
@@ -1006,7 +1006,7 @@ Window {
                     QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
-                        model: ["Cuadrado (inicial)", "Redondeado"]
+                        model: ["Cuadrado", "Cuadrado con bordes redondeados (inicial)"]
                         currentIndex: settings.gripShape === "rounded" ? 1 : 0
                         onActivated: function(i) {
                             settings.gripShape = i === 1 ? "rounded" : "square"
@@ -1144,7 +1144,7 @@ Window {
                             settings.malvinaWidth = 52
                             settings.soledadShape = "leftRoundRightSquare"
                             settings.malvinaShape = "rounded"
-                            settings.gripShape = "square"
+                            settings.gripShape = "rounded"
                             settings.trayButtonShape = "rounded"
                         }
                     }
