@@ -766,3 +766,22 @@ bash prototype/v0.1/probar_ancho.sh
 ```
 
 Validar en CachyOS: logo/imagen/máscara, estiramiento, 1,5 vueltas/s y trazo en guiones, vista previa, alfa 50 %, herencia y controles independientes de color de bandeja/agarre, bloqueo por simulación maximizada/fullscreen, retorno al modo normal, guardado/Restablecer y rendimiento. **El código está publicado y revisado estáticamente; pruebas Qt/Wayland de esta tanda aún pendientes.**
+
+
+## GIF original definitivo de SO: nueva prueba (16/11/2026)
+
+**CONFIRMADO:** el mantenedor seleccionó el GIF `playa definitiva.gif` generado con ChatGPT, lo reporta **probado y funcional** y pide sustituir el PNG estático anterior como predeterminado. En esta rama, `SmartBarContent.qml` apunta a `assets/so-tropical.gif` y activa reproducción animada también con «Predeterminada»; `SoledadSettings.qml` activa la vista previa de GIF por defecto. Se conserva **cápsula horizontal + Estirar**, ancho inicial 96 px, y el checkbox «Reproducir GIF animados» para pausar el recurso si se desmarca.
+
+**Archivo exacto recibido y verificado:** GIF 439×217, 16 cuadros, 140 ms por cuadro (2,24 s), 771.293 bytes, SHA-256 `a10b34548abae1d3e699d5b92a23f38745b349f9cf73ebc59806fce6f56f5621`. **El binario NO está incorporado a GitHub**: el ZIP `Plasma-SmartBar-Islands-GIF-SO-definitivo.zip` del chat contiene el archivo intacto en `prototype/v0.1/package/contents/ui/assets/so-tropical.gif` y una nota con licencia gráfica **CC0 1.0** dentro de los derechos disponibles, separada del código MIT.
+
+**Para probar desde Fish:**
+
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+unzip -o ~/Descargas/Plasma-SmartBar-Islands-GIF-SO-definitivo.zip -d .
+bash prototype/v0.1/probar_ancho.sh
+```
+
+Comprobá en «Configuración de Soledad» → «Logo SO» que está elegida **Predeterminada**, «Cápsula horizontal», **Estirar** y «Reproducir GIF animados», y que **la animación se reproduce tanto en SO como en el editor de vista previa**. Si desmarcás «Reproducir GIF animados», debería quedar quieta. «Restablecer logo y formato» vuelve al GIF predeterminado con máscara cápsula y Estirar. **Pendiente** probar la integración con el archivo original en CachyOS/Qt; la afirmación de GIF funcional es el resultado comunicado por el mantenedor, no una prueba nueva del asistente. Este procedimiento no instala ni modifica el panel KDE existente.
