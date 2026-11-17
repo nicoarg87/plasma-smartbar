@@ -536,11 +536,9 @@ Window {
         QQC2.TabBar {
             id: tabs
             Layout.fillWidth: true
-            QQC2.TabButton { text: "Logo SO"; width: implicitWidth }
-            QQC2.TabButton { text: "Contorno"; width: implicitWidth }
-            QQC2.TabButton { text: "Apariencia"; width: implicitWidth }
             QQC2.TabButton { text: "Islas y posición"; width: implicitWidth }
-            QQC2.TabButton { text: "Autocontracción"; width: implicitWidth }
+            QQC2.TabButton { text: "Logo SO"; width: implicitWidth }
+            QQC2.TabButton { text: "Apariencia"; width: implicitWidth }
             QQC2.TabButton { text: "Acerca de"; width: implicitWidth }
         }
 
@@ -550,6 +548,375 @@ Window {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: 6
+                QQC2.TabBar {
+                    id: islandSubtabs
+                    Layout.fillWidth: true
+                    QQC2.TabButton { text: "Geometría y ubicación"; width: implicitWidth }
+                    QQC2.TabButton { text: "Comportamiento"; width: implicitWidth }
+                }
+                StackLayout {
+                    currentIndex: islandSubtabs.currentIndex
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+            // 4. Islas y posición de isla y posición, sin añadir isla extra.
+            QQC2.ScrollView {
+                id: positionScroll
+                clip: true
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                ColumnLayout {
+                    width: positionScroll.availableWidth - 8
+                    spacing: 16
+                    QQC2.Label {
+                        text: "Islas y posición"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.CheckBox {
+                        text: "Mostrar Malvina (isla 2)"
+                        checked: settings.launcherIslandVisible
+                        onToggled: settings.launcherIslandVisible = checked
+                    }
+                    QQC2.CheckBox {
+                        visible: settings.launcherIslandVisible
+                        text: "Ocultar Malvina automáticamente (predeterminado)"
+                        checked: settings.autoHideMalvina
+                        onToggled: settings.autoHideMalvina = checked
+                    }
+                    QQC2.Label {
+                        visible: settings.launcherIslandVisible
+                        text: "Con esta opción activada, Malvina aparece solo si dejás el cursor 0,6 segundos en su ubicación. Al salir vuelve a ocultarse. Si desactivás esta opción, permanece a la vista. «Mostrar Malvina» permite habilitarla o quitarla por completo."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Alineación predeterminada de Soledad"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["A la derecha (SO abre a la izquierda)",
+                                "En el centro (SO abre a la derecha)"]
+                        currentIndex: settings.positionMode === "center" ? 1 : 0
+                        onActivated: function(index) {
+                            settings.positionMode = index === 1 ? "center" : "right"
+                            settings.alignmentEdited = false
+                        }
+                    }
+                    QQC2.Label {
+                        visible: settings.positionMode === "center"
+                        text: "La isla se centra mientras está contraída y las fichas crecen hacia la derecha. La altura no cambia; al expandir se controla el espacio disponible."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        visible: settings.positionMode === "center"
+                        text: "Centrar isla 1 AHORA"
+                        onClicked: settings.alignCenterNowRequested()
+                    }
+                    QQC2.CheckBox {
+                        visible: settings.positionMode === "right"
+                        text: "Alinear isla 1 a la derecha"
+                        checked: settings.alignedRight
+                        onToggled: settings.alignedRight = checked
+                        onClicked: settings.alignmentEdited = true
+                    }
+                    QQC2.CheckBox {
+                        visible: settings.positionMode === "right" && settings.alignedRight
+                        text: "Volver a la derecha al desmaximizar"
+                        checked: settings.autoReturnRight
+                        onToggled: settings.autoReturnRight = checked
+                    }
+                    QQC2.Label {
+                        visible: settings.positionMode === "right" && settings.alignedRight
+                        text: "El regreso al desmaximizar está activado por defecto. No impide mover Soledad manualmente."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        visible: settings.positionMode === "right"
+                        text: "Mover isla 1 a la derecha AHORA"
+                        onClicked: {
+                            settings.alignNowRequested()
+                            settings.alignedRight = true
+                            settings.alignmentEdited = false
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Mover ahora es una acción inmediata; no requiere Aplicar. La posición por aplicación sigue pendiente de desarrollo."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Terminaciones visuales"
+                        color: "white"; font.bold: true
+                    }
+                    QQC2.Label {
+                        text: "Soledad: el modelo inicial conserva la izquierda redondeada y termina recto a la derecha."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label { text: "Forma de Soledad"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Izquierda redondeada / derecha recta (inicial)",
+                                "Toda redondeada", "Toda cuadrada",
+                                "Izquierda recta / derecha redondeada",
+                                "Punta triangular izquierda / derecha recta"]
+                        currentIndex: ["leftRoundRightSquare","rounded","square",
+                                       "leftSquareRightRound","leftTip"]
+                            .indexOf(settings.soledadShape)
+                        onActivated: function(i) {
+                            settings.soledadShape = ["leftRoundRightSquare","rounded",
+                                "square","leftSquareRightRound","leftTip"][i]
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Forma de Malvina";
+                        color: "white"
+                        visible: settings.launcherIslandVisible
+                    }
+                    QQC2.ComboBox {
+                        visible: settings.launcherIslandVisible
+                        Layout.fillWidth: true
+                        model: ["Redondeada (inicial)", "Cuadrada",
+                                "Izquierda redondeada / derecha recta",
+                                "Izquierda recta / derecha redondeada"]
+                        currentIndex: ["rounded","square","leftRoundRightSquare",
+                                       "leftSquareRightRound"].indexOf(settings.malvinaShape)
+                        onActivated: function(i) {
+                            settings.malvinaShape = ["rounded","square",
+                                "leftRoundRightSquare","leftSquareRightRound"][i]
+                        }
+                    }
+                    QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Cuadrado", "Cuadrado con bordes redondeados (inicial)"]
+                        currentIndex: settings.gripShape === "rounded" ? 1 : 0
+                        onActivated: function(i) {
+                            settings.gripShape = i === 1 ? "rounded" : "square"
+                        }
+                    }
+                    QQC2.Label { text: "Botón de bandeja simulada"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Redondeado (inicial)", "Cuadrado"]
+                        currentIndex: settings.trayButtonShape === "square" ? 1 : 0
+                        onActivated: function(i) {
+                            settings.trayButtonShape = i === 1 ? "square" : "rounded"
+                        }
+                    }
+                    QQC2.Label { text: "Geometría de las islas"; color: "white"; font.bold: true }
+                    QQC2.Label {
+                        text: "La altura elegida es constante durante el uso. Al aumentar una isla, Aplicar también aumenta la altura general si hace falta (máximo 120 px, con 4 px de margen)."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Altura general"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 40; to: 120; stepSize: 2
+                            value: settings.panelHeight
+                            onMoved: settings.panelHeight = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.panelHeight) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Altura Soledad"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 32; to: 120; stepSize: 2
+                            value: settings.soledadHeight
+                            onMoved: settings.soledadHeight = Math.min(116, Math.round(value))
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.soledadHeight) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        visible: settings.launcherIslandVisible
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Altura Malvina"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 32; to: 120; stepSize: 2
+                            value: settings.malvinaHeight
+                            onMoved: settings.malvinaHeight = Math.min(116, Math.round(value))
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.malvinaHeight) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        visible: settings.soledadShape !== "square" && settings.soledadShape !== "leftTip"
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Esquinas Soledad"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 60; stepSize: 2
+                            value: settings.soledadRadius
+                            onMoved: settings.soledadRadius = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.soledadRadius) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        visible: settings.launcherIslandVisible && settings.malvinaShape !== "square"
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Esquinas Malvina"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 60; stepSize: 2
+                            value: settings.malvinaRadius
+                            onMoved: settings.malvinaRadius = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.malvinaRadius) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Ancho mínimo Soledad"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 420; stepSize: 2
+                            value: settings.soledadMinWidth
+                            onMoved: settings.soledadMinWidth = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: settings.soledadMinWidth === 0 ? "Auto" : Math.round(settings.soledadMinWidth) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        visible: settings.launcherIslandVisible
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Ancho Malvina"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 52; to: 220; stepSize: 2
+                            value: settings.malvinaWidth
+                            onMoved: settings.malvinaWidth = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.malvinaWidth) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Si la altura de una isla supera la altura general, se limita al espacio disponible. El ancho mínimo de Soledad no reemplaza la expansión automática de fichas."
+                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Restablecer islas y posición"
+                        onClicked: {
+                            settings.launcherIslandVisible = true
+                            settings.autoReturnRight = true
+                            settings.alignedRight = true
+                            settings.positionMode = "right"
+                            settings.alignmentEdited = true
+                            settings.panelHeight = 48
+                            settings.soledadHeight = 44
+                            settings.malvinaHeight = 44
+                            settings.soledadRadius = 22
+                            settings.malvinaRadius = 22
+                            settings.soledadMinWidth = 0
+                            settings.malvinaWidth = 52
+                            settings.soledadShape = "leftRoundRightSquare"
+                            settings.malvinaShape = "rounded"
+                            settings.gripShape = "rounded"
+                            settings.trayButtonShape = "rounded"
+                        }
+                    }
+                }
+            }
+
+            // 5. Autocontracción: preferencias distintas; sin temporizador.
+            QQC2.ScrollView {
+                id: collapseScroll
+                clip: true
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                ColumnLayout {
+                    width: collapseScroll.availableWidth - 8
+                    spacing: 16
+                    QQC2.Label {
+                        text: "Autocontracción"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.CheckBox {
+                        text: "SO: contraer después de elegir una ventana"
+                        checked: settings.autoCollapseSO
+                        onToggled: settings.autoCollapseSO = checked
+                    }
+                    QQC2.Label {
+                        text: "Activado por defecto. Podés dejar SO abierto desmarcando esta opción."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.CheckBox {
+                        text: "Bandeja: contraer después de utilizar un icono"
+                        checked: settings.autoCollapseTray
+                        onToggled: settings.autoCollapseTray = checked
+                    }
+                    QQC2.Label {
+                        text: "Desactivado por defecto. La apertura del lanzador no contrae ninguna sección."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Sin temporizador de inactividad: el cierre solo se dispara por la acción aprobada o por falta de espacio."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Restablecer autocontracción"
+                        onClicked: {
+                            settings.autoCollapseSO = true
+                            settings.autoCollapseTray = false
+                        }
+                    }
+                }
+            }
+
+
+                }
+            }
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: 6
+                QQC2.TabBar {
+                    id: logoSubtabs
+                    Layout.fillWidth: true
+                    QQC2.TabButton { text: "Imagen y texto"; width: implicitWidth }
+                    QQC2.TabButton { text: "Contorno e iluminación"; width: implicitWidth }
+                }
+                StackLayout {
+                    currentIndex: logoSubtabs.currentIndex
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
             // 1. Logo: se conserva encuadre visual y recorte no destructivo.
             QQC2.ScrollView {
                 id: logoScroll
@@ -995,6 +1362,7 @@ Window {
                 }
             }
 
+
             // 2. Contorno con vista previa fija y opciones contextuales.
             ColumnLayout {
                 spacing: 8
@@ -1400,6 +1768,9 @@ Window {
                 }
             }
 
+
+                }
+            }
             // 3. Apariencia: las islas mantienen sus preferencias independientes.
             QQC2.ScrollView {
                 id: appearanceScroll
@@ -1828,343 +2199,6 @@ Window {
                             settings.gripButtonColorOverride = false
                             settings.gripButtonColor = "#010111"
                             settings.gripButtonOpacity = 0.5
-                        }
-                    }
-                }
-            }
-
-            // 4. Islas y posición de isla y posición, sin añadir isla extra.
-            QQC2.ScrollView {
-                id: positionScroll
-                clip: true
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
-                ColumnLayout {
-                    width: positionScroll.availableWidth - 8
-                    spacing: 16
-                    QQC2.Label {
-                        text: "Islas y posición"
-                        font.bold: true
-                        color: "white"
-                    }
-                    QQC2.CheckBox {
-                        text: "Mostrar Malvina (isla 2)"
-                        checked: settings.launcherIslandVisible
-                        onToggled: settings.launcherIslandVisible = checked
-                    }
-                    QQC2.CheckBox {
-                        visible: settings.launcherIslandVisible
-                        text: "Ocultar Malvina automáticamente (predeterminado)"
-                        checked: settings.autoHideMalvina
-                        onToggled: settings.autoHideMalvina = checked
-                    }
-                    QQC2.Label {
-                        visible: settings.launcherIslandVisible
-                        text: "Con esta opción activada, Malvina aparece solo si dejás el cursor 0,6 segundos en su ubicación. Al salir vuelve a ocultarse. Si desactivás esta opción, permanece a la vista. «Mostrar Malvina» permite habilitarla o quitarla por completo."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label {
-                        text: "Alineación predeterminada de Soledad"
-                        color: "white"
-                        font.bold: true
-                    }
-                    QQC2.ComboBox {
-                        Layout.fillWidth: true
-                        model: ["A la derecha (SO abre a la izquierda)",
-                                "En el centro (SO abre a la derecha)"]
-                        currentIndex: settings.positionMode === "center" ? 1 : 0
-                        onActivated: function(index) {
-                            settings.positionMode = index === 1 ? "center" : "right"
-                            settings.alignmentEdited = false
-                        }
-                    }
-                    QQC2.Label {
-                        visible: settings.positionMode === "center"
-                        text: "La isla se centra mientras está contraída y las fichas crecen hacia la derecha. La altura no cambia; al expandir se controla el espacio disponible."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Button {
-                        visible: settings.positionMode === "center"
-                        text: "Centrar isla 1 AHORA"
-                        onClicked: settings.alignCenterNowRequested()
-                    }
-                    QQC2.CheckBox {
-                        visible: settings.positionMode === "right"
-                        text: "Alinear isla 1 a la derecha"
-                        checked: settings.alignedRight
-                        onToggled: settings.alignedRight = checked
-                        onClicked: settings.alignmentEdited = true
-                    }
-                    QQC2.CheckBox {
-                        visible: settings.positionMode === "right" && settings.alignedRight
-                        text: "Volver a la derecha al desmaximizar"
-                        checked: settings.autoReturnRight
-                        onToggled: settings.autoReturnRight = checked
-                    }
-                    QQC2.Label {
-                        visible: settings.positionMode === "right" && settings.alignedRight
-                        text: "El regreso al desmaximizar está activado por defecto. No impide mover Soledad manualmente."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Button {
-                        visible: settings.positionMode === "right"
-                        text: "Mover isla 1 a la derecha AHORA"
-                        onClicked: {
-                            settings.alignNowRequested()
-                            settings.alignedRight = true
-                            settings.alignmentEdited = false
-                        }
-                    }
-                    QQC2.Label {
-                        text: "Mover ahora es una acción inmediata; no requiere Aplicar. La posición por aplicación sigue pendiente de desarrollo."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label {
-                        text: "Terminaciones visuales"
-                        color: "white"; font.bold: true
-                    }
-                    QQC2.Label {
-                        text: "Soledad: el modelo inicial conserva la izquierda redondeada y termina recto a la derecha."
-                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label { text: "Forma de Soledad"; color: "white" }
-                    QQC2.ComboBox {
-                        Layout.fillWidth: true
-                        model: ["Izquierda redondeada / derecha recta (inicial)",
-                                "Toda redondeada", "Toda cuadrada",
-                                "Izquierda recta / derecha redondeada",
-                                "Punta triangular izquierda / derecha recta"]
-                        currentIndex: ["leftRoundRightSquare","rounded","square",
-                                       "leftSquareRightRound","leftTip"]
-                            .indexOf(settings.soledadShape)
-                        onActivated: function(i) {
-                            settings.soledadShape = ["leftRoundRightSquare","rounded",
-                                "square","leftSquareRightRound","leftTip"][i]
-                        }
-                    }
-                    QQC2.Label {
-                        text: "Forma de Malvina";
-                        color: "white"
-                        visible: settings.launcherIslandVisible
-                    }
-                    QQC2.ComboBox {
-                        visible: settings.launcherIslandVisible
-                        Layout.fillWidth: true
-                        model: ["Redondeada (inicial)", "Cuadrada",
-                                "Izquierda redondeada / derecha recta",
-                                "Izquierda recta / derecha redondeada"]
-                        currentIndex: ["rounded","square","leftRoundRightSquare",
-                                       "leftSquareRightRound"].indexOf(settings.malvinaShape)
-                        onActivated: function(i) {
-                            settings.malvinaShape = ["rounded","square",
-                                "leftRoundRightSquare","leftSquareRightRound"][i]
-                        }
-                    }
-                    QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
-                    QQC2.ComboBox {
-                        Layout.fillWidth: true
-                        model: ["Cuadrado", "Cuadrado con bordes redondeados (inicial)"]
-                        currentIndex: settings.gripShape === "rounded" ? 1 : 0
-                        onActivated: function(i) {
-                            settings.gripShape = i === 1 ? "rounded" : "square"
-                        }
-                    }
-                    QQC2.Label { text: "Botón de bandeja simulada"; color: "white" }
-                    QQC2.ComboBox {
-                        Layout.fillWidth: true
-                        model: ["Redondeado (inicial)", "Cuadrado"]
-                        currentIndex: settings.trayButtonShape === "square" ? 1 : 0
-                        onActivated: function(i) {
-                            settings.trayButtonShape = i === 1 ? "square" : "rounded"
-                        }
-                    }
-                    QQC2.Label { text: "Geometría de las islas"; color: "white"; font.bold: true }
-                    QQC2.Label {
-                        text: "La altura elegida es constante durante el uso. Al aumentar una isla, Aplicar también aumenta la altura general si hace falta (máximo 120 px, con 4 px de margen)."
-                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Altura general"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 40; to: 120; stepSize: 2
-                            value: settings.panelHeight
-                            onMoved: settings.panelHeight = Math.round(value)
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.panelHeight) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Altura Soledad"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 32; to: 120; stepSize: 2
-                            value: settings.soledadHeight
-                            onMoved: settings.soledadHeight = Math.min(116, Math.round(value))
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.soledadHeight) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    RowLayout {
-                        visible: settings.launcherIslandVisible
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Altura Malvina"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 32; to: 120; stepSize: 2
-                            value: settings.malvinaHeight
-                            onMoved: settings.malvinaHeight = Math.min(116, Math.round(value))
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.malvinaHeight) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    RowLayout {
-                        visible: settings.soledadShape !== "square" && settings.soledadShape !== "leftTip"
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Esquinas Soledad"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0; to: 60; stepSize: 2
-                            value: settings.soledadRadius
-                            onMoved: settings.soledadRadius = Math.round(value)
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.soledadRadius) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    RowLayout {
-                        visible: settings.launcherIslandVisible && settings.malvinaShape !== "square"
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Esquinas Malvina"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0; to: 60; stepSize: 2
-                            value: settings.malvinaRadius
-                            onMoved: settings.malvinaRadius = Math.round(value)
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.malvinaRadius) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Ancho mínimo Soledad"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0; to: 420; stepSize: 2
-                            value: settings.soledadMinWidth
-                            onMoved: settings.soledadMinWidth = Math.round(value)
-                        }
-                        QQC2.Label {
-                            text: settings.soledadMinWidth === 0 ? "Auto" : Math.round(settings.soledadMinWidth) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    RowLayout {
-                        visible: settings.launcherIslandVisible
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Ancho Malvina"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 52; to: 220; stepSize: 2
-                            value: settings.malvinaWidth
-                            onMoved: settings.malvinaWidth = Math.round(value)
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.malvinaWidth) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    QQC2.Label {
-                        text: "Si la altura de una isla supera la altura general, se limita al espacio disponible. El ancho mínimo de Soledad no reemplaza la expansión automática de fichas."
-                        color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-                    }
-                    QQC2.Button {
-                        text: "Restablecer islas y posición"
-                        onClicked: {
-                            settings.launcherIslandVisible = true
-                            settings.autoReturnRight = true
-                            settings.alignedRight = true
-                            settings.positionMode = "right"
-                            settings.alignmentEdited = true
-                            settings.panelHeight = 48
-                            settings.soledadHeight = 44
-                            settings.malvinaHeight = 44
-                            settings.soledadRadius = 22
-                            settings.malvinaRadius = 22
-                            settings.soledadMinWidth = 0
-                            settings.malvinaWidth = 52
-                            settings.soledadShape = "leftRoundRightSquare"
-                            settings.malvinaShape = "rounded"
-                            settings.gripShape = "rounded"
-                            settings.trayButtonShape = "rounded"
-                        }
-                    }
-                }
-            }
-            // 5. Autocontracción: preferencias distintas; sin temporizador.
-            QQC2.ScrollView {
-                id: collapseScroll
-                clip: true
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
-                ColumnLayout {
-                    width: collapseScroll.availableWidth - 8
-                    spacing: 16
-                    QQC2.Label {
-                        text: "Autocontracción"
-                        font.bold: true
-                        color: "white"
-                    }
-                    QQC2.CheckBox {
-                        text: "SO: contraer después de elegir una ventana"
-                        checked: settings.autoCollapseSO
-                        onToggled: settings.autoCollapseSO = checked
-                    }
-                    QQC2.Label {
-                        text: "Activado por defecto. Podés dejar SO abierto desmarcando esta opción."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.CheckBox {
-                        text: "Bandeja: contraer después de utilizar un icono"
-                        checked: settings.autoCollapseTray
-                        onToggled: settings.autoCollapseTray = checked
-                    }
-                    QQC2.Label {
-                        text: "Desactivado por defecto. La apertura del lanzador no contrae ninguna sección."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label {
-                        text: "Sin temporizador de inactividad: el cierre solo se dispara por la acción aprobada o por falta de espacio."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Button {
-                        text: "Restablecer autocontracción"
-                        onClicked: {
-                            settings.autoCollapseSO = true
-                            settings.autoCollapseTray = false
                         }
                     }
                 }
