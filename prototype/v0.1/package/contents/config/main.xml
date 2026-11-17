@@ -34,7 +34,7 @@
     <entry name="soLogoPanY" type="Double"><default>0.0</default></entry>
     <entry name="soLogoAnimate" type="Bool"><default>true</default></entry>
     <entry name="soClockFontFamily" type="String"><default>Sans Serif</default></entry>
-    <entry name="soClockFontSize" type="Int"><default>16</default></entry>
+    <entry name="soClockFontSize" type="Int"><default>11</default></entry>
     <entry name="soClockTextColor" type="String"><default>#ffffff</default></entry>
     <entry name="soLogoRotation" type="Double"><default>0</default></entry>
     <!-- Alto configurado por usuario, constante durante cada interacción. -->
