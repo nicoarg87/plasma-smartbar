@@ -180,6 +180,30 @@ Item {
     property bool soledadGradientEnabled: false
     property color soledadGradientEnd: "#ee9852"
     property string soledadGradientDirection: "topBottom"
+    property bool soledadGradientSyncBreathing: false
+    property real soledadGradientBreathingIntensity: 0.6
+    property real sharedBreathingPhase: 0
+    readonly property bool sharedBreathingActive:
+        soledadGradientSyncBreathing && soledadGradientEnabled &&
+        soActivityStyle === "breathe" && soActivityMotion &&
+        (soWindowCount > 0 ? soActivityShowWhenOpen : soActivityShowWhenEmpty)
+    readonly property real gradientBreathingFactor: {
+        if (!sharedBreathingActive) return 1
+        const wave = 0.5 - 0.5 * Math.cos(2 * Math.PI * sharedBreathingPhase)
+        const depth = Math.max(0, Math.min(1, soActivityPulseDepth))
+        const intensity = Math.max(0, Math.min(1, soledadGradientBreathingIntensity))
+        return 1 - intensity * depth * (1 - wave)
+    }
+    Timer {
+        id: synchronizedBreathingTimer
+        interval: 50
+        repeat: true
+        running: root.sharedBreathingActive
+        onTriggered: {
+            const speed = Math.max(0.1, Math.min(3, root.soActivityPulseSpeed))
+            root.sharedBreathingPhase = (root.sharedBreathingPhase + speed * interval / 1000) % 1
+        }
+    }
     property bool malvinaGradientEnabled: false
     property color malvinaGradientEnd: "#445577"
     property string malvinaGradientDirection: "topBottom"
