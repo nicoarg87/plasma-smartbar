@@ -114,7 +114,7 @@ Item {
     property string soClockTime: ""
     property string soClockDate: ""
     property string soClockFontFamily: "Sans Serif"
-    property int soClockFontSize: 16
+    property int soClockFontSize: 11
     property color soClockTextColor: "#ffffff"
 
     function dismissSoClock() {
@@ -140,7 +140,7 @@ Item {
     }
     Timer {
         id: soClockReturnTimer
-        interval: 3000 // luego volver al GIF original
+        interval: 3000 // ocultar el texto; el GIF nunca se detiene
         repeat: false
         onTriggered: root.soClockVisible = false
     }
