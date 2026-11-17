@@ -369,10 +369,9 @@ Item {
     // Espacio físico desde el borde izquierdo libre hasta la derecha de
     // Soledad. Se calcula en el ancho REAL, respetando Malvina si está visible.
     readonly property real availableIslandWidth: centeredPresentation
-        ? Math.max(0, root.width - (launcherIslandVisible ? launcherIsland.width + 12 : 0)
-                    - controlsReservation)
-        : Math.max(0, root.width - islandOffset - controlsReservation
-                    - (launcherIslandVisible ? launcherIsland.width + 12 : 12))
+        ? physicalIslandLimit
+        : Math.max(0, root.width - islandOffset -
+                     leftReserved - rightReserved)
     // Sólo lectura para el visor Qt de pruebas: mostrar cuánto ocupa
     // Soledad frente al espacio real disponible, sin alterar su aspecto.
     readonly property real actualIslandWidth: systemIsland.width
@@ -468,10 +467,10 @@ Item {
     function ensureExpansionFits() {
         if (centeredPresentation) {
             if (!soExpanded && !trayExpanded) return
-            const leftLimit = launcherIslandVisible && launcherIsland.visible
-                ? launcherIsland.x + launcherIsland.width + 8 : 0
-            const rightLimit = root.width - controlsReservation - 8
-            if (systemIsland.x < leftLimit - 0.5 ||
+            const leftLimit = leftReserved
+            const rightLimit = root.width - rightReserved
+            if (naturalIslandWidth > physicalIslandLimit + 0.5 ||
+                systemIsland.x < leftLimit - 0.5 ||
                 systemIsland.x + systemIsland.width > rightLimit + 0.5) {
                 if (soExpanded && trayExpanded) {
                     if (lastExpandedMode === "so") trayExpanded = false
@@ -483,7 +482,7 @@ Item {
             return
         }
         if (!soExpanded || !trayExpanded) return
-        if (systemIsland.width > availableIslandWidth + 0.5) {
+        if (naturalIslandWidth > availableIslandWidth + 0.5) {
             if (lastExpandedMode === "tray") soExpanded = false
             else trayExpanded = false
         }
