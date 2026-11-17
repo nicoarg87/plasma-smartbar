@@ -1177,6 +1177,41 @@ Window {
                             else settings.malvinaGradientDirection = d
                         }
                     }
+                    QQC2.CheckBox {
+                        text: "Sincronizar respiración del degradado de Soledad con SO"
+                        enabled: settings.soledadGradientEnabled
+                        checked: settings.soledadGradientSyncBreathing
+                        onToggled: settings.soledadGradientSyncBreathing = checked
+                    }
+                    QQC2.Label {
+                        visible: settings.soledadGradientEnabled &&
+                                 settings.soledadGradientSyncBreathing
+                        text: "Requiere Respiración luminosa activa en el contorno SO. Ambas comparten velocidad y fase; se activa con Aplicar."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Intensidad de respiración del degradado"
+                        color: "white"
+                        visible: settings.soledadGradientEnabled &&
+                                 settings.soledadGradientSyncBreathing
+                    }
+                    RowLayout {
+                        visible: settings.soledadGradientEnabled &&
+                                 settings.soledadGradientSyncBreathing
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.soledadGradientBreathingIntensity
+                            onMoved: settings.soledadGradientBreathingIntensity = value
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.soledadGradientBreathingIntensity * 100) + "%"
+                            color: "white"
+                        }
+                    }
                     QQC2.Label {
                         text: "Contorno de islas y botones"
                         font.bold: true
