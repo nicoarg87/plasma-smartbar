@@ -159,6 +159,11 @@ Window {
         hasSuggestedPalette = true
         paletteFeedback = "Se propuso un degradado derivado del contorno, sin modificar la isla todavía."
     }
+    function putSuggestedBaseOnSoledad() {
+        if (!hasSuggestedPalette) return
+        soledadColor = suggestedIslandBase
+        paletteFeedback = "Primer color sugerido; pulsá Aplicar para confirmarlo."
+    }
     function putSuggestedPaletteOnSoledad() {
         if (!hasSuggestedPalette) return
         soledadColor = suggestedIslandBase
@@ -435,13 +440,14 @@ Window {
         property string requestedUrl: ""
         property bool pending: false
         property string previousUrl: ""
+        property string requestMode: "contour"
         onImageLoaded: if (pending) requestPaint()
-        function suggestFromImage() {
-            if (settings.logoMode === "text") {
-                settings.paletteFeedback = "El modo texto no tiene imagen principal para analizar."
-                return
-            }
-            requestedUrl = settings.selectedImage.toString()
+        function suggestFromImage(mode) {
+            requestMode = mode === "island" ? "island" : "contour"
+            requestedUrl = settings.logoMode === "text"
+                ? (settings.soTextBackgroundImage.length > 0
+                   ? settings.soTextBackgroundImage : settings.defaultImage.toString())
+                : settings.selectedImage.toString()
             if (requestedUrl.length === 0) {
                 settings.paletteFeedback = "No hay imagen para analizar."
                 return
