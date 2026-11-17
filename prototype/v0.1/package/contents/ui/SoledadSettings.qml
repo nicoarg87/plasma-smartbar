@@ -444,6 +444,7 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        visible: settings.logoMode !== "text" && settings.selectedImage.toString().length > 0
                         text: "Arrastrá la foto o el GIF para elegir qué parte mostrar."
                         color: "#ddd6e8"
                         wrapMode: Text.WordWrap
@@ -462,11 +463,13 @@ Window {
                             }
                         }
                         QQC2.Button {
+                            visible: settings.logoMode === "custom"
                             text: "Elegir archivo…"
                             onClicked: chooseImage.open()
                         }
                     }
                     QQC2.Label { text: "Forma del botón SO y del recorte"; color: "white" }
+                        visible: true
                     QQC2.ComboBox {
                         Layout.fillWidth: true
                         model: ["Cuadrado", "Círculo", "Rombo ♦", "Corazón ♥", "Estrella ★",
@@ -489,7 +492,9 @@ Window {
                         }
                     }
                     QQC2.Label { text: "Ajuste de la imagen"; color: "white" }
+                        visible: settings.logoMode !== "text"
                     QQC2.ComboBox {
+                        visible: settings.logoMode !== "text"
                         Layout.fillWidth: true
                         model: ["Imagen completa (encajar)", "Rellenar forma (recortar)",
                                 "Estirar (deformar la imagen)"]
@@ -500,6 +505,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.logoMode !== "text"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Escala"; color: "white"; Layout.preferredWidth: 90 }
                         QQC2.Slider {
@@ -514,6 +520,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.logoMode !== "text"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Horizontal"; color: "white"; Layout.preferredWidth: 90 }
                         QQC2.Slider {
@@ -524,6 +531,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.logoMode !== "text"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Vertical"; color: "white"; Layout.preferredWidth: 90 }
                         QQC2.Slider {
@@ -534,6 +542,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.logoMode !== "text"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Rotación"; color: "white"; Layout.preferredWidth: 90 }
                         QQC2.Slider {
@@ -549,9 +558,10 @@ Window {
                         }
                     }
                     QQC2.Label { text: "Ancho de los formatos horizontales"; color: "white"; font.bold: true }
+                        visible: settings.soButtonFrameShape !== "square"
                     RowLayout {
                         Layout.fillWidth: true
-                        enabled: settings.soButtonFrameShape !== "square"
+                        visible: settings.soButtonFrameShape !== "square"
                         QQC2.Label { text: "Ancho SO"; color: "white"; Layout.preferredWidth: 90 }
                         QQC2.Slider {
                             Layout.fillWidth: true
@@ -566,12 +576,14 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        visible: settings.logoMode !== "text"
                         text: "Elegí todas las formas desde el mismo desplegable. Estirar mantiene la deformación al aumentar el zoom. El archivo original no se modifica; una imagen pequeña no gana detalle al ampliarse."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.CheckBox {
+                        visible: settings.logoMode !== "text" && settings.isGif
                         text: "Reproducir GIF animados"
                         checked: settings.enableGif
                         onToggled: settings.enableGif = checked
@@ -1077,6 +1089,7 @@ Window {
                         wrapMode: Text.WordWrap
                     }
                     RowLayout {
+                        visible: settings.appearanceCanEdit
                         Layout.fillWidth: true
                         Rectangle {
                             width: 54
@@ -1101,7 +1114,9 @@ Window {
                         }
                     }
                     QQC2.Label { text: "Opacidad"; color: "white" }
+                        visible: settings.appearanceCanEdit
                     RowLayout {
+                        visible: settings.appearanceCanEdit
                         Layout.fillWidth: true
                         QQC2.Slider {
                             Layout.fillWidth: true
@@ -1117,74 +1132,77 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
                         text: "Degradado de dos colores por isla"
                         font.bold: true
                         color: "white"
                     }
                     QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
                         text: "Soledad y Malvina conservan sus colores uniformes mientras el degradado está desactivado. Los botones transparentes dejan ver el degradado cuando está activo."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
-                    QQC2.ComboBox {
-                        id: gradientTarget
-                        Layout.fillWidth: true
-                        model: ["Soledad (isla 1)", "Malvina (isla 2)"]
-                    }
                     QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex <= 1
                         text: "Activar degradado de la isla seleccionada"
-                        checked: gradientTarget.currentIndex === 0
+                        checked: appearanceTarget.currentIndex === 0
                             ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled
                         onToggled: {
-                            if (gradientTarget.currentIndex === 0)
+                            if (appearanceTarget.currentIndex === 0)
                                 settings.soledadGradientEnabled = checked
                             else settings.malvinaGradientEnabled = checked
                         }
                     }
                     RowLayout {
+                        visible: appearanceTarget.currentIndex <= 1 && (appearanceTarget.currentIndex === 0 ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled)
                         Layout.fillWidth: true
                         QQC2.Button {
                             text: "Segundo color…"
                             onClicked: {
-                                islandGradientEndDialog.target = gradientTarget.currentIndex
+                                islandGradientEndDialog.target = appearanceTarget.currentIndex
                                 islandGradientEndDialog.selectedColor =
-                                    gradientTarget.currentIndex === 0
+                                    appearanceTarget.currentIndex === 0
                                     ? settings.soledadGradientEnd : settings.malvinaGradientEnd
                                 islandGradientEndDialog.open()
                             }
                         }
                         Rectangle {
                             width: 36; height: 24; radius: 5
-                            color: gradientTarget.currentIndex === 0
+                            color: appearanceTarget.currentIndex === 0
                                 ? settings.soledadGradientEnd : settings.malvinaGradientEnd
                         }
                     }
                     QQC2.Label { text: "Dirección del degradado"; color: "white" }
+                        visible: appearanceTarget.currentIndex <= 1 && (appearanceTarget.currentIndex === 0 ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled)
                     QQC2.ComboBox {
+                        visible: appearanceTarget.currentIndex <= 1 && (appearanceTarget.currentIndex === 0 ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled)
                         Layout.fillWidth: true
                         model: ["Arriba → abajo", "Abajo → arriba",
                                 "Izquierda → derecha", "Derecha → izquierda"]
                         currentIndex: Math.max(0,
                             ["topBottom","bottomTop","leftRight","rightLeft"].indexOf(
-                                gradientTarget.currentIndex === 0
+                                appearanceTarget.currentIndex === 0
                                     ? settings.soledadGradientDirection
                                     : settings.malvinaGradientDirection))
                         onActivated: function(i) {
                             const d = ["topBottom","bottomTop","leftRight","rightLeft"][i]
-                            if (gradientTarget.currentIndex === 0)
+                            if (appearanceTarget.currentIndex === 0)
                                 settings.soledadGradientDirection = d
                             else settings.malvinaGradientDirection = d
                         }
                     }
                     QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex === 0 && settings.soledadGradientEnabled
                         text: "Sincronizar respiración del degradado de Soledad con SO"
                         enabled: settings.soledadGradientEnabled
                         checked: settings.soledadGradientSyncBreathing
                         onToggled: settings.soledadGradientSyncBreathing = checked
                     }
                     QQC2.Label {
-                        visible: settings.soledadGradientEnabled &&
+                        visible: appearanceTarget.currentIndex === 0 &&
+                                 settings.soledadGradientEnabled &&
                                  settings.soledadGradientSyncBreathing
                         text: "Requiere Respiración luminosa activa en el contorno SO. Ambas comparten velocidad y fase; se activa con Aplicar."
                         color: "#ddd6e8"
@@ -1194,11 +1212,13 @@ Window {
                     QQC2.Label {
                         text: "Intensidad de respiración del degradado"
                         color: "white"
-                        visible: settings.soledadGradientEnabled &&
+                        visible: appearanceTarget.currentIndex === 0 &&
+                                 settings.soledadGradientEnabled &&
                                  settings.soledadGradientSyncBreathing
                     }
                     RowLayout {
-                        visible: settings.soledadGradientEnabled &&
+                        visible: appearanceTarget.currentIndex === 0 &&
+                                 settings.soledadGradientEnabled &&
                                  settings.soledadGradientSyncBreathing
                         Layout.fillWidth: true
                         QQC2.Slider {
@@ -1280,11 +1300,13 @@ Window {
                         }
                     }
                     QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex === 2
                         text: "Mostrar fondo continuo opcional"
                         checked: settings.showBackground
                         onToggled: settings.showBackground = checked
                     }
                     QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 2
                         text: "El fondo está desactivado por defecto. No cambia la altura ni reemplaza una isla."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
@@ -1338,11 +1360,13 @@ Window {
                         onToggled: settings.launcherIslandVisible = checked
                     }
                     QQC2.CheckBox {
+                        visible: settings.launcherIslandVisible
                         text: "Ocultar Malvina automáticamente (predeterminado)"
                         checked: settings.autoHideMalvina
                         onToggled: settings.autoHideMalvina = checked
                     }
                     QQC2.Label {
+                        visible: settings.launcherIslandVisible
                         text: "Con esta opción activada, Malvina aparece solo si dejás el cursor 0,6 segundos en su ubicación. Al salir vuelve a ocultarse. Si desactivás esta opción, permanece a la vista. «Mostrar Malvina» permite habilitarla o quitarla por completo."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
@@ -1355,11 +1379,13 @@ Window {
                         onClicked: settings.alignmentEdited = true
                     }
                     QQC2.CheckBox {
+                        visible: settings.alignedRight
                         text: "Volver a la derecha al desmaximizar"
                         checked: settings.autoReturnRight
                         onToggled: settings.autoReturnRight = checked
                     }
                     QQC2.Label {
+                        visible: settings.alignedRight
                         text: "El regreso al desmaximizar está activado por defecto. No impide mover Soledad manualmente."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
@@ -1403,7 +1429,9 @@ Window {
                         }
                     }
                     QQC2.Label { text: "Forma de Malvina"; color: "white" }
+                        visible: settings.launcherIslandVisible
                     QQC2.ComboBox {
+                        visible: settings.launcherIslandVisible
                         Layout.fillWidth: true
                         model: ["Redondeada (inicial)", "Cuadrada",
                                 "Izquierda redondeada / derecha recta",
@@ -1467,6 +1495,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.launcherIslandVisible
                         Layout.fillWidth: true
                         QQC2.Label { text: "Altura Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1481,6 +1510,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.soledadShape !== "square" && settings.soledadShape !== "leftTip"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Esquinas Soledad"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1495,6 +1525,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.launcherIslandVisible && settings.malvinaShape !== "square"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Esquinas Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1523,6 +1554,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.launcherIslandVisible
                         Layout.fillWidth: true
                         QQC2.Label { text: "Ancho Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
