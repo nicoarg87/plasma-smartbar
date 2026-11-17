@@ -4,6 +4,7 @@
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
   <kcfgfile name=""/>
   <group name="General">
+    <entry name="positionMode" type="String"><default>right</default></entry>
     <entry name="autoReturnRight" type="Bool">
       <label>Volver automaticamente a la derecha al desmaximizar</label>
       <default>true</default>
@@ -27,6 +28,14 @@
     <!-- Sólo parámetros de visualización; el archivo del usuario no se edita. -->
     <entry name="soLogoMode" type="String"><default>default</default></entry>
     <entry name="soLogoPath" type="String"><default></default></entry>
+    <entry name="soTextLabel" type="String"><default>SO</default></entry>
+    <entry name="soTextColor" type="String"><default>#ffffff</default></entry>
+    <entry name="soTextBackground" type="String"><default>#192536</default></entry>
+    <entry name="soTextBackgroundOpacity" type="Double"><default>0.9</default></entry>
+    <entry name="soTextFontFamily" type="String"><default>Sans Serif</default></entry>
+    <entry name="soTextFontSize" type="Int"><default>13</default></entry>
+    <entry name="soTextBold" type="Bool"><default>true</default></entry>
+    <entry name="soTextBackgroundImage" type="String"><default></default></entry>
     <entry name="soLogoShape" type="String"><default>square</default></entry>
     <entry name="soLogoFitMode" type="String"><default>stretch</default></entry>
     <entry name="soLogoZoom" type="Double"><default>1.0</default></entry>
