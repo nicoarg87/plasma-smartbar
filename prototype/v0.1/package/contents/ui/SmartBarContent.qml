@@ -112,12 +112,16 @@ Item {
     // Imagen tropical elegida por el mantenedor: archivo local en assets/.
     // Si aún no se copió al ensayo, el botón conserva respaldo de texto SO.
     // No incluir logos externos sin derechos acreditados.
-    readonly property url defaultSoLogo: Qt.resolvedUrl("assets/so-tropical.png")
+    // GIF original elegido y validado visualmente por el mantenedor.
+    // El recurso es independiente de MIT; ver licencias gráficas.
+    readonly property url defaultSoLogo: Qt.resolvedUrl("assets/so-tropical.gif")
     readonly property url activeSoLogo: soLogoMode === "text" ? "" :
         (soLogoMode === "custom" && soLogoPath.length > 0
          ? soLogoPath : defaultSoLogo)
-    readonly property bool activeSoLogoIsGif: soLogoMode === "custom" &&
-        soLogoPath.toLowerCase().endsWith(".gif")
+    // El GIF debe reproducirse también en el modo "Predeterminada".
+    // Antes solo se activaba AnimatedImage al elegir un GIF personalizado.
+    readonly property bool activeSoLogoIsGif: soLogoMode === "default" ||
+        (soLogoMode === "custom" && soLogoPath.toLowerCase().endsWith(".gif"))
 
     // Colores y opacidad por isla; fondo continuo opcional y APAGADO.
     // Es una capa de fondo y no sustituye la isla 3 buscadora pendiente.
