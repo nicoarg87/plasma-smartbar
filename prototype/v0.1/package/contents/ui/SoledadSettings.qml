@@ -468,8 +468,11 @@ Window {
                             onClicked: chooseImage.open()
                         }
                     }
-                    QQC2.Label { text: "Forma del botón SO y del recorte"; color: "white" }
+                    QQC2.Label {
+                        text: "Forma del botón SO y del recorte";
+                        color: "white"
                         visible: true
+                    }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
                         model: ["Cuadrado", "Círculo", "Rombo ♦", "Corazón ♥", "Estrella ★",
@@ -491,8 +494,11 @@ Window {
                             }
                         }
                     }
-                    QQC2.Label { text: "Ajuste de la imagen"; color: "white" }
+                    QQC2.Label {
+                        text: "Ajuste de la imagen";
+                        color: "white"
                         visible: settings.logoMode !== "text"
+                    }
                     QQC2.ComboBox {
                         visible: settings.logoMode !== "text"
                         Layout.fillWidth: true
@@ -557,8 +563,12 @@ Window {
                             Layout.preferredWidth: 52
                         }
                     }
-                    QQC2.Label { text: "Ancho de los formatos horizontales"; color: "white"; font.bold: true }
+                    QQC2.Label {
+                        text: "Ancho de los formatos horizontales";
+                        color: "white";
+                        font.bold: true
                         visible: settings.soButtonFrameShape !== "square"
+                    }
                     RowLayout {
                         Layout.fillWidth: true
                         visible: settings.soButtonFrameShape !== "square"
@@ -813,8 +823,12 @@ Window {
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        QQC2.Label { text: "Grosor"; color: "white"; Layout.preferredWidth: 80 }
-                        visible: settings.effectStyle !== "off"
+                        QQC2.Label {
+                            text: "Grosor";
+                            color: "white";
+                            Layout.preferredWidth: 80
+                            visible: settings.effectStyle !== "off"
+                        }
                         QQC2.Slider {
                             Layout.fillWidth: true
                             from: 0.5; to: 2; stepSize: 0.25
@@ -1113,8 +1127,11 @@ Window {
                             color: "#eeeaf7"
                         }
                     }
-                    QQC2.Label { text: "Opacidad"; color: "white" }
+                    QQC2.Label {
+                        text: "Opacidad";
+                        color: "white"
                         visible: settings.appearanceCanEdit
+                    }
                     RowLayout {
                         visible: settings.appearanceCanEdit
                         Layout.fillWidth: true
@@ -1174,8 +1191,11 @@ Window {
                                 ? settings.soledadGradientEnd : settings.malvinaGradientEnd
                         }
                     }
-                    QQC2.Label { text: "Dirección del degradado"; color: "white" }
+                    QQC2.Label {
+                        text: "Dirección del degradado";
+                        color: "white"
                         visible: appearanceTarget.currentIndex <= 1 && (appearanceTarget.currentIndex === 0 ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled)
+                    }
                     QQC2.ComboBox {
                         visible: appearanceTarget.currentIndex <= 1 && (appearanceTarget.currentIndex === 0 ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled)
                         Layout.fillWidth: true
@@ -1428,8 +1448,11 @@ Window {
                                 "square","leftSquareRightRound","leftTip"][i]
                         }
                     }
-                    QQC2.Label { text: "Forma de Malvina"; color: "white" }
+                    QQC2.Label {
+                        text: "Forma de Malvina";
+                        color: "white"
                         visible: settings.launcherIslandVisible
+                    }
                     QQC2.ComboBox {
                         visible: settings.launcherIslandVisible
                         Layout.fillWidth: true
