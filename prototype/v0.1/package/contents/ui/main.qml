@@ -69,6 +69,8 @@ PlasmoidItem {
         soledadGradientEnabled: Plasmoid.configuration.soledadGradientEnabled
         soledadGradientEnd: Plasmoid.configuration.soledadGradientEnd
         soledadGradientDirection: Plasmoid.configuration.soledadGradientDirection
+        soledadGradientSyncBreathing: Plasmoid.configuration.soledadGradientSyncBreathing
+        soledadGradientBreathingIntensity: Plasmoid.configuration.soledadGradientBreathingIntensity
         malvinaGradientEnabled: Plasmoid.configuration.malvinaGradientEnabled
         malvinaGradientEnd: Plasmoid.configuration.malvinaGradientEnd
         malvinaGradientDirection: Plasmoid.configuration.malvinaGradientDirection
@@ -146,6 +148,10 @@ PlasmoidItem {
             Plasmoid.configuration.malvinaShape = malShape
             Plasmoid.configuration.gripShape = gripButtonShape
             Plasmoid.configuration.trayButtonShape = trayShape
+        }
+        onRequestGradientBreathingChange: function(enabled, intensity) {
+            Plasmoid.configuration.soledadGradientSyncBreathing = enabled
+            Plasmoid.configuration.soledadGradientBreathingIntensity = intensity
         }
         onRequestIslandGradientChange: function(a, b, c, d, e, f) {
             Plasmoid.configuration.soledadGradientEnabled = a
