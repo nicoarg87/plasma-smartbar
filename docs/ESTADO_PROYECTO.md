@@ -883,3 +883,11 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 **COMMITS:** [politica URL](https://github.com/nicoarg87/plasma-smartbar/commit/ec09896cf3a56409c6c11a99f3aeeabc372b3aec), [integracion Malvina](https://github.com/nicoarg87/plasma-smartbar/commit/a2d7f3b0dfd1ffc2c0e3c155c4af08baf2ab195d), [arquitectura](https://github.com/nicoarg87/plasma-smartbar/commit/1ce70dbad7fb387c86333c0af25b5f34d3644bc4).
 
 **SEGUIMIENTO:** [issue #11 — arquitectura modular](https://github.com/nicoarg87/plasma-smartbar/issues/11). Se agrego el test automatico `prototype/v0.1/tests/test_malvina_url_policy.cjs` en [commit d356bf5](https://github.com/nicoarg87/plasma-smartbar/commit/d356bf5e44d77c33c41dae1ab0f27fbd97b2c09b); **NO se ejecuto en este entorno**, porque el acceso a GitHub para cambios fue mediante conector y aqui no se dispone de una copia local del repositorio. Ejecutarlo en CachyOS con Node antes de considerar comprobada la politica.
+
+## Malvina: selector por Tab, confirmacion por Espacio y busqueda por Enter (17/11/2026)
+
+**CONFIRMADO:** Google es predeterminado. Tab/Mayus+Tab navegan proveedores Web e IA; Espacio selecciona proveedor y devuelve foco al texto conservado; Enter en texto realiza busqueda Web o abre sitio IA. Seleccionar proveedor nunca ejecuta una accion externa.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL:** `MalvinaSearch.qml` inicia en Google (`currentSection=1`, `webIndex=0`); `webRepeater`/`aiRepeater` permiten foco individual; `chooseProvider()` cambia seleccion y devuelve foco sin invocar `openSelected()`; `openSelected()` queda asociado a `onAccepted` del campo. [Commit f67cc6e](https://github.com/nicoarg87/plasma-smartbar/commit/f67cc6e3f35e15eae53f0b3a5d8e99d83e4d2f69).
+
+**PENDIENTE:** probar Qt/CachyOS (focus dentro de Popup no modal, Tab normal e inverso, Espacio, Enter, conservar texto, clic y retorno). Revisar que haya visibilidad clara del foco para accesibilidad; un chequeo estatico no acredita comportamiento del Popup. No se cambio ni instalo panel KDE.
