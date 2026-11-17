@@ -517,3 +517,14 @@ Actualizar cuando cambie algún hito: fecha, decisión confirmada, qué cambió 
 ### Actualización de implementación de contornos (17/11/2026)
 
 Tras el registro inicial, la rama experimental incorpora además `OutlineStyle.qml` y `outlineConfig` con edición separada para Soledad, Malvina, bandeja y agarre: trazos apagado/continuo/doble/discontinuo/punteado, ancho de 0,5 a 5 px, color y opacidad. La UI está en Apariencia y se conecta a `preview_redimensionable.qml`. No se debe confundir con `SoActivityOutline` del logo. El agarre redondeado queda como opción inicial. **Código presente en rama, aún NO PROBADO en CachyOS**. Se eliminó el componente redundante `DecorativeBorder.qml` para mantener una sola implementación de contornos (`OutlineStyle.qml`). Verificar en la próxima prueba la continuidad del GIF, las dos islas, cada botón, contornos dobles y transparencia sin modificar tamaño, posición o foco. La persistencia KConfig real aún no está validada.
+
+
+## Transparencia propia de botones y doble trazo simétrico (17/11/2026)
+
+**OBSERVADO EN CACHYOS (reporte del mantenedor):** cambiar color/opacidad propia de bandeja y agarre y pulsar Aplicar no producía diferencia visible, sobre todo al intentar casi transparencia total. **Diagnóstico del código:** los botones estaban compuestos encima del relleno de Soledad, así que reducir su opacidad dejaba ver la misma isla debajo y parecía no hacer efecto. Los controles y su señal de Aplicar ya existían; no afirmar que el guardado o persistencia era la causa.
+
+**CORRECCIÓN EXPERIMENTAL:** el fondo normal de Soledad ahora se dibuja mediante Canvas y, cuando bandeja/agarre tienen apariencia independiente habilitada, se retira el relleno de isla exactamente detrás de sus superficies. La imagen SO, los gestos, posiciones, ancho y altura siguen en los mismos elementos. En Soledad con terminación triangular `leftTip` queda una excepción pendiente de investigar, ya que usa otro Canvas. Commits [f0b9d0a](https://github.com/nicoarg87/plasma-smartbar/commit/f0b9d0a692c2c683ec6aa705d08798aa75da7913) y [0e6c31d](https://github.com/nicoarg87/plasma-smartbar/commit/0e6c31d11ecf16959aee654e3e013485ca7e349e).
+
+**REQUISITO CONFIRMADO:** la línea doble debe usar **dos trazos del mismo grosor**. Eliminada la reducción del 65 % de la línea interior en `OutlineStyle.qml`: commit [05bb3a1](https://github.com/nicoarg87/plasma-smartbar/commit/05bb3a1bfbb9f31b01bf4365aa875cca712a9048).
+
+**PENDIENTE DE PRUEBA REAL:** comprobar que un color diferente se vea al aplicar, que opacidad 0 % muestre el fondo de la ventana debajo de bandeja/agarre y no el color de Soledad, que las formas redondeadas preserven la transparencia y que doble línea tenga trazos iguales. Verificar repaint al expandir bandeja y al cambiar sus fichas, sin fallos en Konsole ni afectación al GIF. Esta prueba es solo en `probar_ancho.sh`, no panel instalado.
