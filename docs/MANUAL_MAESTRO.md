@@ -928,3 +928,12 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 **PROCEDENCIA Y DERECHOS:** imagen creada con ChatGPT y seleccionada por el mantenedor; mismo criterio gráfico CC0 1.0 que la imagen tropical previa, sujeto a derechos existentes (software MIT aparte), según [inventario](LICENCIAS_RECURSOS_GRAFICOS.md). No incluir gráficos Golden Dog sin autorización.
 
 **ESTADO DE VALIDACIÓN:** el mantenedor dice que el GIF es funcional en sus pruebas previas; la visualización y reproducción como **nuevo predeterminado** en la versión de la rama aún debe comprobarse en CachyOS después del cambio. No se reemplazó el panel instalado. El recurso binario no ha sido subido a GitHub: hace falta extraer el ZIP local en el checkout.
+
+
+## 54. Hora y fecha dentro de SO por hover del agarre (16/11/2026)
+
+**DISEÑO FUNCIONAL:** hover de 180 milisegundos sobre el **agarre de seis puntos**, sin clic, muestra **hora local de 24 horas y fecha** durante tres segundos dentro del botón SO. El GIF animado se sustituye solo mientras aparece el texto y se restaura después. No se modifica la cápsula, grosor, ancho, posición de Soledad ni funciones de clic/arrastre del agarre. La acción se cancela al presionar/arrastrar/abrir el menú.
+
+**EDITOR EN «Logo SO»:** selección de familia tipográfica mediante FontDialog, tamaño de fuente 9–28 px (16 inicial), color mediante ColorDialog (#ffffff inicial) y restablecer tipografía/color. `Aplicar` no cierra y actualiza vista Qt o KConfig según el envoltorio. Implementación en `IslandButton.qml`, `SmartBarContent.qml`, `SoledadSettings.qml`, `main.qml`, `preview_redimensionable.qml` y `main.xml`. Todavía no hay prueba gráfica de esta función en CachyOS.
+
+**DIAGNÓSTICO MALVINA (VISOR):** maximizar la ventana que contiene la maqueta no es una aplicación externa maximizada, de modo que el hover de Malvina debe poder funcionar ahí. Solo los estados «Simular ventana maximizada» y «Simular pantalla completa», o el fullscreen propio del visor, bloquean el auto-hover experimental. El visor muestra la causa cuando está bloqueada. La futura conexión real KWin debe distinguir la ventana del plasmoide de las otras aplicaciones; hasta entonces el applet real bloquea autoaparición por falta de datos fiables.
