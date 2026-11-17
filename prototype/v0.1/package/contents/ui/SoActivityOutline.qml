@@ -203,8 +203,11 @@ Canvas {
         // El logo real ocupa control.width-12 y control.height-6.
         // Este Canvas mide control.width+16 y control.height+16:
         // por eso requiere márgenes diferentes: 14 horizontal y 11 vertical.
-        const margin = 14 + stroke / 2
-        const marginY = 11 + stroke / 2
+        // El centro del trazo se ubica FUERA del borde de la imagen
+        // (la imagen empieza a 14 px y 11 px dentro del Canvas).
+        // Antes se sumaba medio trazo y podía verse sobre el GIF.
+        const margin = 14 - stroke / 2 - 0.5
+        const marginY = 11 - stroke / 2 - 0.5
         const depth = Math.max(0, Math.min(1, pulseDepth))
         const breathing = pulsing && allowMotion
             ? (1 - depth) + depth * (0.5 - 0.5 * Math.cos(2 * Math.PI * (useExternalPulse ? externalPulsePhase : pulsePhase)))
