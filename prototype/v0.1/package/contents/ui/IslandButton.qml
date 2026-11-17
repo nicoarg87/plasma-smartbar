@@ -158,7 +158,9 @@ QQC2.Button {
                 spacing: -1
                 Text {
                     width: parent.width
+                    height: Math.max(12, control.height * 0.47)
                     horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                     text: control.clockTime
                     font.family: control.clockFontFamily
                     font.pixelSize: Math.max(9, control.clockFontSize)
@@ -171,7 +173,9 @@ QQC2.Button {
                 }
                 Text {
                     width: parent.width
+                    height: Math.max(9, control.height * 0.32)
                     horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                     text: control.clockDate
                     font.family: control.clockFontFamily
                     font.pixelSize: Math.max(8, Math.round(control.clockFontSize * 0.68))
