@@ -183,8 +183,11 @@ QQC2.Button {
             // la huella del botón, sin cambiar su tamaño ni el del GIF.
             width: Math.max(18, control.width + 16)
             height: Math.max(18, control.height + 16)
-            active: !control.clockVisible &&
-                    control.activityActiveForState &&
+            // El reloj se superpone sobre el GIF; no descargar ni
+            // apagar el contorno cuando aparece hora/fecha.
+            // Su visibilidad sigue gobernada solo por el efecto y
+            // la política de ventanas configurada.
+            active: control.activityActiveForState &&
                     control.activityEffect !== "off"
             sourceComponent: Component {
                 SoActivityOutline {
