@@ -21,7 +21,7 @@ Window {
     // Persistencia local SOLO del visor Qt: no modifica ningún panel KDE.
     // Se guardan los valores elegidos, no una estética inventada en GitHub.
     property bool appearanceRestored: false
-    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode"]
+    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage"]
     QtCore.Settings {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
@@ -129,6 +129,7 @@ Window {
     property string demoSoTextFontFamily: "Sans Serif"
     property int demoSoTextFontSize: 13
     property bool demoSoTextBold: true
+    property string demoSoTextBackgroundImage: ""
     property string demoSoLogoPath: ""
     property string demoSoLogoShape: "square"
     property string demoSoLogoFitMode: "stretch"
@@ -240,6 +241,7 @@ Window {
         soTextFontFamily: previewWindow.demoSoTextFontFamily
         soTextFontSize: previewWindow.demoSoTextFontSize
         soTextBold: previewWindow.demoSoTextBold
+        soTextBackgroundImage: previewWindow.demoSoTextBackgroundImage
         soLogoPath: previewWindow.demoSoLogoPath
         soLogoShape: previewWindow.demoSoLogoShape
         soLogoFitMode: previewWindow.demoSoLogoFitMode
@@ -316,7 +318,7 @@ Window {
             previewWindow.demoSoActivityShowWhenEmpty = showWhenEmpty
             previewWindow.demoSoActivityShowWhenOpen = showWhenOpen
         }
-        onRequestSoTextChange: function(label, textColor, background, opacity, fontFamily, fontSize, bold) {
+        onRequestSoTextChange: function(label, textColor, background, opacity, fontFamily, fontSize, bold, image) {
             previewWindow.demoSoTextLabel = label
             previewWindow.demoSoTextColor = textColor
             previewWindow.demoSoTextBackground = background
@@ -324,6 +326,7 @@ Window {
             previewWindow.demoSoTextFontFamily = fontFamily
             previewWindow.demoSoTextFontSize = fontSize
             previewWindow.demoSoTextBold = bold
+            previewWindow.demoSoTextBackgroundImage = image
         }
         onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             previewWindow.demoSoLogoMode = mode
@@ -523,6 +526,9 @@ Window {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
     onDemoSoTextFontSizeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoTextBackgroundImageChanged: {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
     onDemoSoTextBoldChanged: {
