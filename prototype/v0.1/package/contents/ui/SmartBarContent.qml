@@ -1482,32 +1482,22 @@ Item {
                         yAxis.enabled: false
                         cursorShape: Qt.SizeHorCursor
                         onActiveChanged: {
-                            if (active) {
-                                // Congelar la posición VISIBLE antes de abandonar
-                                // el anclaje centrado. De lo contrario Qt cambia
-                                // de ancla con la anchura de las fichas y SO salta.
-                                const wasCentered = root.centeredPresentation
-                                const visibleX = systemIsland.x
-                                root.dismissSoClock()
-                                if (root.soExpanded) root.soExpanded = false
-                                if (root.trayExpanded) root.trayExpanded = false
-                                if (wasCentered) {
-                                    root.centeredPositionDragged = true
-                                    root.setIslandOffset(Math.max(0,
-                                        root.width - visibleX -
-                                        root.centerBaseWidth - root.controlsReservation))
-                                }
-                                moveGrip.draggedDuringPress = true
-                                moveGrip.suppressGripTooltip = true
-                                // Resguardo para los casos en que Qt entregue
-                                // el gesto directamente al DragHandler.
-                                if (gripMenu.visible) gripMenu.close()
-                                // Tomar el margen actual justo al iniciar
-                                // el gesto; no volver a una posición antigua.
+                            if (!active) return
+                            // Centro visible de SO, antes de cerrar los cajones.
+                            const visualSoX = soButton.mapToItem(root, soButton.width / 2, 0).x
+                            root.dismissSoClock()
+                            if (gripMenu.visible) gripMenu.close()
+                            if (root.centeredPresentation) {
+                                root.manualSoCenterX = visualSoX
+                                root.centeredPositionDragged = true
+                                root.dragStartSoCenterX = visualSoX
+                            } else {
                                 root.offsetAtDragStart = root.islandOffset
                             }
-                            // Al soltar la isla, mantenerla donde el usuario
-                            // la dejó; NO aplicar aquí el retorno automático.
+                            root.soExpanded = false
+                            root.trayExpanded = false
+                            moveGrip.draggedDuringPress = true
+                            moveGrip.suppressGripTooltip = true
                         }
                         onActiveTranslationChanged: {
                             if (active && Math.abs(activeTranslation.x) > 1) {
@@ -1515,9 +1505,25 @@ Item {
                                 // «Alinear a la derecha» sin tocar el retorno
                                 // automático al desmaximizar.
                                 root.alignRightSelected = false
-                                root.setIslandOffset(
-                                    root.offsetAtDragStart - activeTranslation.x
-                                )
+                                if (root.centeredPresentation) {
+                                    // Mover la referencia del botón SO, sin
+                                    // cambiar el anclaje ni el orden de iconos.
+                                    const minX = root.launcherIslandVisible &&
+                                        launcherIsland.visible
+                                        ? launcherIsland.x + launcherIsland.width +
+                                          soButton.width / 2 + 8
+                                        : soButton.width / 2
+                                    const maxX = root.width -
+                                        root.controlsReservation -
+                                        soButton.width / 2 - moveGrip.width - 8
+                                    root.manualSoCenterX = Math.max(minX,
+                                        Math.min(maxX,
+                                            root.dragStartSoCenterX +
+                                            activeTranslation.x))
+                                } else {
+                                    root.setIslandOffset(
+                                        root.offsetAtDragStart - activeTranslation.x)
+                                }
                             }
                         }
                     }
