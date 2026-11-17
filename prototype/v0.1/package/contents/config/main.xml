@@ -28,7 +28,7 @@
     <!-- Sólo parámetros de visualización; el archivo del usuario no se edita. -->
     <entry name="soLogoMode" type="String"><default>default</default></entry>
     <entry name="soLogoPath" type="String"><default></default></entry>
-    <entry name="taskDisplayMode" type="String"><default>text</default></entry>
+    <entry name="taskDisplayMode" type="String"><default>icon</default></entry>
     <entry name="taskFrameShape" type="String"><default>rounded</default></entry>
     <entry name="taskFrameColor" type="String"><default>#ffffff</default></entry>
     <entry name="taskFrameOpacity" type="Double"><default>0.12</default></entry>
