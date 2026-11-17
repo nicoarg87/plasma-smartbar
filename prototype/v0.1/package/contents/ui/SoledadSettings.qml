@@ -408,7 +408,10 @@ Window {
                     hues[bin] += h*weight
                     count++
                 }
-                const winner = bins.indexOf(Math.max(...bins))
+                let winner = 0
+                for (let n = 1; n < bins.length; ++n) {
+                    if (bins[n] > bins[winner]) winner = n
+                }
                 if (count > 0 && bins[winner] > 0) {
                     const hue = hues[winner]/bins[winner]
                     settings.accentColor = Qt.hsva(hue,0.72,1.0,1)
