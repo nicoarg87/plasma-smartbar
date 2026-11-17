@@ -1938,6 +1938,26 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 0
+                        text: "Sugerencias de color para Soledad"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.Button {
+                        visible: appearanceTarget.currentIndex === 0
+                        text: "Sugerir tonos desde el GIF o imagen"
+                        onClicked: paletteSampler.suggestFromImage("island")
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Muestra local de colores, sin aplicar automáticamente"
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 0
+                        text: settings.paletteFeedback
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
                     QQC2.Button {
                         visible: appearanceTarget.currentIndex === 0
                         text: "Sugerir degradado según el contorno actual"
@@ -1965,9 +1985,17 @@ Window {
                             width: 52; height: 28; radius: 6
                             color: settings.suggestedIslandEnd
                         }
-                        QQC2.Button {
-                            text: "Usar tonos sugeridos en Soledad"
-                            onClicked: settings.putSuggestedPaletteOnSoledad()
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            QQC2.Button {
+                                text: "Usar solo el primer color sugerido"
+                                onClicked: settings.putSuggestedBaseOnSoledad()
+                            }
+                            QQC2.Button {
+                                text: "Usar ambos tonos en el degradado"
+                                onClicked: settings.putSuggestedPaletteOnSoledad()
+                            }
                         }
                     }
                     QQC2.CheckBox {
