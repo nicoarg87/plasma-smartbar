@@ -1629,6 +1629,50 @@ Item {
                     }
                 }
 
+                // Modo histórico de maqueta: NO se altera la prueba de
+                // fichas ficticias ni su autocontracción configurada.
+                Repeater {
+                    model: root.positionMode === "center" && root.soExpanded &&
+                           !root.usingRealTasks && root.demoHasRunningWindows
+                           ? root.demoApps : []
+                    delegate: IslandButton {
+                        text: modelData
+                        onClicked: root.selectDemoApp(modelData)
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Ficha ficticia: " + modelData
+                    }
+                }
+
+                // Nuevo ensayo: KDE TasksModel de solo lectura, inyectado
+                // únicamente por el visor Qt. El Repeater actualiza las
+                // fichas al abrir/cerrar ventanas; no llama a requestActivate,
+                // requestClose ni métodos para minimizar o alterar ventanas.
+                // Repetición horizontal dentro del mismo Row, sin otra fila.
+                Repeater {
+                    model: root.positionMode === "center" && root.soExpanded &&
+                           root.usingRealTasks ? root.realTaskModel : null
+                    delegate: IslandButton {
+                        required property var model
+                        readonly property string appName:
+                            model.AppName || "(aplicación sin nombre)"
+                        readonly property bool isGrouped: model.IsGroupParent === true
+                        readonly property int windowCount: Number(model.ChildCount) || 0
+                        text: appName + (isGrouped && windowCount > 1
+                                        ? " (" + windowCount + ")" : "")
+                        // Se deja deliberadamente sin acción sobre KDE.
+                        // El clic solo informa en Konsole que es una prueba.
+                        onClicked: console.log("SO solo lectura: ", appName,
+                                               "(sin activar ventanas)")
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Ventana real de KDE: " + appName
+                            + (model.IsActive === true ? " · activa" : "")
+                            + (model.IsMaximized === true ? " · maximizada" : "")
+                            + (isGrouped ? " · grupo de ventanas" : "")
+                            + " · SOLO LECTURA"
+                    }
+                }
+
+
             }
         }
 
