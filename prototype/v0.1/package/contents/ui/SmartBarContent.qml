@@ -111,6 +111,7 @@ Item {
     property bool soLogoAnimate: true
     // Reloj breve en SO, activado por hover sobre el agarre de seis puntos.
     property bool soClockVisible: false
+    property string soClockPhase: "off" // off, time, date
     property string soClockTime: ""
     property string soClockDate: ""
     property string soClockFontFamily: "Sans Serif"
@@ -121,6 +122,7 @@ Item {
         soClockRevealTimer.stop()
         soClockReturnTimer.stop()
         soClockVisible = false
+        soClockPhase = "off"
     }
     function showSoClock() {
         if (!moveGrip.hovered || moveGrip.pressed || gripDrag.active ||
@@ -129,6 +131,7 @@ Item {
         const now = new Date()
         soClockTime = Qt.formatTime(now, "HH:mm")
         soClockDate = Qt.formatDate(now, "dd/MM/yyyy")
+        soClockPhase = "time"
         soClockVisible = true
         soClockReturnTimer.restart()
     }
@@ -140,9 +143,17 @@ Item {
     }
     Timer {
         id: soClockReturnTimer
-        interval: 3000 // ocultar el texto; el GIF nunca se detiene
+        interval: 1000 // hora 1 segundo, después fecha 1 segundo
         repeat: false
-        onTriggered: root.soClockVisible = false
+        onTriggered: {
+            if (root.soClockPhase === "time") {
+                root.soClockPhase = "date"
+                restart()
+            } else {
+                root.soClockVisible = false
+                root.soClockPhase = "off"
+            }
+        }
     }
     // Imagen tropical elegida por el mantenedor: archivo local en assets/.
     // Si aún no se copió al ensayo, el botón conserva respaldo de texto SO.
@@ -924,6 +935,7 @@ Item {
                     iconAnimated: root.activeSoLogoIsGif
                     iconAnimationEnabled: root.soLogoAnimate
                     clockVisible: root.soClockVisible
+                    clockPhase: root.soClockPhase
                     clockTime: root.soClockTime
                     clockDate: root.soClockDate
                     clockFontFamily: root.soClockFontFamily
