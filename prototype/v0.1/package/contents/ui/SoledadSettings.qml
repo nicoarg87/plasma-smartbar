@@ -105,6 +105,7 @@ Window {
     property real glowIntensity: 0.7
     property real glowSpread: 5
     property real pulseSpeed: 0.6
+    property real pulseDepth: 0.7
     property bool glowGradient: true
     property int trailPercent: 75 // porcentaje del perímetro
     property string trailStyle: "dashed" // solid, dotted, dashed
@@ -161,7 +162,7 @@ Window {
                                    bool gripOverride, string gripColor,
                                    real gripOpacity)
     signal saveGlowRequested(string color, real intensity, real spread,
-                             real pulseSpeed, bool gradient)
+                             real pulseSpeed, real pulseDepth, bool gradient)
     signal saveActivityRequested(string style, string color,
                                  real stroke, bool motion, real speed,
                                  int tailLength, string lineStyle,
@@ -213,7 +214,7 @@ Window {
                                 gripButtonColorOverride,
                                 toHex(gripButtonColor), gripButtonOpacity)
         saveGlowRequested(toHex(glowColor), glowIntensity, glowSpread,
-                          pulseSpeed, glowGradient)
+                          pulseSpeed, pulseDepth, glowGradient)
         saveActivityRequested(effectStyle, toHex(accentColor),
                               strokeSize, allowMotion, orbitSpeed,
                               trailPercent, trailStyle,
@@ -658,6 +659,7 @@ Window {
                             activityGlowIntensity: settings.glowIntensity
                             activityGlowSpread: settings.glowSpread
                             activityPulseSpeed: settings.pulseSpeed
+                            activityPulseDepth: settings.pulseDepth
                             activityGlowGradient: settings.glowGradient
                             activityShowWhenEmpty: settings.showOutlineWhenEmpty
                             activityShowWhenOpen: settings.showOutlineWhenOpen
@@ -706,6 +708,8 @@ Window {
                             .indexOf(settings.effectStyle))
                         onActivated: function(i) {
                             settings.effectStyle = ["off","steady","orbit","glow","breathe","orbitGlow"][i]
+                            if (i >= 3 && settings.toHex(settings.accentColor).toLowerCase() === "#35d7ff")
+                                settings.accentColor = "#ffd27a"
                         }
                     }
                     RowLayout {
@@ -849,6 +853,13 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    QQC2.Button {
+                        text: "Usar colores cálidos (dorado y naranja)"
+                        onClicked: {
+                            settings.accentColor = "#ffd27a"
+                            settings.glowColor = "#ff963c"
+                        }
+                    }
                     QQC2.Label { text: "Intensidad del brillo"; color: "white" }
                     RowLayout {
                         Layout.fillWidth: true
@@ -883,6 +894,21 @@ Window {
                         }
                         QQC2.Label { text: settings.pulseSpeed.toFixed(1) + " ciclos/s"; color: "white" }
                     }
+                    QQC2.Label { text: "Profundidad de la respiración"; color: "white" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            enabled: settings.effectStyle === "breathe"
+                            value: settings.pulseDepth
+                            onMoved: settings.pulseDepth = value
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.pulseDepth * 100) + "%"
+                            color: "white"
+                        }
+                    }
                     QQC2.Button {
                         text: "Restablecer contorno"
                         onClicked: {
@@ -897,6 +923,7 @@ Window {
                             settings.glowIntensity = 0.7
                             settings.glowSpread = 5
                             settings.pulseSpeed = 0.6
+                            settings.pulseDepth = 0.7
                             settings.glowGradient = true
                             settings.showOutlineWhenEmpty = true
                             settings.showOutlineWhenOpen = false
