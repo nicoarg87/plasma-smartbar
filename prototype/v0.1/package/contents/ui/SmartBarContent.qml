@@ -23,6 +23,8 @@ Item {
     property string malvinaShape: "rounded"
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
+    property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
+    signal requestOutlineChange(var updated)
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
     property string soButtonFrameShape: "capsule"
     property real soButtonWidth: 96
@@ -503,6 +505,7 @@ Item {
             soledadSettings.malvinaWidth = root.malvinaWidth
             soledadSettings.soledadShape = root.soledadShape
             soledadSettings.malvinaShape = root.malvinaShape
+            soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
             soledadSettings.gripShape = root.gripShape
             soledadSettings.trayButtonShape = root.trayButtonShape
             soledadSettings.soButtonFrameShape = root.soButtonFrameShape
@@ -561,6 +564,9 @@ Item {
                                        malRadius, soWidth, malWidth,
                                        buttonShape, buttonWidth,
                                        soShape, malShape, gripButtonShape, trayShape)
+        }
+        onSaveOutlineRequested: function(updated) {
+            root.requestOutlineChange(updated)
         }
         onSaveAppearanceRequested: function(soColor, soOpacity, malColor,
                                              malOpacity, backgroundShown,
@@ -741,8 +747,18 @@ Item {
             bottomRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
             color: Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
                            root.malvinaColor.b, root.malvinaOpacity)
-            border.color: "#4e8499"
-            border.width: 1
+            border.width: 0
+            OutlineStyle {
+                anchors.fill: parent
+                lineStyle: root.outlineConfig.malvina.style
+                lineWidth: root.outlineConfig.malvina.width
+                lineColor: root.outlineConfig.malvina.color
+                lineOpacity: root.outlineConfig.malvina.opacity
+                topLeft: launcherIsland.topLeftRadius
+                topRight: launcherIsland.topRightRadius
+                bottomLeft: launcherIsland.bottomLeftRadius
+                bottomRight: launcherIsland.bottomRightRadius
+            }
             IslandButton {
                 id: launcherButton
                 anchors.centerIn: parent
@@ -788,8 +804,19 @@ Item {
             color: root.soledadShape === "leftTip" ? "transparent" :
                 Qt.rgba(root.soledadColor.r, root.soledadColor.g,
                            root.soledadColor.b, root.soledadOpacity)
-            border.color: "#4e8499"
-            border.width: root.soledadShape === "leftTip" ? 0 : 1
+            border.width: 0
+            OutlineStyle {
+                anchors.fill: parent
+                visible: root.soledadShape !== "leftTip" && lineStyle !== "off"
+                lineStyle: root.outlineConfig.soledad.style
+                lineWidth: root.outlineConfig.soledad.width
+                lineColor: root.outlineConfig.soledad.color
+                lineOpacity: root.outlineConfig.soledad.opacity
+                topLeft: systemIsland.topLeftRadius
+                topRight: systemIsland.topRightRadius
+                bottomLeft: systemIsland.bottomLeftRadius
+                bottomRight: systemIsland.bottomRightRadius
+            }
             anchors.right: parent.right
             // Los controles de ventana quedan en el extremo derecho INMÓVILES.
             // La isla 1 se arrastra solo a la izquierda del espacio reservado.
@@ -843,6 +870,10 @@ Item {
                     useTileColor: true
                     tileColor: root.effectiveTrayButtonColor
                     tileOpacity: root.effectiveTrayButtonOpacity
+                    outlineStyle: root.outlineConfig.tray.style
+                    outlineWidth: root.outlineConfig.tray.width
+                    outlineColor: root.outlineConfig.tray.color
+                    outlineOpacity: root.outlineConfig.tray.opacity
                     onClicked: root.toggleTray()
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: "Abrir/cerrar bandeja simulada"
@@ -855,6 +886,10 @@ Item {
                         useTileColor: true
                         tileColor: root.effectiveTrayButtonColor
                         tileOpacity: root.effectiveTrayButtonOpacity
+                    outlineStyle: root.outlineConfig.tray.style
+                    outlineWidth: root.outlineConfig.tray.width
+                    outlineColor: root.outlineConfig.tray.color
+                    outlineOpacity: root.outlineConfig.tray.opacity
                         onClicked: root.selectDemoTray(modelData)
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Bandeja simulada: " + modelData
@@ -1053,8 +1088,18 @@ Item {
                                        root.effectiveGripButtonColor.g,
                                        root.effectiveGripButtonColor.b,
                                        root.effectiveGripButtonOpacity)
-                        border.width: 1
-                        border.color: moveGrip.hovered ? "#86b3cc" : "#45647a"
+                        border.width: 0
+                        OutlineStyle {
+                            anchors.fill: parent
+                            lineStyle: root.outlineConfig.grip.style
+                            lineWidth: root.outlineConfig.grip.width
+                            lineColor: root.outlineConfig.grip.color
+                            lineOpacity: root.outlineConfig.grip.opacity
+                            topLeft: parent.radius
+                            topRight: parent.radius
+                            bottomLeft: parent.radius
+                            bottomRight: parent.radius
+                        }
                     }
                     contentItem: Item {
                         Grid {
