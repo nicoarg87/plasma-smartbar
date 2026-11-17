@@ -173,13 +173,17 @@ Window {
             gripButtonOpacity = value
     }
     function applyChanges() {
+        // Ajustar la altura general solo al aplicar cambios de geometría.
+        panelHeight = Math.min(120, Math.max(panelHeight, soledadHeight + 4, malvinaHeight + 4))
+        soledadHeight = Math.min(soledadHeight, panelHeight - 4)
+        malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
         saveClockAppearanceRequested(clockFontFamily, clockFontSize,
                                      toHex(clockTextColor))
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
                           cropZoom, cropPanX, cropPanY, enableGif, cropRotation)
         saveGeometryRequested(panelHeight,
-                              Math.min(soledadHeight, panelHeight - 4),
-                              Math.min(malvinaHeight, panelHeight - 4),
+                               soledadHeight,
+                               malvinaHeight,
                               soledadRadius, malvinaRadius, soledadMinWidth,
                               malvinaWidth, soButtonFrameShape, soButtonWidth,
                               soledadShape, malvinaShape, gripShape,
@@ -485,7 +489,7 @@ Window {
                         font.bold: true
                     }
                     QQC2.Label {
-                        text: "Al posar el cursor brevemente sobre los seis puntos, la hora y fecha se superponen sobre el GIF de SO durante tres segundos. La imagen nunca desaparece ni se reinicia."
+                        text: "Al posar el cursor sobre los seis puntos, aparece la hora 1 segundo y después la fecha 1 segundo. El GIF permanece debajo sin reiniciarse."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -1019,7 +1023,7 @@ Window {
                     }
                     QQC2.Label { text: "Geometría de las islas"; color: "white"; font.bold: true }
                     QQC2.Label {
-                        text: "La altura elegida es constante durante el uso. Las dos islas pueden tener medidas y esquinas diferentes."
+                        text: "La altura elegida es constante durante el uso. Al aumentar una isla, Aplicar también aumenta la altura general si hace falta (máximo 120 px, con 4 px de margen)."
                         color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                     }
                     RowLayout {
@@ -1043,7 +1047,7 @@ Window {
                             Layout.fillWidth: true
                             from: 32; to: 120; stepSize: 2
                             value: settings.soledadHeight
-                            onMoved: settings.soledadHeight = Math.round(value)
+                            onMoved: settings.soledadHeight = Math.min(116, Math.round(value))
                         }
                         QQC2.Label {
                             text: Math.round(settings.soledadHeight) + " px"
@@ -1057,7 +1061,7 @@ Window {
                             Layout.fillWidth: true
                             from: 32; to: 120; stepSize: 2
                             value: settings.malvinaHeight
-                            onMoved: settings.malvinaHeight = Math.round(value)
+                            onMoved: settings.malvinaHeight = Math.min(116, Math.round(value))
                         }
                         QQC2.Label {
                             text: Math.round(settings.malvinaHeight) + " px"
