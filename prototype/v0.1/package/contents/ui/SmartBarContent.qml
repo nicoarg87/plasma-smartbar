@@ -157,9 +157,10 @@ Item {
         soClockPhase = "off"
     }
     function showSoClock() {
-        if (!moveGrip.hovered || moveGrip.pressed || gripDrag.active ||
-                gripMenu.visible)
-            return
+        // Una vez iniciado el gesto de acercarse al agarre, los clics,
+        // el arrastre y el Popup NO cancelan la secuencia hora/fecha.
+        // Tampoco reiniciarla en mitad de una secuencia en curso.
+        if (soClockVisible) return
         const now = new Date()
         soClockTime = Qt.formatTime(now, "HH:mm")
         soClockDate = Qt.formatDate(now, "dd/MM/yyyy")
@@ -1494,16 +1495,19 @@ Item {
                     // cuando el agarre se desplaza o hay un menú abierto.
                     property bool suppressGripTooltip: false
                     onHoveredChanged: {
-                        if (hovered && !pressed && !gripDrag.active &&
-                                !gripMenu.visible) {
+                        if (hovered && !root.soClockVisible) {
                             soClockRevealTimer.restart()
-                        } else {
+                        } else if (!hovered) {
+                            // Si todavía no comenzó, cancelar el hover.
+                            // Si ya está mostrando hora/fecha, dejar que
+                            // finalice independientemente del puntero.
                             soClockRevealTimer.stop()
                         }
                         if (!hovered) suppressGripTooltip = false
                     }
                     onPressed: {
-                        root.dismissSoClock()
+                        // Presionar, abrir opciones o arrastrar no detiene
+                        // el reloj ni resetea su fase de fecha.
                         draggedDuringPress = false
                         suppressGripTooltip = true
                         // Cerrar ANTES de iniciar el arrastre. Si el menú
@@ -1596,7 +1600,6 @@ Item {
                             if (!active) return
                             // Centro visible de SO, antes de cerrar los cajones.
                             const visualSoX = soButton.mapToItem(root, soButton.width / 2, 0).x
-                            root.dismissSoClock()
                             if (gripMenu.visible) gripMenu.close()
                             if (root.centeredPresentation) {
                                 root.manualSoCenterX = visualSoX
@@ -1644,7 +1647,7 @@ Item {
                     QQC2.Menu {
                         id: gripMenu
                         title: "Opciones de Soledad"
-                        onOpened: root.dismissSoClock()
+                        // No apagar el reloj al abrir el menú contextual.
                         // Anclar el menú directamente al agarre que lo abrió,
                         // NO a root: el cálculo anterior con root.width - width
                         // podía desplazarlo hasta Malvina (extremo izquierdo).
