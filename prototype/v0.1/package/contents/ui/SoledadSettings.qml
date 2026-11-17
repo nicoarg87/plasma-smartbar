@@ -629,6 +629,9 @@ Window {
                         color: "#353b52"
                         IslandButton {
                             anchors.centerIn: parent
+                            // Zoom exclusivamente visual de la muestra;
+                            // no modifica el tamaño real de Soledad.
+                            scale: 1.45
                             text: "SO"
                             accent: true
                             iconSource: settings.selectedImage
@@ -659,6 +662,12 @@ Window {
                             activityShowWhenEmpty: settings.showOutlineWhenEmpty
                             activityShowWhenOpen: settings.showOutlineWhenOpen
                         }
+                    }
+                    QQC2.Label {
+                        text: "Vista previa ampliada para apreciar el halo. Deslizá hacia abajo para configurar el segundo color, intensidad, difusión y velocidad."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
                     }
                     QQC2.CheckBox {
                         text: "Simular ventanas abiertas en esta vista previa"
@@ -833,6 +842,12 @@ Window {
                         text: "Degradado: centro brillante y exterior más suave"
                         checked: settings.glowGradient
                         onToggled: settings.glowGradient = checked
+                    }
+                    QQC2.Label {
+                        text: "El color principal se elige arriba. El color exterior se elige aquí; en el degradado se combinan ambos."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
                     }
                     QQC2.Label { text: "Intensidad del brillo"; color: "white" }
                     RowLayout {
