@@ -447,6 +447,20 @@ Item {
     }
 
     function ensureExpansionFits() {
+        if (centeredPresentation && systemIsland.width > availableIslandWidth + 0.5) {
+            // Modo centrado: nunca dejar que la fila cubra controles fijos
+            // o salga por el extremo derecho de la pantalla.
+            if (soExpanded && trayExpanded) {
+                if (lastExpandedMode === "so") trayExpanded = false
+                else soExpanded = false
+            } else if (soExpanded) {
+                soExpanded = false
+            } else if (trayExpanded) {
+                trayExpanded = false
+            }
+            console.warn("SmartBar: expansión centrada no cabe en pantalla; se contrae por seguridad")
+            return
+        }
         if (!soExpanded || !trayExpanded) {
             return
         }
