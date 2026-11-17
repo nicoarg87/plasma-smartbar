@@ -381,6 +381,13 @@ Window {
         onAccepted: settings.glowColor = selectedColor
     }
     FontDialog {
+        id: soTextFontDialog
+        title: "Elegir fuente instalada para texto SO"
+        // Selector nativo de fuentes: familias disponibles, vista previa
+        // y lista desplazable, sin necesidad de escribir nombres exactos.
+        onAccepted: settings.soTextFontFamily = selectedFont.family
+    }
+    FontDialog {
         id: clockFontDialog
         title: "Elegir tipografía para la hora y fecha"
         onAccepted: {
@@ -601,19 +608,15 @@ Window {
                                            settings.soTextBackground.g,
                                            settings.soTextBackground.b,
                                            settings.soTextBackgroundOpacity)
-                            Image {
+                            LogoArtwork {
                                 anchors.fill: parent
-                                visible: settings.soTextBackgroundImage.length > 0 &&
-                                         !settings.soTextBackgroundImage.toLowerCase().endsWith(".gif")
-                                source: visible ? settings.soTextBackgroundImage : ""
-                                fillMode: Image.PreserveAspectCrop
-                            }
-                            AnimatedImage {
-                                anchors.fill: parent
-                                visible: settings.soTextBackgroundImage.toLowerCase().endsWith(".gif")
-                                source: visible ? settings.soTextBackgroundImage : ""
-                                playing: visible
-                                fillMode: Image.PreserveAspectCrop
+                                visible: settings.soTextBackgroundImage.length > 0
+                                imageUrl: settings.soTextBackgroundImage
+                                animateGif: settings.soTextBackgroundImage.toLowerCase().endsWith(".gif")
+                                animationAllowed: true
+                                cropShape: settings.soButtonFrameShape === "square"
+                                    ? settings.shape : settings.soButtonFrameShape
+                                fitMode: "crop"
                             }
                             Text {
                                 anchors.fill: parent
@@ -707,10 +710,19 @@ Window {
                         visible: settings.logoMode === "text"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Fuente"; color: "white"; Layout.fillWidth: true }
-                        QQC2.TextField {
-                            text: settings.soTextFontFamily
-                            Layout.preferredWidth: 170
-                            onTextEdited: settings.soTextFontFamily = text
+                        QQC2.Button {
+                            text: settings.soTextFontFamily + "  ▾"
+                            Layout.preferredWidth: 230
+                            onClicked: {
+                                soTextFontDialog.selectedFont = Qt.font({
+                                    family: settings.soTextFontFamily,
+                                    pixelSize: settings.soTextFontSize,
+                                    bold: settings.soTextBold
+                                })
+                                soTextFontDialog.open()
+                            }
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "Abrir selector de fuentes instaladas con lista desplazable"
                         }
                     }
                     RowLayout {
