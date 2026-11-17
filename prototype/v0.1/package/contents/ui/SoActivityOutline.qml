@@ -6,6 +6,11 @@ import QtQuick
 Canvas {
     id: outline
     property string shape: "square"
+    // Desplazamiento del trazo respecto al Canvas. Se mantienen los
+    // márgenes históricos del botón SO; las fichas usan borde exterior.
+    property real borderMarginX: 14
+    property real borderMarginY: 11
+    property real taskCornerRadius: 7
     property color accentColor: "#35d7ff"
     property real strokeSize: 1.0
     property string effectStyle: "steady" // off, steady, orbit, glow, breathe, orbitGlow
@@ -47,7 +52,12 @@ Canvas {
         const right = w - margin
         const bottom = h - insetY
         ctx.beginPath()
-        if (shape === "rounded") {
+        if (shape === "taskRounded") {
+            const radius = Math.min(taskCornerRadius, (bottom - top) / 2)
+            ctx.roundedRect(left, top, right-left, bottom-top, radius, radius)
+        } else if (shape === "taskSquare") {
+            ctx.rect(left, top, right-left, bottom-top)
+        } else if (shape === "rounded") {
             const radius = Math.min(12, (bottom - top) / 3)
             ctx.roundedRect(left, top, right-left, bottom-top, radius, radius)
         } else if (shape === "capsule") {
@@ -94,6 +104,9 @@ Canvas {
     }
 
     onShapeChanged: requestPaint()
+    onBorderMarginXChanged: requestPaint()
+    onBorderMarginYChanged: requestPaint()
+    onTaskCornerRadiusChanged: requestPaint()
     onAccentColorChanged: requestPaint()
     onStrokeSizeChanged: requestPaint()
     onEffectStyleChanged: requestPaint()
@@ -206,8 +219,8 @@ Canvas {
         // El centro del trazo se ubica FUERA del borde de la imagen
         // (la imagen empieza a 14 px y 11 px dentro del Canvas).
         // Antes se sumaba medio trazo y podía verse sobre el GIF.
-        const margin = 14 - stroke / 2 - 0.5
-        const marginY = 11 - stroke / 2 - 0.5
+        const margin = borderMarginX - stroke / 2 - 0.5
+        const marginY = borderMarginY - stroke / 2 - 0.5
         const depth = Math.max(0, Math.min(1, pulseDepth))
         const breathing = pulsing && allowMotion
             ? (1 - depth) + depth * (0.5 - 0.5 * Math.cos(2 * Math.PI * (useExternalPulse ? externalPulsePhase : pulsePhase)))
