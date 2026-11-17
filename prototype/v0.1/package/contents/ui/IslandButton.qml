@@ -144,8 +144,10 @@ QQC2.Button {
         Loader {
             id: activityOutlineLoader
             anchors.centerIn: parent
-            width: Math.max(18, control.width - 8)
-            height: Math.max(18, control.height - 2)
+            // El Canvas dispone de margen para pintar el halo FUERA de
+            // la huella del botón, sin cambiar su tamaño ni el del GIF.
+            width: Math.max(18, control.width + 16)
+            height: Math.max(18, control.height + 16)
             active: !control.clockVisible &&
                     control.activityActiveForState &&
                     control.activityEffect !== "off"
