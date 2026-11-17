@@ -47,7 +47,7 @@ QQC2.Button {
     property string clockTime: ""
     property string clockDate: ""
     property string clockFontFamily: "Sans Serif"
-    property int clockFontSize: 16
+    property int clockFontSize: 11
     property color clockTextColor: "#ffffff"
 
     implicitHeight: preferredButtonHeight > 0 ? preferredButtonHeight : 34
@@ -92,8 +92,9 @@ QQC2.Button {
             anchors.centerIn: parent
             width: Math.max(14, control.width - 12)
             height: Math.max(14, control.height - 6)
-            active: !control.clockVisible &&
-                    control.iconSource.toString().length > 0
+            // No descargar ni reiniciar el AnimatedImage al mostrar el reloj:
+            // el GIF sigue cargado y reproduciéndose debajo del texto.
+            active: control.iconSource.toString().length > 0
             sourceComponent: Component {
                 LogoArtwork {
                     width: iconLoader.width
@@ -138,36 +139,47 @@ QQC2.Button {
             }
         }
 
-        // Dentro de la cápsula: el GIF queda sustituido solo tres
-        // segundos. La superficie y el clic del botón permanecen iguales.
-        Rectangle {
+        // Hora/fecha encima de la foto, SIN fondo opaco y SIN ocultar
+        // ni recrear el GIF. A los tres segundos desaparecen solo las letras.
+        Item {
             id: clockOverlay
             anchors.fill: parent
             visible: control.clockVisible
-            radius: control.frameShape === "square" ||
-                    control.frameShape === "rectangle" ? 0 :
-                    (control.frameShape === "rounded"
-                        ? Math.min(12, height / 3) : height / 2)
-            color: "#010111"
             clip: true
 
+            readonly property color contrastOutline:
+                (control.clockTextColor.r * 0.299 +
+                 control.clockTextColor.g * 0.587 +
+                 control.clockTextColor.b * 0.114) > 0.5
+                    ? "#e6000000" : "#eeffffff"
             Column {
                 anchors.centerIn: parent
+                width: Math.max(12, parent.width - 6)
                 spacing: -1
                 Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
                     text: control.clockTime
                     font.family: control.clockFontFamily
                     font.pixelSize: Math.max(9, control.clockFontSize)
+                    fontSizeMode: Text.Fit
+                    minimumPixelSize: 8
                     font.bold: true
                     color: control.clockTextColor
+                    style: Text.Outline
+                    styleColor: clockOverlay.contrastOutline
                 }
                 Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
                     text: control.clockDate
                     font.family: control.clockFontFamily
-                    font.pixelSize: Math.max(8, Math.round(control.clockFontSize * 0.62))
+                    font.pixelSize: Math.max(8, Math.round(control.clockFontSize * 0.68))
+                    fontSizeMode: Text.Fit
+                    minimumPixelSize: 7
                     color: control.clockTextColor
+                    style: Text.Outline
+                    styleColor: clockOverlay.contrastOutline
                 }
             }
         }
