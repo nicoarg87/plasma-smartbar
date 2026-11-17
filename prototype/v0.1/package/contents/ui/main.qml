@@ -39,6 +39,10 @@ PlasmoidItem {
 
         // La configuración de Plasma se mantiene en el envoltorio;
         // SmartBarContent no depende de Plasmoid y es reutilizable.
+        taskDisplayMode: Plasmoid.configuration.taskDisplayMode
+        onRequestTaskDisplayModeChange: function(mode) {
+            Plasmoid.configuration.taskDisplayMode = mode
+        }
         taskFrameShape: Plasmoid.configuration.taskFrameShape
         taskFrameColor: Plasmoid.configuration.taskFrameColor
         taskFrameOpacity: Plasmoid.configuration.taskFrameOpacity
