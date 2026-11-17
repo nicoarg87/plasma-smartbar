@@ -964,9 +964,15 @@ Item {
         Rectangle {
             id: systemIsland
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.soledadHeight))
-            width: Math.max(systemRow.implicitWidth + 12 +
-                            (root.soledadShape === "leftTip" ? 28 : 0),
-                            root.soledadMinWidth)
+            // Centro: ancho natural de los botones (sin mínimo histórico
+            // que podía dejar 593 px incluso con SO y bandeja cerrados).
+            // Derecha: conserva exactamente el ancho mínimo configurado.
+            width: root.centeredPresentation
+                ? systemRow.implicitWidth + 12 +
+                  (root.soledadShape === "leftTip" ? 28 : 0)
+                : Math.max(systemRow.implicitWidth + 12 +
+                           (root.soledadShape === "leftTip" ? 28 : 0),
+                           root.soledadMinWidth)
             // Al cambiar fichas o espacio por arrastre, mantener ambas
             // expansiones salvo que realmente dejen de caber.
             onWidthChanged: root.ensureExpansionFits()
