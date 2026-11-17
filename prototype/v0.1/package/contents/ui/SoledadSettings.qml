@@ -985,7 +985,9 @@ Window {
                     }
                 }
             }
-
+            MalvinaProvidersPage {
+                settingsTarget: settings
+            }
 
                 }
             }
