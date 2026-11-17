@@ -226,3 +226,9 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Espacio/clic elige proveedor sin lanzar la URL; retorna al texto conservado.
 - [ ] Validar foco y secuencia Tab → Espacio → escritura → Enter en visor Qt real de CachyOS, incluyendo Shift+Tab, Esc y cambios repetidos de proveedor.
 - [ ] Revisar accesibilidad visual del proveedor enfocado en popup y comportamiento de atajos con lector de pantalla.
+
+## Retest del selector Web/IA de Malvina (17/11/2026)
+
+- [x] Registrar fallo observado: Tab no desplazaba el foco a fila Web/IA al buscar «cerveza».
+- [x] Reemplazar paso de foco a Popup por navegación por filas con foco real en campo y resaltado explícito (`▶ Web`, `▶ IA`).
+- [ ] Retest en CachyOS: texto «cerveza», Tab Web, Tab IA, flechas, Espacio para elegir, Enter para abrir, Mayús+Tab y Esc; verificar que no se borre la búsqueda.
