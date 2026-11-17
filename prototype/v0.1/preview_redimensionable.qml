@@ -431,7 +431,7 @@ Window {
               " px lógicos · prioridad: " + (bar.lastExpandedMode === "so" ? "SO" : "bandeja")
     }
 
-    QQC2.Row {
+    Row {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.rightMargin: 18
