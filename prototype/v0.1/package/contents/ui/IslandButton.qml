@@ -19,7 +19,7 @@ QQC2.Button {
     // Cada categoría puede reemplazarlo desde Apariencia.
     // Fichas de ventanas sin color independiente: muestran el fondo de Soledad.
     property bool inheritIslandFill: false
-    property string taskDisplayMode: "text" // text, both, icon
+    property string taskDisplayMode: "icon" // text, both, icon
     property var taskIconSource: ""
     readonly property bool taskUsesIcon: inheritIslandFill && taskDisplayMode !== "text"
     readonly property bool taskUsesText: !inheritIslandFill || taskDisplayMode !== "icon"
