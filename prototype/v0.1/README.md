@@ -802,3 +802,23 @@ git pull --ff-only
 unzip -o ~/Descargas/Plasma-SmartBar-Islands-GIF-SO-definitivo.zip -d .
 bash prototype/v0.1/probar_ancho.sh
 ```
+
+
+## SO con ventanas reales de KDE (solo lectura, 17/11/2026)
+
+**Nuevo hito experimental, publicado en código y NO probado todavía en la ventana completa.** El mantenedor ya probó en CachyOS `probar_ventanas.sh`: enumeración dinámica real de ventanas KDE (Alacritty, Brave y qml6, incluyendo estado activo/maximizado). Esta prueba extiende esa fuente real al **SO de `SmartBarContent.qml`**, sin reemplazar el panel CachyOS.
+
+**Cómo ensayar desde Fish:**
+
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+bash prototype/v0.1/probar_ancho.sh
+```
+
+En la ventana redimensionable, **marcá** la nueva casilla **«Usar ventanas reales de KDE en SO (solo lectura)»** situada debajo de la barra. El visor arranca todavía en modo **simulado** para preservar las pruebas anteriores. Al activar el modo real, el contador bajo la barra indica «Grupos reales KDE»; abrí SO con un clic izquierdo para mostrar fichas horizontales de las aplicaciones abiertas. Abrí y cerrá una aplicación (por ejemplo Dolphin o Konsole) para comprobar si el contador y las fichas cambian automáticamente. Si abrís dos ventanas de una misma aplicación, el modelo está configurado para agruparlas por aplicación, pero **ese caso todavía no fue validado**. Con el modelo real activo, el menú «Simular SO SIN/CON ventanas» queda deshabilitado y no se pueden confundir cifras simuladas con cifras reales.
+
+**Seguridad:** las fichas reales se muestran **solo para lectura**: el clic sobre una ficha únicamente escribe un mensaje de diagnóstico en Konsole; **NO activa, minimiza, cierra ni cambia el foco** de aplicaciones. La bandeja y el buscador de aplicaciones siguen simulados. El plasmoide `main.qml` **NO se ha conectado todavía** a este modelo; no instalarlo como reemplazo del panel en uso. El visor no cambia el tamaño de las ventanas del escritorio. **PENDIENTE:** prueba real de esta integración, rendimiento, comportamiento al haber muchos grupos/ancho insuficiente, agrupación con varias ventanas, posicionamiento y KWin/Wayland. No dar por resuelta la superposición sobre pestañas ni el fullscreen.
+
+Para volver a las fichas de muestra, desmarcá el control. Si falla QML, conservá el error exacto de Konsole y agregalo al [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1). El módulo de tareas utilizado es `org.kde.taskmanager 0.1`, que el mantenedor ya confirmó disponible en su CachyOS.
