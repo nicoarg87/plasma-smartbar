@@ -481,3 +481,14 @@ Actualizar cuando cambie algún hito: fecha, decisión confirmada, qué cambió 
 **CORREGIDO EN CÓDIGO DE RAMA EXPERIMENTAL:** `iconLoader.active` ahora depende solo de que exista logo, sin revisar `clockVisible`; el reloj se dibuja como `Item` transparente con `Text.Outline` contrastado, `Text.Fit` y altura/ancho limitados sobre el GIF. Tamaño inicial baja de **16 a 11 px** para hora, fecha proporcional. `SmartBarContent.qml`, `SoledadSettings.qml` (incluido Restablecer), `preview_redimensionable.qml` y KConfig tienen el mismo default **11**; permanece configurable por usuario. Se mantiene 180 ms de hover y 3 segundos visible solo el texto.
 
 **ESTADO:** parche publicado, revisión estática pendiente de confirmar en ejecución Qt/CachyOS. **PENDIENTE de prueba real**: continuidad de la animación durante el reloj, desaparición solo de letras al cabo de 3 s, personalización y legibilidad con imagen animada. No hay cambio de panel, SO/bandeja ni ventanas reales.
+
+
+## Correcciones experimentales pendientes de retest (17/11/2026)
+
+**Reporte real en CachyOS:** al mostrar fecha/hora, el botón SO se achicó y volvió a mostrar fondo oscuro en lugar del GIF, pese al arreglo previo. Además, aumentar las alturas de Soledad y Malvina desde la configuración parecía no surtir efecto.
+
+**Código corregido en rama experimental:**
+- Reloj: se muestra la **hora durante 1 segundo**, luego la **fecha durante 1 segundo** y luego ninguna; ambas se dibujan en una línea transparente sobre el logo con tamaño fijo y sin relleno. El botón desactiva padding de contenido para no dejar que el texto altere su superficie. El Loader de GIF permanece activo en ambas fases. Commits [311c31d](https://github.com/nicoarg87/plasma-smartbar/commit/311c31d2d41d7e93f4a9d08e2076a0a34fa8ffae) y [c356724](https://github.com/nicoarg87/plasma-smartbar/commit/c356724329865547c052cdce48d26f8720a25155).
+- Alturas: se detectó que `applyChanges()` recortaba silenciosamente el alto de cada isla a `panelHeight - 4`. Ahora al pulsar Aplicar se eleva la altura general configurada si lo requiere alguna isla, con máximo de 120 px y margen de 4 px. Los controles de altura de isla se limitan a 116 px. Esta modificación de altura es **solo por elección de configuración**, nunca durante expansiones o aparición del reloj. Commit [f1651b2](https://github.com/nicoarg87/plasma-smartbar/commit/f1651b2b467d1df868bec6f2818dc43a92dc5c26).
+
+**NO PROBADO:** verificar en CachyOS que SO no se achique, que su GIF realmente se cargue, siga visible y no se reinicie, que la secuencia dure 1+1 segundos y que los cambios de altura sean visibles. Si persiste fondo negro, inspeccionar aviso del script sobre `assets/so-tropical.gif` y salida QML; no dar por resuelto sin prueba. Ventanas KDE solo lectura; no tocar panel real.
