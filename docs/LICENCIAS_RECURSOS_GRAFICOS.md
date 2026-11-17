@@ -40,3 +40,16 @@ Según https://openai.com/policies/terms-of-use/ , entre el usuario y OpenAI y e
 El mantenedor volvió a suministrar la **imagen tropical exacta** en la conversación del proyecto: PNG RGBA de **1774 × 887** píxeles, SHA-256 `0c6e646886ba293db5b53d13f81a7421b4ceaee56d6bd92ed99745da273d4137`. Para probarla se entrega el archivo intacto `so-tropical.png` en un ZIP local, con destino `prototype/v0.1/package/contents/ui/assets/so-tropical.png`; su licencia prevista y autorizada por el mantenedor es **CC0 1.0 Universal**, en la medida legalmente aplicable.
 
 **Distribución real:** la imagen se recuperó y existe en el paquete de prueba adjunto a la conversación; **aún no está incorporada al repositorio GitHub**. La rama experimental ya referencia esa ruta, pero requiere copiar el archivo o extraer el ZIP. No confundir «archivo recibido para prueba local» con «archivo publicado en GitHub». No incluir el recurso Golden Dog.
+
+
+## GIF tropical definitivo de SO (16/11/2026)
+
+**DECISIÓN DEL MANTENEDOR:** el archivo animado **`playa definitiva.gif`**, generado con ChatGPT y aportado directamente por el mantenedor, sustituye al PNG anterior como **logo gráfico predeterminado del botón SO** en Plasma SmartBar Islands. No es necesario recrear ni convertir el GIF para visualizarlo: se preserva su contenido original y su animación.
+
+**Datos técnicos verificados a partir del archivo aportado:** formato GIF89a, **439 × 217 píxeles**, **16 cuadros**, **140 milisegundos por cuadro**, duración aproximada del bucle **2,24 segundos**, reproducción continua. **SHA-256:** `a10b34548abae1d3e699d5b92a23f38745b349f9cf73ebc59806fce6f56f5621`. Tamaño original **771.293 bytes**.
+
+**Licencia gráfica:** el mantenedor indica que fue generado por ChatGPT y desea seguir **el mismo criterio CC0 1.0 Universal** usado para el arte tropical anterior, **únicamente sobre los derechos que efectivamente pueda dedicar**. Es una licencia de recurso gráfico **separada de MIT** (código/documentación) y no incluye marcas ni recursos de terceros. Referencia: https://creativecommons.org/publicdomain/zero/1.0/ . Registrar procedencia y conservar los archivos originales sin transformaciones destructivas.
+
+**Destino del recurso en el prototipo:** `prototype/v0.1/package/contents/ui/assets/so-tropical.gif`, **GIF animado predeterminado** con forma de cápsula horizontal y modo Estirar. El fichero suministrado se encuentra en un **ZIP de prueba adjunto a esta conversación**. **La integración del binario en GitHub sigue pendiente**: se modificó el código QML para referenciarlo, pero el GIF no ha sido subido al árbol del repositorio desde esta sesión. Si no está en el checkout, mostrar la alternativa textual SO por error de carga.
+
+**Prueba declarada por el mantenedor:** indica que el GIF ya fue ensayado y es funcional. **Pendiente por verificar en la rama actualizada:** carga, máscara de cápsula, estiramiento, loop y consumo de recursos al iniciarse como logo predeterminado sin seleccionar un GIF personalizado. No confundir esta revisión pendiente con la prueba previa del usuario.
