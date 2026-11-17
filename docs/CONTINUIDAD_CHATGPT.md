@@ -220,3 +220,7 @@ La prueba aislada `probar_ventanas.sh` ya está **PROBADA** en CachyOS por el ma
 **Codigo en rama experimental:** `MalvinaUrlPolicy.js` (HTTPS y `{query}`), `MalvinaSearch.qml` delega, `closeSearch()` resuelve la llamada de `MalvinaIsland.qml`. El formulario `MalvinaProvidersPage.qml` sigue separado visualmente pero acoplado al `settingsTarget` global; separar despues de pruebas.
 
 **Pendiente prioritario:** `cd ~/plasma-smartbar; git switch prototype/v0.1-islas-so; git pull --ff-only; bash prototype/v0.1/probar_ancho.sh`; verificar Malvina, URLs web/IA y cierre. No se ejecuto Qt/CachyOS tras los commits. Luego dividir `SmartBarContent.qml` y `SoledadSettings.qml` en pasos reversibles y probados. Nunca reemplazar panel instalado para estas pruebas.
+
+## 21. Seleccion de buscador Malvina con teclado (17/11/2026)
+
+**Aprobado y codificado en rama v0.1:** proveedor Google inicial; Enter desde texto busca. Tab pasa a opciones y recorre proveedores Web/IA; Mayus+Tab retrocede; Espacio selecciona y devuelve foco con consulta intacta; Enter ejecuta posteriormente. Clic en proveedor tambien solo selecciona. No hacer busqueda ni navegar al elegir con Espacio. Para IA solo abrir pagina, sin enviar prompt. Commit [f67cc6e](https://github.com/nicoarg87/plasma-smartbar/commit/f67cc6e3f35e15eae53f0b3a5d8e99d83e4d2f69). **Falta prueba real Qt/CachyOS** de foco entre Popup y campo de texto.
