@@ -59,6 +59,7 @@ PlasmoidItem {
         soTextFontFamily: Plasmoid.configuration.soTextFontFamily
         soTextFontSize: Plasmoid.configuration.soTextFontSize
         soTextBold: Plasmoid.configuration.soTextBold
+        soTextBackgroundImage: Plasmoid.configuration.soTextBackgroundImage
         soLogoPath: Plasmoid.configuration.soLogoPath
         soLogoShape: Plasmoid.configuration.soLogoShape
         soLogoFitMode: Plasmoid.configuration.soLogoFitMode
@@ -132,7 +133,7 @@ PlasmoidItem {
             Plasmoid.configuration.soActivityShowWhenEmpty = showWhenEmpty
             Plasmoid.configuration.soActivityShowWhenOpen = showWhenOpen
         }
-        onRequestSoTextChange: function(label, textColor, background, opacity, fontFamily, fontSize, bold) {
+        onRequestSoTextChange: function(label, textColor, background, opacity, fontFamily, fontSize, bold, image) {
             Plasmoid.configuration.soTextLabel = label
             Plasmoid.configuration.soTextColor = textColor
             Plasmoid.configuration.soTextBackground = background
@@ -140,6 +141,7 @@ PlasmoidItem {
             Plasmoid.configuration.soTextFontFamily = fontFamily
             Plasmoid.configuration.soTextFontSize = fontSize
             Plasmoid.configuration.soTextBold = bold
+            Plasmoid.configuration.soTextBackgroundImage = image
         }
         onRequestSoLogoChange: function(mode, path, shape, fitMode, zoom, panX, panY, allowGif, rotation) {
             Plasmoid.configuration.soLogoMode = mode
