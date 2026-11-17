@@ -171,6 +171,7 @@ Window {
     property bool launcherIslandVisible: true
     property bool autoHideMalvina: true
     property bool alignedRight: true
+    property string positionMode: "right"
     property real panelHeight: 48
     property real soledadHeight: 44
     property real malvinaHeight: 44
@@ -229,6 +230,8 @@ Window {
                                  bool returnRight, bool showMalvina,
                                  bool alignRight, bool alignmentEdited)
     signal alignNowRequested()
+    signal alignCenterNowRequested()
+    signal savePositionModeRequested(string mode)
 
     function toHex(c) {
         const part = function(v) {
@@ -285,6 +288,7 @@ Window {
                               trailPercent, trailStyle,
                               showOutlineWhenEmpty, showOutlineWhenOpen)
         saveAutoHideMalvinaRequested(autoHideMalvina)
+        savePositionModeRequested(positionMode)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
                               alignedRight, alignmentEdited)
@@ -1485,26 +1489,55 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    QQC2.Label {
+                        text: "Alineación predeterminada de Soledad"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["A la derecha (SO abre a la izquierda)",
+                                "En el centro (SO abre a la derecha)"]
+                        currentIndex: settings.positionMode === "center" ? 1 : 0
+                        onActivated: function(index) {
+                            settings.positionMode = index === 1 ? "center" : "right"
+                            settings.alignmentEdited = false
+                        }
+                    }
+                    QQC2.Label {
+                        visible: settings.positionMode === "center"
+                        text: "La isla se centra mientras está contraída y las fichas crecen hacia la derecha. La altura no cambia; al expandir se controla el espacio disponible."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        visible: settings.positionMode === "center"
+                        text: "Centrar isla 1 AHORA"
+                        onClicked: settings.alignCenterNowRequested()
+                    }
                     QQC2.CheckBox {
+                        visible: settings.positionMode === "right"
                         text: "Alinear isla 1 a la derecha"
                         checked: settings.alignedRight
                         onToggled: settings.alignedRight = checked
                         onClicked: settings.alignmentEdited = true
                     }
                     QQC2.CheckBox {
-                        visible: settings.alignedRight
+                        visible: settings.positionMode === "right" && settings.alignedRight
                         text: "Volver a la derecha al desmaximizar"
                         checked: settings.autoReturnRight
                         onToggled: settings.autoReturnRight = checked
                     }
                     QQC2.Label {
-                        visible: settings.alignedRight
+                        visible: settings.positionMode === "right" && settings.alignedRight
                         text: "El regreso al desmaximizar está activado por defecto. No impide mover Soledad manualmente."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Button {
+                        visible: settings.positionMode === "right"
                         text: "Mover isla 1 a la derecha AHORA"
                         onClicked: {
                             settings.alignNowRequested()
@@ -1694,6 +1727,7 @@ Window {
                             settings.launcherIslandVisible = true
                             settings.autoReturnRight = true
                             settings.alignedRight = true
+                            settings.positionMode = "right"
                             settings.alignmentEdited = true
                             settings.panelHeight = 48
                             settings.soledadHeight = 44
