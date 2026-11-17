@@ -953,3 +953,9 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 Malvina expone solicitudes al contenedor y no controla ventanas KDE. Su buscador se limita a seleccionar proveedor y solicitar apertura HTTPS mediante una politica compartida de validacion; las URLs web requieren el marcador `{query}`, con consulta codificada. Los sitios de IA se abren sin envio automatico del prompt. La seleccion de navegador especifico y Super+Espacio global siguen pendientes de integracion real KWin/Wayland.
 
 **Implementacion parcial:** `MalvinaIsland.qml`, `MalvinaSearch.qml`, `MalvinaProvidersPage.qml` y `MalvinaUrlPolicy.js` en la rama de prueba v0.1; la division de grandes componentes de Soledad y la comprobacion en CachyOS siguen pendientes. Referencia: [Arquitectura modular](ARQUITECTURA_MODULAR.md).
+
+## Malvina — flujo de teclado confirmado (17/11/2026)
+
+**Confirmado por el mantenedor:** Google es el proveedor inicial. Escribir texto y pulsar Enter busca de inmediato con el proveedor seleccionado. Tab desde el campo de texto enfoca la fila de proveedores Web; Tab sucesivo recorre Google, DuckDuckGo, Yahoo, ChatGPT, Gemini y Claude; Mayus+Tab vuelve hacia atras. Espacio (o clic) sobre un proveedor **solo lo selecciona**, conserva la consulta y devuelve foco al campo de busqueda. Enter desde el campo es la unica accion que ejecuta la busqueda/apertura. La seleccion del proveedor no debe abrir el navegador. El panel de proveedores flota sin modificar la altura de la isla.
+
+**Alcance IA:** Enter abre la pagina del proveedor IA; no envia el texto automaticamente ni afirma hacerlo. Esta limitacion queda pendiente de integracion aprobada. Estado: implementado experimentalmente en `MalvinaSearch.qml`, pendiente de pruebas reales de foco y teclas con Qt/KDE en CachyOS.
