@@ -84,8 +84,20 @@ PlasmoidItem {
         soActivityOrbitSpeed: Plasmoid.configuration.soActivityOrbitSpeed
         soActivityTrailPercent: Plasmoid.configuration.soActivityTrailPercent
         soActivityTrailStyle: Plasmoid.configuration.soActivityTrailStyle
+        soActivityGlowColor: Plasmoid.configuration.soActivityGlowColor
+        soActivityGlowIntensity: Plasmoid.configuration.soActivityGlowIntensity
+        soActivityGlowSpread: Plasmoid.configuration.soActivityGlowSpread
+        soActivityPulseSpeed: Plasmoid.configuration.soActivityPulseSpeed
+        soActivityGlowGradient: Plasmoid.configuration.soActivityGlowGradient
         soActivityShowWhenEmpty: Plasmoid.configuration.soActivityShowWhenEmpty
         soActivityShowWhenOpen: Plasmoid.configuration.soActivityShowWhenOpen
+        onRequestSoGlowChange: function(color, intensity, spread, speed, gradient) {
+            Plasmoid.configuration.soActivityGlowColor = color
+            Plasmoid.configuration.soActivityGlowIntensity = intensity
+            Plasmoid.configuration.soActivityGlowSpread = spread
+            Plasmoid.configuration.soActivityPulseSpeed = speed
+            Plasmoid.configuration.soActivityGlowGradient = gradient
+        }
         onRequestSoActivityChange: function(style, color, stroke, allowMotion,
                                              speed, tailLength, lineStyle,
                                              showWhenEmpty, showWhenOpen) {
