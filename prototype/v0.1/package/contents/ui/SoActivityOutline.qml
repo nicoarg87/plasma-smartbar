@@ -8,18 +8,28 @@ Canvas {
     property string shape: "square"
     property color accentColor: "#35d7ff"
     property real strokeSize: 1.0
-    property string effectStyle: "steady" // off, steady, orbit
+    property string effectStyle: "steady" // off, steady, orbit, glow, breathe, orbitGlow
     property bool activeForState: false
     property bool allowMotion: true
     // Velocidad en vueltas/segundo, longitud de la estela en % del borde.
     property real orbitSpeed: 1.0
     property int trailPercent: 22
     property string trailStyle: "solid" // solid, dotted, dashed
+    // Efecto luminoso siempre sin tocar el GIF ni la geometría.
+    property color glowColor: "#ffab52"
+    property real glowIntensity: 0.7
+    property real glowSpread: 5
+    property real pulseSpeed: 0.6
+    property bool glowGradient: true
     property real phase: 0
+    property real pulsePhase: 0
 
     // La política de mostrar con/sin ventanas la calcula IslandButton.
     readonly property bool enabledEffect: activeForState && effectStyle !== "off"
-    readonly property bool moving: enabledEffect && allowMotion && effectStyle === "orbit"
+    readonly property bool orbiting: effectStyle === "orbit" || effectStyle === "orbitGlow"
+    readonly property bool pulsing: effectStyle === "breathe"
+    readonly property bool glows: effectStyle === "glow" || pulsing || effectStyle === "orbitGlow"
+    readonly property bool moving: enabledEffect && allowMotion && (orbiting || pulsing)
     visible: enabledEffect
     antialiasing: true
     renderTarget: Canvas.Image
@@ -88,6 +98,11 @@ Canvas {
     onOrbitSpeedChanged: requestPaint()
     onTrailPercentChanged: requestPaint()
     onTrailStyleChanged: requestPaint()
+    onGlowColorChanged: requestPaint()
+    onGlowIntensityChanged: requestPaint()
+    onGlowSpreadChanged: requestPaint()
+    onPulseSpeedChanged: requestPaint()
+    onGlowGradientChanged: requestPaint()
     onWidthChanged: requestPaint()
     onHeightChanged: requestPaint()
 
@@ -95,12 +110,18 @@ Canvas {
     // configuración. Si se apaga el efecto o no corresponde al estado,
     // el temporizador no corre (aunque haya cero ventanas).
     Timer {
-        interval: 33
+        interval: 50 // 20 fps máximo solo cuando el efecto lo necesita
         repeat: true
         running: outline.moving && outline.visible
         onTriggered: {
-            const speed = Math.max(0.1, Math.min(3, outline.orbitSpeed))
-            outline.phase = (outline.phase + speed * interval / 1000) % 1
+            if (outline.orbiting) {
+                const speed = Math.max(0.1, Math.min(3, outline.orbitSpeed))
+                outline.phase = (outline.phase + speed * interval / 1000) % 1
+            }
+            if (outline.pulsing) {
+                const speed = Math.max(0.1, Math.min(3, outline.pulseSpeed))
+                outline.pulsePhase = (outline.pulsePhase + speed * interval / 1000) % 1
+            }
             outline.requestPaint()
         }
     }
@@ -162,33 +183,49 @@ Canvas {
 
     onPaint: {
         const ctx = getContext("2d")
+        ctx.reset()
         ctx.clearRect(0, 0, width, height)
-        if (!enabledEffect) return
-
+        if (!enabledEffect || width < 6 || height < 6) return
         const stroke = Math.max(0.5, Math.min(2, strokeSize))
-        const margin = stroke/2 + 1
+        const spread = Math.max(1, Math.min(8, glowSpread))
+        // Luz contenida dentro de Canvas: nada modifica el tamaño del botón.
+        const margin = glows ? spread + stroke / 2 + 1 : stroke / 2 + 1
+        const intensity = Math.max(0, Math.min(1, glowIntensity))
+        const pulse = pulsing && allowMotion
+            ? 0.3 + 0.7 * (0.5 - 0.5 * Math.cos(2 * Math.PI * pulsePhase))
+            : 1
         ctx.save()
-        ctx.lineWidth = stroke
         ctx.lineJoin = "round"
         ctx.lineCap = "round"
-        // Contorno de baja intensidad para indicar actividad sin parpadear.
+        if (glows && intensity > 0) {
+            // Cinco capas concéntricas, intensas junto al borde y suaves afuera.
+            for (let i = 0; i < 5; ++i) {
+                const distance = i * spread / 4
+                const near = 1 - i / 5
+                const alpha = intensity * pulse * near * near * 0.28
+                const color = glowGradient ? (i < 2 ? accentColor : glowColor) : glowColor
+                ctx.strokeStyle = Qt.rgba(color.r, color.g, color.b, alpha)
+                ctx.lineWidth = Math.max(0.8, stroke + (glowGradient ? near : 0))
+                traceShape(ctx, Math.max(stroke / 2 + 0.7, margin - distance))
+                ctx.stroke()
+            }
+        }
+        ctx.lineWidth = stroke
+        const baseColor = glows && glowGradient ? accentColor : (glows ? glowColor : accentColor)
+        ctx.strokeStyle = Qt.rgba(baseColor.r, baseColor.g, baseColor.b,
+                                  glows ? Math.min(1, 0.45 + intensity * pulse * 0.5) :
+                                  orbiting ? 0.32 : 0.92)
         traceShape(ctx, margin)
-        ctx.strokeStyle = Qt.rgba(accentColor.r, accentColor.g,
-                                  accentColor.b, effectStyle === "orbit" ? 0.32 : 0.92)
         ctx.stroke()
-
-        if (effectStyle === "orbit" && allowMotion) {
-            // Desplazar un tramo luminoso por el perímetro, SIN girar el
-            // logo ni alterar la geometría. Qt Quick Context2D soporta
-            // setLineDash y lineDashOffset desde hace varias versiones.
+        if (orbiting && allowMotion) {
             const perimeter = perimeterForShape(margin)
             ctx.setLineDash(orbitDashPattern(perimeter, stroke))
             ctx.lineDashOffset = -phase * perimeter
-            ctx.shadowColor = accentColor
-            ctx.shadowBlur = 1.5
             ctx.strokeStyle = accentColor
+            ctx.lineWidth = stroke
             traceShape(ctx, margin)
             ctx.stroke()
+            ctx.setLineDash([])
         }
         ctx.restore()
     }
