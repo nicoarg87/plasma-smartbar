@@ -855,6 +855,7 @@ Item {
                     // Retirar el relleno SOLO detrás de los controles cuyo
                     // color/opacidad es independiente; no tocar zonas SO.
                     ctx.globalCompositeOperation = "destination-out"
+                    ctx.fillStyle = "#ffffffff" // vaciar totalmente el fondo, incluso al 0%
                     for (let i = 0; i < systemRow.children.length; ++i) {
                         const child = systemRow.children[i]
                         if (!child || !child.visible) continue
