@@ -11,6 +11,10 @@ QQC2.Button {
     property bool useTileColor: false
     property color tileColor: "#010111"
     property real tileOpacity: 0.5
+    property string outlineStyle: "solid"
+    property real outlineWidth: 1
+    property color outlineColor: "#45647a"
+    property real outlineOpacity: 1
     property url iconSource: ""
     property bool iconAnimated: false
     property bool iconAnimationEnabled: true
@@ -79,9 +83,24 @@ QQC2.Button {
                  : (control.down ? "#254c61" :
                     (control.hovered ? "#24425a" :
                      (control.accent ? "#1f4e65" : "#14283d"))))
-        border.width: showsLogo ? 0 : 1
+        border.width: 0
         border.color: control.hovered && control.useTileColor ? "#86b3cc" :
                       (control.accent ? "#3dc6d4" : "#45647a")
+    }
+
+    // Contorno independiente del relleno y de su transparencia.
+    OutlineStyle {
+        parent: control.background
+        anchors.fill: parent
+        visible: control.iconSource.toString().length === 0 && lineStyle !== "off"
+        lineStyle: control.outlineStyle
+        lineWidth: control.outlineWidth
+        lineColor: control.outlineColor
+        lineOpacity: control.outlineOpacity
+        topLeft: parent.radius
+        topRight: parent.radius
+        bottomLeft: parent.radius
+        bottomRight: parent.radius
     }
 
     contentItem: Item {
