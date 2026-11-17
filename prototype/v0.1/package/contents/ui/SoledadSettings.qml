@@ -145,6 +145,20 @@ Window {
         paletteFeedback = "Sugerencia «" + name + "» lista. Contorno pendiente de Aplicar; " +
                           "en Apariencia podés pasar estos tonos también al degradado de Soledad."
     }
+    function suggestIslandFromCurrentOutline() {
+        // Derivar dos tonalidades del contorno que el usuario YA eligió,
+        // sin presumir que el GIF fue analizado satisfactoriamente.
+        const light = accentColor, dark = glowColor
+        suggestedIslandBase = Qt.rgba(
+            light.r*0.70 + 0.30, light.g*0.70 + 0.30,
+            light.b*0.70 + 0.30, 1)
+        suggestedIslandEnd = Qt.rgba(
+            dark.r*0.65 + 0.12, dark.g*0.65 + 0.08,
+            dark.b*0.65 + 0.05, 1)
+        suggestedPaletteName = "colores actuales del contorno"
+        hasSuggestedPalette = true
+        paletteFeedback = "Se propuso un degradado derivado del contorno, sin modificar la isla todavía."
+    }
     function putSuggestedPaletteOnSoledad() {
         if (!hasSuggestedPalette) return
         soledadColor = suggestedIslandBase
@@ -1457,6 +1471,13 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        visible: appearanceTarget.currentIndex === 0
+                        text: "Sugerir degradado según el contorno actual"
+                        onClicked: settings.suggestIslandFromCurrentOutline()
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Propone tonos más claros y oscuros del contorno; no aplica cambios automáticamente"
                     }
                     QQC2.Label {
                         visible: appearanceTarget.currentIndex === 0 && settings.hasSuggestedPalette
