@@ -21,7 +21,7 @@ Window {
     // Persistencia local SOLO del visor Qt: no modifica ningún panel KDE.
     // Se guardan los valores elegidos, no una estética inventada en GitHub.
     property bool appearanceRestored: false
-    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient"]
+    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth"]
     QtCore.Settings {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
@@ -117,6 +117,12 @@ Window {
     property real demoSoButtonWidth: 96
     property color demoSoledadColor: "#010111"
     property color demoMalvinaColor: "#101e31"
+    property bool demoSoledadGradientEnabled: false
+    property color demoSoledadGradientEnd: "#ee9852"
+    property string demoSoledadGradientDirection: "topBottom"
+    property bool demoMalvinaGradientEnabled: false
+    property color demoMalvinaGradientEnd: "#445577"
+    property string demoMalvinaGradientDirection: "topBottom"
     property color demoBackgroundColor: "#202333"
     property real demoSoledadOpacity: 0.5
     property real demoMalvinaOpacity: 1
@@ -139,6 +145,7 @@ Window {
     property real demoSoActivityGlowIntensity: 0.7
     property real demoSoActivityGlowSpread: 5
     property real demoSoActivityPulseSpeed: 0.6
+    property real demoSoActivityPulseDepth: 0.7
     property bool demoSoActivityGlowGradient: true
     property bool demoSoActivityShowWhenEmpty: true
     property bool demoSoActivityShowWhenOpen: false
@@ -199,6 +206,12 @@ Window {
         }
         soledadColor: previewWindow.demoSoledadColor
         malvinaColor: previewWindow.demoMalvinaColor
+        soledadGradientEnabled: previewWindow.demoSoledadGradientEnabled
+        soledadGradientEnd: previewWindow.demoSoledadGradientEnd
+        soledadGradientDirection: previewWindow.demoSoledadGradientDirection
+        malvinaGradientEnabled: previewWindow.demoMalvinaGradientEnabled
+        malvinaGradientEnd: previewWindow.demoMalvinaGradientEnd
+        malvinaGradientDirection: previewWindow.demoMalvinaGradientDirection
         backgroundColor: previewWindow.demoBackgroundColor
         soledadOpacity: previewWindow.demoSoledadOpacity
         malvinaOpacity: previewWindow.demoMalvinaOpacity
@@ -221,17 +234,19 @@ Window {
         soActivityGlowIntensity: previewWindow.demoSoActivityGlowIntensity
         soActivityGlowSpread: previewWindow.demoSoActivityGlowSpread
         soActivityPulseSpeed: previewWindow.demoSoActivityPulseSpeed
+        soActivityPulseDepth: previewWindow.demoSoActivityPulseDepth
         soActivityGlowGradient: previewWindow.demoSoActivityGlowGradient
         soActivityShowWhenEmpty: previewWindow.demoSoActivityShowWhenEmpty
         soActivityShowWhenOpen: previewWindow.demoSoActivityShowWhenOpen
         onRequestAutoHideMalvinaChange: function(newValue) {
             previewWindow.demoAutoHideMalvina = newValue
         }
-        onRequestSoGlowChange: function(color, intensity, spread, speed, gradient) {
+        onRequestSoGlowChange: function(color, intensity, spread, speed, depth, gradient) {
             previewWindow.demoSoActivityGlowColor = color
             previewWindow.demoSoActivityGlowIntensity = intensity
             previewWindow.demoSoActivityGlowSpread = spread
             previewWindow.demoSoActivityPulseSpeed = speed
+            previewWindow.demoSoActivityPulseDepth = depth
             previewWindow.demoSoActivityGlowGradient = gradient
         }
         onRequestSoActivityChange: function(style, color, stroke, allowMotion,
@@ -274,6 +289,14 @@ Window {
             previewWindow.demoMalvinaShape = malShape
             previewWindow.demoGripShape = gripButtonShape
             previewWindow.demoTrayButtonShape = trayShape
+        }
+        onRequestIslandGradientChange: function(a, b, c, d, e, f) {
+            previewWindow.demoSoledadGradientEnabled = a
+            previewWindow.demoSoledadGradientEnd = b
+            previewWindow.demoSoledadGradientDirection = c
+            previewWindow.demoMalvinaGradientEnabled = d
+            previewWindow.demoMalvinaGradientEnd = e
+            previewWindow.demoMalvinaGradientDirection = f
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
                                             alphaBg, trayOverride, trayColor,
@@ -555,5 +578,26 @@ Window {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
 
+    onDemoSoledadGradientEnabledChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadGradientEndChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadGradientDirectionChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGradientEnabledChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGradientEndChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGradientDirectionChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityPulseDepthChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
     onWidthChanged: console.log("SmartBar ventana independiente: ancho =", width)
 }
