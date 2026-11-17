@@ -32,18 +32,49 @@ Window {
         repeat: false
         onTriggered: previewWindow.saveAppearancePreset()
     }
-    function saveAppearancePreset() {
-        if (!appearanceRestored) return
+    function collectAppearancePreset() {
         const values = {}
         for (const key of appearanceKeys) {
             const value = previewWindow[key]
             values[key] = key === "demoOutlineConfig"
                 ? JSON.parse(JSON.stringify(value))
-                : (key.endsWith("Color") || key.endsWith("GradientEnd") || key === "demoSoClockTextColor"
-                   ? String(value) : value)
+                : (key.endsWith("Color") || key.endsWith("GradientEnd") ||
+                   key === "demoSoClockTextColor" ? String(value) : value)
         }
-        localPreviewSettings.setValue("appearanceV1", JSON.stringify(values))
+        return JSON.stringify(values)
+    }
+    function saveAppearancePreset() {
+        if (!appearanceRestored) return
+        localPreviewSettings.setValue("appearanceV1", collectAppearancePreset())
         localPreviewSettings.sync()
+    }
+    function saveFavoriteAppearance() {
+        if (!appearanceRestored) return
+        saveAppearanceTimer.stop()
+        const current = collectAppearancePreset()
+        localPreviewSettings.setValue("favoriteSoledadV1", current)
+        localPreviewSettings.setValue("appearanceV1", current)
+        localPreviewSettings.sync()
+        console.log("SmartBar: estética favorita guardada localmente")
+    }
+    function restoreFavoriteAppearance() {
+        if (!appearanceRestored) return
+        const raw = localPreviewSettings.value("favoriteSoledadV1", "")
+        if (typeof raw !== "string" || raw.length === 0) {
+            console.warn("SmartBar: todavía no hay estética favorita guardada")
+            return
+        }
+        try {
+            const values = JSON.parse(raw)
+            for (const key of appearanceKeys) {
+                if (Object.prototype.hasOwnProperty.call(values, key))
+                    previewWindow[key] = values[key]
+            }
+            saveAppearancePreset()
+            console.log("SmartBar: estética favorita restaurada")
+        } catch (e) {
+            console.warn("SmartBar: no se pudo recuperar la estética favorita:", e)
+        }
     }
     function restoreAppearancePreset() {
         const raw = localPreviewSettings.value("appearanceV1", "")
@@ -398,6 +429,26 @@ Window {
               "\nAncho Soledad: " + Math.round(bar.actualIslandWidth) +
               " / espacio disponible: " + Math.round(bar.availableIslandWidth) +
               " px lógicos · prioridad: " + (bar.lastExpandedMode === "so" ? "SO" : "bandeja")
+    }
+
+    QQC2.Row {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 18
+        anchors.bottomMargin: 6
+        spacing: 8
+        QQC2.Button {
+            text: "Guardar estética favorita"
+            onClicked: previewWindow.saveFavoriteAppearance()
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.text: "Guarda una copia local independiente de los próximos cambios"
+        }
+        QQC2.Button {
+            text: "Restaurar estética favorita"
+            onClicked: previewWindow.restoreFavoriteAppearance()
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.text: "Recupera la estética que guardaste como favorita"
+        }
     }
 
     QQC2.Label {
