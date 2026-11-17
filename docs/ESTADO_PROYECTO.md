@@ -810,3 +810,12 @@ Commits [91e8ff5](https://github.com/nicoarg87/plasma-smartbar/commit/91e8ff5834
 Commits: [c66e263](https://github.com/nicoarg87/plasma-smartbar/commit/c66e2632465e8da12d4f97a2db905a79f095ac11), [577f2c7](https://github.com/nicoarg87/plasma-smartbar/commit/577f2c7a23ce968881cd64606d5ee714f80f0460), [2dc7265](https://github.com/nicoarg87/plasma-smartbar/commit/2dc7265741f8d3e38172e8dd99dc7d4df1e0fbc9).
 
 **RIESGOS/PENDIENTE:** este algoritmo estima una tonalidad dominante desde muestra pequeña del primer fotograma cargado; puede no identificar de manera fiel el atardecer, especialmente en GIFs o imágenes multicolores. Requiere prueba Qt/CachyOS y verificar errores de carga del Canvas. El usuario conserva controles manuales para escoger un crema cálido si la sugerencia no le agrada. El posible nuevo launcher de aplicaciones de Isla 1 **no fue implementado** en esta tarea; antes hay que concretar su ubicación respecto a los roles previos de Soledad/Malvina, ya documentados en el issue #6. No subir imágenes/capturas privadas ni modificar panel KDE instalado.
+
+
+## Acceso directo a sugerencia GIF junto a Elegir color (17/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** el botón de sugerir colores del GIF en Apariencia debe aparecer inmediatamente **al lado de «Elegir color…»** cuando se selecciona Soledad (isla 1), para que resulte intuitivo. No cambiar algoritmo ni las opciones para aplicar solo el primer tono o ambos tonos.
+
+**IMPLEMENTADO** en rama experimental: [commit f43e794](https://github.com/nicoarg87/plasma-smartbar/commit/f43e794eb3b75222dca7f10c74db37ca6507d2f7), archivo `SoledadSettings.qml`. Se traslada el botón a la misma fila del selector de color de Soledad, con etiqueta breve «Sugerir desde GIF…» y explicación al pasar el cursor; sigue invocando el muestreo local existente, sin aplicar cambios sin confirmación y sin duplicar el botón anterior. Las muestras y controles «Usar solo el primer color sugerido» / «Usar ambos tonos en el degradado» permanecen abajo.
+
+**REVISIÓN:** estructura estática QML equilibrada. **PENDIENTE de retest en CachyOS**: visibilidad condicional y comodidad de la fila con pantalla más angosta. No se modificó panel KDE ni recursos gráficos.
