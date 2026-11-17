@@ -39,7 +39,7 @@ Window {
             const value = previewWindow[key]
             values[key] = key === "demoOutlineConfig"
                 ? JSON.parse(JSON.stringify(value))
-                : (key.endsWith("Color") || key === "demoSoClockTextColor"
+                : (key.endsWith("Color") || key.endsWith("GradientEnd") || key === "demoSoClockTextColor"
                    ? String(value) : value)
         }
         localPreviewSettings.setValue("appearanceV1", JSON.stringify(values))
