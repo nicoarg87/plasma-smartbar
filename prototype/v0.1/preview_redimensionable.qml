@@ -3,6 +3,7 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls as QQC2
+import org.kde.taskmanager 0.1 as TaskManager
 import "package/contents/ui"
 
 Window {
@@ -14,6 +15,26 @@ Window {
     visible: true
     title: "Plasma SmartBar Islands v0.1 — prueba redimensionable (sin panel)"
     color: "#242236"
+
+    // Solo este visor Qt utiliza la opción real. El plasmoide sigue
+    // sin conexión a ventanas y el panel instalado no se modifica.
+    property bool useRealWindowTasks: false
+
+    // Misma configuración ya validada por el mantenedor en el
+    // diagnóstico preview_ventanas_reales.qml.
+    TaskManager.TasksModel {
+        id: kdeTasks
+        groupMode: TaskManager.TasksModel.GroupApplications
+        sortMode: TaskManager.TasksModel.SortAlpha
+        launcherList: []
+        filterByVirtualDesktop: false
+        filterByActivity: false
+        filterByScreen: false
+        onCountChanged: {
+            if (previewWindow.useRealWindowTasks)
+                console.log("SmartBar SO: grupos reales visibles =", count)
+        }
+    }
 
     property bool demoAutoReturnRight: true
     property bool demoLauncherIslandVisible: true
@@ -71,6 +92,7 @@ Window {
 
     SmartBarContent {
         id: bar
+        realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -216,18 +238,33 @@ Window {
         }
     }
 
+    QQC2.CheckBox {
+        id: realTasksSwitch
+        anchors.left: parent.left
+        anchors.leftMargin: 18
+        anchors.top: bar.bottom
+        anchors.topMargin: 12
+        text: "Usar ventanas reales de KDE en SO (solo lectura)"
+        checked: previewWindow.useRealWindowTasks
+        onToggled: previewWindow.useRealWindowTasks = checked
+    }
+
     QQC2.Label {
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: bar.bottom
-        anchors.topMargin: 28
+        anchors.top: realTasksSwitch.bottom
+        anchors.topMargin: 12
         anchors.leftMargin: 18
         anchors.rightMargin: 18
         wrapMode: Text.WordWrap
         color: "#f4edf9"
-        text: "Vista independiente: arrastrá el borde de esta ventana o maximizala. " +
-              "Isla 2 debe quedar a la izquierda; isla 1, SO y los controles de " +
-              "muestra siguen el borde derecho. El fondo es solamente de la ventana de prueba."
+        text: previewWindow.useRealWindowTasks
+              ? "Modo KDE REAL (solo lectura): SO muestra aplicaciones abiertas. " +
+                "No activa, minimiza ni cierra ventanas. Probá abrir/cerrar Dolphin o Konsole; " +
+                "la fila de SO se actualiza manteniendo el botón a la derecha."
+              : "Modo SIMULADO: conserva todas las pruebas anteriores. Arrastrá " +
+                "el borde de la ventana o maximizala; Malvina queda a la izquierda " +
+                "y Soledad a la derecha."
     }
 
     // Diagnóstico visible EXCLUSIVAMENTE en esta ventana de prueba;
@@ -242,7 +279,9 @@ Window {
         color: "#c7bad8"
         font.pixelSize: 11
         wrapMode: Text.WordWrap
-        text: "Ventanas de muestra: " + bar.soWindowCount +
+        text: (previewWindow.useRealWindowTasks
+                ? "Grupos reales KDE (solo lectura): "
+                : "Ventanas de muestra: ") + bar.soWindowCount +
               " · efecto SO: " + bar.soActivityStyle +
               " · " + (bar.soExpanded ? "SO abierto" : "SO cerrado") +
               " · " + (bar.trayExpanded ? "bandeja abierta" : "bandeja cerrada") +
