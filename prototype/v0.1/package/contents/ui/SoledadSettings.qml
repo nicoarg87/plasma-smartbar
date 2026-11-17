@@ -334,6 +334,8 @@ Window {
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
                               alignedRight, alignmentEdited)
+        if (hasSuggestedPalette)
+            paletteFeedback = "Paleta elegida aplicada. Los colores de Soledad se mantienen si no pulsaste «Usar tonos sugeridos en Soledad»."
         alignmentEdited = false
         appliedLabel.text = "Cambios aplicados. Podés seguir configurando."
         // NO llamar settings.close(): Aplicar no debe cerrar la ventana.
