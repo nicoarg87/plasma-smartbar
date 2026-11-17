@@ -1899,6 +1899,13 @@ Window {
                                 islandColorDialog.open()
                             }
                         }
+                        QQC2.Button {
+                            visible: appearanceTarget.currentIndex === 0
+                            text: "Sugerir desde GIF…"
+                            onClicked: paletteSampler.suggestFromImage("island")
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "Propone colores del GIF sin aplicarlos automáticamente"
+                        }
                         QQC2.Label {
                             text: settings.toHex(settings.activeColor)
                             color: "#eeeaf7"
@@ -1943,13 +1950,6 @@ Window {
                         text: "Sugerencias de color para Soledad"
                         color: "white"
                         font.bold: true
-                    }
-                    QQC2.Button {
-                        visible: appearanceTarget.currentIndex === 0
-                        text: "Sugerir tonos desde el GIF o imagen"
-                        onClicked: paletteSampler.suggestFromImage("island")
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.text: "Muestra local de colores, sin aplicar automáticamente"
                     }
                     QQC2.Label {
                         visible: appearanceTarget.currentIndex === 0
