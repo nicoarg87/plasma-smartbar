@@ -28,6 +28,10 @@
     <!-- Sólo parámetros de visualización; el archivo del usuario no se edita. -->
     <entry name="soLogoMode" type="String"><default>default</default></entry>
     <entry name="soLogoPath" type="String"><default></default></entry>
+    <entry name="taskFrameShape" type="String"><default>rounded</default></entry>
+    <entry name="taskFrameColor" type="String"><default>#ffffff</default></entry>
+    <entry name="taskFrameOpacity" type="Double"><default>0.12</default></entry>
+    <entry name="taskFrameWidth" type="Double"><default>1</default></entry>
     <entry name="soTextLabel" type="String"><default>SO</default></entry>
     <entry name="soTextColor" type="String"><default>#ffffff</default></entry>
     <entry name="soTextBackground" type="String"><default>#192536</default></entry>
