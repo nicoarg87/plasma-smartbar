@@ -493,12 +493,21 @@ Window {
                     const hue = hues[winner]/bins[winner]
                     // Tres variantes relacionadas por luminosidad/saturación,
                     // sin asumir que la imagen completa tiene un único tono.
-                    settings.chooseCoordinatedPalette("imagen seleccionada (aproximación)",
-                        Qt.hsva(hue,0.60,1.0,1),
-                        Qt.hsva((hue+0.045)%1,0.85,0.92,1),
-                        Qt.hsva(hue,0.32,0.93,1),
-                        Qt.hsva((hue+0.035)%1,0.62,0.60,1))
-                    settings.paletteFeedback = "Se analizó una muestra de la imagen. Revisá la sugerencia en Apariencia; no se aplicó todavía."
+                    const base = Qt.hsva(hue, 0.32, 0.93, 1)
+                    const end = Qt.hsva((hue + 0.035) % 1, 0.62, 0.60, 1)
+                    if (requestMode === "island") {
+                        settings.suggestedIslandBase = base
+                        settings.suggestedIslandEnd = end
+                        settings.suggestedPaletteName = "imagen/GIF local (aproximación)"
+                        settings.hasSuggestedPalette = true
+                        settings.paletteFeedback = "Muestra analizada localmente. Elegí el primer color o ambos tonos y después pulsá Aplicar."
+                    } else {
+                        settings.chooseCoordinatedPalette("imagen seleccionada (aproximación)",
+                            Qt.hsva(hue,0.60,1.0,1),
+                            Qt.hsva((hue+0.045)%1,0.85,0.92,1),
+                            base, end)
+                        settings.paletteFeedback = "Se analizó la imagen. Revisá la sugerencia en Apariencia; no se aplicó todavía."
+                    }
                     console.log("SmartBar: paleta local estimada; confirmar con Aplicar")
                 } else {
                     settings.paletteFeedback = "No se detectaron colores dominantes suficientes. Probá una paleta manual."
