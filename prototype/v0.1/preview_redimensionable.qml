@@ -21,7 +21,7 @@ Window {
     // Persistencia local SOLO del visor Qt: no modifica ningún panel KDE.
     // Se guardan los valores elegidos, no una estética inventada en GitHub.
     property bool appearanceRestored: false
-    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth"]
+    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity"]
     QtCore.Settings {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
@@ -120,6 +120,8 @@ Window {
     property bool demoSoledadGradientEnabled: false
     property color demoSoledadGradientEnd: "#ee9852"
     property string demoSoledadGradientDirection: "topBottom"
+    property bool demoSoledadGradientSyncBreathing: false
+    property real demoSoledadGradientBreathingIntensity: 0.6
     property bool demoMalvinaGradientEnabled: false
     property color demoMalvinaGradientEnd: "#445577"
     property string demoMalvinaGradientDirection: "topBottom"
@@ -209,6 +211,8 @@ Window {
         soledadGradientEnabled: previewWindow.demoSoledadGradientEnabled
         soledadGradientEnd: previewWindow.demoSoledadGradientEnd
         soledadGradientDirection: previewWindow.demoSoledadGradientDirection
+        soledadGradientSyncBreathing: previewWindow.demoSoledadGradientSyncBreathing
+        soledadGradientBreathingIntensity: previewWindow.demoSoledadGradientBreathingIntensity
         malvinaGradientEnabled: previewWindow.demoMalvinaGradientEnabled
         malvinaGradientEnd: previewWindow.demoMalvinaGradientEnd
         malvinaGradientDirection: previewWindow.demoMalvinaGradientDirection
@@ -289,6 +293,10 @@ Window {
             previewWindow.demoMalvinaShape = malShape
             previewWindow.demoGripShape = gripButtonShape
             previewWindow.demoTrayButtonShape = trayShape
+        }
+        onRequestGradientBreathingChange: function(enabled, intensity) {
+            previewWindow.demoSoledadGradientSyncBreathing = enabled
+            previewWindow.demoSoledadGradientBreathingIntensity = intensity
         }
         onRequestIslandGradientChange: function(a, b, c, d, e, f) {
             previewWindow.demoSoledadGradientEnabled = a
@@ -597,6 +605,12 @@ Window {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
     onDemoSoActivityPulseDepthChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadGradientSyncBreathingChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadGradientBreathingIntensityChanged: {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
     onWidthChanged: console.log("SmartBar ventana independiente: ancho =", width)
