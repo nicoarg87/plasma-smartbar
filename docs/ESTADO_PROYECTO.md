@@ -586,3 +586,10 @@ Tras el registro inicial, la rama experimental incorpora además `OutlineStyle.q
 - Conexión a barra/visor Qt y preferencias locales/KConfig previstas: [52e0cbf](https://github.com/nicoarg87/plasma-smartbar/commit/52e0cbfdf963aa12e0b7f4dbd17b37345ae7af4c), [d349a01](https://github.com/nicoarg87/plasma-smartbar/commit/d349a01c769d4e62434779522ac2aa3dba2f1f78), [f595663](https://github.com/nicoarg87/plasma-smartbar/commit/f59566306915b4f7243336683654b82f20ad15ca), [96a1228](https://github.com/nicoarg87/plasma-smartbar/commit/96a1228952cf6660ccb59488f7b5e5b78d65f29d).
 
 **Pendiente:** prueba visual en CachyOS de centrado del halo, profundidad de respiración, guardado al cerrar/reabrir, dirección y transparencia de ambos degradados, contornos decorativos y punta triangular. No se ha probado rendimiento ni reemplazado panel existente. No subir capturas sin consentimiento expreso, incluso si parecen libres de datos personales.
+
+
+### Auditoría de cableado antes de nuevas pruebas (17/11/2026)
+
+A pedido del mantenedor se revisó la versión vigente de la rama experimental para confirmar el recorrido de ajustes `SoledadSettings.qml` → señales `SmartBarContent.qml` → visor Qt `preview_redimensionable.qml`, y la preparación de claves en `main.qml` + `main.xml`: brillo fijo/móvil, degradado de dos colores en halo, velocidad e intensidad de respiración, profundidad de pulsación, degradados independientes de ambas islas con orientación vertical/horizontal, colores y preferencia local. **Hallazgo corregido:** la serialización del perfil local no trataba `demoSoledadGradientEnd` ni `demoMalvinaGradientEnd` como colores; se ajustó el guardado para convertirlos a cadenas, [commit 8270b54](https://github.com/nicoarg87/plasma-smartbar/commit/8270b547b6945f293a713416d1a7b0ae809286f0).
+
+**Resultado:** código publicado y cableado revisado; **no hay ejecución Qt en CachyOS desde este entorno, por lo que la prueba visual y la restauración efectiva siguen PENDIENTES**. Se conserva la configuración anterior y el panel KDE instalado, no se publicaron capturas privadas del usuario.
