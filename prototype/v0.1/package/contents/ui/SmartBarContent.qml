@@ -25,6 +25,8 @@ Item {
     property string trayButtonShape: "rounded"
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     signal requestOutlineChange(var updated)
+    signal requestIslandGradientChange(bool soEnabled, string soEnd, string soDirection,
+                                       bool malEnabled, string malEnd, string malDirection)
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
     property string soButtonFrameShape: "capsule"
     property real soButtonWidth: 96
@@ -175,6 +177,12 @@ Item {
     // Es una capa de fondo y no sustituye la isla 3 buscadora pendiente.
     property color soledadColor: "#010111"
     property color malvinaColor: "#101e31"
+    property bool soledadGradientEnabled: false
+    property color soledadGradientEnd: "#ee9852"
+    property string soledadGradientDirection: "topBottom"
+    property bool malvinaGradientEnabled: false
+    property color malvinaGradientEnd: "#445577"
+    property string malvinaGradientDirection: "topBottom"
     property color backgroundColor: "#202333"
     property real soledadOpacity: 0.5
     property real malvinaOpacity: 1
@@ -520,6 +528,12 @@ Item {
             soledadSettings.soButtonWidth = root.soButtonWidth
             soledadSettings.soledadColor = root.soledadColor
             soledadSettings.malvinaColor = root.malvinaColor
+            soledadSettings.soledadGradientEnabled = root.soledadGradientEnabled
+            soledadSettings.soledadGradientEnd = root.soledadGradientEnd
+            soledadSettings.soledadGradientDirection = root.soledadGradientDirection
+            soledadSettings.malvinaGradientEnabled = root.malvinaGradientEnabled
+            soledadSettings.malvinaGradientEnd = root.malvinaGradientEnd
+            soledadSettings.malvinaGradientDirection = root.malvinaGradientDirection
             soledadSettings.backgroundColor = root.backgroundColor
             soledadSettings.soledadOpacity = root.soledadOpacity
             soledadSettings.malvinaOpacity = root.malvinaOpacity
@@ -578,6 +592,9 @@ Item {
                                        malRadius, soWidth, malWidth,
                                        buttonShape, buttonWidth,
                                        soShape, malShape, gripButtonShape, trayShape)
+        }
+        onSaveIslandGradientRequested: function(a, b, c, d, e, f) {
+            root.requestIslandGradientChange(a, b, c, d, e, f)
         }
         onSaveOutlineRequested: function(updated) {
             root.requestOutlineChange(updated)
@@ -762,8 +779,41 @@ Item {
             bottomLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
             topRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
             bottomRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
-            color: Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                           root.malvinaColor.b, root.malvinaOpacity)
+            color: root.malvinaGradientEnabled ? "transparent" :
+                Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
+                        root.malvinaColor.b, root.malvinaOpacity)
+            Rectangle {
+                anchors.fill: parent
+                visible: root.malvinaGradientEnabled
+                radius: parent.radius
+                topLeftRadius: parent.topLeftRadius
+                topRightRadius: parent.topRightRadius
+                bottomLeftRadius: parent.bottomLeftRadius
+                bottomRightRadius: parent.bottomRightRadius
+                gradient: Gradient {
+                    orientation: (root.malvinaGradientDirection === "leftRight" ||
+                                  root.malvinaGradientDirection === "rightLeft")
+                        ? Gradient.Horizontal : Gradient.Vertical
+                    GradientStop {
+                        position: 0
+                        color: root.malvinaGradientDirection === "bottomTop" ||
+                               root.malvinaGradientDirection === "rightLeft"
+                            ? Qt.rgba(root.malvinaGradientEnd.r, root.malvinaGradientEnd.g,
+                                      root.malvinaGradientEnd.b, root.malvinaOpacity)
+                            : Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
+                                      root.malvinaColor.b, root.malvinaOpacity)
+                    }
+                    GradientStop {
+                        position: 1
+                        color: root.malvinaGradientDirection === "bottomTop" ||
+                               root.malvinaGradientDirection === "rightLeft"
+                            ? Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
+                                      root.malvinaColor.b, root.malvinaOpacity)
+                            : Qt.rgba(root.malvinaGradientEnd.r, root.malvinaGradientEnd.g,
+                                      root.malvinaGradientEnd.b, root.malvinaOpacity)
+                    }
+                }
+            }
             border.width: 0
             OutlineStyle {
                 anchors.fill: parent
@@ -833,6 +883,9 @@ Item {
                 Connections {
                     target: root
                     function onSoledadColorChanged() { islandSurface.requestPaint() }
+                    function onSoledadGradientEnabledChanged() { islandSurface.requestPaint() }
+                    function onSoledadGradientEndChanged() { islandSurface.requestPaint() }
+                    function onSoledadGradientDirectionChanged() { islandSurface.requestPaint() }
                     function onSoledadOpacityChanged() { islandSurface.requestPaint() }
                     function onSoledadShapeChanged() { islandSurface.requestPaint() }
                     function onSoledadRadiusChanged() { islandSurface.requestPaint() }
@@ -866,11 +919,28 @@ Item {
                     ctx.lineTo(0, tl)
                     ctx.quadraticCurveTo(0, 0, tl, 0)
                     ctx.closePath()
-                    ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                            root.soledadColor.b, root.soledadOpacity)
+                    if (root.soledadGradientEnabled) {
+                        const dir = root.soledadGradientDirection
+                        const g = ctx.createLinearGradient(
+                            dir === "leftRight" ? 0 : dir === "rightLeft" ? width : 0,
+                            dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
+                            dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
+                            dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
+                        g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+                                                   root.soledadColor.b, root.soledadOpacity))
+                        g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r,
+                                                   root.soledadGradientEnd.g,
+                                                   root.soledadGradientEnd.b,
+                                                   root.soledadOpacity))
+                        ctx.fillStyle = g
+                    } else {
+                        ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+                                                root.soledadColor.b, root.soledadOpacity)
+                    }
                     ctx.fill()
                     // Retirar el relleno SOLO detrás de los controles cuyo
                     // color/opacidad es independiente; no tocar zonas SO.
+                    if (!root.soledadGradientEnabled) {
                     ctx.globalCompositeOperation = "destination-out"
                     ctx.fillStyle = "#ffffffff" // vaciar totalmente el fondo, incluso al 0%
                     for (let i = 0; i < systemRow.children.length; ++i) {
@@ -904,6 +974,7 @@ Item {
                         ctx.fill()
                     }
                     ctx.globalCompositeOperation = "source-over"
+                    }
                 }
             }
             OutlineStyle {
@@ -937,6 +1008,9 @@ Item {
                 Connections {
                     target: root
                     function onSoledadColorChanged() { soTipBackground.requestPaint() }
+                    function onSoledadGradientEnabledChanged() { soTipBackground.requestPaint() }
+                    function onSoledadGradientEndChanged() { soTipBackground.requestPaint() }
+                    function onSoledadGradientDirectionChanged() { soTipBackground.requestPaint() }
                     function onSoledadOpacityChanged() { soTipBackground.requestPaint() }
                     function onSoledadShapeChanged() { soTipBackground.requestPaint() }
                 }
@@ -950,8 +1024,22 @@ Item {
                     ctx.lineTo(width - 1, height - 1)
                     ctx.lineTo(24, height - 1)
                     ctx.closePath()
-                    ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                            root.soledadColor.b, root.soledadOpacity)
+                    if (root.soledadGradientEnabled) {
+                        const dir = root.soledadGradientDirection
+                        const g = ctx.createLinearGradient(
+                            dir === "leftRight" ? 0 : dir === "rightLeft" ? width : 0,
+                            dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
+                            dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
+                            dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
+                        g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+                                                  root.soledadColor.b, root.soledadOpacity))
+                        g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r, root.soledadGradientEnd.g,
+                                                  root.soledadGradientEnd.b, root.soledadOpacity))
+                        ctx.fillStyle = g
+                    } else {
+                        ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+                                                root.soledadColor.b, root.soledadOpacity)
+                    }
                     ctx.strokeStyle = "#4e8499"
                     ctx.lineWidth = 1
                     ctx.fill()
