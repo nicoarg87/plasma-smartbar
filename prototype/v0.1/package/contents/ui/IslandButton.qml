@@ -13,6 +13,8 @@ QQC2.Button {
     property string customTextFontFamily: "Sans Serif"
     property int customTextFontSize: 13
     property bool customTextBold: true
+    property string customTextBackgroundImage: ""
+    readonly property bool customTextBackgroundIsGif: customTextBackgroundImage.toLowerCase().endsWith(".gif")
     // Bandeja: mismo color y opacidad de la isla por defecto.
     // Cada categoría puede reemplazarlo desde Apariencia.
     property bool useTileColor: false
@@ -80,6 +82,24 @@ QQC2.Button {
     focusPolicy: Qt.StrongFocus
 
     background: Rectangle {
+        clip: true
+        Image {
+            anchors.fill: parent
+            visible: control.customTextMode &&
+                     control.customTextBackgroundImage.length > 0 &&
+                     !control.customTextBackgroundIsGif
+            source: visible ? control.customTextBackgroundImage : ""
+            fillMode: Image.PreserveAspectCrop
+        }
+        AnimatedImage {
+            anchors.fill: parent
+            visible: control.customTextMode &&
+                     control.customTextBackgroundImage.length > 0 &&
+                     control.customTextBackgroundIsGif
+            source: visible ? control.customTextBackgroundImage : ""
+            playing: visible
+            fillMode: Image.PreserveAspectCrop
+        }
         // Al mostrar imagen, la mascara y el indicador opcional de
         // actividad comparten la forma elegida. No dibujar ADEMAS
         // un borde redondo del boton: aparecian dos geometrías
