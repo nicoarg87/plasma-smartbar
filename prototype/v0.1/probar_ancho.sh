@@ -17,7 +17,19 @@ else
     exit 1
 fi
 
-echo "Abriendo la vista de geometría Qt Quick de Plasma SmartBar…"
+GIF_SO="$HERE/package/contents/ui/assets/so-tropical.gif"
+if [ ! -s "$GIF_SO" ]; then
+    echo "AVISO: falta el GIF tropical predeterminado de SO:" >&2
+    echo "  $GIF_SO" >&2
+    echo "El botón mostrará el texto SO en lugar del GIF." >&2
+    echo "Descargá Plasma-SmartBar-Islands-GIF-SO-definitivo.zip y" >&2
+    echo "extraelo desde la raíz del repositorio, por ejemplo:" >&2
+    echo "  unzip -o ~/Descargas/Plasma-SmartBar-Islands-GIF-SO-definitivo.zip -d ." >&2
+else
+    echo "GIF predeterminado de SO localizado: $GIF_SO"
+fi
+
+echo "Abriendo la vista de geometría Qt Quick de Plasma SmartBar Islands…"
 echo "Esta ventana usa SmartBarContent.qml, igual que el plasmoide."
 echo "No se instala ni cambia ningún panel. Cerrala con la X."
 exec "$QML_RUNNER" "$HERE/preview_redimensionable.qml"
