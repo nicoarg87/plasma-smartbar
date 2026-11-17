@@ -760,3 +760,16 @@ Commits [91e8ff5](https://github.com/nicoarg87/plasma-smartbar/commit/91e8ff5834
 - No se cambian opacidades ni colores del degradado elegidos por el usuario; el efecto de respiración sincronizada permanece debajo de las fichas transparentes. Los botones de bandeja, agarre y logo conservan sus estilos independientes.
 
 **REVISADO ESTÁTICAMENTE:** llaves/paréntesis equilibrados y las cuatro instancias de fichas conectadas. **PENDIENTE DE PRUEBA VISUAL** con SO a derecha/centro, fichas simuladas y KDE TasksModel real, hover, contraste del texto con diferentes gradientes y temporizador de respiración. No se modifica panel KDE ni se publican capturas privadas.
+
+
+## Fichas de aplicaciones: forma y contorno configurables desde Apariencia (17/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** la integración de fichas transparentes con el degradado de Soledad y sus líneas discretas le resulta estética, pero necesita poder elegir **rectángulo de esquinas redondeadas**, **rectángulo cuadrado** o **sin recuadro**; también quiere color personalizado, intensidad/transparencia y grosor de la línea de cada ficha, desde la pestaña **Apariencia**. Se conserva el diseño actual como predeterminado y no se alteran las configuraciones de SO ni el degradado.
+
+**IMPLEMENTADO EN `prototype/v0.1-islas-so`, pendiente de prueba real:**
+- `IslandButton.qml` agrega propiedades `taskFrameShape` (`rounded/square/none`), `taskFrameColor` (inicial blanco), `taskFrameOpacity` (inicial 12 %) y `taskFrameWidth` (inicial 1 px). En las fichas con `inheritIslandFill=true` el interior sigue transparente sobre el fondo/degradado de la isla, y el contorno rectangular se representa mediante `Rectangle.border`; `none` pone ancho cero. Radio redondeado máximo 7 px; sin sustituir bordes ni diseños de otros botones.
+- `SmartBarContent.qml` cablea ajustes con los cuatro delegados de fichas: simuladas/reales, modos derecha/centro. No cambia KWin, posición de los botones, SO, bandeja, ni el carácter solo lectura del modelo de ventanas reales.
+- `SoledadSettings.qml`: sección **Fichas de aplicaciones abiertas en SO** dentro de Apariencia con selector de forma, selector de color, intensidad de 0–100 % y grosor 0,5–3 px. Se ocultan controles de línea cuando el usuario selecciona **Sin recuadro**. Cambios efectivos solo al pulsar **Aplicar**.
+- Persistencia de la vista experimental en `preview_redimensionable.qml` (`QtCore.Settings`, perfil de aspecto y favorita), y claves preparadas en `main.qml` y `main.xml` para uso futuro del plasmoide. Todo es independiente de los colores y degradados de Soledad existentes.
+
+**REVISIÓN ESTÁTICA:** equilibrados delimitadores de los seis archivos; las cuatro instancias de fichas reciben las propiedades. **PENDIENTE DE PRUEBA EN CACHYOS:** abrir/cerrar simuladas y reales, escoger las tres formas, opacidad/color/grosor, guardado al reiniciar y estética favorita, fondo degradado respirante, hover/contraste. No se toca panel KDE instalado, no se publican capturas privadas.
