@@ -17,6 +17,8 @@ QQC2.Button {
     readonly property bool customTextBackgroundIsGif: customTextBackgroundImage.toLowerCase().endsWith(".gif")
     // Bandeja: mismo color y opacidad de la isla por defecto.
     // Cada categoría puede reemplazarlo desde Apariencia.
+    // Fichas de ventanas sin color independiente: muestran el fondo de Soledad.
+    property bool inheritIslandFill: false
     property bool useTileColor: false
     property color tileColor: "#010111"
     property real tileOpacity: 0.5
@@ -38,7 +40,7 @@ QQC2.Button {
     property real preferredButtonHeight: 0
     // Predeterminado de fichas de texto: conservar redondeado. SO y
     // el botón de bandeja pueden solicitar esquinas cuadradas.
-    property string frameShape: "rounded" // square, rectangle, rounded, capsule, oval
+    property string frameShape: "rounded" // square, rectangle, rounded, capsule, oval, task
     readonly property string effectiveImageShape: frameShape === "square" ? iconShape : frameShape
     // SOLO el botón SO conecta cantidad y política de ventanas.
     // Valores seguros para los demás botones: ninguno se ilumina vacío.
@@ -106,10 +108,14 @@ QQC2.Button {
         readonly property bool showsLogo: control.iconSource.toString().length > 0
         radius: control.frameShape === "rectangle" ||
                 control.frameShape === "square" ? 0 :
+                (control.frameShape === "task" ? Math.min(7, control.height / 4) :
                 (control.frameShape === "rounded"
                     ? Math.min(17, control.height / 2)
-                    : control.height / 2)
-        color: showsLogo ? "transparent" :
+                    : control.height / 2))
+        color: control.inheritIslandFill
+            ? (control.down ? "#30ffffff" :
+               (control.hovered ? "#18ffffff" : "transparent"))
+            : showsLogo ? "transparent" :
                control.customTextMode
                  ? Qt.rgba(control.customTextBackground.r,
                            control.customTextBackground.g,
@@ -130,7 +136,9 @@ QQC2.Button {
     OutlineStyle {
         parent: control.background
         anchors.fill: parent
-        visible: control.iconSource.toString().length === 0 && lineStyle !== "off"
+        visible: !control.inheritIslandFill &&
+                 control.iconSource.toString().length === 0 &&
+                 lineStyle !== "off"
         lineStyle: control.outlineStyle
         lineWidth: control.outlineWidth
         lineColor: control.outlineColor
