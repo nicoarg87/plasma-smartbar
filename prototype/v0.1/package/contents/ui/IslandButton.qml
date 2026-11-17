@@ -182,7 +182,7 @@ QQC2.Button {
         anchors.fill: parent
         visible: control.inheritIslandFill && control.taskIsActive &&
                  control.taskActiveDoubleBorderEnabled
-        lineStyle: visible ? "double" : "off"
+        lineStyle: "double"
         lineWidth: control.taskActiveBorderWidth
         lineColor: control.taskActiveBorderColor
         lineOpacity: control.taskActiveBorderOpacity
