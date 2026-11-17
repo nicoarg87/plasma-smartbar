@@ -775,9 +775,9 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.effectStyle !== "off"
                         Layout.fillWidth: true
                         QQC2.Button {
-                        visible: settings.effectStyle !== "off"
                             text: "Elegir color…"
                             onClicked: {
                                 outlineColorDialog.selectedColor = settings.accentColor
@@ -816,10 +816,9 @@ Window {
                         font.bold: true
                     }
                     RowLayout {
-                        visible: settings.effectStyle !== "off"
+                        visible: settings.outlineIsOrbit && settings.allowMotion
                         Layout.fillWidth: true
                         QQC2.Label {
-                        visible: settings.outlineIsOrbit && settings.allowMotion
                             text: "Velocidad (vueltas/segundo)"
                             color: "white"
                             Layout.fillWidth: true
@@ -852,7 +851,6 @@ Window {
                         visible: settings.outlineIsOrbit && settings.allowMotion
                         Layout.fillWidth: true
                         QQC2.Label {
-                        visible: settings.outlineIsOrbit && settings.allowMotion
                             text: "Longitud de la cola (% del borde)"
                             color: "white"
                             Layout.fillWidth: true
@@ -906,7 +904,6 @@ Window {
                     }
                     RowLayout {
                         visible: settings.outlineUsesGlow
-                        visible: settings.outlineIsOrbit && settings.allowMotion
                         Layout.fillWidth: true
                         QQC2.Button {
                             text: "Color exterior…"
@@ -939,8 +936,11 @@ Window {
                             settings.glowColor = "#ff963c"
                         }
                     }
-                    QQC2.Label { text: "Intensidad del brillo"; color: "white" }
+                    QQC2.Label {
+                        text: "Intensidad del brillo"
+                        color: "white"
                         visible: settings.outlineUsesGlow
+                    }
                     RowLayout {
                         visible: settings.outlineUsesGlow
                         Layout.fillWidth: true
@@ -952,8 +952,11 @@ Window {
                         }
                         QQC2.Label { text: Math.round(settings.glowIntensity * 100) + "%"; color: "white" }
                     }
-                    QQC2.Label { text: "Difusión del brillo"; color: "white" }
+                    QQC2.Label {
+                        text: "Difusión del brillo"
+                        color: "white"
                         visible: settings.outlineUsesGlow
+                    }
                     RowLayout {
                         visible: settings.outlineUsesGlow
                         Layout.fillWidth: true
@@ -965,8 +968,11 @@ Window {
                         }
                         QQC2.Label { text: settings.glowSpread.toFixed(1) + " px"; color: "white" }
                     }
-                    QQC2.Label { text: "Velocidad de respiración"; color: "white" }
+                    QQC2.Label {
+                        text: "Velocidad de respiración"
+                        color: "white"
                         visible: settings.effectStyle === "breathe" && settings.allowMotion
+                    }
                     RowLayout {
                         visible: settings.effectStyle === "breathe" && settings.allowMotion
                         Layout.fillWidth: true
@@ -979,8 +985,11 @@ Window {
                         }
                         QQC2.Label { text: settings.pulseSpeed.toFixed(1) + " ciclos/s"; color: "white" }
                     }
-                    QQC2.Label { text: "Profundidad de la respiración"; color: "white" }
+                    QQC2.Label {
+                        text: "Profundidad de la respiración"
+                        color: "white"
                         visible: settings.effectStyle === "breathe" && settings.allowMotion
+                    }
                     RowLayout {
                         visible: settings.effectStyle === "breathe" && settings.allowMotion
                         Layout.fillWidth: true
