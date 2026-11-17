@@ -83,22 +83,20 @@ QQC2.Button {
 
     background: Rectangle {
         clip: true
-        Image {
-            anchors.fill: parent
+        // Reutilizar EXACTAMENTE la máscara del logo normal.
+        // Rectangle.clip recorta un rectángulo, NO sus esquinas redondeadas;
+        // los Image/AnimatedImage anteriores desbordaban la cápsula.
+        LogoArtwork {
+            anchors.centerIn: parent
+            width: Math.max(14, control.width - 12)
+            height: Math.max(14, control.height - 6)
             visible: control.customTextMode &&
-                     control.customTextBackgroundImage.length > 0 &&
-                     !control.customTextBackgroundIsGif
-            source: visible ? control.customTextBackgroundImage : ""
-            fillMode: Image.PreserveAspectCrop
-        }
-        AnimatedImage {
-            anchors.fill: parent
-            visible: control.customTextMode &&
-                     control.customTextBackgroundImage.length > 0 &&
-                     control.customTextBackgroundIsGif
-            source: visible ? control.customTextBackgroundImage : ""
-            playing: visible
-            fillMode: Image.PreserveAspectCrop
+                     control.customTextBackgroundImage.length > 0
+            imageUrl: control.customTextBackgroundImage
+            animateGif: control.customTextBackgroundIsGif
+            animationAllowed: true
+            cropShape: control.effectiveImageShape
+            fitMode: "crop"
         }
         // Al mostrar imagen, la mascara y el indicador opcional de
         // actividad comparten la forma elegida. No dibujar ADEMAS
