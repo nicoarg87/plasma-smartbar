@@ -1279,8 +1279,22 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        activityEffect: root.soActivityStyle
+                        activityColor: root.soActivityColor
+                        activityStroke: root.soActivityStroke
+                        activityMotionAllowed: root.soActivityMotion
+                        activityOrbitSpeed: root.soActivityOrbitSpeed
+                        activityTrailPercent: root.soActivityTrailPercent
+                        activityTrailStyle: root.soActivityTrailStyle
+                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowIntensity: root.soActivityGlowIntensity
+                        activityGlowSpread: root.soActivityGlowSpread
+                        activityPulseSpeed: root.soActivityPulseSpeed
+                        activityPulseDepth: root.soActivityPulseDepth
+                        activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         taskIconSource: root.demoIconForApp(modelData)
+                        taskIsActive: modelData === (root.lastDemoSelection || "Dolphin")
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1303,8 +1317,22 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        activityEffect: root.soActivityStyle
+                        activityColor: root.soActivityColor
+                        activityStroke: root.soActivityStroke
+                        activityMotionAllowed: root.soActivityMotion
+                        activityOrbitSpeed: root.soActivityOrbitSpeed
+                        activityTrailPercent: root.soActivityTrailPercent
+                        activityTrailStyle: root.soActivityTrailStyle
+                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowIntensity: root.soActivityGlowIntensity
+                        activityGlowSpread: root.soActivityGlowSpread
+                        activityPulseSpeed: root.soActivityPulseSpeed
+                        activityPulseDepth: root.soActivityPulseDepth
+                        activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         required property var model
+                        taskIsActive: model.IsActive === true
                         taskIconSource: model.decoration || root.demoIconForApp(appName)
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
@@ -1697,8 +1725,22 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        activityEffect: root.soActivityStyle
+                        activityColor: root.soActivityColor
+                        activityStroke: root.soActivityStroke
+                        activityMotionAllowed: root.soActivityMotion
+                        activityOrbitSpeed: root.soActivityOrbitSpeed
+                        activityTrailPercent: root.soActivityTrailPercent
+                        activityTrailStyle: root.soActivityTrailStyle
+                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowIntensity: root.soActivityGlowIntensity
+                        activityGlowSpread: root.soActivityGlowSpread
+                        activityPulseSpeed: root.soActivityPulseSpeed
+                        activityPulseDepth: root.soActivityPulseDepth
+                        activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         taskIconSource: root.demoIconForApp(modelData)
+                        taskIsActive: modelData === (root.lastDemoSelection || "Dolphin")
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1721,8 +1763,22 @@ Item {
                         taskFrameColor: root.taskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
+                        activityEffect: root.soActivityStyle
+                        activityColor: root.soActivityColor
+                        activityStroke: root.soActivityStroke
+                        activityMotionAllowed: root.soActivityMotion
+                        activityOrbitSpeed: root.soActivityOrbitSpeed
+                        activityTrailPercent: root.soActivityTrailPercent
+                        activityTrailStyle: root.soActivityTrailStyle
+                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowIntensity: root.soActivityGlowIntensity
+                        activityGlowSpread: root.soActivityGlowSpread
+                        activityPulseSpeed: root.soActivityPulseSpeed
+                        activityPulseDepth: root.soActivityPulseDepth
+                        activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         required property var model
+                        taskIsActive: model.IsActive === true
                         taskIconSource: model.decoration || root.demoIconForApp(appName)
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
