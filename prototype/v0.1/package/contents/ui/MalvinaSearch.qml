@@ -3,6 +3,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
+import "MalvinaUrlPolicy.js" as UrlPolicy
 
 Item {
     id: search
@@ -27,6 +28,10 @@ Item {
     implicitWidth: expanded ? 396 : 76
     implicitHeight: 34
 
+    function closeSearch() {
+        expanded = false
+        options.close()
+    }
     function focusSearch() {
         expanded = true
         currentSection = 0
@@ -35,23 +40,16 @@ Item {
     }
     function openSelected() {
         const query = queryInput.text.trim()
-        if (!query.length) return
-        let template = currentSection === 2 ? aiUrls[aiIndex] : webUrls[webIndex]
-        let url = String(template).trim()
-        if (!/^https:\/\//i.test(url)) {
-            console.warn("Malvina: se rechazó URL sin HTTPS")
+        const isAi = currentSection === 2
+        const template = isAi ? aiUrls[aiIndex] : webUrls[webIndex]
+        const result = UrlPolicy.resolve(template, query, isAi)
+        if (!result.ok) {
+            console.warn("Malvina: " + result.reason)
             return
         }
-        // En web se sustituye la variable. Si es IA se abre el proveedor:
-        // nunca afirmar que un enlace genérico envió el mensaje.
-        if (currentSection !== 2) {
-            if (url.indexOf("{query}") < 0) {
-                console.warn("Malvina: plantilla web sin {query}")
-                return
-            }
-            url = url.split("{query}").join(encodeURIComponent(query))
-        }
-        Qt.openUrlExternally(url)
+        // Una unica salida hacia el navegador predeterminado de KDE.
+        // Nunca ejecutar comandos del sistema ni enviar prompts IA por enlaces genericos.
+        Qt.openUrlExternally(result.url)
     }
     function selectSection(index) {
         currentSection = Math.max(0, Math.min(2, index))
