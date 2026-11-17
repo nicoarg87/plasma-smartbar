@@ -218,6 +218,11 @@ Item {
     property real soActivityOrbitSpeed: 1.5
     property int soActivityTrailPercent: 75
     property string soActivityTrailStyle: "dashed"
+    property color soActivityGlowColor: "#ffab52"
+    property real soActivityGlowIntensity: 0.7
+    property real soActivityGlowSpread: 5
+    property real soActivityPulseSpeed: 0.6
+    property bool soActivityGlowGradient: true
     onSoWindowCountChanged: {
         if (soWindowCount === 0) soExpanded = false
     }
@@ -226,6 +231,8 @@ Item {
                                    real speed, int tailLength, string lineStyle,
                                    bool showWhenEmpty, bool showWhenOpen)
 
+    signal requestSoGlowChange(string glowColor, real intensity, real spread,
+                               real pulseSpeed, bool gradient)
     signal requestSoClockAppearanceChange(string fontFamily, int fontSize,
                                           string textColor)
     signal requestSoLogoChange(string mode, string path, string shape,
@@ -530,6 +537,11 @@ Item {
             soledadSettings.orbitSpeed = root.soActivityOrbitSpeed
             soledadSettings.trailPercent = root.soActivityTrailPercent
             soledadSettings.trailStyle = root.soActivityTrailStyle
+            soledadSettings.glowColor = root.soActivityGlowColor
+            soledadSettings.glowIntensity = root.soActivityGlowIntensity
+            soledadSettings.glowSpread = root.soActivityGlowSpread
+            soledadSettings.pulseSpeed = root.soActivityPulseSpeed
+            soledadSettings.glowGradient = root.soActivityGlowGradient
             soledadSettings.showOutlineWhenEmpty = root.soActivityShowWhenEmpty
             soledadSettings.showOutlineWhenOpen = root.soActivityShowWhenOpen
             soledadSettings.autoCollapseSO = root.autoCollapseSO
@@ -578,6 +590,9 @@ Item {
                                          bgOpacity, trayOverride, trayColor,
                                          trayOpacity, gripOverride, gripColor,
                                          gripOpacity)
+        }
+        onSaveGlowRequested: function(color, intensity, spread, speed, gradient) {
+            root.requestSoGlowChange(color, intensity, spread, speed, gradient)
         }
         onSaveActivityRequested: function(style, color, stroke, motion,
                                           speed, tailLength, lineStyle,
@@ -1048,6 +1063,11 @@ Item {
                     activityOrbitSpeed: root.soActivityOrbitSpeed
                     activityTrailPercent: root.soActivityTrailPercent
                     activityTrailStyle: root.soActivityTrailStyle
+                    activityGlowColor: root.soActivityGlowColor
+                    activityGlowIntensity: root.soActivityGlowIntensity
+                    activityGlowSpread: root.soActivityGlowSpread
+                    activityPulseSpeed: root.soActivityPulseSpeed
+                    activityGlowGradient: root.soActivityGlowGradient
                     activityShowWhenEmpty: root.soActivityShowWhenEmpty
                     activityShowWhenOpen: root.soActivityShowWhenOpen
                     iconSource: root.activeSoLogo
