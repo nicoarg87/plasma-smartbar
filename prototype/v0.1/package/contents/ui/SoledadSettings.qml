@@ -35,6 +35,7 @@ Window {
     property string soTextFontFamily: "Sans Serif"
     property int soTextFontSize: 13
     property bool soTextBold: true
+    property string soTextBackgroundImage: ""
     property string filePath: ""
     property string shape: "square"
     property string cropFitMode: "stretch"
@@ -201,7 +202,8 @@ Window {
     signal saveClockAppearanceRequested(string family, int size,
                                         string textColor)
     signal saveSoTextRequested(string label, string color, string background,
-                                real opacity, string fontFamily, int fontSize, bool bold)
+                                real opacity, string fontFamily, int fontSize, bool bold,
+                                string backgroundImage)
     signal saveLogoRequested(string mode, string path, string shape,
                              string fitMode, real zoom, real panX,
                              real panY, bool animate, real rotation)
@@ -264,7 +266,8 @@ Window {
         saveClockAppearanceRequested(clockFontFamily, clockFontSize,
                                      toHex(clockTextColor))
         saveSoTextRequested(soTextLabel, toHex(soTextColor), toHex(soTextBackground),
-                            soTextBackgroundOpacity, soTextFontFamily, soTextFontSize, soTextBold)
+                            soTextBackgroundOpacity, soTextFontFamily, soTextFontSize,
+                            soTextBold, soTextBackgroundImage)
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
                           cropZoom, cropPanX, cropPanY, enableGif, cropRotation)
         saveGeometryRequested(panelHeight,
@@ -352,6 +355,12 @@ Window {
         id: islandOutlineColorDialog
         title: "Color del contorno seleccionado"
         onAccepted: settings.setOutlineField("color", settings.toHex(selectedColor))
+    }
+    FileDialog {
+        id: chooseTextBackground
+        title: "Elegir imagen o GIF de fondo del texto SO"
+        nameFilters: ["Imágenes (*.png *.jpg *.jpeg *.webp *.gif)", "Todos los archivos (*)"]
+        onAccepted: settings.soTextBackgroundImage = selectedFile.toString()
     }
     ColorDialog {
         id: soTextColorDialog
@@ -583,6 +592,19 @@ Window {
                             onMoved: settings.soTextBackgroundOpacity = value
                         }
                         QQC2.Label { text: Math.round(settings.soTextBackgroundOpacity*100) + "%"; color: "white" }
+                    }
+                    RowLayout {
+                        visible: settings.logoMode === "text"
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "Elegir imagen/GIF de fondo…"
+                            onClicked: chooseTextBackground.open()
+                        }
+                        QQC2.Button {
+                            text: "Sin imagen de fondo"
+                            visible: settings.soTextBackgroundImage.length > 0
+                            onClicked: settings.soTextBackgroundImage = ""
+                        }
                     }
                     QQC2.Label {
                         text: "Ajuste de la imagen";
