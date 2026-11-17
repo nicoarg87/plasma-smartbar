@@ -362,6 +362,71 @@ Window {
         nameFilters: ["Imágenes (*.png *.jpg *.jpeg *.webp *.gif)", "Todos los archivos (*)"]
         onAccepted: settings.soTextBackgroundImage = selectedFile.toString()
     }
+    // Sugeridor óptico local. No transmite imágenes ni modifica archivos.
+    // Sólo analiza la imagen cuando se pulsa el botón correspondiente.
+    Canvas {
+        id: paletteSampler
+        width: 32
+        height: 32
+        opacity: 0
+        property string requestedUrl: ""
+        property bool pending: false
+        onImageLoaded: if (pending) requestPaint()
+        onImageLoadError: {
+            pending = false
+            console.warn("SmartBar: no se pudo analizar esta imagen; usar paleta manual")
+        }
+        function suggestFromImage() {
+            if (settings.logoMode === "text") return
+            requestedUrl = settings.selectedImage.toString()
+            if (requestedUrl.length === 0) return
+            pending = true
+            if (isImageLoaded(requestedUrl)) requestPaint()
+            else loadImage(requestedUrl)
+        }
+        onPaint: {
+            if (!pending || !isImageLoaded(requestedUrl)) return
+            pending = false
+            try {
+                const ctx = getContext("2d")
+                ctx.reset()
+                ctx.clearRect(0, 0, width, height)
+                ctx.drawImage(requestedUrl, 0, 0, width, height)
+                const rgba = ctx.getImageData(0, 0, width, height).data
+                const bins = Array(12).fill(0)
+                const hues = Array(12).fill(0)
+                let count = 0
+                for (let i = 0; i < rgba.length; i += 4) {
+                    if (rgba[i + 3] < 128) continue
+                    const rr = rgba[i]/255, gg = rgba[i+1]/255, bb = rgba[i+2]/255
+                    const high = Math.max(rr,gg,bb), low = Math.min(rr,gg,bb)
+                    const chroma = high - low
+                    if (chroma < 0.16 || high < 0.18) continue
+                    let h = high === rr ? ((gg-bb)/chroma) :
+                            high === gg ? (2+(bb-rr)/chroma) :
+                                          (4+(rr-gg)/chroma)
+                    h = ((h/6)%1+1)%1
+                    const bin = Math.min(11,Math.floor(h*12))
+                    const weight = chroma * (0.5+high*0.5)
+                    bins[bin] += weight
+                    hues[bin] += h*weight
+                    count++
+                }
+                const winner = bins.indexOf(Math.max(...bins))
+                if (count > 0 && bins[winner] > 0) {
+                    const hue = hues[winner]/bins[winner]
+                    settings.accentColor = Qt.hsva(hue,0.72,1.0,1)
+                    settings.glowColor = Qt.hsva((hue+0.055)%1,0.82,0.9,1)
+                    settings.glowGradient = true
+                    console.log("SmartBar: paleta estimada localmente; pulsar Aplicar para confirmarla")
+                } else {
+                    console.warn("SmartBar: imagen sin colores dominantes detectables")
+                }
+            } catch (e) {
+                console.warn("SmartBar: muestreo no disponible; usar paleta manual:",e)
+            }
+        }
+    }
     ColorDialog {
         id: soTextColorDialog
         title: "Color del texto SO"
@@ -1077,6 +1142,45 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        visible: settings.outlineUsesGlow
+                        text: "Paleta de colores del contorno"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.ComboBox {
+                        visible: settings.outlineUsesGlow
+                        Layout.fillWidth: true
+                        model: ["Elegir una paleta…", "Atardecer dorado y naranja",
+                                "Océano azul y celeste", "Bosque verde",
+                                "Lavanda y violeta", "Neutro blanco y gris"]
+                        onActivated: function(i) {
+                            const pairs = [
+                                ["",""], ["#ffd27a","#ff963c"], ["#75d7ff","#2563cf"],
+                                ["#a3e78d","#2e9564"], ["#d5b4ff","#734cae"],
+                                ["#f8f8f6","#848e9d"]
+                            ]
+                            if (i > 0) {
+                                settings.accentColor = pairs[i][0]
+                                settings.glowColor = pairs[i][1]
+                                settings.glowGradient = true
+                            }
+                        }
+                    }
+                    QQC2.Button {
+                        visible: settings.outlineUsesGlow && settings.logoMode !== "text"
+                        text: "Sugerir tonos de la imagen (experimental)"
+                        onClicked: paletteSampler.suggestFromImage()
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Muestreo local de colores de la imagen; no modifica la imagen ni aplica sin confirmar"
+                    }
+                    QQC2.Label {
+                        visible: settings.outlineUsesGlow
+                        text: "Las paletas son sugerencias. El análisis de imágenes es experimental; cualquier cambio se confirma con Aplicar."
+                        color: "#ddd6e8"
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
                     }
                     QQC2.Button {
                         visible: settings.outlineUsesGlow
