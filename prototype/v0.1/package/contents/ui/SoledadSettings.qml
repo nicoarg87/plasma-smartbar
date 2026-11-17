@@ -225,7 +225,7 @@ Window {
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
-    property string taskDisplayMode: "text"
+    property string taskDisplayMode: "icon"
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
