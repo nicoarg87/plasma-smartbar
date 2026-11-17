@@ -165,3 +165,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Preparar ZIP local con GIF original intacto en ruta de assets y registro de licencia CC0 (recurso gráfico independiente del código MIT).
 - [ ] Incorporar **binario GIF exacto** al repositorio GitHub; ahora solo en ZIP adjunto al chat.
 - [ ] Probar carga del **GIF como Predeterminada** en CachyOS y confirmación de Estirar, cápsula horizontal, pausa, zoom y uso de recursos; no reemplazar panel existente.
+
+
+## Reloj SO y recuperación de Malvina en visor (16/11/2026)
+
+- [x] Mostrar hora/fecha temporal dentro de SO tras 180 ms de hover en agarre de seis puntos, mantener 3 s y volver al GIF sin alterar posición, tamaño ni gestos.
+- [x] Agregar fuente, tamaño y color configurables en pestaña «Logo SO», restablecimiento y KConfig.
+- [x] Corregir error del visor: maximizar **la propia ventana de prueba** no debe activar bloqueo de Malvina; solo simulaciones de aplicación max/fullscreen o fullscreen del visor.
+- [x] Agregar diagnóstico visible que distinga Malvina bloqueada/deshabilitada/esperando hover y advertencia en lanzador cuando falta GIF.
+- [ ] Probar reloj, colores/fuentes, arrastre y restauración del GIF; probar hover de Malvina en visor normal y maximizado con simulación desactivada.
+- [ ] Integrar estado real de aplicaciones ajenas mediante KWin/Wayland. Mientras no esté, el plasmoide experimental bloquea autoaparición.
+- [ ] Incluir binario GIF original en GitHub; por ahora se requiere ZIP adjunto.
