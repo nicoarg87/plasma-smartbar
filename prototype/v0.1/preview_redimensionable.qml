@@ -63,7 +63,7 @@ Window {
     property real demoMalvinaWidth: 52
     property string demoSoledadShape: "leftRoundRightSquare"
     property string demoMalvinaShape: "rounded"
-    property string demoGripShape: "square"
+    property string demoGripShape: "rounded"
     property string demoTrayButtonShape: "rounded"
     property string demoSoButtonFrameShape: "capsule"
     property real demoSoButtonWidth: 96
