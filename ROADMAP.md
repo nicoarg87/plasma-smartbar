@@ -176,3 +176,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Probar reloj, colores/fuentes, arrastre y restauración del GIF; probar hover de Malvina en visor normal y maximizado con simulación desactivada.
 - [ ] Integrar estado real de aplicaciones ajenas mediante KWin/Wayland. Mientras no esté, el plasmoide experimental bloquea autoaparición.
 - [ ] Incluir binario GIF original en GitHub; por ahora se requiere ZIP adjunto.
+
+
+## Prueba de conexión de solo lectura con KDE TasksModel (17/11/2026)
+
+- [x] Ejecutar por primera vez el diagnóstico `probar_ventanas.sh` en CachyOS: **falló por siete declaraciones QML `required property` con mayúscula** antes de cargar el modelo.
+- [x] Corregir en `preview_ventanas_reales.qml` usando `required property var model` y roles `model.AppName`, etc. ([commit 486db01](https://github.com/nicoarg87/plasma-smartbar/commit/486db01dc1930129d96c1b8cbd79878df477b3a1)); revisión estática de sintaxis y bindings.
+- [ ] Repetir en CachyOS la ejecución de `bash prototype/v0.1/probar_ventanas.sh` y confirmar detección dinámica de ventanas reales abiertas/cerradas.
+- [ ] Tras prueba positiva, empezar el enlace de solo lectura de tareas reales con SO; no conectar acciones de cerrar/activar ni instalar el panel antes de validar.
