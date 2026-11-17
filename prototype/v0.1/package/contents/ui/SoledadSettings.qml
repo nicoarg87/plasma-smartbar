@@ -225,6 +225,11 @@ Window {
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
+    property string taskFrameShape: "rounded"
+    property color taskFrameColor: "#ffffff"
+    property real taskFrameOpacity: 0.12
+    property real taskFrameWidth: 1
+    signal saveTaskFrameRequested(string shape, string color, real opacity, real width)
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     readonly property string outlineTargetKey: ["soledad","malvina","tray","grip"][outlineTarget.currentIndex]
     readonly property var selectedOutline: outlineConfig[outlineTargetKey]
@@ -296,6 +301,8 @@ Window {
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
+        saveTaskFrameRequested(taskFrameShape, toHex(taskFrameColor),
+                               taskFrameOpacity, taskFrameWidth)
         refreshOutlinePreview()
         saveGradientBreathingRequested(soledadGradientSyncBreathing,
                                      soledadGradientBreathingIntensity)
@@ -398,6 +405,11 @@ Window {
         id: clockColorDialog
         title: "Color del texto de hora y fecha"
         onAccepted: settings.clockTextColor = selectedColor
+    }
+    ColorDialog {
+        id: taskFrameColorDialog
+        title: "Color de líneas de las fichas de aplicaciones"
+        onAccepted: settings.taskFrameColor = selectedColor
     }
     ColorDialog {
         id: islandOutlineColorDialog
@@ -1606,6 +1618,86 @@ Window {
                         }
                         QQC2.Label {
                             text: Math.round(settings.soledadGradientBreathingIntensity * 100) + "%"
+                            color: "white"
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Fichas de aplicaciones abiertas en SO"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.Label {
+                        text: "El interior de las fichas conserva el degradado de Soledad. Configurá únicamente su marco."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label { text: "Forma de las fichas"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Rectángulo con esquinas redondeadas",
+                                "Rectángulo cuadrado", "Sin recuadro"]
+                        currentIndex: Math.max(0, ["rounded", "square", "none"]
+                            .indexOf(settings.taskFrameShape))
+                        onActivated: function(i) {
+                            settings.taskFrameShape = ["rounded", "square", "none"][i]
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Color de las líneas"
+                        color: "white"
+                        visible: settings.taskFrameShape !== "none"
+                    }
+                    RowLayout {
+                        visible: settings.taskFrameShape !== "none"
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "Elegir color de línea…"
+                            onClicked: {
+                                taskFrameColorDialog.selectedColor = settings.taskFrameColor
+                                taskFrameColorDialog.open()
+                            }
+                        }
+                        Rectangle {
+                            width: 34; height: 24; radius: 4
+                            color: settings.taskFrameColor
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Intensidad de las líneas"
+                        color: "white"
+                        visible: settings.taskFrameShape !== "none"
+                    }
+                    RowLayout {
+                        visible: settings.taskFrameShape !== "none"
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.taskFrameOpacity
+                            onMoved: settings.taskFrameOpacity = value
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.taskFrameOpacity * 100) + "%"
+                            color: "white"
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Grosor de línea"
+                        color: "white"
+                        visible: settings.taskFrameShape !== "none"
+                    }
+                    RowLayout {
+                        visible: settings.taskFrameShape !== "none"
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.5; to: 3; stepSize: 0.5
+                            value: settings.taskFrameWidth
+                            onMoved: settings.taskFrameWidth = value
+                        }
+                        QQC2.Label {
+                            text: settings.taskFrameWidth.toFixed(1) + " px"
                             color: "white"
                         }
                     }
