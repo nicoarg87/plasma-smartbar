@@ -785,3 +785,20 @@ bash prototype/v0.1/probar_ancho.sh
 ```
 
 Comprobá en «Configuración de Soledad» → «Logo SO» que está elegida **Predeterminada**, «Cápsula horizontal», **Estirar** y «Reproducir GIF animados», y que **la animación se reproduce tanto en SO como en el editor de vista previa**. Si desmarcás «Reproducir GIF animados», debería quedar quieta. «Restablecer logo y formato» vuelve al GIF predeterminado con máscara cápsula y Estirar. **Pendiente** probar la integración con el archivo original en CachyOS/Qt; la afirmación de GIF funcional es el resultado comunicado por el mantenedor, no una prueba nueva del asistente. Este procedimiento no instala ni modifica el panel KDE existente.
+
+
+## Reloj de SO y prueba de hover de Malvina (16/11/2026)
+
+**RELOJ:** posar el puntero sobre el agarre de **seis puntos** durante aproximadamente **180 ms**, sin presionar, muestra la hora (`HH:mm`) y fecha (`dd/MM/yyyy`) en el botón SO durante **tres segundos** y luego restaura el GIF. El reloj no abre popup ni cambia tamaño. Abrir «Configuración de Soledad» → «Logo SO» para elegir tipografía, tamaño 9–28 px y color de texto. Valores iniciales: Sans Serif, 16 px y blanco; «Aplicar» no cierra; restablecimiento de reloj independiente. En el visor Qt los valores duran toda la sesión; KConfig está conectado, aún sin prueba de plasmoide real.
+
+**MALVINA NO APARECE AL PASAR EL CURSOR:** la prueba corregida distingue maximizar **la ventana del visor** de simular que hay una **aplicación externa** maximizada. En el visor actualizado, podés **maximizar la ventana sin bloquear Malvina**. Si está encendida la opción «Simular ventana maximizada» o «Simular pantalla completa (bloquea Malvina)» en el menú de los seis puntos, o el visor está en fullscreen, **Malvina permanece oculta a propósito**. Desactivá esas simulaciones para comprobar el hover de **600 ms** en los primeros 52 px aproximados del extremo izquierdo de la barra (sin hacer clic). El texto de diagnóstico inferior dice «BLOQUEADA», «deshabilitada» o «esperando cursor». El cambio del visor se publicó en [commit 340c8aa](https://github.com/nicoarg87/plasma-smartbar/commit/340c8aa1a690fb0c832346be3facaae6f100c3d5). **Pendiente de prueba Qt/CachyOS.** El plasmoide real aún no conoce el estado KWin global y mantiene el auto-hover bloqueado hasta validarlo de forma segura; no es equivalente al visor Qt.
+
+**RECURSO GIF:** si aparece texto `SO`, falta el GIF `assets/so-tropical.gif`. El script ahora advierte la ausencia. Extraer el ZIP original del chat desde la raíz del repositorio, sin reemplazar el panel instalado.
+
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+unzip -o ~/Descargas/Plasma-SmartBar-Islands-GIF-SO-definitivo.zip -d .
+bash prototype/v0.1/probar_ancho.sh
+```
