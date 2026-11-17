@@ -66,6 +66,12 @@ PlasmoidItem {
         }
         soledadColor: Plasmoid.configuration.soledadColor
         malvinaColor: Plasmoid.configuration.malvinaColor
+        soledadGradientEnabled: Plasmoid.configuration.soledadGradientEnabled
+        soledadGradientEnd: Plasmoid.configuration.soledadGradientEnd
+        soledadGradientDirection: Plasmoid.configuration.soledadGradientDirection
+        malvinaGradientEnabled: Plasmoid.configuration.malvinaGradientEnabled
+        malvinaGradientEnd: Plasmoid.configuration.malvinaGradientEnd
+        malvinaGradientDirection: Plasmoid.configuration.malvinaGradientDirection
         backgroundColor: Plasmoid.configuration.backgroundColor
         soledadOpacity: Plasmoid.configuration.soledadOpacity
         malvinaOpacity: Plasmoid.configuration.malvinaOpacity
@@ -88,14 +94,16 @@ PlasmoidItem {
         soActivityGlowIntensity: Plasmoid.configuration.soActivityGlowIntensity
         soActivityGlowSpread: Plasmoid.configuration.soActivityGlowSpread
         soActivityPulseSpeed: Plasmoid.configuration.soActivityPulseSpeed
+        soActivityPulseDepth: Plasmoid.configuration.soActivityPulseDepth
         soActivityGlowGradient: Plasmoid.configuration.soActivityGlowGradient
         soActivityShowWhenEmpty: Plasmoid.configuration.soActivityShowWhenEmpty
         soActivityShowWhenOpen: Plasmoid.configuration.soActivityShowWhenOpen
-        onRequestSoGlowChange: function(color, intensity, spread, speed, gradient) {
+        onRequestSoGlowChange: function(color, intensity, spread, speed, depth, gradient) {
             Plasmoid.configuration.soActivityGlowColor = color
             Plasmoid.configuration.soActivityGlowIntensity = intensity
             Plasmoid.configuration.soActivityGlowSpread = spread
             Plasmoid.configuration.soActivityPulseSpeed = speed
+            Plasmoid.configuration.soActivityPulseDepth = depth
             Plasmoid.configuration.soActivityGlowGradient = gradient
         }
         onRequestSoActivityChange: function(style, color, stroke, allowMotion,
@@ -138,6 +146,14 @@ PlasmoidItem {
             Plasmoid.configuration.malvinaShape = malShape
             Plasmoid.configuration.gripShape = gripButtonShape
             Plasmoid.configuration.trayButtonShape = trayShape
+        }
+        onRequestIslandGradientChange: function(a, b, c, d, e, f) {
+            Plasmoid.configuration.soledadGradientEnabled = a
+            Plasmoid.configuration.soledadGradientEnd = b
+            Plasmoid.configuration.soledadGradientDirection = c
+            Plasmoid.configuration.malvinaGradientEnabled = d
+            Plasmoid.configuration.malvinaGradientEnd = e
+            Plasmoid.configuration.malvinaGradientDirection = f
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
                                             alphaBg, trayOverride, trayColor,
