@@ -27,6 +27,7 @@ Item {
     signal requestOutlineChange(var updated)
     signal requestIslandGradientChange(bool soEnabled, string soEnd, string soDirection,
                                        bool malEnabled, string malEnd, string malDirection)
+    signal requestGradientBreathingChange(bool enabled, real intensity)
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
     property string soButtonFrameShape: "capsule"
     property real soButtonWidth: 96
@@ -555,6 +556,8 @@ Item {
             soledadSettings.soledadGradientEnabled = root.soledadGradientEnabled
             soledadSettings.soledadGradientEnd = root.soledadGradientEnd
             soledadSettings.soledadGradientDirection = root.soledadGradientDirection
+            soledadSettings.soledadGradientSyncBreathing = root.soledadGradientSyncBreathing
+            soledadSettings.soledadGradientBreathingIntensity = root.soledadGradientBreathingIntensity
             soledadSettings.malvinaGradientEnabled = root.malvinaGradientEnabled
             soledadSettings.malvinaGradientEnd = root.malvinaGradientEnd
             soledadSettings.malvinaGradientDirection = root.malvinaGradientDirection
@@ -617,6 +620,9 @@ Item {
                                        malRadius, soWidth, malWidth,
                                        buttonShape, buttonWidth,
                                        soShape, malShape, gripButtonShape, trayShape)
+        }
+        onSaveGradientBreathingRequested: function(enabled, intensity) {
+            root.requestGradientBreathingChange(enabled, intensity)
         }
         onSaveIslandGradientRequested: function(a, b, c, d, e, f) {
             root.requestIslandGradientChange(a, b, c, d, e, f)
@@ -911,6 +917,9 @@ Item {
                     function onSoledadGradientEnabledChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientEndChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientDirectionChanged() { islandSurface.requestPaint() }
+                    function onGradientBreathingFactorChanged() {
+                        if (root.sharedBreathingActive) islandSurface.requestPaint()
+                    }
                     function onSoledadOpacityChanged() { islandSurface.requestPaint() }
                     function onSoledadShapeChanged() { islandSurface.requestPaint() }
                     function onSoledadRadiusChanged() { islandSurface.requestPaint() }
@@ -1036,6 +1045,9 @@ Item {
                     function onSoledadGradientEnabledChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientEndChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientDirectionChanged() { soTipBackground.requestPaint() }
+                    function onGradientBreathingFactorChanged() {
+                        if (root.sharedBreathingActive) soTipBackground.requestPaint()
+                    }
                     function onSoledadOpacityChanged() { soTipBackground.requestPaint() }
                     function onSoledadShapeChanged() { soTipBackground.requestPaint() }
                 }
@@ -1183,6 +1195,8 @@ Item {
                     activityGlowSpread: root.soActivityGlowSpread
                     activityPulseSpeed: root.soActivityPulseSpeed
                     activityPulseDepth: root.soActivityPulseDepth
+                    activityUseExternalPulse: root.sharedBreathingActive
+                    activityExternalPulsePhase: root.sharedBreathingPhase
                     activityGlowGradient: root.soActivityGlowGradient
                     activityShowWhenEmpty: root.soActivityShowWhenEmpty
                     activityShowWhenOpen: root.soActivityShowWhenOpen
