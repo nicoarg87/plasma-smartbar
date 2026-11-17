@@ -188,3 +188,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Conectar el mismo modelo en modo solo lectura al listado de fichas SO del visor experimental, sin tocar el panel CachyOS.
 - [ ] Comprobar agrupación real de dos o más ventanas de una aplicación, ancho de una sola fila y estabilidad del bloque SO al actualizar tareas.
 - [ ] Solo tras pruebas positivas, implementar activación/minimización por etapas, con pruebas KWin/Wayland de foco y fullscreen.
+
+
+## SO con ventanas reales: primera integración aislada (17/11/2026)
+
+- [x] Implementar `realTaskModel` opcional en `SmartBarContent.qml`, manteniendo su simulación previa sin cambios cuando el modelo real no está conectado.
+- [x] Agregar en visor Qt un selector «Usar ventanas reales de KDE en SO (solo lectura)», con `TaskManager.TasksModel` y agrupación por aplicación.
+- [x] Dibujar las fichas reales en el mismo `Row` de SO, contador real y etiquetas de agrupación; los clics **no activan ni cambian ventanas**. KConfig y `main.qml` permanecen sin integración real.
+- [x] Revisar estáticamente referencias QML/roles y ausencia de comandos sobre ventanas.
+- [ ] **PRUEBA DEL MANTENEDOR EN CACHYOS:** ejecutar `bash prototype/v0.1/probar_ancho.sh`, activar la casilla de tareas reales, expandir SO y comprobar altas/bajas y agrupación con varias ventanas de una misma app.
+- [ ] Medir comportamiento cuando la suma de fichas excede el ancho útil de Soledad; evitar solapamiento o desplazar ventanas/pestañas y definir tratamiento de exceso sin cambiar requisitos.
+- [ ] Recién después de validar el modo lectura, considerar selección/activación de ventanas reales en una segunda fase y con KWin/Wayland.
