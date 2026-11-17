@@ -19,6 +19,10 @@ QQC2.Button {
     // Cada categoría puede reemplazarlo desde Apariencia.
     // Fichas de ventanas sin color independiente: muestran el fondo de Soledad.
     property bool inheritIslandFill: false
+    property string taskFrameShape: "rounded" // rounded, square, none
+    property color taskFrameColor: "#ffffff"
+    property real taskFrameOpacity: 0.12
+    property real taskFrameWidth: 1
     property bool useTileColor: false
     property color tileColor: "#010111"
     property real tileOpacity: 0.5
@@ -106,8 +110,10 @@ QQC2.Button {
         // superpuestas (círculo + cuadrado/rombo) sobre la huella.
         // Las fichas sin imagen mantienen su aspecto habitual.
         readonly property bool showsLogo: control.iconSource.toString().length > 0
-        radius: control.frameShape === "rectangle" ||
-                control.frameShape === "square" ? 0 :
+        radius: control.inheritIslandFill
+                ? (control.taskFrameShape === "rounded" ? Math.min(7, control.height / 4) : 0)
+                : control.frameShape === "rectangle" ||
+                  control.frameShape === "square" ? 0 :
                 (control.frameShape === "task" ? Math.min(7, control.height / 4) :
                 (control.frameShape === "rounded"
                     ? Math.min(17, control.height / 2)
@@ -127,8 +133,12 @@ QQC2.Button {
                  : (control.down ? "#254c61" :
                     (control.hovered ? "#24425a" :
                      (control.accent ? "#1f4e65" : "#14283d"))))
-        border.width: 0
-        border.color: control.hovered && control.useTileColor ? "#86b3cc" :
+        border.width: control.inheritIslandFill &&
+            control.taskFrameShape !== "none" ? control.taskFrameWidth : 0
+        border.color: control.inheritIslandFill
+            ? Qt.rgba(control.taskFrameColor.r, control.taskFrameColor.g,
+                      control.taskFrameColor.b, control.taskFrameOpacity)
+            : control.hovered && control.useTileColor ? "#86b3cc" :
                       (control.accent ? "#3dc6d4" : "#45647a")
     }
 
