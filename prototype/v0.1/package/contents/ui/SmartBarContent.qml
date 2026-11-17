@@ -38,6 +38,7 @@ Item {
     property string soTextFontFamily: "Sans Serif"
     property int soTextFontSize: 13
     property bool soTextBold: true
+    property string soTextBackgroundImage: ""
     implicitHeight: fixedHeight
     property bool autoReturnRight: true
     // Malvina está disponible por defecto, pero su superficie se oculta
@@ -278,7 +279,8 @@ Item {
                                           string textColor)
     signal requestSoTextChange(string label, string textColor,
                                string background, real opacity,
-                               string fontFamily, int fontSize, bool bold)
+                               string fontFamily, int fontSize, bool bold,
+                               string backgroundImage)
     signal requestSoLogoChange(string mode, string path, string shape,
                                string fitMode, real zoom, real panX, real panY,
                                bool allowGif, real rotation)
@@ -605,6 +607,7 @@ Item {
             soledadSettings.soTextFontFamily = root.soTextFontFamily
             soledadSettings.soTextFontSize = root.soTextFontSize
             soledadSettings.soTextBold = root.soTextBold
+            soledadSettings.soTextBackgroundImage = root.soTextBackgroundImage
             soledadSettings.soledadColor = root.soledadColor
             soledadSettings.malvinaColor = root.malvinaColor
             soledadSettings.soledadGradientEnabled = root.soledadGradientEnabled
@@ -663,8 +666,8 @@ Item {
         onSaveClockAppearanceRequested: function(family, size, color) {
             root.requestSoClockAppearanceChange(family, size, color)
         }
-        onSaveSoTextRequested: function(label, color, background, opacity, fontFamily, fontSize, bold) {
-            root.requestSoTextChange(label, color, background, opacity, fontFamily, fontSize, bold)
+        onSaveSoTextRequested: function(label, color, background, opacity, fontFamily, fontSize, bold, image) {
+            root.requestSoTextChange(label, color, background, opacity, fontFamily, fontSize, bold, image)
         }
         onSaveLogoRequested: function(mode, path, shape, fitMode, zoom, panX, panY,
                                       animate, rotation) {
@@ -1263,6 +1266,7 @@ Item {
                     customTextFontFamily: root.soTextFontFamily
                     customTextFontSize: root.soTextFontSize
                     customTextBold: root.soTextBold
+                    customTextBackgroundImage: root.soTextBackgroundImage
                     accent: true
                     activityCount: root.soWindowCount
                     activityEffect: root.soActivityStyle
