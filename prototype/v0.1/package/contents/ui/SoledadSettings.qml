@@ -24,6 +24,22 @@ Window {
     minimumHeight: 510
 
     property int currentTab: 0
+    property alias currentIslandSubtab: islandSubtabs.currentIndex
+    property string malvinaGoogleUrl: "https://www.google.com/search?q={query}"
+    property string malvinaDuckUrl: "https://duckduckgo.com/?q={query}"
+    property string malvinaYahooUrl: "https://search.yahoo.com/search?p={query}"
+    property string malvinaChatGptUrl: "https://chatgpt.com/"
+    property string malvinaGeminiUrl: "https://gemini.google.com/app"
+    property string malvinaClaudeUrl: "https://claude.ai/new"
+    signal saveMalvinaProvidersRequested(string google, string duck, string yahoo,
+                                         string chatGpt, string gemini, string claude)
+    function malvinaWebTemplateValid(url) {
+        return /^https:\/\//i.test(url.trim()) && url.indexOf("{query}") >= 0
+    }
+    function malvinaSiteValid(url) {
+        return /^https:\/\//i.test(url.trim())
+    }
+
     property url defaultImage: ""
 
     // Valores de trabajo. Se copian desde SmartBarContent al abrir.
@@ -310,6 +326,18 @@ Window {
         panelHeight = Math.min(120, Math.max(panelHeight, soledadHeight + 4, malvinaHeight + 4))
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
+        if (!malvinaWebTemplateValid(malvinaGoogleUrl) ||
+            !malvinaWebTemplateValid(malvinaDuckUrl) ||
+            !malvinaWebTemplateValid(malvinaYahooUrl) ||
+            !malvinaSiteValid(malvinaChatGptUrl) ||
+            !malvinaSiteValid(malvinaGeminiUrl) ||
+            !malvinaSiteValid(malvinaClaudeUrl)) {
+            appliedLabel.text = "Malvina: Web requiere HTTPS y {query}; IA requiere HTTPS."
+            return
+        }
+        saveMalvinaProvidersRequested(malvinaGoogleUrl, malvinaDuckUrl,
+                                     malvinaYahooUrl, malvinaChatGptUrl,
+                                     malvinaGeminiUrl, malvinaClaudeUrl)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
         saveTaskActiveIndicatorRequested(taskActiveGlowEnabled,
                                          taskActiveDoubleBorderEnabled)
@@ -614,6 +642,7 @@ Window {
                     Layout.fillWidth: true
                     QQC2.TabButton { text: "Geometría y ubicación"; width: implicitWidth }
                     QQC2.TabButton { text: "Comportamiento"; width: implicitWidth }
+                    QQC2.TabButton { text: "Buscador Malvina"; width: implicitWidth }
                 }
                 StackLayout {
                     currentIndex: islandSubtabs.currentIndex
