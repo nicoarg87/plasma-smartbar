@@ -38,6 +38,9 @@ Window {
     property string soButtonFrameShape: "capsule"
     property real soButtonWidth: 96
     property bool enableGif: true
+    property string clockFontFamily: "Sans Serif"
+    property int clockFontSize: 16
+    property color clockTextColor: "#ffffff"
     readonly property url selectedImage: logoMode === "text" ? "" :
         (logoMode === "custom" && filePath.length > 0 ? filePath : defaultImage)
     // El recurso predeterminado es ahora un GIF original. La vista previa
@@ -124,6 +127,8 @@ Window {
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
 
+    signal saveClockAppearanceRequested(string family, int size,
+                                        string textColor)
     signal saveLogoRequested(string mode, string path, string shape,
                              string fitMode, real zoom, real panX,
                              real panY, bool animate, real rotation)
@@ -168,6 +173,8 @@ Window {
             gripButtonOpacity = value
     }
     function applyChanges() {
+        saveClockAppearanceRequested(clockFontFamily, clockFontSize,
+                                     toHex(clockTextColor))
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
                           cropZoom, cropPanX, cropPanY, enableGif, cropRotation)
         saveGeometryRequested(panelHeight,
@@ -221,6 +228,18 @@ Window {
             else if (editingTarget === 4 && settings.gripButtonColorOverride)
                 settings.gripButtonColor = selectedColor
         }
+    }
+    FontDialog {
+        id: clockFontDialog
+        title: "Elegir tipografía para la hora y fecha"
+        onAccepted: {
+            settings.clockFontFamily = selectedFont.family
+        }
+    }
+    ColorDialog {
+        id: clockColorDialog
+        title: "Color del texto de hora y fecha"
+        onAccepted: settings.clockTextColor = selectedColor
     }
     ColorDialog {
         id: outlineColorDialog
@@ -459,6 +478,84 @@ Window {
                         text: "Reproducir GIF animados"
                         checked: settings.enableGif
                         onToggled: settings.enableGif = checked
+                    }
+                    QQC2.Label {
+                        text: "Hora y fecha en SO"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.Label {
+                        text: "Dejá el cursor brevemente sobre los seis puntos: SO muestra la hora y fecha durante tres segundos, sin desplazar la barra ni cambiar sus gestos."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label {
+                            text: "Fuente: " + settings.clockFontFamily
+                            color: "white"
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
+                        }
+                        QQC2.Button {
+                            text: "Elegir fuente…"
+                            onClicked: {
+                                clockFontDialog.selectedFont = Qt.font({
+                                    family: settings.clockFontFamily,
+                                    pixelSize: settings.clockFontSize
+                                })
+                                clockFontDialog.open()
+                            }
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label {
+                            text: "Tamaño del reloj (px)"
+                            color: "white"
+                            Layout.fillWidth: true
+                        }
+                        QQC2.SpinBox {
+                            from: 9; to: 28; stepSize: 1
+                            editable: true
+                            value: settings.clockFontSize
+                            onValueModified: settings.clockFontSize = value
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label {
+                            text: "Color del texto"
+                            color: "white"
+                            Layout.fillWidth: true
+                        }
+                        Rectangle {
+                            width: 36
+                            height: 25
+                            radius: 4
+                            color: settings.clockTextColor
+                            border.color: "#91a8b8"
+                        }
+                        QQC2.Label {
+                            text: settings.toHex(settings.clockTextColor)
+                            color: "white"
+                        }
+                        QQC2.Button {
+                            text: "Elegir color…"
+                            onClicked: {
+                                clockColorDialog.selectedColor = settings.clockTextColor
+                                clockColorDialog.open()
+                            }
+                        }
+                    }
+                    QQC2.Button {
+                        text: "Restablecer tipografía y color de la hora"
+                        onClicked: {
+                            settings.clockFontFamily = "Sans Serif"
+                            settings.clockFontSize = 16
+                            settings.clockTextColor = "#ffffff"
+                        }
                     }
                     QQC2.Button {
                         text: "Restablecer logo y formato"
