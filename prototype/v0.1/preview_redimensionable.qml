@@ -30,6 +30,9 @@ Window {
     property real demoSoLogoPanY: 0
     property real demoSoLogoRotation: 0
     property bool demoSoLogoAnimate: true
+    property string demoSoClockFontFamily: "Sans Serif"
+    property int demoSoClockFontSize: 16
+    property color demoSoClockTextColor: "#ffffff"
     property real demoPanelHeight: 48
     property real demoSoledadHeight: 44
     property real demoMalvinaHeight: 44
@@ -104,6 +107,14 @@ Window {
         soLogoPanY: previewWindow.demoSoLogoPanY
         soLogoRotation: previewWindow.demoSoLogoRotation
         soLogoAnimate: previewWindow.demoSoLogoAnimate
+        soClockFontFamily: previewWindow.demoSoClockFontFamily
+        soClockFontSize: previewWindow.demoSoClockFontSize
+        soClockTextColor: previewWindow.demoSoClockTextColor
+        onRequestSoClockAppearanceChange: function(family, size, color) {
+            previewWindow.demoSoClockFontFamily = family
+            previewWindow.demoSoClockFontSize = size
+            previewWindow.demoSoClockTextColor = color
+        }
         soledadColor: previewWindow.demoSoledadColor
         malvinaColor: previewWindow.demoMalvinaColor
         backgroundColor: previewWindow.demoBackgroundColor
