@@ -2282,6 +2282,26 @@ Window {
                     width: aboutScroll.availableWidth - 8
                     spacing: 16
                     QQC2.Label {
+                        text: "Ayuda rápida"
+                        color: "white"
+                        font.bold: true
+                        font.pixelSize: 16
+                    }
+                    QQC2.Label {
+                        text: "Islas y posición: ubicación y autocontracción.\n" +
+                              "Logo SO: imagen, texto y contorno luminoso.\n" +
+                              "Apariencia: degradados y presentación de aplicaciones.\n" +
+                              "Aplicar confirma los cambios sin cerrar."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Button {
+                        text: "Abrir manual del proyecto"
+                        icon.name: "help-contents"
+                        onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/docs/MANUAL_MAESTRO.md")
+                    }
+                    QQC2.Label {
                         text: "Acerca de Plasma SmartBar Islands"
                         color: "white"; font.bold: true; font.pixelSize: 18
                     }
