@@ -11,10 +11,6 @@ QQC2.Button {
     property bool useTileColor: false
     property color tileColor: "#010111"
     property real tileOpacity: 0.5
-    property color tileBorderColor: "#45647a"
-    property real tileBorderOpacity: 1
-    property real tileBorderWidth: 1
-    property string tileBorderStyle: "solid"
     property string outlineStyle: "solid"
     property real outlineWidth: 1
     property color outlineColor: "#45647a"
@@ -196,19 +192,6 @@ QQC2.Button {
                 style: Text.Outline
                 styleColor: clockOverlay.contrastOutline
             }
-        }
-
-        DecorativeBorder {
-            anchors.fill: parent
-            visible: control.useTileColor
-            strokeColor: control.tileBorderColor
-            strokeOpacity: control.tileBorderOpacity
-            strokeWidth: control.tileBorderWidth
-            strokeStyle: control.tileBorderStyle
-            topLeftCorner: control.frameShape === "square" || control.frameShape === "rectangle" ? 0 : Math.min(12, height / 2)
-            topRightCorner: topLeftCorner
-            bottomLeftCorner: topLeftCorner
-            bottomRightCorner: topLeftCorner
         }
 
         Text {
