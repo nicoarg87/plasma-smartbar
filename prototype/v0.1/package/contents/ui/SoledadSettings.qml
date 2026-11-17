@@ -101,6 +101,11 @@ Window {
     property bool allowMotion: true
     // Valores de contorno provisoriamente elegidos para esta prueba.
     property real orbitSpeed: 1.5 // vueltas por segundo
+    property color glowColor: "#ffab52"
+    property real glowIntensity: 0.7
+    property real glowSpread: 5
+    property real pulseSpeed: 0.6
+    property bool glowGradient: true
     property int trailPercent: 75 // porcentaje del perímetro
     property string trailStyle: "dashed" // solid, dotted, dashed
     property bool showOutlineWhenEmpty: true
@@ -155,6 +160,8 @@ Window {
                                    string trayColor, real trayOpacity,
                                    bool gripOverride, string gripColor,
                                    real gripOpacity)
+    signal saveGlowRequested(string color, real intensity, real spread,
+                             real pulseSpeed, bool gradient)
     signal saveActivityRequested(string style, string color,
                                  real stroke, bool motion, real speed,
                                  int tailLength, string lineStyle,
@@ -205,6 +212,8 @@ Window {
                                 toHex(trayButtonColor), trayButtonOpacity,
                                 gripButtonColorOverride,
                                 toHex(gripButtonColor), gripButtonOpacity)
+        saveGlowRequested(toHex(glowColor), glowIntensity, glowSpread,
+                          pulseSpeed, glowGradient)
         saveActivityRequested(effectStyle, toHex(accentColor),
                               strokeSize, allowMotion, orbitSpeed,
                               trailPercent, trailStyle,
@@ -242,6 +251,11 @@ Window {
             else if (editingTarget === 4 && settings.gripButtonColorOverride)
                 settings.gripButtonColor = selectedColor
         }
+    }
+    ColorDialog {
+        id: glowColorDialog
+        title: "Color del brillo exterior SO"
+        onAccepted: settings.glowColor = selectedColor
     }
     FontDialog {
         id: clockFontDialog
@@ -637,6 +651,11 @@ Window {
                             activityOrbitSpeed: settings.orbitSpeed
                             activityTrailPercent: settings.trailPercent
                             activityTrailStyle: settings.trailStyle
+                            activityGlowColor: settings.glowColor
+                            activityGlowIntensity: settings.glowIntensity
+                            activityGlowSpread: settings.glowSpread
+                            activityPulseSpeed: settings.pulseSpeed
+                            activityGlowGradient: settings.glowGradient
                             activityShowWhenEmpty: settings.showOutlineWhenEmpty
                             activityShowWhenOpen: settings.showOutlineWhenOpen
                         }
@@ -671,11 +690,13 @@ Window {
                     QQC2.Label { text: "Efecto"; color: "white" }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
-                        model: ["Desactivado", "Borde brillante fijo", "Luz que recorre el contorno"]
-                        currentIndex: settings.effectStyle === "off" ? 0 :
-                            (settings.effectStyle === "orbit" ? 2 : 1)
+                        model: ["Desactivado", "Borde fijo clásico", "Luz móvil clásica",
+                                "Brillo exterior fijo", "Respiración luminosa",
+                                "Luz móvil con resplandor"]
+                        currentIndex: Math.max(0, ["off","steady","orbit","glow","breathe","orbitGlow"]
+                            .indexOf(settings.effectStyle))
                         onActivated: function(i) {
-                            settings.effectStyle = ["off","steady","orbit"][i]
+                            settings.effectStyle = ["off","steady","orbit","glow","breathe","orbitGlow"][i]
                         }
                     }
                     RowLayout {
@@ -733,7 +754,7 @@ Window {
                             validator: RegularExpressionValidator {
                                 regularExpression: /^([0-3]|[0-2][.,][0-9]|3[.,]0)?$/
                             }
-                            enabled: settings.effectStyle === "orbit" && settings.allowMotion
+                            enabled: (settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow") && settings.allowMotion
                             value: Math.round(settings.orbitSpeed * 10)
                             textFromValue: function(v, locale) {
                                 return (v / 10).toFixed(1)
@@ -758,7 +779,7 @@ Window {
                         QQC2.SpinBox {
                             from: 5; to: 85; stepSize: 1
                             editable: true
-                            enabled: settings.effectStyle === "orbit" && settings.allowMotion
+                            enabled: (settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow") && settings.allowMotion
                             value: settings.trailPercent
                             onValueModified: settings.trailPercent = value
                             QQC2.ToolTip.visible: hovered
@@ -771,7 +792,7 @@ Window {
                     }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
-                        enabled: settings.effectStyle === "orbit" && settings.allowMotion
+                        enabled: (settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow") && settings.allowMotion
                         model: ["Línea continua", "Punteado", "Guiones"]
                         currentIndex: settings.trailStyle === "dotted" ? 1 :
                             (settings.trailStyle === "dashed" ? 2 : 0)
@@ -782,7 +803,7 @@ Window {
                     QQC2.CheckBox {
                         text: "Permitir movimiento sutil del borde"
                         checked: settings.allowMotion
-                        enabled: settings.effectStyle === "orbit"
+                        enabled: settings.effectStyle === "orbit" || settings.effectStyle === "orbitGlow" || settings.effectStyle === "breathe" || settings.effectStyle === "orbitGlow"
                         onToggled: settings.allowMotion = checked
                     }
                     QQC2.Label {
@@ -790,6 +811,62 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Iluminación exterior y degradado"
+                        color: "white"
+                        font.bold: true
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "Color exterior…"
+                            onClicked: {
+                                glowColorDialog.selectedColor = settings.glowColor
+                                glowColorDialog.open()
+                            }
+                        }
+                        Rectangle { width: 36; height: 25; radius: 5; color: settings.glowColor }
+                        QQC2.Label { text: settings.toHex(settings.glowColor); color: "white" }
+                    }
+                    QQC2.CheckBox {
+                        text: "Degradado: centro brillante y exterior más suave"
+                        checked: settings.glowGradient
+                        onToggled: settings.glowGradient = checked
+                    }
+                    QQC2.Label { text: "Intensidad del brillo"; color: "white" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.glowIntensity
+                            onMoved: settings.glowIntensity = value
+                        }
+                        QQC2.Label { text: Math.round(settings.glowIntensity * 100) + "%"; color: "white" }
+                    }
+                    QQC2.Label { text: "Difusión del brillo"; color: "white" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 1; to: 8; stepSize: 0.5
+                            value: settings.glowSpread
+                            onMoved: settings.glowSpread = value
+                        }
+                        QQC2.Label { text: settings.glowSpread.toFixed(1) + " px"; color: "white" }
+                    }
+                    QQC2.Label { text: "Velocidad de respiración"; color: "white" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.1; to: 3; stepSize: 0.1
+                            enabled: settings.effectStyle === "breathe" && settings.allowMotion
+                            value: settings.pulseSpeed
+                            onMoved: settings.pulseSpeed = value
+                        }
+                        QQC2.Label { text: settings.pulseSpeed.toFixed(1) + " ciclos/s"; color: "white" }
                     }
                     QQC2.Button {
                         text: "Restablecer contorno"
@@ -801,6 +878,11 @@ Window {
                             settings.orbitSpeed = 1.5
                             settings.trailPercent = 75
                             settings.trailStyle = "dashed"
+                            settings.glowColor = "#ffab52"
+                            settings.glowIntensity = 0.7
+                            settings.glowSpread = 5
+                            settings.pulseSpeed = 0.6
+                            settings.glowGradient = true
                             settings.showOutlineWhenEmpty = true
                             settings.showOutlineWhenOpen = false
                         }
