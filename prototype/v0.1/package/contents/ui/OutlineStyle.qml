@@ -61,7 +61,7 @@ Canvas {
         path(ctx, sw / 2 + 0.5)
         ctx.stroke()
         if (lineStyle === "double") {
-            ctx.lineWidth = Math.max(0.5, sw * 0.65)
+            ctx.lineWidth = sw // ambos trazos deben tener exactamente el mismo grosor
             path(ctx, sw * 2 + 1)
             ctx.stroke()
         }
