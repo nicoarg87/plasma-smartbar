@@ -354,7 +354,10 @@ Item {
     )
     // Espacio físico desde el borde izquierdo libre hasta la derecha de
     // Soledad. Se calcula en el ancho REAL, respetando Malvina si está visible.
-    readonly property real availableIslandWidth: Math.max(
+    readonly property real availableIslandWidth: centeredPresentation
+        ? Math.max(0, root.width - Math.max(0, (root.width - centerBaseWidth) / 2)
+                   - controlsReservation - 8)
+        : Math.max(
         0, root.width - islandOffset - controlsReservation
            - (launcherIslandVisible ? launcherIsland.width + 12 : 12)
     )
@@ -434,7 +437,8 @@ Item {
         // devolverla AHORA a su posición predeterminada (también si la
         // simulación sigue maximizada). Al desmaximizar volverá de nuevo.
         if (value) {
-            alignRightNow()
+            if (positionMode === "center") alignCenterNow()
+            else alignRightNow()
         }
         console.log("SmartBar v0.1: retorno automático =", value,
                     "desplazamiento =", islandOffset)
@@ -1157,7 +1161,9 @@ Item {
 
                 IslandButton {
                     id: trayToggle
-                    text: root.trayExpanded ? "▶" : "◀"
+                    text: root.centeredPresentation
+                        ? (root.trayExpanded ? "◀" : "▶")
+                        : (root.trayExpanded ? "▶" : "◀")
                     frameShape: root.trayButtonShape
                     useTileColor: true
                     tileColor: root.effectiveTrayButtonColor
