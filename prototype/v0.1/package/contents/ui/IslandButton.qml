@@ -19,6 +19,9 @@ QQC2.Button {
     // Cada categoría puede reemplazarlo desde Apariencia.
     // Fichas de ventanas sin color independiente: muestran el fondo de Soledad.
     property bool inheritIslandFill: false
+    // La actividad de una ficha se determina fuera, por su modelo o por
+    // una selección simulada; jamás se infiere por hover.
+    property bool taskIsActive: false
     property string taskDisplayMode: "icon" // text, both, icon
     property var taskIconSource: ""
     readonly property bool taskUsesIcon: inheritIslandFill && taskDisplayMode !== "text"
@@ -55,8 +58,9 @@ QQC2.Button {
     property int activityCount: 0
     property bool activityShowWhenEmpty: false
     property bool activityShowWhenOpen: true
-    readonly property bool activityActiveForState: activityCount > 0
-        ? activityShowWhenOpen : activityShowWhenEmpty
+    readonly property bool activityActiveForState: inheritIslandFill
+        ? taskIsActive
+        : (activityCount > 0 ? activityShowWhenOpen : activityShowWhenEmpty)
     property string activityEffect: "steady"  // off, steady, orbit
     property color activityColor: "#35d7ff"
     property real activityStroke: 1.0
@@ -214,7 +218,15 @@ QQC2.Button {
                 SoActivityOutline {
                     width: activityOutlineLoader.width
                     height: activityOutlineLoader.height
-                    shape: control.effectiveImageShape
+                    shape: control.inheritIslandFill
+                        ? (control.taskFrameShape === "square"
+                           ? "taskSquare" : "taskRounded")
+                        : control.effectiveImageShape
+                    // Los límites de la ficha coinciden con los del botón,
+                    // aun si el marco normal se configuró "sin recuadro".
+                    borderMarginX: control.inheritIslandFill ? 8 : 14
+                    borderMarginY: control.inheritIslandFill ? 8 : 11
+                    taskCornerRadius: 7
                     accentColor: control.activityColor
                     strokeSize: control.activityStroke
                     effectStyle: control.activityEffect
