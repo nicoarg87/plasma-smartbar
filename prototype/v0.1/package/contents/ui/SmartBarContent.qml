@@ -732,8 +732,11 @@ Item {
             }
         }
         onSavePositionModeRequested: function(mode) {
-            if (mode === "center") root.alignCenterNow()
-            else root.alignRightNow()
+            // Aplicar colores no debe mover una isla arrastrada manualmente.
+            if (mode !== root.positionMode) {
+                if (mode === "center") root.alignCenterNow()
+                else root.alignRightNow()
+            }
         }
         onAlignCenterNowRequested: root.alignCenterNow()
         onAlignNowRequested: root.alignRightNow()
