@@ -1506,6 +1506,13 @@ Item {
                         if (!hovered) suppressGripTooltip = false
                     }
                     onPressed: {
+                        // Si había un hover esperando su breve demora,
+                        // iniciar la secuencia ANTES de que abrir un popup
+                        // o mover la isla haga desaparecer el hover.
+                        if (soClockRevealTimer.running) {
+                            soClockRevealTimer.stop()
+                            root.showSoClock()
+                        }
                         // Presionar, abrir opciones o arrastrar no detiene
                         // el reloj ni resetea su fase de fecha.
                         draggedDuringPress = false
@@ -1648,6 +1655,14 @@ Item {
                         id: gripMenu
                         title: "Opciones de Soledad"
                         // No apagar el reloj al abrir el menú contextual.
+                        // Un clic derecho rápido puede abrirlo antes de que
+                        // venza el retraso inicial de 180 ms.
+                        onOpened: {
+                            if (soClockRevealTimer.running) {
+                                soClockRevealTimer.stop()
+                                root.showSoClock()
+                            }
+                        }
                         // Anclar el menú directamente al agarre que lo abrió,
                         // NO a root: el cálculo anterior con root.width - width
                         // podía desplazarlo hasta Malvina (extremo izquierdo).
