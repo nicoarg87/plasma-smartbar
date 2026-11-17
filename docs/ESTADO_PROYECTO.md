@@ -869,3 +869,15 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 - El cambio no controla el foco del escritorio. El marcador en las dos listas de tareas reales sigue ligado a `model.IsActive && !model.IsMinimized`. Como la propia ventana QML del visor puede recuperar foco al clicar SO, verla destacada inmediatamente después de interactuar con el prototipo puede ser coherente con el foco real en ese instante. **El cambio tardío observado queda sin diagnóstico concluyente**; no hay prueba de que un temporizador de actividad falle ni de que KDE haya entregado un estado incorrecto.
 
 **REVISADO ESTÁTICAMENTE:** llaves/paréntesis equilibrados; no quedan invocaciones activas de `dismissSoClock()` desde los eventos del agarre; ambas fichas reales siguen consultando `IsActive` y `IsMinimized`. **PENDIENTE DE PRUEBA VISUAL/FUNCIONAL:** hora y fecha durante clic izquierdo/derecho, arrastre lento y rápido, popup abierto/cerrado, y ausencia de saltos del GIF/contorno; cambios reales de foco Krita/QML sin interacción del visor y grupos KDE. No reemplazar panel KDE ni publicar capturas privadas.
+
+## Arquitectura modular y primera refactorizacion de Malvina (17/11/2026)
+
+**CONFIRMADO:** el mantenedor aprobo la modularidad por responsabilidades, bajo acoplamiento, permisos minimos, validacion de entradas, pruebas aisladas y rendimiento medido. Ver [Arquitectura modular](ARQUITECTURA_MODULAR.md). No modifica requisitos visuales de Soledad/Malvina ni autoriza cambiar comportamiento acordado.
+
+**IMPLEMENTADO EN RAMA `prototype/v0.1-islas-so`:** nuevo `MalvinaUrlPolicy.js` con verificacion HTTPS y sustitucion codificada `{query}`, rechazo de host ambiguo, credenciales URL y puertos arbitrarios; `MalvinaSearch.qml` delega esa logica y mantiene una sola llamada `Qt.openUrlExternally`; `closeSearch()` existe para la llamada de `MalvinaIsland.qml`. Sitios IA se abren, sin enviar prompts. El componente no ejecuta comandos de shell ni llama a TaskManager.
+
+**REVISION ESTATICA, NO PROBADO AUN EN CACHYOS:** probar Google/DDG/Yahoo, proveedores IA, URL erronea, texto con espacios y caracteres especiales, Tab/Mayus+Tab/Enter/Esc, engranaje y cierre; revisar mensajes de Konsole. Esta intervencion no ejecuta ni instala el plasmoide en CachyOS ni valida su rendimiento.
+
+**PENDIENTE:** modularizar gradualmente `SmartBarContent.qml` (~102 KB) y `SoledadSettings.qml` (~128 KB), desacoplar `MalvinaProvidersPage.qml` de su `settingsTarget`, adaptar KConfig, probar integracion Wayland del hotkey Super+Espacio y navegador especifico. No se resolvieron las pestañas maximizadas, controles, fullscreen ni la instalacion real del panel. La deteccion dinamica KDE comprobada anteriormente sigue siendo un hito separado, no una validacion de esta refactorizacion.
+
+**COMMITS:** [politica URL](https://github.com/nicoarg87/plasma-smartbar/commit/ec09896cf3a56409c6c11a99f3aeeabc372b3aec), [integracion Malvina](https://github.com/nicoarg87/plasma-smartbar/commit/a2d7f3b0dfd1ffc2c0e3c155c4af08baf2ab195d), [arquitectura](https://github.com/nicoarg87/plasma-smartbar/commit/1ce70dbad7fb387c86333c0af25b5f34d3644bc4).
