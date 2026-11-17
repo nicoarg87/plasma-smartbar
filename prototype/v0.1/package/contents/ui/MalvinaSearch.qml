@@ -16,7 +16,7 @@ Item {
     property string chatGptUrl: "https://chatgpt.com/"
     property string geminiUrl: "https://gemini.google.com/app"
     property string claudeUrl: "https://claude.ai/new"
-    property int currentSection: 0 // 0: texto, 1: Web, 2: IA
+    property int currentSection: 1 // proveedor seleccionado: Web de forma predeterminada (Google)
     property int webIndex: 0
     property int aiIndex: 0
     signal requestSettings()
@@ -34,7 +34,6 @@ Item {
     }
     function focusSearch() {
         expanded = true
-        currentSection = 0
         options.open()
         queryInput.forceActiveFocus()
     }
@@ -51,9 +50,23 @@ Item {
         // Nunca ejecutar comandos del sistema ni enviar prompts IA por enlaces genericos.
         Qt.openUrlExternally(result.url)
     }
-    function selectSection(index) {
-        currentSection = Math.max(0, Math.min(2, index))
-        if (currentSection > 0) options.open()
+    // Seleccionar no navega: la salida externa ocurre solo con Enter en el campo.
+    function chooseProvider(section, index) {
+        currentSection = section
+        if (section === 1) webIndex = index
+        else aiIndex = index
+        queryInput.forceActiveFocus()
+    }
+    function focusProvider(section, index) {
+        options.open()
+        const repeater = section === 1 ? webRepeater : aiRepeater
+        const button = repeater.itemAt(index)
+        if (button) button.forceActiveFocus()
+    }
+    function advanceProvider(section, index, backwards) {
+        const linearIndex = section === 1 ? index : (3 + index)
+        const next = (linearIndex + (backwards ? 5 : 1)) % 6
+        focusProvider(next < 3 ? 1 : 2, next % 3)
     }
 
     RowLayout {
@@ -90,35 +103,16 @@ Item {
             selectByMouse: true
             onAccepted: search.openSelected()
             Keys.onTabPressed: function(event) {
-                search.selectSection((search.currentSection + 1) % 3)
+                search.focusProvider(1, 0)
                 event.accepted = true
             }
             Keys.onBacktabPressed: function(event) {
-                search.selectSection((search.currentSection + 2) % 3)
+                search.focusProvider(2, 2)
                 event.accepted = true
             }
             Keys.onPressed: function(event) {
-                if (event.key === Qt.Key_Down) {
-                    search.selectSection(Math.min(2, search.currentSection + 1))
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Up) {
-                    search.selectSection(Math.max(0, search.currentSection - 1))
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Left && search.currentSection === 1) {
-                    search.webIndex = (search.webIndex + 2) % 3
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Right && search.currentSection === 1) {
-                    search.webIndex = (search.webIndex + 1) % 3
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Left && search.currentSection === 2) {
-                    search.aiIndex = (search.aiIndex + 2) % 3
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Right && search.currentSection === 2) {
-                    search.aiIndex = (search.aiIndex + 1) % 3
-                    event.accepted = true
-                } else if (event.key === Qt.Key_Escape) {
-                    search.expanded = false
-                    options.close()
+                if (event.key === Qt.Key_Escape) {
+                    search.closeSearch()
                     event.accepted = true
                 }
             }
@@ -147,6 +141,7 @@ Item {
                 spacing: 3
                 QQC2.Label { text: "Web"; color: "white"; Layout.preferredWidth: 44 }
                 Repeater {
+                    id: webRepeater
                     model: search.webNames
                     delegate: QQC2.Button {
                         required property string modelData
@@ -154,11 +149,16 @@ Item {
                         text: modelData
                         Layout.fillWidth: true
                         highlighted: search.currentSection === 1 && search.webIndex === index
-                        onClicked: {
-                            search.currentSection = 1
-                            search.webIndex = index
-                            search.openSelected()
+                        onClicked: search.chooseProvider(1, index)
+                        Keys.onTabPressed: function(event) {
+                            search.advanceProvider(1, index, false)
+                            event.accepted = true
                         }
+                        Keys.onBacktabPressed: function(event) {
+                            search.advanceProvider(1, index, true)
+                            event.accepted = true
+                        }
+                        Keys.onEscapePressed: search.closeSearch()
                     }
                 }
             }
@@ -166,6 +166,7 @@ Item {
                 spacing: 3
                 QQC2.Label { text: "IA"; color: "white"; Layout.preferredWidth: 44 }
                 Repeater {
+                    id: aiRepeater
                     model: search.aiNames
                     delegate: QQC2.Button {
                         required property string modelData
@@ -173,11 +174,16 @@ Item {
                         text: modelData
                         Layout.fillWidth: true
                         highlighted: search.currentSection === 2 && search.aiIndex === index
-                        onClicked: {
-                            search.currentSection = 2
-                            search.aiIndex = index
-                            search.openSelected()
+                        onClicked: search.chooseProvider(2, index)
+                        Keys.onTabPressed: function(event) {
+                            search.advanceProvider(2, index, false)
+                            event.accepted = true
                         }
+                        Keys.onBacktabPressed: function(event) {
+                            search.advanceProvider(2, index, true)
+                            event.accepted = true
+                        }
+                        Keys.onEscapePressed: search.closeSearch()
                     }
                 }
             }
