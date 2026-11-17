@@ -530,10 +530,51 @@ Window {
                                 }
                             }
                         }
+                        Rectangle {
+                            anchors.centerIn: parent
+                            visible: settings.logoMode === "text"
+                            width: settings.soButtonFrameShape === "square" ? 96 : 190
+                            height: 64
+                            radius: settings.soButtonFrameShape === "square" ||
+                                    settings.soButtonFrameShape === "rectangle" ? 0 : height/2
+                            clip: true
+                            color: Qt.rgba(settings.soTextBackground.r,
+                                           settings.soTextBackground.g,
+                                           settings.soTextBackground.b,
+                                           settings.soTextBackgroundOpacity)
+                            Image {
+                                anchors.fill: parent
+                                visible: settings.soTextBackgroundImage.length > 0 &&
+                                         !settings.soTextBackgroundImage.toLowerCase().endsWith(".gif")
+                                source: visible ? settings.soTextBackgroundImage : ""
+                                fillMode: Image.PreserveAspectCrop
+                            }
+                            AnimatedImage {
+                                anchors.fill: parent
+                                visible: settings.soTextBackgroundImage.toLowerCase().endsWith(".gif")
+                                source: visible ? settings.soTextBackgroundImage : ""
+                                playing: visible
+                                fillMode: Image.PreserveAspectCrop
+                            }
+                            Text {
+                                anchors.fill: parent
+                                anchors.margins: 6
+                                text: settings.soTextLabel
+                                color: settings.soTextColor
+                                font.family: settings.soTextFontFamily
+                                font.pixelSize: settings.soTextFontSize * 1.5
+                                font.bold: settings.soTextBold
+                                fontSizeMode: Text.Fit
+                                minimumPixelSize: 8
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
                         QQC2.Label {
                             anchors.centerIn: parent
                             text: "SO"
-                            visible: settings.logoMode === "text" || settings.selectedImage.toString().length === 0
+                            visible: settings.logoMode !== "text" &&
+                                     settings.selectedImage.toString().length === 0
                             color: "white"
                             font.pixelSize: 40
                         }
