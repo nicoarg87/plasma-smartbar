@@ -318,8 +318,11 @@ Item {
     // Variante opcional. El modo tradicional conserva expansión a izquierda.
     property string positionMode: "right" // right, center
     property bool centeredPositionDragged: false
-    readonly property bool centeredPresentation:
-        positionMode === "center" && !centeredPositionDragged
+    readonly property bool centeredPresentation: positionMode === "center"
+    property real manualSoCenterX: 0
+    property real dragStartSoCenterX: 0
+    readonly property real soAnchorCenterX: centeredPositionDragged
+        ? manualSoCenterX : root.width / 2
     // El centro se calcula con la isla CONTRAÍDA: al abrir SO la
     // esquina izquierda permanece fija y las fichas crecen a derecha.
     readonly property real centerBaseWidth: Math.max(soledadMinWidth,
@@ -358,12 +361,10 @@ Item {
     // Espacio físico desde el borde izquierdo libre hasta la derecha de
     // Soledad. Se calcula en el ancho REAL, respetando Malvina si está visible.
     readonly property real availableIslandWidth: centeredPresentation
-        ? Math.max(0, root.width - Math.max(0, (root.width - centerBaseWidth) / 2)
-                   - controlsReservation - 8)
-        : Math.max(
-        0, root.width - islandOffset - controlsReservation
-           - (launcherIslandVisible ? launcherIsland.width + 12 : 12)
-    )
+        ? Math.max(0, root.width - (launcherIslandVisible ? launcherIsland.width + 12 : 0)
+                    - controlsReservation)
+        : Math.max(0, root.width - islandOffset - controlsReservation
+                    - (launcherIslandVisible ? launcherIsland.width + 12 : 12))
     // Sólo lectura para el visor Qt de pruebas: mostrar cuánto ocupa
     // Soledad frente al espacio real disponible, sin alterar su aspecto.
     readonly property real actualIslandWidth: systemIsland.width
@@ -451,36 +452,26 @@ Item {
     }
 
     function ensureExpansionFits() {
-        if (centeredPresentation && systemIsland.width > availableIslandWidth + 0.5) {
-            // Modo centrado: nunca dejar que la fila cubra controles fijos
-            // o salga por el extremo derecho de la pantalla.
-            if (soExpanded && trayExpanded) {
-                if (lastExpandedMode === "so") trayExpanded = false
-                else soExpanded = false
-            } else if (soExpanded) {
-                soExpanded = false
-            } else if (trayExpanded) {
-                trayExpanded = false
+        if (centeredPresentation) {
+            if (!soExpanded && !trayExpanded) return
+            const leftLimit = launcherIslandVisible && launcherIsland.visible
+                ? launcherIsland.x + launcherIsland.width + 8 : 0
+            const rightLimit = root.width - controlsReservation - 8
+            if (systemIsland.x < leftLimit - 0.5 ||
+                systemIsland.x + systemIsland.width > rightLimit + 0.5) {
+                if (soExpanded && trayExpanded) {
+                    if (lastExpandedMode === "so") trayExpanded = false
+                    else soExpanded = false
+                } else if (soExpanded) soExpanded = false
+                else if (trayExpanded) trayExpanded = false
+                console.warn("Soledad: expansion centrada fuera de limites; contraida")
             }
-            console.warn("SmartBar: expansión centrada no cabe en pantalla; se contrae por seguridad")
             return
         }
-        if (!soExpanded || !trayExpanded) {
-            return
-        }
-        // La anchura visible de la fila mide exactamente ambos conjuntos.
-        // Solo contraer uno si juntos invadirían el espacio de Malvina
-        // o superarían el borde disponible de la ventana.
+        if (!soExpanded || !trayExpanded) return
         if (systemIsland.width > availableIslandWidth + 0.5) {
-            if (lastExpandedMode === "tray") {
-                soExpanded = false
-            } else {
-                trayExpanded = false
-            }
-            console.log("Soledad: falta espacio para ambas",
-                        "ancho requerido =", actualIslandWidth,
-                        "disponible =", availableIslandWidth,
-                        "se conserva =", lastExpandedMode)
+            if (lastExpandedMode === "tray") soExpanded = false
+            else trayExpanded = false
         }
     }
 
@@ -973,11 +964,9 @@ Item {
         Rectangle {
             id: systemIsland
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.soledadHeight))
-            width: root.centeredPresentation && !root.soExpanded && !root.trayExpanded
-                ? root.centerBaseWidth
-                : Math.max(systemRow.implicitWidth + 12 +
-                           (root.soledadShape === "leftTip" ? 28 : 0),
-                           root.soledadMinWidth)
+            width: Math.max(systemRow.implicitWidth + 12 +
+                            (root.soledadShape === "leftTip" ? 28 : 0),
+                            root.soledadMinWidth)
             // Al cambiar fichas o espacio por arrastre, mantener ambas
             // expansiones salvo que realmente dejen de caber.
             onWidthChanged: root.ensureExpansionFits()
@@ -1115,7 +1104,8 @@ Item {
             anchors.right: root.centeredPresentation ? undefined : parent.right
             anchors.left: root.centeredPresentation ? parent.left : undefined
             anchors.leftMargin: root.centeredPresentation
-                ? Math.max(0, (root.width - root.centerBaseWidth) / 2) : 0
+                ? root.soAnchorCenterX - systemRow.x -
+                  soButton.x - soButton.width / 2 : 0
             // Los controles de ventana quedan en el extremo derecho INMÓVILES.
             // La isla 1 se arrastra solo a la izquierda del espacio reservado.
             anchors.rightMargin: root.centeredPresentation ? 0 :
@@ -1233,8 +1223,9 @@ Item {
                 // Modo histórico de maqueta: NO se altera la prueba de
                 // fichas ficticias ni su autocontracción configurada.
                 Repeater {
-                    model: root.soExpanded && !root.usingRealTasks &&
-                           root.demoHasRunningWindows ? root.demoApps : []
+                    model: root.positionMode === "right" && root.soExpanded &&
+                           !root.usingRealTasks && root.demoHasRunningWindows
+                           ? root.demoApps : []
                     delegate: IslandButton {
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
@@ -1249,8 +1240,8 @@ Item {
                 // requestClose ni métodos para minimizar o alterar ventanas.
                 // Repetición horizontal dentro del mismo Row, sin otra fila.
                 Repeater {
-                    model: root.soExpanded && root.usingRealTasks
-                        ? root.realTaskModel : null
+                    model: root.positionMode === "right" && root.soExpanded &&
+                           root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         required property var model
                         readonly property string appName:
