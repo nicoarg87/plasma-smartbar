@@ -372,10 +372,6 @@ Window {
         property string requestedUrl: ""
         property bool pending: false
         onImageLoaded: if (pending) requestPaint()
-        onImageLoadError: {
-            pending = false
-            console.warn("SmartBar: no se pudo analizar esta imagen; usar paleta manual")
-        }
         function suggestFromImage() {
             if (settings.logoMode === "text") return
             requestedUrl = settings.selectedImage.toString()
