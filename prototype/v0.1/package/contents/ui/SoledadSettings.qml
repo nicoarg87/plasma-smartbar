@@ -40,8 +40,10 @@ Window {
     property bool enableGif: true
     readonly property url selectedImage: logoMode === "text" ? "" :
         (logoMode === "custom" && filePath.length > 0 ? filePath : defaultImage)
-    readonly property bool isGif: logoMode === "custom" &&
-        filePath.toLowerCase().endsWith(".gif")
+    // El recurso predeterminado es ahora un GIF original. La vista previa
+    // debe animarlo, no solo animar GIF cargados desde un archivo propio.
+    readonly property bool isGif: logoMode === "default" ||
+        (logoMode === "custom" && filePath.toLowerCase().endsWith(".gif"))
 
     property color soledadColor: "#010111"
     property color malvinaColor: "#101e31"
@@ -1150,7 +1152,7 @@ Window {
                         onClicked: Qt.openUrlExternally("https://github.com/nicoarg87/plasma-smartbar/blob/main/LICENSE")
                     }
                     QQC2.Label {
-                        text: "Imágenes: licencias independientes. La imagen tropical de OpenAI se destina a CC0 1.0; todavía falta integrar su archivo exacto. El logo Golden Dog queda excluido hasta verificar sus derechos."
+                        text: "Imágenes: licencias independientes. El GIF tropical de OpenAI es el recurso predeterminado de SO (CC0 1.0 según los derechos disponibles). La imagen exacta se distribuye en el ZIP de prueba hasta incorporarla al repositorio. Golden Dog sigue excluido."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
