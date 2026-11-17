@@ -688,3 +688,20 @@ Commits [91e8ff5](https://github.com/nicoarg87/plasma-smartbar/commit/91e8ff5834
 - Límite horizontal: `ensureExpansionFits` revisa inicio/fin de isla en pantalla y contrae automáticamente el cajón si excede el espacio real, con los controles de ventana anclados al extremo derecho.
 
 **AUDITORÍA ESTÁTICA:** delimitadores de `SmartBarContent.qml` balanceados, hay repetidores separados para right/center, sin inversión LayoutMirroring y sin cambio a preferencias de apariencia ni al GIF. **NO SE CONSIDERA PROBADO** hasta que el usuario verifique en CachyOS: (1) GIF inmóvil al abrir/cerrar SO en centro; (2) GIF inmóvil al abrir/cerrar bandeja; (3) arrastre de centro a izquierda/derecha sin anchos gigantes; (4) centrado automático tras redimensionar/reabrir; (5) si ambas expansiones no caben, contraer sin salto ni invasión. En caso de error conservar salida de Konsole. Panel KDE existente intacto; rama main no modificada.
+
+
+## Posición configurada y límite de arrastre: segundo fallo de modo centro (17/11/2026)
+
+**PROBADO/OBSERVADO POR EL MANTENEDOR EN CACHYOS:** al elegir en el menú del agarre `Alinear isla 1 a la derecha` cuando la preferencia está configurada en `center`, Soledad sale del centro y puede ocupar todo el ancho de la ventana. También al arrastrar Soledad al extremo izquierdo, el botón de bandeja puede desaparecer fuera de pantalla y el cuerpo puede bloquear la zona de activación de Malvina (isla 2). Se compartió captura **de pantalla completa, exclusivamente en la conversación privada**. **PROHIBIDO subir, citar textualmente datos privados de esta captura, adjuntar a issues o insertar en documentación pública**.
+
+**REQUISITO CONFIRMADO:**
+- Menú del agarre: acción unificada `Volver a la posición configurada` (etiqueta contextual `Volver al centro configurado` o `Volver a la derecha configurada`), que **NO cambia** `positionMode`.
+- La isla siempre permanece por completo en el espacio útil del visor: no se permite ocultar botón bandeja fuera del lado izquierdo ni invadir el espacio de activación de Malvina aunque esté temporalmente oculta.
+- Mantener botón SO fijo en la posición elegida cuando crecen los cajones y conservar GIF/estética favoritos; no tocar el panel KDE.
+- Distinguir `positionMode` guardado de desplazamiento manual temporal, y respetar reservas de los controles fijos al maximizar.
+
+**CAMBIOS IMPLEMENTADOS SOLO EN RAMA EXPERIMENTAL (NO PROBADOS AÚN EN CACHYOS):**
+- [473a48c](https://github.com/nicoarg87/plasma-smartbar/commit/473a48c0de57818da0e37e39315295b91cebcc34): menú contextual reemplaza `Alinear ... derecha` / `Mover ... derecha AHORA` por la acción `Volver al centro/derecha configurado`, no altera la preferencia. `Volver a la derecha al desmaximizar` aparece solo en modo derecha.
+- `SmartBarContent.qml`: elimina el antiguo cálculo de límite de arrastre fijo de ~460 px y usa `leftReserved` calculado con `malvinaHotspot.width + 12` cuando está habilitada Malvina (aunque oculta) y `rightReserved` con controles maximizados. `maxIslandOffset` depende del ancho actual de la isla; en centro el cursor solo mueve SO cuando toda la isla entra en el intervalo entre reservas. El ancho de `systemIsland` se acota a `physicalIslandLimit` sin borrar el ancho configurado históricamente.
+- [4c84fc3](https://github.com/nicoarg87/plasma-smartbar/commit/4c84fc3abe2a1f8fbb92e5a89277bac1220b7767): comprobar **ancho natural sin recortar** al decidir si una expansión cabe; de lo contrario se cierra el cajón de prioridad menor, incluyendo cuando Malvina está oculta; el límite físico de la isla se respeta.
+- **ESTADO:** revisión estática de estructura de QML (delimitadores equilibrados) y enlace menú-preferencia realizado. **NO PROBADO** con Qt/KWin en CachyOS todavía. En el siguiente retest controlar desde modo centro el comando del menú, arrastre máximo izquierda/derecha, reapertura con la preferencia, apertura/cierre bandeja y SO, Malvina con y sin autoocultar y maximización simulada. Si vuelve a aparecer `Binding loop detected for property "x"` o `Unable to assign [undefined]`, preservar texto de Konsole sin incluir capturas completas en GitHub.
