@@ -2,6 +2,7 @@
 // SmartBarContent que usa el plasmoide. No instala nada ni toca paneles.
 import QtQuick
 import QtQuick.Window
+import QtCore as QtCore
 import QtQuick.Controls as QQC2
 import org.kde.taskmanager 0.1 as TaskManager
 import "package/contents/ui"
@@ -15,6 +16,52 @@ Window {
     visible: true
     title: "Plasma SmartBar Islands v0.1 — prueba redimensionable (sin panel)"
     color: "#242236"
+
+
+    // Persistencia local SOLO del visor Qt: no modifica ningún panel KDE.
+    // Se guardan los valores elegidos, no una estética inventada en GitHub.
+    property bool appearanceRestored: false
+    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen"]
+    QtCore.Settings {
+        id: localPreviewSettings
+        category: "plasma-smartbar-v01-preview-appearance"
+    }
+    Timer {
+        id: saveAppearanceTimer
+        interval: 180
+        repeat: false
+        onTriggered: previewWindow.saveAppearancePreset()
+    }
+    function saveAppearancePreset() {
+        if (!appearanceRestored) return
+        const values = {}
+        for (const key of appearanceKeys) {
+            const value = previewWindow[key]
+            values[key] = key === "demoOutlineConfig"
+                ? JSON.parse(JSON.stringify(value))
+                : (key.endsWith("Color") || key === "demoSoClockTextColor"
+                   ? String(value) : value)
+        }
+        localPreviewSettings.setValue("appearanceV1", JSON.stringify(values))
+        localPreviewSettings.sync()
+    }
+    function restoreAppearancePreset() {
+        const raw = localPreviewSettings.value("appearanceV1", "")
+        if (typeof raw === "string" && raw.length > 0) {
+            try {
+                const values = JSON.parse(raw)
+                for (const key of appearanceKeys) {
+                    if (Object.prototype.hasOwnProperty.call(values, key))
+                        previewWindow[key] = values[key]
+                }
+                console.log("SmartBar: apariencia local recuperada")
+            } catch (e) {
+                console.warn("SmartBar: no se pudo leer apariencia guardada:", e)
+            }
+        }
+        appearanceRestored = true
+    }
+    Component.onCompleted: restoreAppearancePreset()
 
     // Solo este visor Qt utiliza la opción real. El plasmoide sigue
     // sin conexión a ventanas y el panel instalado no se modifica.
@@ -313,6 +360,166 @@ Window {
         anchors.bottomMargin: 12
         color: "#c7bad8"
         text: "Ancho del contenido: " + Math.round(bar.width) + " px lógicos"
+    }
+
+    onDemoAutoReturnRightChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoLauncherIslandVisibleChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoAutoHideMalvinaChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoAutoCollapseSOChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoAutoCollapseTrayChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoModeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoPathChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoFitModeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoZoomChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoPanXChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoPanYChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoRotationChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoLogoAnimateChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoClockFontFamilyChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoClockFontSizeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoClockTextColorChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoOutlineConfigChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoPanelHeightChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadHeightChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaHeightChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadRadiusChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaRadiusChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadMinWidthChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaWidthChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoGripShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoTrayButtonShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoButtonFrameShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoButtonWidthChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadColorChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaColorChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoBackgroundColorChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadOpacityChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaOpacityChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoBackgroundOpacityChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoShowBackgroundChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoTrayButtonColorOverrideChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoTrayButtonColorChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoTrayButtonOpacityChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoGripButtonColorOverrideChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoGripButtonColorChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoGripButtonOpacityChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityStyleChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityColorChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityStrokeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityMotionChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityOrbitSpeedChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityTrailPercentChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityTrailStyleChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityShowWhenEmptyChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoSoActivityShowWhenOpenChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
     }
 
     onWidthChanged: console.log("SmartBar ventana independiente: ancho =", width)
