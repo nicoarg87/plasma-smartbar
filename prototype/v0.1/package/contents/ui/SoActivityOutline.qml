@@ -186,43 +186,67 @@ Canvas {
         ctx.reset()
         ctx.clearRect(0, 0, width, height)
         if (!enabledEffect || width < 6 || height < 6) return
+
         const stroke = Math.max(0.5, Math.min(2, strokeSize))
-        const spread = Math.max(1, Math.min(8, glowSpread))
-        // Luz contenida dentro de Canvas: nada modifica el tamaño del botón.
-        const margin = glows ? spread + stroke / 2 + 1 : stroke / 2 + 1
         const intensity = Math.max(0, Math.min(1, glowIntensity))
-        const pulse = pulsing && allowMotion
-            ? 0.3 + 0.7 * (0.5 - 0.5 * Math.cos(2 * Math.PI * pulsePhase))
+        const spread = Math.max(1, Math.min(8, glowSpread))
+        // IslandButton amplía este Canvas 8 px por lado. El contorno
+        // queda alineado con el borde REAL de la imagen, no encogido
+        // dentro de ella como ocurría con la versión anterior.
+        const margin = 8 + stroke / 2
+        const breathing = pulsing && allowMotion
+            ? 0.15 + 0.85 * (0.5 - 0.5 * Math.cos(2 * Math.PI * pulsePhase))
             : 1
+
         ctx.save()
         ctx.lineJoin = "round"
         ctx.lineCap = "round"
         if (glows && intensity > 0) {
-            // Cinco capas concéntricas, intensas junto al borde y suaves afuera.
-            for (let i = 0; i < 5; ++i) {
-                const distance = i * spread / 4
-                const near = 1 - i / 5
-                const alpha = intensity * pulse * near * near * 0.28
-                const color = glowGradient ? (i < 2 ? accentColor : glowColor) : glowColor
-                ctx.strokeStyle = Qt.rgba(color.r, color.g, color.b, alpha)
-                ctx.lineWidth = Math.max(0.8, stroke + (glowGradient ? near : 0))
-                traceShape(ctx, Math.max(stroke / 2 + 0.7, margin - distance))
+            // Resplandor exterior visible: capas más fuertes cerca del
+            // icono y cada vez más débiles al alejarse de SO.
+            // El segundo color no debe limitarse a una línea casi invisible.
+            const steps = 9
+            for (let i = steps - 1; i >= 0; --i) {
+                const t = i / (steps - 1) // 0: borde de SO; 1: extremo exterior
+                const haloMargin = margin - spread * t
+                const falloff = (1 - t) * (1 - t)
+                const alpha = Math.min(1, intensity * breathing * (0.10 + 0.48 * falloff))
+                const selected = glowGradient
+                    ? Qt.rgba(accentColor.r * (1-t) + glowColor.r*t,
+                              accentColor.g * (1-t) + glowColor.g*t,
+                              accentColor.b * (1-t) + glowColor.b*t, alpha)
+                    : Qt.rgba(glowColor.r, glowColor.g, glowColor.b, alpha)
+                ctx.strokeStyle = selected
+                ctx.lineWidth = 1.8 + 1.7 * (1 - t)
+                traceShape(ctx, Math.max(0.8, haloMargin))
                 ctx.stroke()
             }
         }
-        ctx.lineWidth = stroke
-        const baseColor = glows && glowGradient ? accentColor : (glows ? glowColor : accentColor)
-        ctx.strokeStyle = Qt.rgba(baseColor.r, baseColor.g, baseColor.b,
-                                  glows ? Math.min(1, 0.45 + intensity * pulse * 0.5) :
+
+        // El trazo central es más brillante que su halo exterior.
+        const core = glows && !glowGradient ? glowColor : accentColor
+        ctx.setLineDash([])
+        ctx.strokeStyle = Qt.rgba(core.r, core.g, core.b,
+                                  glows ? 0.25 + intensity * breathing * 0.75 :
                                   orbiting ? 0.32 : 0.92)
+        ctx.lineWidth = stroke
         traceShape(ctx, margin)
         ctx.stroke()
+
         if (orbiting && allowMotion) {
             const perimeter = perimeterForShape(margin)
             ctx.setLineDash(orbitDashPattern(perimeter, stroke))
             ctx.lineDashOffset = -phase * perimeter
+            if (glows && intensity > 0) {
+                // La propia estela arrastra brillo con el color exterior.
+                ctx.strokeStyle = Qt.rgba(glowColor.r, glowColor.g,
+                                          glowColor.b, intensity * 0.65)
+                ctx.lineWidth = stroke + 3
+                traceShape(ctx, margin)
+                ctx.stroke()
+            }
             ctx.strokeStyle = accentColor
-            ctx.lineWidth = stroke
+            ctx.lineWidth = Math.max(1, stroke)
             traceShape(ctx, margin)
             ctx.stroke()
             ctx.setLineDash([])
