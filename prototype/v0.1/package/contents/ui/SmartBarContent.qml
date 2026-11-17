@@ -184,11 +184,15 @@ Item {
     readonly property real effectiveGripButtonOpacity: gripButtonColorOverride
         ? gripButtonOpacity : soledadOpacity
 
-    // Indicador de actividad de SO: no simular "ventanas reales".
-    // La maqueta puede alternar 0/3 ventanas desde Opciones de Soledad.
-    // En versión real se conectará a TasksModel KWin/Plasma.
+    // El visor puede inyectar el TasksModel REAL ya probado en CachyOS.
+    // Si es null, se mantiene intacta la simulación habitual. Este
+    // componente NO crea modelos KDE ni ejecuta acciones sobre ventanas.
+    property var realTaskModel: null
+    readonly property bool usingRealTasks: realTaskModel !== null
     property bool demoHasRunningWindows: true
-    readonly property int soWindowCount: demoHasRunningWindows ? demoApps.length : 0
+    readonly property int soWindowCount: usingRealTasks
+        ? realTaskModel.count
+        : (demoHasRunningWindows ? demoApps.length : 0)
     // Con cero ventanas, el brillo atrae la atención hacia el lanzador.
     // Con ventanas abiertas, permanece apagado por defecto.
     property string soActivityStyle: "orbit"  // off, steady, orbit
@@ -860,13 +864,45 @@ Item {
                     y: (systemRow.height - height) / 2
                 }
 
+                // Modo histórico de maqueta: NO se altera la prueba de
+                // fichas ficticias ni su autocontracción configurada.
                 Repeater {
-                    model: root.soExpanded && root.demoHasRunningWindows ? root.demoApps : []
+                    model: root.soExpanded && !root.usingRealTasks &&
+                           root.demoHasRunningWindows ? root.demoApps : []
                     delegate: IslandButton {
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ficha ficticia: " + modelData
+                    }
+                }
+
+                // Nuevo ensayo: KDE TasksModel de solo lectura, inyectado
+                // únicamente por el visor Qt. El Repeater actualiza las
+                // fichas al abrir/cerrar ventanas; no llama a requestActivate,
+                // requestClose ni métodos para minimizar o alterar ventanas.
+                // Repetición horizontal dentro del mismo Row, sin otra fila.
+                Repeater {
+                    model: root.soExpanded && root.usingRealTasks
+                        ? root.realTaskModel : null
+                    delegate: IslandButton {
+                        required property var model
+                        readonly property string appName:
+                            model.AppName || "(aplicación sin nombre)"
+                        readonly property bool isGrouped: model.IsGroupParent === true
+                        readonly property int windowCount: Number(model.ChildCount) || 0
+                        text: appName + (isGrouped && windowCount > 1
+                                        ? " (" + windowCount + ")" : "")
+                        // Se deja deliberadamente sin acción sobre KDE.
+                        // El clic solo informa en Konsole que es una prueba.
+                        onClicked: console.log("SO solo lectura: ", appName,
+                                               "(sin activar ventanas)")
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Ventana real de KDE: " + appName
+                            + (model.IsActive === true ? " · activa" : "")
+                            + (model.IsMaximized === true ? " · maximizada" : "")
+                            + (isGrouped ? " · grupo de ventanas" : "")
+                            + " · SOLO LECTURA"
                     }
                 }
 
@@ -1138,9 +1174,12 @@ Item {
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
-                            text: root.demoHasRunningWindows
-                                ? "Simular SO SIN ventanas (0)"
-                                : "Simular SO CON ventanas (3)"
+                            enabled: !root.usingRealTasks
+                            text: root.usingRealTasks
+                                ? "SO conectado a tareas reales (solo lectura)"
+                                : (root.demoHasRunningWindows
+                                   ? "Simular SO SIN ventanas (0)"
+                                   : "Simular SO CON ventanas (3)")
                             onTriggered: root.demoHasRunningWindows = !root.demoHasRunningWindows
                         }
                         QQC2.MenuSeparator {}
