@@ -156,3 +156,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Validar aspecto, selector de colores, guardar/restablecer y QML en CachyOS.
 - [ ] Detectar estado real de KWin/Wayland, ventanas maximizadas y fullscreen, por pantalla; permitir autoaparición solo cuando no interfiera en juegos, videos y clics.
 - [ ] Incorporar imagen binaria exacta al repositorio GitHub (por ahora está solo en ZIP adjunto).
+
+
+## GIF tropical definitivo en SO (16/11/2026)
+
+- [x] Recibir y verificar GIF original generado con ChatGPT (439×217, 16 cuadros, 140 ms c/u, SHA-256 `a10b34548abae1d3e699d5b92a23f38745b349f9cf73ebc59806fce6f56f5621`). El mantenedor dice que lo probó y funciona.
+- [x] Reemplazar referencia predeterminada `assets/so-tropical.png` por `assets/so-tropical.gif` y activar reproducción en modo «Predeterminada» en visor y editor.
+- [x] Preparar ZIP local con GIF original intacto en ruta de assets y registro de licencia CC0 (recurso gráfico independiente del código MIT).
+- [ ] Incorporar **binario GIF exacto** al repositorio GitHub; ahora solo en ZIP adjunto al chat.
+- [ ] Probar carga del **GIF como Predeterminada** en CachyOS y confirmación de Estirar, cápsula horizontal, pausa, zoom y uso de recursos; no reemplazar panel existente.
