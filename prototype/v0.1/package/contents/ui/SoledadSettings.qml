@@ -126,6 +126,15 @@ Window {
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
     property bool alignmentEdited: false
+    property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
+    readonly property string outlineTargetKey: ["soledad","malvina","tray","grip"][outlineTarget.currentIndex]
+    readonly property var selectedOutline: outlineConfig[outlineTargetKey]
+    function setOutlineField(field, value) {
+        const next = JSON.parse(JSON.stringify(outlineConfig))
+        next[outlineTargetKey][field] = value
+        outlineConfig = next
+    }
+    signal saveOutlineRequested(var updated)
 
     signal saveClockAppearanceRequested(string family, int size,
                                         string textColor)
@@ -177,6 +186,7 @@ Window {
         panelHeight = Math.min(120, Math.max(panelHeight, soledadHeight + 4, malvinaHeight + 4))
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
+        saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
         saveClockAppearanceRequested(clockFontFamily, clockFontSize,
                                      toHex(clockTextColor))
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
@@ -244,6 +254,11 @@ Window {
         id: clockColorDialog
         title: "Color del texto de hora y fecha"
         onAccepted: settings.clockTextColor = selectedColor
+    }
+    ColorDialog {
+        id: islandOutlineColorDialog
+        title: "Color del contorno seleccionado"
+        onAccepted: settings.setOutlineField("color", settings.toHex(selectedColor))
     }
     ColorDialog {
         id: outlineColorDialog
@@ -873,6 +888,73 @@ Window {
                             text: Math.round(settings.activeOpacity * 100) + "%"
                             color: "white"
                             Layout.preferredWidth: 65
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Contorno de islas y botones"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.ComboBox {
+                        id: outlineTarget
+                        Layout.fillWidth: true
+                        model: ["Soledad", "Malvina", "Botones de bandeja", "Agarre de seis puntos"]
+                    }
+                    QQC2.Label { text: "Tipo de línea"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Sin línea", "Simple continua", "Doble", "Discontinua", "Punteada"]
+                        currentIndex: ["off", "solid", "double", "dashed", "dotted"].indexOf(settings.selectedOutline.style)
+                        onActivated: function(i) { settings.setOutlineField("style", ["off","solid","double","dashed","dotted"][i]) }
+                    }
+                    QQC2.Label { text: "Grosor de línea"; color: "white" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.5; to: 5; stepSize: 0.5
+                            value: settings.selectedOutline.width
+                            onMoved: settings.setOutlineField("width", value)
+                        }
+                        QQC2.Label {
+                            text: settings.selectedOutline.width.toFixed(1) + " px"
+                            color: "white"
+                            Layout.preferredWidth: 64
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "Color del contorno…"
+                            onClicked: {
+                                islandOutlineColorDialog.selectedColor = settings.selectedOutline.color
+                                islandOutlineColorDialog.open()
+                            }
+                        }
+                        Rectangle { width: 34; height: 24; radius: 4; color: settings.selectedOutline.color }
+                    }
+                    QQC2.Label { text: "Transparencia del contorno"; color: "white" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.selectedOutline.opacity
+                            onMoved: settings.setOutlineField("opacity", value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.selectedOutline.opacity * 100) + "% visible"
+                            color: "white"; Layout.preferredWidth: 90
+                        }
+                    }
+                    QQC2.Button {
+                        text: "Restablecer contorno seleccionado"
+                        onClicked: {
+                            settings.setOutlineField("style", "solid")
+                            settings.setOutlineField("width", 1)
+                            settings.setOutlineField("color",
+                                settings.outlineTargetKey === "soledad" || settings.outlineTargetKey === "malvina" ? "#4e8499" : "#45647a")
+                            settings.setOutlineField("opacity", 1)
                         }
                     }
                     QQC2.CheckBox {
