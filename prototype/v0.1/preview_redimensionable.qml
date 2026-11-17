@@ -426,7 +426,9 @@ Window {
                 "la fila de SO se actualiza manteniendo el botón a la derecha."
               : "Modo SIMULADO: conserva todas las pruebas anteriores. Arrastrá " +
                 "el borde de la ventana o maximizala; Malvina queda a la izquierda " +
-                "y Soledad a la derecha."
+                (bar.positionMode === "center"
+                    ? "y SO centrado: fichas a derecha sin mover el GIF."
+                    : "y Soledad a la derecha.")
     }
 
     // Diagnóstico visible EXCLUSIVAMENTE en esta ventana de prueba;
