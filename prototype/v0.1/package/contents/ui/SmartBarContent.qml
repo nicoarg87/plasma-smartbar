@@ -23,7 +23,7 @@ Item {
     property string malvinaShape: "rounded"
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
-    property string taskDisplayMode: "text" // text, both, icon
+    property string taskDisplayMode: "icon" // text, both, icon
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
