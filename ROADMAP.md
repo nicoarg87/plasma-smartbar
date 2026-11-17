@@ -199,3 +199,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **PRUEBA DEL MANTENEDOR EN CACHYOS:** ejecutar `bash prototype/v0.1/probar_ancho.sh`, activar la casilla de tareas reales, expandir SO y comprobar altas/bajas y agrupación con varias ventanas de una misma app.
 - [ ] Medir comportamiento cuando la suma de fichas excede el ancho útil de Soledad; evitar solapamiento o desplazar ventanas/pestañas y definir tratamiento de exceso sin cambiar requisitos.
 - [ ] Recién después de validar el modo lectura, considerar selección/activación de ventanas reales en una segunda fase y con KWin/Wayland.
+
+## Corregir superposición del reloj en SO (17/11/2026)
+
+- [x] Mantener cargado y reproduciéndose el GIF de SO al mostrar hora/fecha.
+- [x] Quitar rectángulo opaco del reloj; mostrar caracteres sobre la foto con contorno para legibilidad.
+- [x] Disminuir tamaño inicial de hora de 16 px a 11 px, ajustar fecha, conservar tipografía/tamaño/color configurables y restablecimiento coherente.
+- [x] Mantener gesto de 180 ms sobre seis puntos y desaparición **solo del texto** tras tres segundos.
+- [ ] **Probar visualmente en CachyOS** continuidad del GIF sin reinicio, legibilidad, fuentes alternativas, restablecer y que el texto no sobresalga de la cápsula.
