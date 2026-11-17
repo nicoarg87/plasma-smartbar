@@ -96,7 +96,9 @@ Item {
     }
     readonly property bool malvinaPopupActive:
         (installedAppsPopup.visible && installedLauncherSource === "malvina") ||
-        malvinaSearch.expanded || malvinaSettings.visible
+        malvinaSearch.expanded ||
+        (soledadSettings.visible && soledadSettings.currentTab === 0 &&
+         soledadSettings.currentIslandSubtab === 2)
     readonly property bool malvinaActuallyVisible:
         !autoRevealBlocked && launcherIslandVisible &&
         (!autoHideMalvina || malvinaHoverRevealed || malvinaPopupActive)
@@ -545,15 +547,7 @@ Item {
     }
 
     function openMalvinaSettings() {
-        malvinaSettings.googleTemplate = malvinaGoogleUrl
-        malvinaSettings.duckTemplate = malvinaDuckUrl
-        malvinaSettings.yahooTemplate = malvinaYahooUrl
-        malvinaSettings.chatGptUrl = malvinaChatGptUrl
-        malvinaSettings.geminiUrl = malvinaGeminiUrl
-        malvinaSettings.claudeUrl = malvinaClaudeUrl
-        malvinaSettings.show()
-        malvinaSettings.raise()
-        malvinaSettings.requestActivate()
+        root.openSoledadSettings(0, 2)
     }
     // Solo funciona dentro de la ventana Qt que ya tenga el foco.
     // Meta+Espacio GLOBAL necesita una acción KF6/KGlobalAccel posterior.
@@ -562,13 +556,6 @@ Item {
         context: Qt.WindowShortcut
         enabled: root.launcherIslandVisible && !root.autoRevealBlocked
         onActivated: malvinaSearch.focusSearch()
-    }
-    MalvinaSettings {
-        id: malvinaSettings
-        onSaveRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
-            root.requestMalvinaProvidersChange(google, duck, yahoo,
-                                                chatGpt, gemini, claude)
-        }
     }
     function openInstalledLauncher(source) {
         const requestedSource = source === "malvina" ? "malvina" : "so"
@@ -649,7 +636,7 @@ Item {
 
     onMaxIslandOffsetChanged: setIslandOffset(islandOffset)
 
-    function openSoledadSettings(tabIndex) {
+    function openSoledadSettings(tabIndex, islandSubtabIndex) {
         // Un solo centro. Leer valores guardados al abrir, no al cambiar
         // pestaña ni al pulsar Aplicar: la ventana permanece visible.
         if (!soledadSettings.visible) {
@@ -672,6 +659,12 @@ Item {
             soledadSettings.malvinaRadius = root.malvinaRadius
             soledadSettings.soledadMinWidth = root.soledadMinWidth
             soledadSettings.malvinaWidth = root.malvinaWidth
+            soledadSettings.malvinaGoogleUrl = root.malvinaGoogleUrl
+            soledadSettings.malvinaDuckUrl = root.malvinaDuckUrl
+            soledadSettings.malvinaYahooUrl = root.malvinaYahooUrl
+            soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
+            soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
+            soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
             soledadSettings.soledadShape = root.soledadShape
             soledadSettings.malvinaShape = root.malvinaShape
             soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
@@ -741,6 +734,9 @@ Item {
             soledadSettings.currentTab = tabIndex
             soledadSettings.refreshOutlinePreview()
         }
+        if (islandSubtabIndex !== undefined)
+            soledadSettings.currentIslandSubtab = islandSubtabIndex
+        soledadSettings.currentTab = tabIndex
         soledadSettings.show()
         soledadSettings.raise()
         soledadSettings.requestActivate()
@@ -748,6 +744,10 @@ Item {
 
     SoledadSettings {
         id: soledadSettings
+        onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
+            root.requestMalvinaProvidersChange(google, duck, yahoo,
+                                               chatGpt, gemini, claude)
+        }
         defaultImage: root.defaultSoLogo
         onSaveClockAppearanceRequested: function(family, size, color) {
             root.requestSoClockAppearanceChange(family, size, color)
