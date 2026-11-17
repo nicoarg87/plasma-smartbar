@@ -222,6 +222,7 @@ Item {
     property real soActivityGlowIntensity: 0.7
     property real soActivityGlowSpread: 5
     property real soActivityPulseSpeed: 0.6
+    property real soActivityPulseDepth: 0.7
     property bool soActivityGlowGradient: true
     onSoWindowCountChanged: {
         if (soWindowCount === 0) soExpanded = false
@@ -232,7 +233,7 @@ Item {
                                    bool showWhenEmpty, bool showWhenOpen)
 
     signal requestSoGlowChange(string glowColor, real intensity, real spread,
-                               real pulseSpeed, bool gradient)
+                               real pulseSpeed, real pulseDepth, bool gradient)
     signal requestSoClockAppearanceChange(string fontFamily, int fontSize,
                                           string textColor)
     signal requestSoLogoChange(string mode, string path, string shape,
@@ -541,6 +542,7 @@ Item {
             soledadSettings.glowIntensity = root.soActivityGlowIntensity
             soledadSettings.glowSpread = root.soActivityGlowSpread
             soledadSettings.pulseSpeed = root.soActivityPulseSpeed
+            soledadSettings.pulseDepth = root.soActivityPulseDepth
             soledadSettings.glowGradient = root.soActivityGlowGradient
             soledadSettings.showOutlineWhenEmpty = root.soActivityShowWhenEmpty
             soledadSettings.showOutlineWhenOpen = root.soActivityShowWhenOpen
@@ -591,8 +593,8 @@ Item {
                                          trayOpacity, gripOverride, gripColor,
                                          gripOpacity)
         }
-        onSaveGlowRequested: function(color, intensity, spread, speed, gradient) {
-            root.requestSoGlowChange(color, intensity, spread, speed, gradient)
+        onSaveGlowRequested: function(color, intensity, spread, speed, depth, gradient) {
+            root.requestSoGlowChange(color, intensity, spread, speed, depth, gradient)
         }
         onSaveActivityRequested: function(style, color, stroke, motion,
                                           speed, tailLength, lineStyle,
@@ -1067,6 +1069,7 @@ Item {
                     activityGlowIntensity: root.soActivityGlowIntensity
                     activityGlowSpread: root.soActivityGlowSpread
                     activityPulseSpeed: root.soActivityPulseSpeed
+                    activityPulseDepth: root.soActivityPulseDepth
                     activityGlowGradient: root.soActivityGlowGradient
                     activityShowWhenEmpty: root.soActivityShowWhenEmpty
                     activityShowWhenOpen: root.soActivityShowWhenOpen
