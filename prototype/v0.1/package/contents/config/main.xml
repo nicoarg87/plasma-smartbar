@@ -57,6 +57,8 @@
     <entry name="soledadGradientEnabled" type="Bool"><default>false</default></entry>
     <entry name="soledadGradientEnd" type="String"><default>#ee9852</default></entry>
     <entry name="soledadGradientDirection" type="String"><default>topBottom</default></entry>
+    <entry name="soledadGradientSyncBreathing" type="Bool"><default>false</default></entry>
+    <entry name="soledadGradientBreathingIntensity" type="Double"><default>0.6</default></entry>
     <entry name="malvinaGradientEnabled" type="Bool"><default>false</default></entry>
     <entry name="malvinaGradientEnd" type="String"><default>#445577</default></entry>
     <entry name="malvinaGradientDirection" type="String"><default>topBottom</default></entry>
