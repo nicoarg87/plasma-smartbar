@@ -1307,7 +1307,9 @@ Item {
                         activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         taskIconSource: root.demoIconForApp(modelData)
-                        taskIsActive: modelData === (root.lastDemoSelection || "Dolphin")
+                        taskIsActive: root.demoHasRunningWindows &&
+                            root.lastDemoSelection.length > 0 &&
+                            modelData === root.lastDemoSelection
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1350,7 +1352,8 @@ Item {
                         activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         required property var model
-                        taskIsActive: model.IsActive === true
+                        taskIsActive: model.IsActive === true &&
+                            model.IsMinimized !== true
                         taskIconSource: model.decoration || root.demoIconForApp(appName)
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
@@ -1695,6 +1698,11 @@ Item {
                                    : "Simular SO CON ventanas (3)")
                             onTriggered: root.demoHasRunningWindows = !root.demoHasRunningWindows
                         }
+                        QQC2.MenuItem {
+                            visible: !root.usingRealTasks && root.demoHasRunningWindows
+                            text: "Simular escritorio vacío (fichas sin resaltar)"
+                            onTriggered: root.lastDemoSelection = ""
+                        }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
                             text: "Simular ventana maximizada"
@@ -1763,7 +1771,9 @@ Item {
                         activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         taskIconSource: root.demoIconForApp(modelData)
-                        taskIsActive: modelData === (root.lastDemoSelection || "Dolphin")
+                        taskIsActive: root.demoHasRunningWindows &&
+                            root.lastDemoSelection.length > 0 &&
+                            modelData === root.lastDemoSelection
                         text: modelData
                         onClicked: root.selectDemoApp(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -1806,7 +1816,8 @@ Item {
                         activityGlowGradient: root.soActivityGlowGradient
                         frameShape: "task"
                         required property var model
-                        taskIsActive: model.IsActive === true
+                        taskIsActive: model.IsActive === true &&
+                            model.IsMinimized !== true
                         taskIconSource: model.decoration || root.demoIconForApp(appName)
                         readonly property string appName:
                             model.AppName || "(aplicación sin nombre)"
