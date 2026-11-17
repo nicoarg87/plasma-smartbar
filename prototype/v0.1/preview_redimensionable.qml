@@ -92,9 +92,12 @@ Window {
         autoReturnRight: previewWindow.demoAutoReturnRight
         launcherIslandVisible: previewWindow.demoLauncherIslandVisible
         autoHideMalvina: previewWindow.demoAutoHideMalvina
-        // Visor: estados de la ventana Qt conocidos; no hay TasksModel real.
+        // El visor es la propia superficie de ensayo: maximizar ESTA
+        // ventana no equivale a tener un juego ajeno maximizado debajo.
+        // Para probar protección, usar las opciones explícitas del agarre.
+        // En pantalla completa REAL del visor se conserva el bloqueo.
         windowStateKnown: true
-        hostMaximized: previewWindow.visibility === Window.Maximized
+        hostMaximized: false
         hostFullscreen: previewWindow.visibility === Window.FullScreen
         autoCollapseSO: previewWindow.demoAutoCollapseSO
         autoCollapseTray: previewWindow.demoAutoCollapseTray
@@ -244,7 +247,13 @@ Window {
               " · " + (bar.soExpanded ? "SO abierto" : "SO cerrado") +
               " · " + (bar.trayExpanded ? "bandeja abierta" : "bandeja cerrada") +
               " · Malvina: " + (bar.malvinaActuallyVisible ? "visible" : "oculta") +
-              (bar.autoHideMalvina ? " (autoocultar activo)" : " (siempre visible)") +
+              (bar.autoRevealBlocked
+                ? " (BLOQUEADA: simulación maximizada/fullscreen)"
+                : (!bar.launcherIslandVisible
+                   ? " (deshabilitada en opciones)"
+                   : (bar.autoHideMalvina
+                      ? " (esperando cursor 0,6 s en esquina izquierda)"
+                      : " (autoocultamiento desactivado)"))) +
               " · SO autocierre: " + (bar.autoCollapseSO ? "sí" : "no") +
               " · bandeja autocierre: " + (bar.autoCollapseTray ? "sí" : "no") +
               "\nAncho Soledad: " + Math.round(bar.actualIslandWidth) +
