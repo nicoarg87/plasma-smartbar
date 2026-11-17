@@ -40,6 +40,10 @@ PlasmoidItem {
         // La configuración de Plasma se mantiene en el envoltorio;
         // SmartBarContent no depende de Plasmoid y es reutilizable.
         autoReturnRight: Plasmoid.configuration.autoReturnRight
+        positionMode: Plasmoid.configuration.positionMode
+        onRequestPositionModeChange: function(mode) {
+            Plasmoid.configuration.positionMode = mode
+        }
         launcherIslandVisible: Plasmoid.configuration.showLauncherIsland
         autoHideMalvina: Plasmoid.configuration.autoHideMalvina
         // Seguridad: sin consulta real a KWin todavía, NO revelar islas
