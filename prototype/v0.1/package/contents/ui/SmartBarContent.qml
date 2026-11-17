@@ -801,10 +801,93 @@ Item {
             bottomLeftRadius: root.soledadShape === "leftSquareRightRound" ? 0 : radius
             topRightRadius: root.soledadShape === "leftRoundRightSquare" ? 0 : radius
             bottomRightRadius: root.soledadShape === "leftRoundRightSquare" ? 0 : radius
-            color: root.soledadShape === "leftTip" ? "transparent" :
-                Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                           root.soledadColor.b, root.soledadOpacity)
+            // El relleno se pinta con huecos bajo bandeja/agarre: de lo
+            // contrario, un botón al 0% deja ver el fondo de Soledad y
+            // parece que la transparencia no se aplicó.
+            color: "transparent"
             border.width: 0
+            Canvas {
+                id: islandSurface
+                anchors.fill: parent
+                visible: root.soledadShape !== "leftTip"
+                onWidthChanged: requestPaint()
+                onHeightChanged: requestPaint()
+                onVisibleChanged: requestPaint()
+                Connections {
+                    target: root
+                    function onSoledadColorChanged() { islandSurface.requestPaint() }
+                    function onSoledadOpacityChanged() { islandSurface.requestPaint() }
+                    function onSoledadShapeChanged() { islandSurface.requestPaint() }
+                    function onSoledadRadiusChanged() { islandSurface.requestPaint() }
+                    function onTrayExpandedChanged() { islandSurface.requestPaint() }
+                    function onSoExpandedChanged() { islandSurface.requestPaint() }
+                    function onTrayButtonColorOverrideChanged() { islandSurface.requestPaint() }
+                    function onGripButtonColorOverrideChanged() { islandSurface.requestPaint() }
+                }
+                Connections {
+                    target: systemRow
+                    function onWidthChanged() { islandSurface.requestPaint() }
+                    function onXChanged() { islandSurface.requestPaint() }
+                }
+                onPaint: {
+                    const ctx = getContext("2d")
+                    ctx.reset()
+                    ctx.clearRect(0, 0, width, height)
+                    if (width <= 0 || height <= 0 || !visible) return
+                    const tl = systemIsland.topLeftRadius
+                    const tr = systemIsland.topRightRadius
+                    const bl = systemIsland.bottomLeftRadius
+                    const br = systemIsland.bottomRightRadius
+                    ctx.beginPath()
+                    ctx.moveTo(tl, 0)
+                    ctx.lineTo(width - tr, 0)
+                    ctx.quadraticCurveTo(width, 0, width, tr)
+                    ctx.lineTo(width, height - br)
+                    ctx.quadraticCurveTo(width, height, width - br, height)
+                    ctx.lineTo(bl, height)
+                    ctx.quadraticCurveTo(0, height, 0, height - bl)
+                    ctx.lineTo(0, tl)
+                    ctx.quadraticCurveTo(0, 0, tl, 0)
+                    ctx.closePath()
+                    ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
+                                            root.soledadColor.b, root.soledadOpacity)
+                    ctx.fill()
+                    // Retirar el relleno SOLO detrás de los controles cuyo
+                    // color/opacidad es independiente; no tocar zonas SO.
+                    ctx.globalCompositeOperation = "destination-out"
+                    for (let i = 0; i < systemRow.children.length; ++i) {
+                        const child = systemRow.children[i]
+                        if (!child || !child.visible) continue
+                        const tray = child.useTileColor === true
+                        const grip = child === moveGrip
+                        if ((tray && !root.trayButtonColorOverride) ||
+                            (grip && !root.gripButtonColorOverride) ||
+                            (!tray && !grip)) continue
+                        const x = systemRow.x + child.x
+                        const y = systemRow.y + child.y
+                        const w = child.width
+                        const h = child.height
+                        if (w <= 0 || h <= 0) continue
+                        const radius = tray
+                            ? (root.trayButtonShape === "square" ? 0 : Math.min(17, h/2))
+                            : (root.gripShape === "square" ? 0 : 8)
+                        const q = Math.min(radius, w/2, h/2)
+                        ctx.beginPath()
+                        ctx.moveTo(x+q, y)
+                        ctx.lineTo(x+w-q, y)
+                        ctx.quadraticCurveTo(x+w,y,x+w,y+q)
+                        ctx.lineTo(x+w,y+h-q)
+                        ctx.quadraticCurveTo(x+w,y+h,x+w-q,y+h)
+                        ctx.lineTo(x+q,y+h)
+                        ctx.quadraticCurveTo(x,y+h,x,y+h-q)
+                        ctx.lineTo(x,y+q)
+                        ctx.quadraticCurveTo(x,y,x+q,y)
+                        ctx.closePath()
+                        ctx.fill()
+                    }
+                    ctx.globalCompositeOperation = "source-over"
+                }
+            }
             OutlineStyle {
                 anchors.fill: parent
                 visible: root.soledadShape !== "leftTip" && lineStyle !== "off"
