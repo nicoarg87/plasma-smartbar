@@ -28,6 +28,13 @@ Window {
 
     // Valores de trabajo. Se copian desde SmartBarContent al abrir.
     property string logoMode: "default"
+    property string soTextLabel: "SO"
+    property color soTextColor: "#ffffff"
+    property color soTextBackground: "#192536"
+    property real soTextBackgroundOpacity: 0.9
+    property string soTextFontFamily: "Sans Serif"
+    property int soTextFontSize: 13
+    property bool soTextBold: true
     property string filePath: ""
     property string shape: "square"
     property string cropFitMode: "stretch"
@@ -192,6 +199,8 @@ Window {
 
     signal saveClockAppearanceRequested(string family, int size,
                                         string textColor)
+    signal saveSoTextRequested(string label, string color, string background,
+                                real opacity, string fontFamily, int fontSize, bool bold)
     signal saveLogoRequested(string mode, string path, string shape,
                              string fitMode, real zoom, real panX,
                              real panY, bool animate, real rotation)
@@ -251,6 +260,8 @@ Window {
                                    toHex(malvinaGradientEnd), malvinaGradientDirection)
         saveClockAppearanceRequested(clockFontFamily, clockFontSize,
                                      toHex(clockTextColor))
+        saveSoTextRequested(soTextLabel, toHex(soTextColor), toHex(soTextBackground),
+                            soTextBackgroundOpacity, soTextFontFamily, soTextFontSize, soTextBold)
         saveLogoRequested(logoMode, filePath, shape, cropFitMode,
                           cropZoom, cropPanX, cropPanY, enableGif, cropRotation)
         saveGeometryRequested(panelHeight,
@@ -337,6 +348,16 @@ Window {
         id: islandOutlineColorDialog
         title: "Color del contorno seleccionado"
         onAccepted: settings.setOutlineField("color", settings.toHex(selectedColor))
+    }
+    ColorDialog {
+        id: soTextColorDialog
+        title: "Color del texto SO"
+        onAccepted: settings.soTextColor = selectedColor
+    }
+    ColorDialog {
+        id: soTextBackgroundDialog
+        title: "Fondo del texto SO"
+        onAccepted: settings.soTextBackground = selectedColor
     }
     ColorDialog {
         id: outlineColorDialog
@@ -493,6 +514,71 @@ Window {
                                 settings.soButtonFrameShape = choice
                             }
                         }
+                    }
+                    QQC2.Label {
+                        text: "Texto personalizado del botón SO"
+                        color: "white"
+                        visible: settings.logoMode === "text"
+                        font.bold: true
+                    }
+                    QQC2.TextField {
+                        Layout.fillWidth: true
+                        visible: settings.logoMode === "text"
+                        text: settings.soTextLabel
+                        maximumLength: 24
+                        placeholderText: "SO, Mint, CachyOS..."
+                        onTextEdited: settings.soTextLabel = text
+                    }
+                    RowLayout {
+                        visible: settings.logoMode === "text"
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Fuente"; color: "white"; Layout.fillWidth: true }
+                        QQC2.TextField {
+                            text: settings.soTextFontFamily
+                            Layout.preferredWidth: 170
+                            onTextEdited: settings.soTextFontFamily = text
+                        }
+                    }
+                    RowLayout {
+                        visible: settings.logoMode === "text"
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Tamaño"; color: "white" }
+                        QQC2.SpinBox {
+                            from: 8; to: 36
+                            value: settings.soTextFontSize
+                            onValueModified: settings.soTextFontSize = value
+                        }
+                        QQC2.CheckBox {
+                            text: "Negrita"
+                            checked: settings.soTextBold
+                            onToggled: settings.soTextBold = checked
+                        }
+                    }
+                    RowLayout {
+                        visible: settings.logoMode === "text"
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "Color de letras…"
+                            onClicked: { soTextColorDialog.selectedColor = settings.soTextColor; soTextColorDialog.open() }
+                        }
+                        Rectangle { width: 30; height: 22; radius: 4; color: settings.soTextColor }
+                        QQC2.Button {
+                            text: "Fondo…"
+                            onClicked: { soTextBackgroundDialog.selectedColor = settings.soTextBackground; soTextBackgroundDialog.open() }
+                        }
+                        Rectangle { width: 30; height: 22; radius: 4; color: settings.soTextBackground }
+                    }
+                    RowLayout {
+                        visible: settings.logoMode === "text"
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Opacidad del fondo"; color: "white" }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.soTextBackgroundOpacity
+                            onMoved: settings.soTextBackgroundOpacity = value
+                        }
+                        QQC2.Label { text: Math.round(settings.soTextBackgroundOpacity*100) + "%"; color: "white" }
                     }
                     QQC2.Label {
                         text: "Ajuste de la imagen";
@@ -709,7 +795,14 @@ Window {
                             // Zoom exclusivamente visual de la muestra;
                             // no modifica el tamaño real de Soledad.
                             scale: 1.45
-                            text: "SO"
+                            text: settings.logoMode === "text" ? settings.soTextLabel : "SO"
+                            customTextMode: settings.logoMode === "text"
+                            customTextColor: settings.soTextColor
+                            customTextBackground: settings.soTextBackground
+                            customTextBackgroundOpacity: settings.soTextBackgroundOpacity
+                            customTextFontFamily: settings.soTextFontFamily
+                            customTextFontSize: settings.soTextFontSize
+                            customTextBold: settings.soTextBold
                             accent: true
                             iconSource: settings.appliedOutlinePreview.iconSource
                             iconAnimated: settings.appliedOutlinePreview.iconAnimated
