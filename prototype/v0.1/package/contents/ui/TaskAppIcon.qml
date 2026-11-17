@@ -12,6 +12,7 @@ Item {
         width: Math.min(24, parent.width - 4)
         height: Math.min(24, parent.height - 2)
         source: root.iconSource || "application-x-executable"
+        fallback: "application-x-executable"
         isMask: false
     }
 }
