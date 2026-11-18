@@ -138,6 +138,27 @@ Item {
                 root.malvinaHoverRevealed = false
         }
     }
+    // Detector pasivo para clics fuera de Malvina DENTRO de la ventana Qt.
+    // No captura el clic: Soledad y los otros controles siguen funcionando.
+    // El popup de proveedores gestiona sus propios clics en MalvinaSearch.
+    TapHandler {
+        enabled: malvinaSearch.expanded
+        gesturePolicy: TapHandler.DragThreshold
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onTapped: function(point) {
+            const position = malvinaSearch.mapFromItem(root, point.position.x, point.position.y)
+            const insideSearch = position.x >= 0 && position.x <= malvinaSearch.width &&
+                                 position.y >= 0 && position.y <= malvinaSearch.height
+            if (!insideSearch) {
+                malvinaSearch.closeSearch()
+                if (root.autoHideMalvina) {
+                    malvinaRevealTimer.stop()
+                    malvinaHideTimer.stop()
+                    root.malvinaHoverRevealed = false
+                }
+            }
+        }
+    }
     // Preferencias independientes: no contraer por abrir la otra sección
     // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
     property bool autoCollapseSO: true
