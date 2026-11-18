@@ -37,8 +37,14 @@ for (const [index, url] of [
     assert.equal(noPermission.url, url, "sin permiso no anexar texto");
     const allowed = sandbox.resolveAiPrefill(index, url, "cerveza artesanal", true);
     assert.equal(allowed.ok, true);
-    assert.equal(allowed.experimental, true);
-    assert.ok(allowed.url.endsWith("?q=cerveza%20artesanal"), allowed.url);
+    if (index === 1) {
+        assert.equal(allowed.url, url, "Gemini no admite precarga por q");
+        assert.equal(allowed.experimental, undefined);
+        assert.ok(allowed.warning.includes("Gemini"));
+    } else {
+        assert.equal(allowed.experimental, true);
+        assert.ok(allowed.url.endsWith("?q=cerveza%20artesanal"), allowed.url);
+    }
 }
 const unrelated = sandbox.resolveAiPrefill(0, "https://ejemplo.com/", "texto privado", true);
 assert.equal(unrelated.url, "https://ejemplo.com/");
