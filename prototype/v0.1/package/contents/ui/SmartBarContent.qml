@@ -30,7 +30,11 @@ Item {
     property string malvinaAiOrder: "chatgpt,gemini,claude"
     property string malvinaExtraWeb: "[]"
     property string malvinaExtraAi: "[]"
-    signal requestMalvinaExtrasChange(string webJson, string aiJson)
+    property string malvinaHiddenWeb: ""
+    property string malvinaHiddenAi: ""
+    property bool malvinaCompactAi: false
+    signal requestMalvinaExtrasChange(string webJson, string aiJson,
+                                      string hiddenWeb, string hiddenAi, bool compactAi)
     signal requestMalvinaOrderChange(bool firstWeb, string webOrder, string aiOrder)
     property string malvinaGoogleName: "Google"
     property string malvinaDuckName: "DuckDuckGo"
@@ -716,6 +720,9 @@ Item {
             soledadSettings.malvinaAiOrder = root.malvinaAiOrder
             soledadSettings.malvinaExtraWeb = root.malvinaExtraWeb
             soledadSettings.malvinaExtraAi = root.malvinaExtraAi
+            soledadSettings.malvinaHiddenWeb = root.malvinaHiddenWeb
+            soledadSettings.malvinaHiddenAi = root.malvinaHiddenAi
+            soledadSettings.malvinaCompactAi = root.malvinaCompactAi
             soledadSettings.malvinaGoogleName = root.malvinaGoogleName
             soledadSettings.malvinaDuckName = root.malvinaDuckName
             soledadSettings.malvinaYahooName = root.malvinaYahooName
@@ -817,8 +824,8 @@ Item {
         onSaveMalvinaNamesRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaNamesChange(google, duck, yahoo, chatGpt, gemini, claude)
         }
-        onSaveMalvinaExtrasRequested: function(webJson, aiJson) {
-            root.requestMalvinaExtrasChange(webJson, aiJson)
+        onSaveMalvinaExtrasRequested: function(webJson, aiJson, hiddenWeb, hiddenAi, compactAi) {
+            root.requestMalvinaExtrasChange(webJson, aiJson, hiddenWeb, hiddenAi, compactAi)
         }
         onSaveMalvinaOrderRequested: function(firstWeb, webOrder, aiOrder) {
             root.requestMalvinaOrderChange(firstWeb, webOrder, aiOrder)
@@ -1118,6 +1125,9 @@ Item {
                 claudeName: root.malvinaClaudeName
                 extraWeb: root.malvinaExtraWeb
                 extraAi: root.malvinaExtraAi
+                hiddenWeb: root.malvinaHiddenWeb
+                hiddenAi: root.malvinaHiddenAi
+                compactAi: root.malvinaCompactAi
                 taskFrameShape: root.taskFrameShape
                 taskFrameColor: root.taskFrameColor
                 taskFrameOpacity: root.taskFrameOpacity
