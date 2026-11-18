@@ -373,11 +373,30 @@ QQC2.Popup {
                         required property bool fileIsDir
                         required property url fileUrl
                         width: filesList.width - 5
-                        height: visible ? 32 : 0
+                        height: 58
                         readonly property string fileLabel: fileName
-                        visible: !searchInput.text.trim() ||
-                            fileLabel.toLowerCase().includes(searchInput.text.toLowerCase())
+                        readonly property string fullPath: decodeURIComponent(
+                            String(fileUrl).replace("file://", ""))
                         text: fileLabel + (fileIsDir ? "  📁" : "")
+                        contentItem: Column {
+                            spacing: 3
+                            Text {
+                                width: parent.width
+                                text: fileLabel + (fileIsDir ? "  📁" : "")
+                                color: "white"
+                                font.bold: true
+                                elide: Text.ElideRight
+                            }
+                            Text {
+                                width: parent.width
+                                text: fullPath
+                                font.pixelSize: 10
+                                color: "#ececec"
+                                elide: Text.ElideRight
+                            }
+                        }
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: fullPath
                         onClicked: {
                             if (fileIsDir) {
                                 fileList.folder = fileUrl
