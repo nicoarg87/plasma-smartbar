@@ -279,6 +279,7 @@ Window {
     property string malvinaGearButtonShape: "square"
     property string malvinaSearchButtonShape: "square"
     signal saveMalvinaButtonShapesRequested(string gearShape, string searchShape)
+    signal settingsApplied()
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
@@ -364,27 +365,25 @@ Window {
         panelHeight = Math.min(120, Math.max(panelHeight, soledadHeight + 4, malvinaHeight + 4))
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
         malvinaHeight = Math.min(malvinaHeight, panelHeight - 4)
-        if (!malvinaWebTemplateValid(malvinaGoogleUrl) ||
-            !malvinaWebTemplateValid(malvinaDuckUrl) ||
-            !malvinaWebTemplateValid(malvinaYahooUrl) ||
-            !malvinaSiteValid(malvinaChatGptUrl) ||
-            !malvinaSiteValid(malvinaGeminiUrl) ||
-            !malvinaSiteValid(malvinaClaudeUrl)) {
-            appliedLabel.text = "Malvina: Web requiere HTTPS y {query}; IA requiere HTTPS."
-            return
-        }
+        // Validación aislada: un error en una URL o nombre de proveedor
+        // NO debe descartar cambios de forma, color o geometría.
+        const validProviderUrls = malvinaWebTemplateValid(malvinaGoogleUrl) &&
+            malvinaWebTemplateValid(malvinaDuckUrl) &&
+            malvinaWebTemplateValid(malvinaYahooUrl) &&
+            malvinaSiteValid(malvinaChatGptUrl) &&
+            malvinaSiteValid(malvinaGeminiUrl) &&
+            malvinaSiteValid(malvinaClaudeUrl)
         const names = [malvinaGoogleName, malvinaDuckName, malvinaYahooName,
                        malvinaChatGptName, malvinaGeminiName, malvinaClaudeName]
-        if (!names.every(malvinaNameValid)) {
-            appliedLabel.text = "Malvina: cada nombre debe tener entre 1 y 48 caracteres y no contener saltos de línea."
-            return
+        const validProviderNames = names.every(malvinaNameValid)
+        if (validProviderUrls && validProviderNames) {
+            saveMalvinaNamesRequested(malvinaGoogleName.trim(), malvinaDuckName.trim(),
+                                      malvinaYahooName.trim(), malvinaChatGptName.trim(),
+                                      malvinaGeminiName.trim(), malvinaClaudeName.trim())
+            saveMalvinaProvidersRequested(malvinaGoogleUrl, malvinaDuckUrl,
+                                          malvinaYahooUrl, malvinaChatGptUrl,
+                                          malvinaGeminiUrl, malvinaClaudeUrl)
         }
-        saveMalvinaNamesRequested(malvinaGoogleName.trim(), malvinaDuckName.trim(),
-                                  malvinaYahooName.trim(), malvinaChatGptName.trim(),
-                                  malvinaGeminiName.trim(), malvinaClaudeName.trim())
-        saveMalvinaProvidersRequested(malvinaGoogleUrl, malvinaDuckUrl,
-                                     malvinaYahooUrl, malvinaChatGptUrl,
-                                     malvinaGeminiUrl, malvinaClaudeUrl)
         saveMalvinaWebEnabledRequested(malvinaWebGoogleEnabled,
                                        malvinaWebDuckEnabled, malvinaWebYahooEnabled)
         saveMalvinaExtrasRequested(malvinaExtraWeb, malvinaExtraAi,
@@ -442,7 +441,10 @@ Window {
         if (hasSuggestedPalette)
             paletteFeedback = "Paleta elegida aplicada. Los colores de Soledad se mantienen si no pulsaste «Usar tonos sugeridos en Soledad»."
         alignmentEdited = false
-        appliedLabel.text = "Cambios aplicados. Podés seguir configurando."
+        settingsApplied()
+        appliedLabel.text = validProviderUrls && validProviderNames
+            ? "Cambios aplicados y guardados. Podés seguir configurando."
+            : "Apariencia y opciones aplicadas y guardadas. Corregí las URL o nombres de proveedores para guardarlos."
         // NO llamar settings.close(): Aplicar no debe cerrar la ventana.
     }
 
