@@ -377,3 +377,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Agregar opciones cuadrada/redonda independientes y persistencia de ambas.
 - [ ] Probar en CachyOS actualización cromática y degradados al Aplicar, botones, guardado/reinicio y clics del editor.
 - [ ] Verificar contraste con transparencias elevadas sin alterar altura fija de isla ni panel KDE.
+
+## Ajustes de la captura del buscador Malvina (17/11/2026)
+
+- [x] Tooltip compacto de lupa, oculto durante búsqueda abierta.
+- [x] Contorno perceptible pero sutil para distinguir engranaje/lupa cuadrados o circulares.
+- [x] Borde del campo menos llamativo.
+- [x] Aplicar al campo único la misma forma/radio/esquinas mixtas que la isla Malvina, además de degradado/opacidad/color.
+- [ ] Retest Qt/CachyOS de la apariencia aplicada, foco, clipping, cambios de forma/gradiente y tooltip.
