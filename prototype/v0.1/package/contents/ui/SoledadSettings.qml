@@ -25,6 +25,9 @@ Window {
 
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
     property int geometrySection: 0
+    property int logoSection: 0
+    property int outlineSection: 0
+    property int appearanceSection: 0
 
     // Botones del menú lateral: no cortar nombres cuando la ventana es angosta
     // o cuando el usuario aumenta la escala de fuentes de KDE.
@@ -63,8 +66,8 @@ Window {
 
     // Navegación orientada al usuario; usa las mismas páginas y ajustes
     // existentes para preservar aplicación y persistencia anteriores.
-    function showSoledadLogo() { currentTab = 1; logoSubtabs.currentIndex = 0 }
-    function showSoledadEffects() { currentTab = 1; logoSubtabs.currentIndex = 1 }
+    function showSoledadLogo() { currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
+    function showSoledadEffects() { currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
     function showSoledadWindows() { currentTab = 2; appearanceSubtabs.currentIndex = 1 }
     function showMalvinaProviders() { currentTab = 0; islandSubtabs.currentIndex = 2 }
     function showMalvinaShape() {
@@ -83,6 +86,7 @@ Window {
     function showSharedColors(target) {
         currentTab = 2
         appearanceSubtabs.currentIndex = 0
+        appearanceSection = 0
         appearanceTarget.currentIndex = target
     }
     function showSharedOutlines() {
@@ -1296,6 +1300,25 @@ Window {
                 ColumnLayout {
                     width: Math.max(0, logoScroll.availableWidth - 8)
                     spacing: 10
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Repeater {
+                            model: ["Imagen", "Texto", "Encuadre", "Reloj"]
+                            delegate: QQC2.Button {
+                                required property int index
+                                required property string modelData
+                                Layout.fillWidth: true
+                                text: modelData
+                                highlighted: settings.logoSection === index
+                                onClicked: { settings.logoSection = index; logoScroll.contentItem.contentY = 0 }
+                            }
+                        }
+                    }
+                    ColumnLayout {
+                        visible: settings.logoSection === 0
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.Label {
                         text: "Imagen del botón SO · vista previa"
                         color: "white"
@@ -1445,6 +1468,11 @@ Window {
                             }
                         }
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.logoSection === 1
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.Label {
                         text: "Texto personalizado del botón SO"
                         color: "white"
@@ -1532,6 +1560,11 @@ Window {
                             onClicked: settings.soTextBackgroundImage = ""
                         }
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.logoSection === 2
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.Label {
                         text: "Ajuste de la imagen";
                         color: "white"
@@ -1636,6 +1669,11 @@ Window {
                         checked: settings.enableGif
                         onToggled: settings.enableGif = checked
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.logoSection === 3
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.Label {
                         text: "Hora y fecha en SO"
                         color: "white"
@@ -1713,6 +1751,7 @@ Window {
                             settings.clockFontSize = 11
                             settings.clockTextColor = "#ffffff"
                         }
+                    }
                     }
                     QQC2.Button {
                         text: "Restablecer logo y formato"
