@@ -404,7 +404,9 @@ Item {
         x: 0
         y: search.desiredEditorHeight + 6
         width: search.optionsWidth
-        height: 152
+        // No dejar una fila vacía si el usuario quitó todos los Web o IA.
+        height: 58 + (search.orderedWebIds.length ? 38 : 0) +
+                     (search.orderedAiIds.length ? 38 : 0)
         padding: 8
         modal: false
         focus: false
