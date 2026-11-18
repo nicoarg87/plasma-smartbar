@@ -20,6 +20,10 @@ Item {
     property int currentSection: 1 // proveedor seleccionado: Web de forma predeterminada (Google)
     property int webIndex: 0
     property int aiIndex: 0
+    property bool webGoogleEnabled: true
+    property bool webDuckEnabled: true
+    property bool webYahooEnabled: true
+    readonly property var webEnabled: [webGoogleEnabled, webDuckEnabled, webYahooEnabled]
     // 0: campo de texto, 1: fila Web, 2: fila IA. Es foco visual sin sacar foco al TextField.
     property int navigationSection: 0
     property int navigationIndex: 0
@@ -53,6 +57,10 @@ Item {
         const query = queryInput.text.trim()
         const isAi = currentSection === 2
         const template = isAi ? aiUrls[aiIndex] : webUrls[webIndex]
+        if (!isAi && !webEnabled[webIndex]) {
+            console.warn("Malvina: el buscador Web seleccionado está deshabilitado en Configuración")
+            return
+        }
         const result = UrlPolicy.resolve(template, query, isAi)
         if (!result.ok) {
             console.warn("Malvina: " + result.reason)
@@ -76,7 +84,13 @@ Item {
     // Solo elegir: no abrir la URL ni modificar la consulta.
     function chooseProvider(section, index) {
         currentSection = section
-        if (section === 1) webIndex = index
+        if (section === 1) {
+            if (!webEnabled[index]) {
+                console.warn("Malvina: proveedor Web deshabilitado")
+                return
+            }
+            webIndex = index
+        }
         else if (section === 2) aiIndex = index
         navigationSection = 0
         queryInput.forceActiveFocus()
@@ -192,6 +206,7 @@ Item {
                         required property int index
                         text: modelData
                         Layout.fillWidth: true
+                        enabled: search.webEnabled[index]
                         highlighted: (search.navigationSection === 1 && search.navigationIndex === index) ||
                                      (search.navigationSection === 0 && search.currentSection === 1 && search.webIndex === index)
                         onClicked: search.chooseProvider(1, index)
