@@ -362,3 +362,11 @@ Usuario pide simplificar/reordenar el centro de configuración: separar funcione
 **Prueba realmente positiva reportada por el mantenedor:** activar/desactivar Malvina desde el menú de seis puntos muestra aproximadamente un segundo y desaparece como se esperaba. El launcher SO actual abrió correctamente y el conmutador Aplicaciones/Archivos apareció. El nuevo layout A/B, altura, rutas/estilo están implementados pero aún NO PROBADOS después de estos cambios.
 
 **Próxima prueba Fish:** cerrar visor; `cd ~/plasma-smartbar; git switch prototype/v0.1-islas-so; git pull --ff-only; bash prototype/v0.1/probar_ancho.sh`. Probar en A categoría Internet, que lista aparezca derecha del principal cerca del cursor; seleccionar B en Configuración → General y compartidas → Comportamiento → Launcher, Aplicar y probar despliegue a izquierda sin mover el principal. Probar Archivos con filtro por nombre en carpeta actual (sin búsqueda global), 1/3/20+ resultados y scroll; rutas. Probar colores/gradiente/respiración SO, Malvina independiente, formas/color interruptor y persistencia tras reabrir. No instalar ni cambiar panel KDE existente; no fusionar main.
+
+## 49. Regresión Qt `availableHeight`: corrección sin validar — 18/11/2026
+
+**FALLA REAL EN CACHYOS:** después de actualizar la rama, `probar_ancho.sh` encontró 270 apps `.desktop`, pero el visor abortó al declarar `property real availableHeight` en `SoLauncherPopup.qml`: `Cannot override FINAL property` en línea 26. La propiedad pertenece a `QQC2.Popup` (Qt 6). No atribuir el problema a Fish ni al catálogo `.desktop`.
+
+**PARCHE EN LA RAMA `prototype/v0.1-islas-so`:** `popupHeightLimit` sustituye `availableHeight` en declaración/cálculo de `SoLauncherPopup.qml` (commit 9914e84) y en su asignación desde `SmartBarContent.qml` (commit d555782). Sin acceso a Qt gráfico en este entorno; revisión estática positiva, carga Qt no validada. No instalar ni fusionar `main`.
+
+**Próximo test Fish:** cerrar la instancia anterior si quedó abierta, `cd ~/plasma-smartbar; git switch prototype/v0.1-islas-so; git pull --ff-only; bash prototype/v0.1/probar_ancho.sh`. Validar ventana y opciones A/B, archivos y estilos. Si continúa fallando, conservar salida literal de Konsole.
