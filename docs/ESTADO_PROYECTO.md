@@ -911,3 +911,7 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 ## Meta+Espacio local: corrección de apertura de Malvina (17/11/2026)
 
 **REPORTE:** el mantenedor observó que Win+Espacio abría la bandeja de proveedores y no solo el campo. **CAUSA:** existía Shortcut Meta+Space con Qt.WindowShortcut (solo ventana de ensayo activa); focusSearch() abría también options.open(). **CORREGIDO en código experimental:** focusSearch() abre y enfoca únicamente el campo; Tab abre las filas Web/IA. [Commit fc3e990](https://github.com/nicoarg87/plasma-smartbar/commit/fc3e990039c519f5f3b181c3e7c45de268f14f8b). **PENDIENTE:** retest Qt/CachyOS. **NO IMPLEMENTADO:** atajo global desde cualquier aplicación, sujeto a KGlobalAccel/KF6 y conflictos con atajos KDE existentes. No modificar configuración del usuario automáticamente.
+
+## Tooltip de lupa Malvina — atajo visible (17/11/2026)
+
+**SOLICITADO:** al pasar el cursor sobre la lupa, el cartel de búsqueda debe informar el atajo `Super + Espaciadora`. **IMPLEMENTADO en rama v0.1:** texto `Hacer búsqueda (Super + Espaciadora; ventana activa)` en `MalvinaSearch.qml`, [commit 010c264](https://github.com/nicoarg87/plasma-smartbar/commit/010c264b6071d39e94db43d202c630879ee89693). La aclaración `ventana activa` evita presentar el atajo local Qt.WindowShortcut como global. Pendiente comprobación visual en CachyOS; no se cambia el atajo global del sistema.
