@@ -165,46 +165,54 @@ QQC2.Popup {
                 color: "#a8c3d1"
                 font.pixelSize: 11
             }
-            QQC2.ScrollView {
+            StackLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
-                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                currentIndex: launcher.filesMode ? 1 : 0
                 ListView {
                     id: categoryList
                     clip: true
                     spacing: 4
-                    model: launcher.filesMode ? fileList :
-                        (searchInput.text.trim().length
-                            ? launcher.appMatches() : launcher.categoryOptions())
+                    model: searchInput.text.trim().length
+                        ? launcher.appMatches() : launcher.categoryOptions()
+                    delegate: QQC2.Button {
+                        required property var modelData
+                        width: categoryList.width - 5
+                        height: 31
+                        readonly property string label: typeof modelData === "string"
+                            ? modelData : modelData.name
+                        text: label + (searchInput.text.trim() ? " · aplicación" : "")
+                        highlighted: label === launcher.selectedCategory
+                        onClicked: {
+                            if (label === "+")
+                                launcher.showMoreCategories = true
+                            else if (searchInput.text.trim())
+                                launcher.appSelected(label, launcher.catalogIsReal)
+                            else
+                                launcher.selectedCategory = label
+                        }
+                    }
+                }
+                ListView {
+                    id: filesList
+                    clip: true
+                    spacing: 4
+                    model: fileList
                     delegate: QQC2.Button {
                         required property var model
-                        width: categoryList.width - 5
-                        height: visible ? 31 : 0
-                        readonly property bool isFile: launcher.filesMode
-                        readonly property string label: isFile ? String(model.fileName)
-                            : (typeof model.modelData === "string" ? model.modelData : model.modelData.name)
-                        visible: !isFile || !searchInput.text.trim() ||
-                            label.toLowerCase().includes(searchInput.text.toLowerCase())
-                        text: label + (!isFile && searchInput.text.trim() ? " · aplicación" :
-                            (isFile && model.fileIsDir ? "  📁" : ""))
-                        highlighted: !isFile && label === launcher.selectedCategory
+                        width: filesList.width - 5
+                        height: visible ? 32 : 0
+                        readonly property string fileLabel: String(model.fileName)
+                        visible: !searchInput.text.trim() ||
+                            fileLabel.toLowerCase().includes(searchInput.text.toLowerCase())
+                        text: fileLabel + (model.fileIsDir ? "  📁" : "")
                         onClicked: {
-                            if (isFile) {
-                                if (model.fileIsDir) {
-                                    fileList.folder = model.fileURL
-                                    searchInput.text = ""
-                                } else {
-                                    // No ejecutar programas ni abrir archivos automáticamente
-                                    // durante pruebas del prototipo en modo lectura.
-                                    console.log("Archivo local seleccionado:", model.fileName)
-                                }
-                            } else if (label === "+") {
-                                launcher.showMoreCategories = true
-                            } else if (searchInput.text.trim()) {
-                                launcher.appSelected(label, launcher.catalogIsReal)
+                            if (model.fileIsDir) {
+                                fileList.folder = model.fileURL
+                                searchInput.text = ""
                             } else {
-                                launcher.selectedCategory = label
+                                // La primera prueba no abre ni ejecuta archivos.
+                                console.log("Archivo local seleccionado:", fileLabel)
                             }
                         }
                     }
