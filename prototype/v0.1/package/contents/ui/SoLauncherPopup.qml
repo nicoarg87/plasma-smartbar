@@ -15,7 +15,33 @@ QQC2.Popup {
     property bool showMoreCategories: false
     property bool filesMode: false
     property int primaryWidth: 285
+    property int filesWidth: 500
     property int categoryWidth: 280
+    property int maxVisibleSlots: 20
+    // Disponible hasta la parte inferior del visor. El ScrollView toma el excedente.
+    property real availableHeight: 470
+    // Valores heredados de Soledad: ninguna copia de colores de Malvina.
+    property color islandColor: "#010111"
+    property color islandGradientEnd: "#ee9852"
+    property real islandOpacity: 1
+    property bool islandGradientEnabled: false
+    property string islandGradientDirection: "topBottom"
+    property real islandBreathingFactor: 1
+    property color outlineColor: "#4e8499"
+    property real outlineOpacity: 1
+    property real outlineWidth: 1
+    property string outlineStyle: "solid"
+    // El interruptor hereda Soledad por defecto; puede tener geometría/color propios.
+    property string switchShape: "capsule"
+    property bool switchCustomColor: false
+    property color switchColor: "#010111"
+    readonly property color effectiveSwitchColor: switchCustomColor ? switchColor : islandColor
+    readonly property int visibleCount: filesMode ? fileList.count :
+        (searchInput.text.trim().length ? appMatches().length :
+         (showCategoryPanel ? appsForCategory().length : categoryOptions().length))
+    readonly property int rowsToShow: Math.min(maxVisibleSlots, Math.max(0, visibleCount))
+    readonly property int rowHeight: filesMode ? 62 : 35
+    readonly property int headerHeight: filesMode ? 196 : 122
     property var demoApplications: [
         {name: "Brave", category: "Internet"}, {name: "Firefox", category: "Internet"},
         {name: "Akregator", category: "Internet"}, {name: "Alligator", category: "Internet"},
@@ -35,8 +61,12 @@ QQC2.Popup {
     readonly property var moreCategories: ["Educación", "Juegos", "Gráficos", "Desarrollo", "Ciencia", "Otras"]
     readonly property var currentApplications: catalogIsReal ? installedApplications : demoApplications
     readonly property bool showCategoryPanel: !filesMode && selectedCategory.length > 0
-    width: showCategoryPanel ? primaryWidth + categoryWidth + 13 : primaryWidth
-    height: 391
+    // El cuadro principal termina siempre en el mismo punto derecho.
+    // El panel de categoría se agrega exclusivamente hacia la IZQUIERDA.
+    width: filesMode ? filesWidth :
+        (showCategoryPanel ? primaryWidth + categoryWidth + 13 : primaryWidth)
+    height: Math.min(Math.max(170, availableHeight),
+        Math.max(filesMode ? 196 : 170, headerHeight + rowsToShow * rowHeight))
     padding: 9
     modal: false
     focus: true
@@ -72,17 +102,75 @@ QQC2.Popup {
     }
     function focusInput() { searchInput.forceActiveFocus() }
     readonly property url homeFolder: "file://" + StandardPaths.writableLocation(StandardPaths.HomeLocation)
-    background: Rectangle {
-        radius: 12
-        color: "#102538"
-        border.color: "#4e8499"
-        border.width: 1
+    background: IslandPopupSurface {
+        baseColor: launcher.islandColor
+        endColor: launcher.islandGradientEnd
+        gradientEnabled: launcher.islandGradientEnabled
+        gradientDirection: launcher.islandGradientDirection
+        baseOpacity: launcher.islandOpacity
+        breathingFactor: launcher.islandBreathingFactor
+        outlineColor: launcher.outlineColor
+        outlineOpacity: launcher.outlineOpacity
+        outlineWidth: launcher.outlineWidth
+        outlineStyle: launcher.outlineStyle
+        cornerRadius: 12
     }
     contentItem: RowLayout {
         spacing: 9
-        ColumnLayout {
-            Layout.preferredWidth: launcher.primaryWidth - 18
-            Layout.minimumWidth: launcher.primaryWidth - 18
+        IslandPopupSurface {
+            visible: launcher.showCategoryPanel
+            Layout.preferredWidth: launcher.categoryWidth - 8
+            Layout.fillHeight: true
+            cornerRadius: 9
+            baseColor: launcher.islandColor
+            endColor: launcher.islandGradientEnd
+            gradientEnabled: launcher.islandGradientEnabled
+            gradientDirection: launcher.islandGradientDirection
+            baseOpacity: launcher.islandOpacity
+            breathingFactor: launcher.islandBreathingFactor
+            outlineColor: launcher.outlineColor
+            outlineOpacity: launcher.outlineOpacity
+            outlineWidth: launcher.outlineWidth
+            outlineStyle: launcher.outlineStyle
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 9
+                QQC2.Label {
+                    text: launcher.selectedCategory
+                    color: "white"
+                    font.bold: true
+                }
+                QQC2.Label {
+                    text: launcher.catalogIsReal ? "Programas de esta categoría"
+                        : "Aplicaciones de muestra"
+                    color: "#acc7db"
+                    font.pixelSize: 11
+                }
+                QQC2.ScrollView {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    clip: true
+                    QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                    ListView {
+                        id: appsList
+                        clip: true
+                        spacing: 5
+                        model: launcher.appsForCategory()
+                        delegate: QQC2.Button {
+                            required property var modelData
+                            width: appsList.width - 5
+                            height: 32
+                            text: modelData.name
+                            onClicked: launcher.appSelected(modelData.name, launcher.catalogIsReal)
+                        }
+                    }
+                }
+            }
+        }        ColumnLayout {
+            Layout.preferredWidth: (launcher.filesMode ? launcher.filesWidth :
+                                    launcher.primaryWidth) - 18
+            Layout.minimumWidth: (launcher.filesMode ? launcher.filesWidth :
+                                  launcher.primaryWidth) - 18
             Layout.fillHeight: true
             spacing: 7
             QQC2.Label {
@@ -221,48 +309,7 @@ QQC2.Popup {
                 }
             }
         }
-        Rectangle {
-            visible: launcher.showCategoryPanel
-            Layout.preferredWidth: launcher.categoryWidth - 8
-            Layout.fillHeight: true
-            radius: 9
-            color: "#172d42"
-            border.color: "#365a74"
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 9
-                QQC2.Label {
-                    text: launcher.selectedCategory
-                    color: "white"
-                    font.bold: true
-                }
-                QQC2.Label {
-                    text: launcher.catalogIsReal ? "Programas de esta categoría"
-                        : "Aplicaciones de muestra"
-                    color: "#acc7db"
-                    font.pixelSize: 11
-                }
-                QQC2.ScrollView {
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
-                    clip: true
-                    QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                    ListView {
-                        id: appsList
-                        clip: true
-                        spacing: 5
-                        model: launcher.appsForCategory()
-                        delegate: QQC2.Button {
-                            required property var modelData
-                            width: appsList.width - 5
-                            height: 32
-                            text: modelData.name
-                            onClicked: launcher.appSelected(modelData.name, launcher.catalogIsReal)
-                        }
-                    }
-                }
-            }
-        }
+
     }
     FolderListModel {
         id: fileList
