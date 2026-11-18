@@ -36,6 +36,9 @@
     <entry name="malvinaChatGptUrl" type="String"><default>https://chatgpt.com/</default></entry>
     <entry name="malvinaGeminiUrl" type="String"><default>https://gemini.google.com/app</default></entry>
     <entry name="malvinaClaudeUrl" type="String"><default>https://claude.ai/new</default></entry>
+    <entry name="malvinaWebGoogleEnabled" type="Bool"><default>true</default></entry>
+    <entry name="malvinaWebDuckEnabled" type="Bool"><default>true</default></entry>
+    <entry name="malvinaWebYahooEnabled" type="Bool"><default>true</default></entry>
     <entry name="malvinaAllowChatGpt" type="Bool"><default>false</default></entry>
     <entry name="malvinaAllowGemini" type="Bool"><default>false</default></entry>
     <entry name="malvinaAllowClaude" type="Bool"><default>false</default></entry>
