@@ -36,6 +36,11 @@
     <entry name="malvinaChatGptName" type="String"><default>ChatGPT</default></entry>
     <entry name="malvinaGeminiName" type="String"><default>Gemini</default></entry>
     <entry name="malvinaClaudeName" type="String"><default>Claude</default></entry>
+    <entry name="malvinaExtraWeb" type="String"><default>[]</default></entry>
+    <entry name="malvinaExtraAi" type="String"><default>[]</default></entry>
+    <entry name="malvinaHiddenWeb" type="String"><default></default></entry>
+    <entry name="malvinaHiddenAi" type="String"><default></default></entry>
+    <entry name="malvinaCompactAi" type="Bool"><default>false</default></entry>
     <entry name="malvinaWebFirst" type="Bool"><default>true</default></entry>
     <entry name="malvinaWebOrder" type="String"><default>google,duck,yahoo</default></entry>
     <entry name="malvinaAiOrder" type="String"><default>chatgpt,gemini,claude</default></entry>
