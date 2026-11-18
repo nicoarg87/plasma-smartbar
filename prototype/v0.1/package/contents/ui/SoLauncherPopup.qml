@@ -44,8 +44,8 @@ QQC2.Popup {
         (searchInput.text.trim().length ? appMatches().length :
          (showCategoryPanel ? appsForCategory().length : categoryOptions().length))
     readonly property int rowsToShow: Math.min(maxVisibleSlots, Math.max(0, visibleCount))
-    readonly property int rowHeight: filesMode ? 62 : 35
-    readonly property int headerHeight: filesMode ? 196 : 122
+    readonly property int rowHeight: filesMode ? 70 : 35
+    readonly property int headerHeight: filesMode ? 240 : 122
     property var demoApplications: [
         {name: "Brave", category: "Internet"}, {name: "Firefox", category: "Internet"},
         {name: "Akregator", category: "Internet"}, {name: "Alligator", category: "Internet"},
@@ -69,7 +69,7 @@ QQC2.Popup {
     width: filesMode ? filesWidth :
         (showCategoryPanel ? primaryWidth + categoryWidth + 1 : primaryWidth)
     height: Math.min(Math.max(170, availableHeight),
-        Math.max(filesMode ? 196 : 170, headerHeight + rowsToShow * rowHeight))
+        Math.max(filesMode ? 240 : 170, headerHeight + rowsToShow * rowHeight))
     padding: 9
     modal: false
     focus: true
@@ -348,6 +348,7 @@ QQC2.Popup {
                     id: categoryList
                     clip: true
                     spacing: 4
+                    QQC2.ScrollBar.vertical: QQC2.ScrollBar { policy: QQC2.ScrollBar.AsNeeded }
                     model: searchInput.text.trim().length
                         ? launcher.appMatches() : launcher.categoryOptions()
                     delegate: LauncherActionButton {
@@ -372,13 +373,20 @@ QQC2.Popup {
                     id: filesList
                     clip: true
                     spacing: 4
+                    QQC2.ScrollBar.vertical: QQC2.ScrollBar { policy: QQC2.ScrollBar.AsNeeded }
                     model: fileList
+                    Text {
+                        anchors.centerIn: parent
+                        visible: fileList.count === 0
+                        text: "Sin archivos coincidentes en esta carpeta"
+                        color: "#ffffff"
+                    }
                     delegate: LauncherActionButton {
                         required property string fileName
                         required property bool fileIsDir
                         required property url fileUrl
                         width: filesList.width - 5
-                        height: 58
+                        height: 66
                         readonly property string fileLabel: fileName
                         readonly property string fullPath: decodeURIComponent(
                             String(fileUrl).replace("file://", ""))
@@ -397,6 +405,8 @@ QQC2.Popup {
                                 text: fullPath
                                 font.pixelSize: 10
                                 color: "#ececec"
+                                wrapMode: Text.WrapAnywhere
+                                maximumLineCount: 2
                                 elide: Text.ElideRight
                             }
                         }
@@ -423,7 +433,7 @@ QQC2.Popup {
         nameFilters: searchInput.text.trim().length
             ? ["*" + searchInput.text.trim() + "*"] : ["*"]
         caseSensitive: false
-        showDirs: true
+        showDirs: searchInput.text.trim().length === 0
         showFiles: true
         showDotAndDotDot: false
         sortField: FolderListModel.Name
