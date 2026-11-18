@@ -1,5 +1,5 @@
 // Proveedores añadidos por el usuario. Independiente de QML y de la navegación.
-// Tres proveedores originales + hasta siete adicionales por categoría.
+// Hasta diez proveedores VISIBLES por categoría, incluyendo opciones personalizadas.
 .pragma library
 .import "MalvinaUrlPolicy.js" as UrlPolicy
 function canonical(section) {
@@ -10,11 +10,11 @@ function extras(section, serialized) {
     try { list = JSON.parse(String(serialized || "[]")) } catch(e) { return [] }
     if (!Array.isArray(list)) return []
     const result = [], used = {}
-    for (let i=0;i<list.length && result.length<7;i++) {
+    for (let i=0;i<list.length && result.length<10;i++) {
         const item = list[i]
         if (!item || typeof item !== "object") continue
         const id = String(item.id || "")
-        if (!new RegExp("^"+section+"-[4-9]$|^"+section+"-10$").test(id) || used[id]) continue
+        if (!new RegExp("^"+section+"-(?:[1-9]|10)$").test(id) || used[id]) continue
         const name = String(item.name || "").trim()
         const url = String(item.url || "").trim()
         if (!name || name.length > 48 || url.length > 2048 ||
@@ -40,15 +40,16 @@ function order(section, serializedExtras, preferred, hidden) {
         if (ordered.indexOf(available[i])<0) ordered.push(available[i])
     return ordered
 }
-function add(section, serialized, name, url) {
+function add(section, serialized, name, url, hidden) {
     const current = extras(section,serialized)
-    if (current.length >= 7) return {ok:false,reason:"Máximo de 10 opciones"}
+    if (current.length + canonical(section).filter(x => String(hidden || "").split(",").indexOf(x) < 0).length >= 10)
+        return {ok:false,reason:"Máximo de 10 opciones visibles"}
     const label=String(name || "").trim(), address=String(url || "").trim()
     if (!label || label.length>48 || address.length>2048 ||
         !UrlPolicy.validHttpsUrl(address) || (section === "web" && address.indexOf("{query}") < 0))
         return {ok:false,reason:"Nombre o URL HTTPS no válidos"}
     let id
-    for(let n=4;n<=10;n++) if(!current.some(x=>x.id===section+"-"+n)){id=section+"-"+n;break}
+    for(let n=1;n<=10;n++) if(!current.some(x=>x.id===section+"-"+n)){id=section+"-"+n;break}
     current.push({id:id,name:label,url:address,enabled:true})
     return {ok:true,value:JSON.stringify(current),id:id}
 }
