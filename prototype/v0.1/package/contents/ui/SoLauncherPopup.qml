@@ -130,7 +130,7 @@ QQC2.Popup {
             QQC2.Button {
                 visible: !launcher.malvinaVisible
                 Layout.fillWidth: true
-                text: "Mostrar Malvina (isla 2)"
+                text: "Activar Malvina (isla 2)"
                 onClicked: launcher.requestShowMalvina()
             }
             QQC2.Label {
