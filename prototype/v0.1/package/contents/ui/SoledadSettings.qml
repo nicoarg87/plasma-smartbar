@@ -832,12 +832,13 @@ Window {
                         model: ["Redondeada (inicial)", "Cuadrada",
                                 "Izquierda redondeada / derecha recta",
                                 "Izquierda recta / derecha redondeada",
-                                "Punta triangular izquierda / derecha recta"]
+                                "Punta triangular izquierda / derecha recta",
+                                "Cápsula (extremos totalmente redondos)"]
                         currentIndex: Math.max(0, ["rounded","square","leftRoundRightSquare",
-                                       "leftSquareRightRound","leftTip"].indexOf(settings.malvinaShape))
+                                       "leftSquareRightRound","leftTip","capsule"].indexOf(settings.malvinaShape))
                         onActivated: function(i) {
                             settings.malvinaShape = ["rounded","square",
-                                "leftRoundRightSquare","leftSquareRightRound","leftTip"][i]
+                                "leftRoundRightSquare","leftSquareRightRound","leftTip","capsule"][i]
                         }
                     }
                     QQC2.Label {
@@ -950,7 +951,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.launcherIslandVisible && settings.malvinaShape !== "square" && settings.malvinaShape !== "leftTip"
+                        visible: settings.launcherIslandVisible && settings.malvinaShape !== "square" && settings.malvinaShape !== "leftTip" && settings.malvinaShape !== "capsule"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Esquinas Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
