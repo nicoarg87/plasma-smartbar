@@ -369,3 +369,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Confirmar IA totalmente visible por defecto en distintos tamaños y alternativa compacta con scroll utilizable.
 - [ ] Probar permisos individuales, restauración estética favorita, ocultación de isla desde Soledad y compatibilidad KWin/Wayland.
 - [ ] Cerrar issue [#12](https://github.com/nicoarg87/plasma-smartbar/issues/12) solo después de evidencia real y corrección de errores.
+
+## Apariencia de Malvina (17/11/2026)
+
+- [x] Eliminar relleno fijo del campo y fondos opacos predeterminados de engranaje/lupa.
+- [x] Usar color, degradado, transparencia y orientación de la isla Malvina en el editor.
+- [x] Agregar opciones cuadrada/redonda independientes y persistencia de ambas.
+- [ ] Probar en CachyOS actualización cromática y degradados al Aplicar, botones, guardado/reinicio y clics del editor.
+- [ ] Verificar contraste con transparencias elevadas sin alterar altura fija de isla ni panel KDE.
