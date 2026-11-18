@@ -385,3 +385,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Borde del campo menos llamativo.
 - [x] Aplicar al campo único la misma forma/radio/esquinas mixtas que la isla Malvina, además de degradado/opacidad/color.
 - [ ] Retest Qt/CachyOS de la apariencia aplicada, foco, clipping, cambios de forma/gradiente y tooltip.
+
+## Personalización Malvina según sistema Soledad (17/11/2026)
+
+- [x] Agregar copiar colores/degradado de Soledad a Malvina como acción explícita, sin acoplarlos permanentemente.
+- [x] Usar una fase temporal compartida para respiración de degradado en Soledad y Malvina con intensidad separada, dependiente de Respiración luminosa de SO.
+- [x] Hacer que isla y campo de Malvina compartan la modulación de opacidad de su degradado.
+- [x] Guardar sincronización/intensidad en KConfig y visor, incluidas estéticas favoritas.
+- [x] Ofrecer a lupa y engranaje Cuadrado, Cuadrado redondeado, Circular y Cápsula por separado.
+- [ ] Probar QML en CachyOS: copia de paleta, Aplicar, ritmo compartido, intensidades, desactivar cada sincronía, reinicio, bordes y fondos.
+- [ ] Evaluar compatibilidad de otras siluetas de SO en controles pequeños y accesibilidad, antes de agregarlas.
+
