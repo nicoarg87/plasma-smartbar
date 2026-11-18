@@ -70,6 +70,7 @@ QQC2.Popup {
         fileList.folder = homeFolder
         searchInput.forceActiveFocus()
     }
+    function focusInput() { searchInput.forceActiveFocus() }
     readonly property url homeFolder: "file://" + StandardPaths.writableLocation(StandardPaths.HomeLocation)
     background: Rectangle {
         radius: 12
@@ -177,13 +178,12 @@ QQC2.Popup {
                         (searchInput.text.trim().length
                             ? launcher.appMatches() : launcher.categoryOptions())
                     delegate: QQC2.Button {
-                        required property var modelData
                         required property var model
                         width: categoryList.width - 5
                         height: visible ? 31 : 0
                         readonly property bool isFile: launcher.filesMode
                         readonly property string label: isFile ? String(model.fileName)
-                            : (typeof modelData === "string" ? modelData : modelData.name)
+                            : (typeof model.modelData === "string" ? model.modelData : model.modelData.name)
                         visible: !isFile || !searchInput.text.trim() ||
                             label.toLowerCase().includes(searchInput.text.toLowerCase())
                         text: label + (!isFile && searchInput.text.trim() ? " · aplicación" :
