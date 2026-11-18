@@ -37,8 +37,17 @@ Item {
     property bool webFirst: true
     property string webOrder: "google,duck,yahoo"
     property string aiOrder: "chatgpt,gemini,claude"
-    readonly property var orderedWebIds: webOrder.split(",")
-    readonly property var orderedAiIds: aiOrder.split(",")
+    function safeOrder(value, canonical) {
+        const parts = String(value).split(",")
+        const expected = canonical.split(",")
+        if (parts.length !== expected.length) return expected
+        for (let i = 0; i < expected.length; ++i)
+            if (parts.indexOf(expected[i]) < 0 || parts.lastIndexOf(expected[i]) !== parts.indexOf(expected[i]))
+                return expected
+        return parts
+    }
+    readonly property var orderedWebIds: safeOrder(webOrder, "google,duck,yahoo")
+    readonly property var orderedAiIds: safeOrder(aiOrder, "chatgpt,gemini,claude")
     signal requestOrderChange(bool webFirst, string webOrder, string aiOrder)
     function nameFor(id) {
         const names = {
@@ -74,11 +83,9 @@ Item {
         navigationIndex = 0
     }
     function applyOrder(firstWeb, webList, aiList) {
-        webFirst = firstWeb
-        webOrder = webList
-        aiOrder = aiList
+        // Emitir hacia el coordinador sin romper los bindings de KConfig/visor.
+        requestOrderChange(firstWeb, webList, aiList)
         resetDefault()
-        requestOrderChange(webFirst, webOrder, aiOrder)
     }
     function swapRows() {
         applyOrder(!webFirst, webOrder, aiOrder)
@@ -389,8 +396,8 @@ Item {
                         id: sectionButton
                         Layout.preferredWidth: 53
                         Layout.preferredHeight: 32
-                        text: (search.navigationSection === sectionRow.section ? "▶ " : "") +
-                              (sectionRow.section === 1 ? "Web" : "IA")
+                        text: (search.navigationSection === sectionRow.section ? "▶" : "↕") +
+                              (sectionRow.section === 1 ? " Web" : " IA")
                         font.pixelSize: 12
                         highlighted: search.navigationSection === sectionRow.section
                         QQC2.ToolTip.visible: hovered
