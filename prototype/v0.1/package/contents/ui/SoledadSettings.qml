@@ -331,6 +331,7 @@ Window {
     readonly property bool outlineCanMove: outlineIsOrbit || effectStyle === "breathe"
 
     property bool autoCollapseSO: true
+    property bool soLeftClickOpensLauncher: true
     property bool autoCollapseTray: false
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
@@ -407,6 +408,7 @@ Window {
                                  int tailLength, string lineStyle,
                                  bool showWhenEmpty, bool showWhenOpen)
     signal saveAutoHideMalvinaRequested(bool enabled)
+    signal saveSoClickMappingRequested(bool leftOpensLauncher)
     signal saveBehaviorRequested(bool collapseSO, bool collapseTray,
                                  bool returnRight, bool showMalvina,
                                  bool alignRight, bool alignmentEdited)
@@ -504,6 +506,7 @@ Window {
                               trailPercent, trailStyle,
                               showOutlineWhenEmpty, showOutlineWhenOpen)
         saveAutoHideMalvinaRequested(autoHideMalvina)
+        saveSoClickMappingRequested(soLeftClickOpensLauncher)
         savePositionModeRequested(positionMode)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
@@ -1228,6 +1231,26 @@ Window {
                 ColumnLayout {
                     width: Math.max(0, collapseScroll.availableWidth - 8)
                     spacing: 16
+                    QQC2.Label {
+                        text: "Acciones del botón SO"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: [
+                            "Izquierdo: aplicaciones · Derecho: ventanas abiertas (inicial)",
+                            "Izquierdo: ventanas abiertas · Derecho: aplicaciones"
+                        ]
+                        currentIndex: settings.soLeftClickOpensLauncher ? 0 : 1
+                        onActivated: function(i) { settings.soLeftClickOpensLauncher = i === 0 }
+                    }
+                    QQC2.Label {
+                        text: "Podés invertir los clics cuando quieras. El mensaje al pasar el cursor sobre SO muestra las acciones elegidas. Mantener pulsado el botón sigue abriendo el lanzador."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
                     QQC2.Label {
                         text: "Autocontracción"
                         font.bold: true
