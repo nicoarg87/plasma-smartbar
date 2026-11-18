@@ -59,7 +59,7 @@ QQC2.ScrollView {
             color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
         QQC2.Label {
-            text: "EXPERIMENTAL: si autorizás un proveedor, Malvina abrirá su dominio oficial con la consulta en el parámetro q al pulsar Enter. La web puede precargar, ignorar o incluso enviar el texto automáticamente; depende del servicio. No está garantizado ni validado en CachyOS. Sin permiso abre solo el sitio. Nunca se necesita sudo."
+            text: "EXPERIMENTAL: ChatGPT y Claude pueden recibir la consulta por un enlace con q al pulsar Enter si están autorizados. La web puede precargar, ignorar o incluso enviarla automáticamente. Gemini no admite esta precarga en la prueba realizada: se abre su página sin adjuntar el texto. Nunca se necesita sudo."
             color: "#ffe29a"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
         QQC2.Label { text: "ChatGPT"; color: "white"; font.bold: true }
@@ -72,9 +72,13 @@ QQC2.ScrollView {
         QQC2.Label { text: "Gemini"; color: "white"; font.bold: true }
         QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaGeminiUrl; onEditingFinished: panel.settingsTarget.malvinaGeminiUrl = text }
         QQC2.CheckBox {
-            text: "Autorizo envío de texto a Gemini (enlace experimental)"
+            text: "Permiso para Gemini (sin envío disponible todavía)"
             checked: panel.settingsTarget.malvinaAllowGemini
             onToggled: panel.settingsTarget.malvinaAllowGemini = checked
+        }
+        QQC2.Label {
+            text: "Gemini: el parámetro q no funcionó en CachyOS. Tu permiso queda guardado para una integración futura, pero Malvina NO envía texto a Gemini. La sesión del navegador no cambia esta limitación."
+            color: "#ffe29a"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
         QQC2.Label { text: "Claude"; color: "white"; font.bold: true }
         QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaClaudeUrl; onEditingFinished: panel.settingsTarget.malvinaClaudeUrl = text }
