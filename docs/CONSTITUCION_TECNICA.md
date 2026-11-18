@@ -407,3 +407,9 @@ Registrar motivo, impactos y pruebas de cada cambio. Favorecer PRs pequeños, re
 **REGLA DE SEGURIDAD:** no interpolar consultas del usuario en comandos de shell; validar URLs externas; no poner secretos en QML. La modularidad no se considera por si sola un aislamiento de seguridad. Mantener panel KDE existente intacto durante las pruebas. Toda implementacion debe registrar sus limites.
 
 **ESTADO:** extraccion experimental de `MalvinaUrlPolicy.js` y delegacion en `MalvinaSearch.qml`; `closeSearch()` agregado. Revisar `docs/ARQUITECTURA_MODULAR.md` para contratos, arquitectura y trabajos pendientes. **No probado aun en Qt/CachyOS despues de este cambio.** Separacion progresiva de `SmartBarContent.qml` y `SoledadSettings.qml` pendiente de pruebas por etapas.
+
+## Consentimiento informado para integración de IA de Malvina — confirmado (17/11/2026)
+
+**DECISIÓN DEL MANTENEDOR:** el envío directo de consultas a proveedores de IA es optativo, nunca requiere `sudo` ni privilegios de administrador y necesita consentimiento explícito e informado para cada proveedor. El consentimiento está desactivado por defecto, es específico del destino, puede revocarse y debe explicar antes de activarse qué texto se enviaría, a quién y cuándo. Nada se envía mientras se escribe; la acción se inicia únicamente con Enter tras elección consciente del proveedor. No inferir permisos por simple apertura de la página, aceptación de un navegador, selección de una IA o uso del teclado.
+
+**LÍMITE:** el consentimiento interno no reemplaza términos, condiciones o autenticación del proveedor, ni autoriza archivos locales, historial, ventanas, portapapeles o privilegios del sistema. Ante falta de integración fiable, no enviar automáticamente; explicar la limitación y mantener apertura simple de la web. No prometer que una API equivale a una conversación en la cuenta web del usuario. Requisitos confirmados, **función de envío directo aún no implementada ni probada**.
