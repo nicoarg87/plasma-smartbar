@@ -35,3 +35,23 @@ function resolve(providerUrl, query, isAi) {
         return { ok: false, reason: "URL final invalida" }
     return { ok: true, url: url }
 }
+
+// Modo experimental, solo ChatGPT y solo tras consentimiento explícito.
+// El parámetro q puede precargar o incluso enviar la consulta según versión/
+// sesión web: no prometer un comportamiento uniforme ni su carácter oficial.
+// Jamás adjuntar texto a una URL configurable o dominio de un tercero.
+function resolveChatGptExperimental(providerUrl, query, authorized) {
+    const base = resolve(providerUrl, query, true)
+    if (!base.ok || !authorized) return base
+    const normalized = String(providerUrl).trim().toLowerCase()
+    if (normalized !== "https://chatgpt.com/" &&
+        normalized !== "https://chatgpt.com" &&
+        normalized !== "https://www.chatgpt.com/" &&
+        normalized !== "https://www.chatgpt.com")
+        return { ok: true, url: base.url, warning: "URL personalizada: no se comparte el texto" }
+    return {
+        ok: true,
+        url: "https://chatgpt.com/?q=" + encodeURIComponent(String(query).trim()),
+        experimental: true
+    }
+}
