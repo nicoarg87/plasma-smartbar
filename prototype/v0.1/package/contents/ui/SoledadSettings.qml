@@ -1842,6 +1842,25 @@ Window {
                     ColumnLayout {
                         width: Math.max(0, outlineScroll.availableWidth - 8)
                         spacing: 13
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Repeater {
+                            model: ["Estados y color", "Luz móvil", "Brillo y respiración"]
+                            delegate: QQC2.Button {
+                                required property int index
+                                required property string modelData
+                                Layout.fillWidth: true
+                                text: modelData
+                                highlighted: settings.outlineSection === index
+                                onClicked: { settings.outlineSection = index; outlineScroll.contentItem.contentY = 0 }
+                            }
+                        }
+                    }
+                    ColumnLayout {
+                        visible: settings.outlineSection === 0
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.CheckBox {
                         visible: settings.effectStyle !== "off"
                         text: "Simular ventanas abiertas en esta vista previa"
@@ -1927,6 +1946,11 @@ Window {
                             color: "white"
                         }
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.outlineSection === 1
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.Label {
                         visible: settings.outlineIsOrbit && settings.allowMotion
                         text: "Ajustes de la luz que recorre el contorno"
@@ -2014,6 +2038,11 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.outlineSection === 2
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.Label {
                         visible: settings.outlineUsesGlow
                         text: "Iluminación exterior y degradado"
@@ -2155,6 +2184,7 @@ Window {
                             text: Math.round(settings.pulseDepth * 100) + "%"
                             color: "white"
                         }
+                    }
                     }
                     QQC2.Button {
                         text: "Restablecer contorno"
