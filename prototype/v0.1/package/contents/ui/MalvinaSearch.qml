@@ -76,8 +76,9 @@ Item {
         return -1
     }
     function resetDefault() {
-        currentSection = webFirst ? 1 : 2
-        webIndex = Math.max(0, firstEnabledWebIndex())
+        const firstWeb = firstEnabledWebIndex()
+        currentSection = webFirst && firstWeb >= 0 ? 1 : 2
+        webIndex = Math.max(0, firstWeb)
         aiIndex = 0
         navigationSection = 0
         navigationIndex = 0
