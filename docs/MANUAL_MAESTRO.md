@@ -979,3 +979,9 @@ Si el sitio solicita autenticación, la persona inicia sesión personalmente en 
 ## Ayuda contextual del botón lupa Malvina (17/11/2026)
 
 **CONFIRMADO:** al posicionar el puntero sobre la lupa, mostrar ayuda de búsqueda que incluya `Super + Espaciadora`, aclarando provisionalmente `ventana activa` porque el atajo disponible ahora es local a la ventana Qt de prueba. Una vez validado e implementado el atajo global KDE, actualizar esta precisión sin cambiar el gesto o el texto base de búsqueda. Implementado experimentalmente, pendiente retest en CachyOS.
+
+## Malvina — cierre de la búsqueda por clic exterior (17/11/2026)
+
+**CONFIRMADO por el mantenedor:** si Malvina tiene abierto el campo de búsqueda o su panel de proveedores y se hace clic fuera de ambos, deben cerrarse el campo y sus herramientas. Si el autoocultamiento de la isla está activado, Malvina vuelve a ocultarse; si el usuario desactivó el autoocultamiento, la isla queda visible en estado contraído. Los clics dentro del campo y de los proveedores siguen funcionando, y no deben bloquearse las acciones de Soledad u otros elementos. Pulsar Esc conserva el cierre ya existente.
+
+**IMPLEMENTACIÓN experimental pendiente de prueba:** detección pasiva de clic exterior en `SmartBarContent.qml`, cierre por `CloseOnPressOutsideParent` de la ventana flotante de proveedores y cierre al perder actividad la ventana Qt. Un clic sobre una ventana ajena no debe capturarse ni impedir su activación; el comportamiento del panel real en KWin/Wayland sigue pendiente de validación.
