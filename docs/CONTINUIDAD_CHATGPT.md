@@ -294,3 +294,8 @@ Usuario confirma: campo único e isla Malvina comparten fondo configurable (colo
 ## 38. Campo de búsqueda también hereda forma de Malvina (17/11/2026)
 
 Tras captura de tooltip excesivo y borde demasiado luminoso, usuario especificó «el buscador lo mismo»: campo de búsqueda debe tener forma coherente con isla. En MalvinaSearch se redujo tooltip, se atenuó borde y se da a TextArea Popup el mismo radio/esquinas mixtas de Malvina, además de color/gradiente ya conectado. SmartBarContent pasa malvinaShape/malvinaRadius. Revisiones bf2ae33, f9b494a, da05c07. **Sin retest Qt/CachyOS.** Próxima prueba de cambio de forma desde Configuración, color y borde; no tocar panel KDE.
+
+## 39. Malvina: colores como Soledad, respiración de degradado y formas (17/11/2026)
+
+El mantenedor exige mismas opciones de personalización compatibles: copiar tonos/degradado de Soledad a Malvina, sincronizar pulsación con Respiración luminosa de SO y permitir botones lupa/engranaje cuadrados, cuadrados redondeados, circulares y cápsula. **Código experimental:** botón «Copiar colores y degradado...» y slider/intensidad por Malvina en SoledadSettings; fase/timer única compartida con Soledad, intensidad independiente y opacidad pulsante aplicada a la isla y campo desde SmartBarContent; guardado KConfig y visor/favoritos. MalvinaSearch añade radios según shape. Las formas complejas (corazón/rombo/estrella) de SO NO están implementadas para estos botones pequeños. **Sin pruebas Qt/CachyOS.** Próximo test: activar gradiente SO y Malvina, usar Respiración luminosa de SO, sincronizar Malvina y variar intensidad, comprobar campo y guardado; probar redondeadas/cápsula; no tocar panel.
+
