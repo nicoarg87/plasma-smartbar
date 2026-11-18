@@ -196,6 +196,9 @@ Item {
     // Preferencias independientes: no contraer por abrir la otra sección
     // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
     property bool autoCollapseSO: true
+    // Predeterminado aprobado 18/11: izquierdo = lanzador; derecho = ventanas abiertas.
+    // Preferencia independiente del auto-cierre de SO, reversible en Configuración.
+    property bool soLeftClickOpensLauncher: true
     property bool autoCollapseTray: false
 
     // Identidad visual configurable del botón SO. El archivo original nunca
@@ -401,6 +404,7 @@ Item {
     signal requestLauncherIslandVisibilityChange(bool newValue)
     signal requestAutoHideMalvinaChange(bool newValue)
     signal requestAutoCollapseSOChange(bool newValue)
+    signal requestSoClickMappingChange(bool leftOpensLauncher)
     signal requestAutoCollapseTrayChange(bool newValue)
     onWidthChanged: console.log("SmartBar v0.1: ancho útil de las islas =", width)
 
@@ -586,18 +590,16 @@ Item {
         }
     }
 
-    function toggleSO() {
-        // Si el lanzador flotante está visible, el clic breve en SO
-        // cierra SOLO ese menú. Las fichas SO y la bandeja conservan
-        // su estado: no alternar soExpanded en el mismo clic.
-        if (installedAppsPopup.visible) {
+    function toggleOpenWindowsFromSO() {
+        // El selector de ventanas y el lanzador son independientes.
+        // Si cambia el gesto mientras el lanzador está abierto,
+        // permitir abrir las ventanas en el MISMO clic.
+        if (installedAppsPopup.visible)
             installedAppsPopup.close()
-            return
-        }
-        // Sin ventanas: un clic breve en SO lleva directamente al
-        // buscador de apps, sin desplegar una fila vacía.
+        // No enviar al lanzador por falta de ventanas: el gesto elegido
+        // para "ventanas abiertas" conserva su significado.
         if (soWindowCount === 0) {
-            openInstalledLauncher("so")
+            soExpanded = false
             return
         }
         if (soExpanded) {
@@ -605,11 +607,19 @@ Item {
         } else {
             lastExpandedMode = "so"
             soExpanded = true
-            // Si entra la bandeja junto a SO, conservar ambos.
-            // systemIsland.onWidthChanged calcula la colisión real.
             ensureExpansionFits()
         }
     }
+
+    function triggerSOButton(leftClick) {
+        const launch = leftClick === soLeftClickOpensLauncher
+        if (launch)
+            openInstalledLauncher("so")
+        else
+            toggleOpenWindowsFromSO()
+    }
+
+    function toggleSO() { toggleOpenWindowsFromSO() }
 
     function openMalvinaSettings() {
         root.openSoledadSettings(0, 2)
@@ -813,6 +823,7 @@ Item {
             soledadSettings.showOutlineWhenEmpty = root.soActivityShowWhenEmpty
             soledadSettings.showOutlineWhenOpen = root.soActivityShowWhenOpen
             soledadSettings.autoCollapseSO = root.autoCollapseSO
+            soledadSettings.soLeftClickOpensLauncher = root.soLeftClickOpensLauncher
             soledadSettings.autoCollapseTray = root.autoCollapseTray
             soledadSettings.autoReturnRight = root.autoReturnRight
             soledadSettings.launcherIslandVisible = root.launcherIslandVisible
@@ -921,6 +932,10 @@ Item {
         onSaveAutoHideMalvinaRequested: function(value) {
             if (value !== root.autoHideMalvina)
                 root.requestAutoHideMalvinaChange(value)
+        }
+        onSaveSoClickMappingRequested: function(leftOpensLauncher) {
+            if (leftOpensLauncher !== root.soLeftClickOpensLauncher)
+                root.requestSoClickMappingChange(leftOpensLauncher)
         }
         onSaveBehaviorRequested: function(collapseSO, collapseTray,
                                           returnRight, showMalvina, alignRight,
@@ -1686,10 +1701,9 @@ Item {
                         ? Math.max(40, systemIsland.height - 8)
                         : Math.max(44, root.soButtonWidth)
 
-                    // Clic corto: ventanas abiertas si hay alguna; con cero
-                    // ventanas, abrir el lanzador. Mantener unos 400 ms:
-                    // lanzador de muestra. El clic de soltado NO debe activar
-                    // también SO después de una pulsación sostenida.
+                    // Clic corto: por defecto lanzador de apps; la opción
+                    // inversa muestra ventanas abiertas. Mantener ~400 ms
+                    // conserva el lanzador sin disparar el clic al soltar.
                     onPressed: {
                         root.soHoldTriggered = false
                         soHoldTimer.restart()
@@ -1699,7 +1713,7 @@ Item {
                     onClicked: {
                         soHoldTimer.stop()
                         if (!root.soHoldTriggered) {
-                            root.toggleSO()
+                            root.triggerSOButton(true)
                         }
                         root.soHoldTriggered = false
                     }
@@ -1713,30 +1727,32 @@ Item {
                         }
                     }
 
-                    // Derecho sobre SO abre DIRECTAMENTE el lanzador
-                    // (en v0.1, aplicaciones de muestra). Las opciones,
-                    // incluida Mostrar/Ocultar Malvina, pertenecen SOLO
-                    // al menú de los seis puntos. Teclado conserva acceso.
+                    // Derecho sobre SO usa la acción configurada, por
+                    // defecto ventanas abiertas. Las preferencias siguen
+                    // exclusivamente en los seis puntos de Soledad.
                     Keys.onPressed: function(event) {
                         if (event.key === Qt.Key_Menu ||
                             (event.key === Qt.Key_F10 &&
                              (event.modifiers & Qt.ShiftModifier))) {
-                            root.openInstalledLauncher("so")
+                            root.triggerSOButton(false)
                             event.accepted = true
                         }
                     }
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton
-                        onClicked: root.openInstalledLauncher("so")
+                        onClicked: root.triggerSOButton(false)
                     }
 
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: root.soWindowCount === 0
-                        ? "SO: izquierdo abre buscador de apps · derecho o mantener pulsado también"
-                        : (root.launcherIslandVisible
-                           ? "SO: izquierdo ventanas · derecho o mantener 0,4 s lanzador"
-                           : "SO: derecho o mantener pulsado abre apps · seis puntos: Mostrar Malvina")
+                    QQC2.ToolTip.delay: 650
+                    QQC2.ToolTip.text: root.soLeftClickOpensLauncher
+                        ? "Clic izquierdo: Aplicaciones (lanzador)\n" +
+                          "Clic derecho: aplicaciones activas (ventanas abiertas)\n" +
+                          "Archivos: búsqueda pendiente · Opciones: seis puntos"
+                        : "Clic izquierdo: aplicaciones activas (ventanas abiertas)\n" +
+                          "Clic derecho: Aplicaciones (lanzador)\n" +
+                          "Archivos: búsqueda pendiente · Opciones: seis puntos"
                 }
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
