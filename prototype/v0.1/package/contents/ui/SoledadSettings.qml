@@ -2255,6 +2255,25 @@ Window {
                         model: ["Soledad (isla 1)", "Malvina (isla 2)", "Fondo opcional",
                                 "Botones de bandeja", "Botón de seis puntos (agarre)"]
                     }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Repeater {
+                            model: ["Color", "Degradado", "Respiración y fondo"]
+                            delegate: QQC2.Button {
+                                required property int index
+                                required property string modelData
+                                Layout.fillWidth: true
+                                text: modelData
+                                highlighted: settings.appearanceSection === index
+                                onClicked: { settings.appearanceSection = index; appearanceScroll.contentItem.contentY = 0 }
+                            }
+                        }
+                    }
+                    ColumnLayout {
+                        visible: settings.appearanceSection === 0
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.CheckBox {
                         Layout.fillWidth: true
                         visible: appearanceTarget.currentIndex >= 3
@@ -2325,6 +2344,11 @@ Window {
                             Layout.preferredWidth: 65
                         }
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.appearanceSection === 1
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.Label {
                         visible: appearanceTarget.currentIndex <= 1
                         text: "Degradado de dos colores por isla"
@@ -2456,6 +2480,11 @@ Window {
                             // Sólo copiamos tonos; sincronización sigue siendo independiente.
                         }
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.appearanceSection === 2
+                        Layout.fillWidth: true
+                        spacing: 9
                     QQC2.CheckBox {
                         visible: appearanceTarget.currentIndex === 1 && settings.malvinaGradientEnabled
                         text: "Sincronizar respiración del degradado de Malvina con SO"
@@ -2539,6 +2568,7 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
                     }
                     QQC2.Button {
                         text: "Restablecer colores"
