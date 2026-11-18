@@ -44,6 +44,10 @@ Window {
         appearanceSubtabs.currentIndex = 0
         appearanceTarget.currentIndex = target
     }
+    function showSharedOutlines() {
+        currentTab = 2
+        appearanceSubtabs.currentIndex = 2
+    }
     property int currentTab: 0
     property alias currentIslandSubtab: islandSubtabs.currentIndex
     property string malvinaGoogleUrl: "https://www.google.com/search?q={query}"
@@ -756,6 +760,12 @@ Window {
                         text: "Comportamiento"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1
                         onClicked: settings.showSharedBehavior()
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Contornos de islas y botones"
+                        highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 2
+                        onClicked: settings.showSharedOutlines()
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
@@ -2056,7 +2066,8 @@ Window {
                     id: appearanceSubtabs
                     Layout.fillWidth: true
                     QQC2.TabButton { text: "Color por isla"; width: implicitWidth }
-                    QQC2.TabButton { text: "Fichas SO y contornos"; width: implicitWidth }
+                    QQC2.TabButton { text: "Fichas SO"; width: implicitWidth }
+                    QQC2.TabButton { text: "Contornos compartidos"; width: implicitWidth }
                 }
                 StackLayout {
                     currentIndex: appearanceSubtabs.currentIndex
@@ -2536,6 +2547,26 @@ Window {
                             text: settings.taskFrameWidth.toFixed(1) + " px"
                             color: "white"
                         }
+                    }
+
+                }
+            }
+
+            // Contornos de superficies compartidos: un único editor, cuatro valores independientes.
+            QQC2.ScrollView {
+                id: sharedOutlineScroll
+                clip: true
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                ColumnLayout {
+                    width: sharedOutlineScroll.availableWidth - 8
+                    spacing: 14
+                    QQC2.Label {
+                        text: "Editá el contorno de cada superficie por separado.\n" +
+                              "Soledad, Malvina, bandeja y agarre conservan sus propios valores.\n" +
+                              "Pulsá Aplicar para guardar sin cerrar."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
                         text: "Contorno de islas y botones"
