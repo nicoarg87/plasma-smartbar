@@ -224,3 +224,7 @@ La prueba aislada `probar_ventanas.sh` ya está **PROBADA** en CachyOS por el ma
 ## 21. Seleccion de buscador Malvina con teclado (17/11/2026)
 
 **Aprobado y codificado en rama v0.1:** proveedor Google inicial; Enter desde texto busca. Tab pasa a opciones y recorre proveedores Web/IA; Mayus+Tab retrocede; Espacio selecciona y devuelve foco con consulta intacta; Enter ejecuta posteriormente. Clic en proveedor tambien solo selecciona. No hacer busqueda ni navegar al elegir con Espacio. Para IA solo abrir pagina, sin enviar prompt. Commit [f67cc6e](https://github.com/nicoarg87/plasma-smartbar/commit/f67cc6e3f35e15eae53f0b3a5d8e99d83e4d2f69). **Falta prueba real Qt/CachyOS** de foco entre Popup y campo de texto.
+
+## 22. Alcance confirmado de Malvina: navegador y chats IA (17/11/2026)
+
+**CONFIRMADO:** buscadores Web pueden tener respuestas IA propias; se usan como búsquedas web normales. Chats IA tendrán autorización informada por proveedor **solo para el envío directo de texto desde Malvina**, apagada por defecto, revocable, sin sudo. Si el servicio necesita login, el usuario inicia su sesión directamente en el navegador; Malvina no manipula contraseñas/cookies. Sesión abierta no significa permiso ni garantiza integración web oficial. Mientras no exista vía compatible verificada, abrir página de IA sin enviar consulta. **Función directa aún pendiente de investigación, implementación y test en CachyOS.**
