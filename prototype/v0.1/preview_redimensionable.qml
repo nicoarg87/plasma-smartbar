@@ -10,9 +10,9 @@ import "package/contents/ui"
 Window {
     id: previewWindow
     width: 1000
-    height: 320
+    height: 530 // Visor más alto para mostrar completos los dos cuadros del launcher.
     minimumWidth: 760
-    minimumHeight: 210
+    minimumHeight: 465
     visible: true
     title: "Plasma SmartBar v0.1 — MENÚS SOLEDAD · MALVINA · COMPARTIDAS / 18-11 (sin panel)"
     color: "#242236"
