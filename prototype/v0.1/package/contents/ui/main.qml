@@ -141,6 +141,11 @@ PlasmoidItem {
         windowStateKnown: false
         autoCollapseSO: Plasmoid.configuration.autoCollapseSO
         soLeftClickOpensLauncher: Plasmoid.configuration.soLeftClickOpensLauncher
+        launcherCategoryLayout: Plasmoid.configuration.launcherCategoryLayout
+        launcherSwitchShape: Plasmoid.configuration.launcherSwitchShape
+        launcherSwitchColorOverride: Plasmoid.configuration.launcherSwitchColorOverride
+        launcherSwitchColor: Plasmoid.configuration.launcherSwitchColor
+        launcherMaxSlots: Plasmoid.configuration.launcherMaxSlots
         autoCollapseTray: Plasmoid.configuration.autoCollapseTray
         soLogoMode: Plasmoid.configuration.soLogoMode
         soTextLabel: Plasmoid.configuration.soTextLabel
@@ -312,6 +317,13 @@ PlasmoidItem {
         }
         onRequestSoClickMappingChange: function(leftOpensLauncher) {
             Plasmoid.configuration.soLeftClickOpensLauncher = leftOpensLauncher
+        }
+        onRequestLauncherStyleChange: function(layoutMode, shape, ownColor, color, slots) {
+            Plasmoid.configuration.launcherCategoryLayout = layoutMode
+            Plasmoid.configuration.launcherSwitchShape = shape
+            Plasmoid.configuration.launcherSwitchColorOverride = ownColor
+            Plasmoid.configuration.launcherSwitchColor = color
+            Plasmoid.configuration.launcherMaxSlots = slots
         }
         onRequestAutoCollapseTrayChange: function(newValue) {
             Plasmoid.configuration.autoCollapseTray = newValue
