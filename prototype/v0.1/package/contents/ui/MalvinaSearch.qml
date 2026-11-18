@@ -13,6 +13,12 @@ Item {
     // Los controles heredan el relleno de la isla; solo cambia la silueta.
     property string gearButtonShape: "square"
     property string searchButtonShape: "square"
+    // Apariencia compartida con la superficie de la isla Malvina.
+    property color islandColor: "#101e31"
+    property real islandOpacity: 1
+    property bool islandGradientEnabled: false
+    property color islandGradientEnd: "#445577"
+    property string islandGradientDirection: "topBottom"
     property string googleTemplate: "https://www.google.com/search?q={query}"
     property string duckTemplate: "https://duckduckgo.com/?q={query}"
     property string yahooTemplate: "https://search.yahoo.com/search?p={query}"
@@ -358,7 +364,38 @@ Item {
         closePolicy: QQC2.Popup.NoAutoClose
         background: Rectangle {
             radius: 5
-            color: "#101d2d"
+            clip: true
+            color: search.islandGradientEnabled ? "transparent" :
+                   Qt.rgba(search.islandColor.r, search.islandColor.g,
+                           search.islandColor.b, search.islandOpacity)
+            Rectangle {
+                anchors.fill: parent
+                visible: search.islandGradientEnabled
+                radius: parent.radius
+                gradient: Gradient {
+                    orientation: search.islandGradientDirection === "leftRight" ||
+                                 search.islandGradientDirection === "rightLeft"
+                                 ? Gradient.Horizontal : Gradient.Vertical
+                    GradientStop {
+                        position: 0
+                        color: search.islandGradientDirection === "bottomTop" ||
+                               search.islandGradientDirection === "rightLeft"
+                               ? Qt.rgba(search.islandGradientEnd.r, search.islandGradientEnd.g,
+                                         search.islandGradientEnd.b, search.islandOpacity)
+                               : Qt.rgba(search.islandColor.r, search.islandColor.g,
+                                         search.islandColor.b, search.islandOpacity)
+                    }
+                    GradientStop {
+                        position: 1
+                        color: search.islandGradientDirection === "bottomTop" ||
+                               search.islandGradientDirection === "rightLeft"
+                               ? Qt.rgba(search.islandColor.r, search.islandColor.g,
+                                         search.islandColor.b, search.islandOpacity)
+                               : Qt.rgba(search.islandGradientEnd.r, search.islandGradientEnd.g,
+                                         search.islandGradientEnd.b, search.islandOpacity)
+                    }
+                }
+            }
             border.color: queryInput.activeFocus ? "#54c9e8" : "#4e8499"
             border.width: 1
         }
