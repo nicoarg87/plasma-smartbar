@@ -661,7 +661,7 @@ Window {
             Layout.fillWidth: true
         }
         QQC2.Label {
-            text: "Soledad = ventanas y logo · Malvina = buscador Web/IA · Compartidas = posición, colores y tamaño"
+            text: "Soledad: logo, ventanas y estética · Malvina: buscador y estética · General: posición y comportamiento"
             color: "#d8d9e5"
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
@@ -709,6 +709,14 @@ Window {
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadWindows()
                     }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Colores y degradados Soledad"
+                        highlighted: settings.currentTab === 2 &&
+                                     appearanceSubtabs.currentIndex === 0 &&
+                                     appearanceTarget.currentIndex === 0
+                        onClicked: settings.showSharedColors(0)
+                    }
                     QQC2.Label {
                         text: "MALVINA · Isla 2"
                         color: "#d7e5f4"; font.bold: true
@@ -722,18 +730,19 @@ Window {
                     QQC2.Button {
                         Layout.fillWidth: true
                         text: "Figura y tamaño Malvina"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0
                         onClicked: settings.showMalvinaShape()
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
-                        text: "Colores Malvina"
+                        text: "Color, degradado y respiración"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
                                      appearanceTarget.currentIndex === 1
                         onClicked: settings.showSharedColors(1)
                     }
                     QQC2.Label {
-                        text: "COMPARTIDAS"
+                        text: "GENERAL Y COMPARTIDAS"
                         color: "#d7e5f4"; font.bold: true
                     }
                     QQC2.Button {
@@ -747,14 +756,6 @@ Window {
                         text: "Comportamiento"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1
                         onClicked: settings.showSharedBehavior()
-                    }
-                    QQC2.Button {
-                        Layout.fillWidth: true
-                        text: "Colores Soledad y fondo"
-                        highlighted: settings.currentTab === 2 &&
-                                     appearanceSubtabs.currentIndex === 0 &&
-                                     appearanceTarget.currentIndex !== 1
-                        onClicked: settings.showSharedColors(0)
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
