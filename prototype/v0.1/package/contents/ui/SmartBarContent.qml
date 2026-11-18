@@ -1051,7 +1051,8 @@ Item {
         // El paso efectivo de clics a ventanas ajenas requiere validar KWin.
         Item {
             id: malvinaHotspot
-            width: Math.max(malvinaSearch.implicitWidth + 10,
+            width: Math.max(malvinaSearch.implicitWidth +
+                            (root.malvinaShape === "leftTip" ? 34 : 10),
                             root.malvinaWidth)
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
             anchors.left: parent.left
@@ -1078,18 +1079,18 @@ Item {
             id: launcherIsland
             visible: root.malvinaActuallyVisible
             anchors.fill: parent
-            radius: root.malvinaShape === "square" ? 0 :
+            radius: root.malvinaShape === "square" || root.malvinaShape === "leftTip" ? 0 :
                 Math.max(0, Math.min(root.malvinaRadius, height / 2))
             topLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
             bottomLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
             topRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
             bottomRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
-            color: root.malvinaGradientEnabled ? "transparent" :
+            color: root.malvinaShape === "leftTip" || root.malvinaGradientEnabled ? "transparent" :
                 Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
                         root.malvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
             Rectangle {
                 anchors.fill: parent
-                visible: root.malvinaGradientEnabled
+                visible: root.malvinaGradientEnabled && root.malvinaShape !== "leftTip"
                 radius: parent.radius
                 topLeftRadius: parent.topLeftRadius
                 topRightRadius: parent.topRightRadius
@@ -1120,7 +1121,70 @@ Item {
                 }
             }
             border.width: 0
+            // Misma punta izquierda que Soledad. La zona estrecha queda libre
+            // de botones para mantener clics y foco dentro de superficies útiles.
+            Canvas {
+                id: malvinaTipSurface
+                anchors.fill: parent
+                visible: root.malvinaShape === "leftTip"
+                onWidthChanged: requestPaint()
+                onHeightChanged: requestPaint()
+                onVisibleChanged: if (visible) requestPaint()
+                Connections {
+                    target: root
+                    function onMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaGradientEnabledChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaGradientEndChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaGradientDirectionChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaOpacityChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaShapeChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaGradientBreathingFactorChanged() { malvinaTipSurface.requestPaint() }
+                    function onOutlineConfigChanged() { malvinaTipSurface.requestPaint() }
+                }
+                onPaint: {
+                    const ctx = getContext("2d")
+                    ctx.reset()
+                    if (!visible || width < 30 || height < 4) return
+                    ctx.beginPath()
+                    ctx.moveTo(1, height / 2)
+                    ctx.lineTo(24, 1)
+                    ctx.lineTo(width - 1, 1)
+                    ctx.lineTo(width - 1, height - 1)
+                    ctx.lineTo(24, height - 1)
+                    ctx.closePath()
+                    const alpha = root.malvinaOpacity * root.malvinaGradientBreathingFactor
+                    if (root.malvinaGradientEnabled) {
+                        const dir = root.malvinaGradientDirection
+                        const g = ctx.createLinearGradient(
+                            dir === "leftRight" ? 0 : dir === "rightLeft" ? width : 0,
+                            dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
+                            dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
+                            dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
+                        const first = dir === "rightLeft" || dir === "bottomTop"
+                            ? root.malvinaGradientEnd : root.malvinaColor
+                        const last = dir === "rightLeft" || dir === "bottomTop"
+                            ? root.malvinaColor : root.malvinaGradientEnd
+                        g.addColorStop(0, Qt.rgba(first.r, first.g, first.b, alpha))
+                        g.addColorStop(1, Qt.rgba(last.r, last.g, last.b, alpha))
+                        ctx.fillStyle = g
+                    } else {
+                        ctx.fillStyle = Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
+                                                root.malvinaColor.b, alpha)
+                    }
+                    ctx.fill()
+                    const outline = root.outlineConfig.malvina
+                    if (outline && outline.style !== "none" && outline.width > 0) {
+                        ctx.lineWidth = outline.width
+                        const c = outline.color
+                        ctx.strokeStyle = c
+                        ctx.globalAlpha = outline.opacity
+                        ctx.stroke()
+                        ctx.globalAlpha = 1
+                    }
+                }
+            }
             OutlineStyle {
+                visible: root.malvinaShape !== "leftTip"
                 anchors.fill: parent
                 lineStyle: root.outlineConfig.malvina.style
                 lineWidth: root.outlineConfig.malvina.width
@@ -1143,7 +1207,7 @@ Item {
                 islandGradientEnd: root.malvinaGradientEnd
                 islandGradientDirection: root.malvinaGradientDirection
                 anchors.left: parent.left
-                anchors.leftMargin: 5
+                anchors.leftMargin: root.malvinaShape === "leftTip" ? 27 : 5
                 anchors.verticalCenter: parent.verticalCenter
                 // Los 73 px de botones también cuentan en el límite de media ventana.
                 maximumSearchWidth: Math.max(180, Math.min(520, root.width / 2 - 82))
