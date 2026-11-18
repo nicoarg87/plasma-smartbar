@@ -220,6 +220,8 @@ Item {
                         required property int index
                         text: modelData
                         Layout.fillWidth: true
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: modelData
                         enabled: search.webEnabled[index]
                         highlighted: (search.navigationSection === 1 && search.navigationIndex === index) ||
                                      (search.navigationSection === 0 && search.currentSection === 1 && search.webIndex === index)
@@ -238,6 +240,8 @@ Item {
                         required property int index
                         text: modelData
                         Layout.fillWidth: true
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: modelData
                         highlighted: (search.navigationSection === 2 && search.navigationIndex === index) ||
                                      (search.navigationSection === 0 && search.currentSection === 2 && search.aiIndex === index)
                         onClicked: search.chooseProvider(2, index)
