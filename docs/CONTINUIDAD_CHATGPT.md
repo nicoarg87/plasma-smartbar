@@ -290,3 +290,7 @@ Código experimental: `MalvinaSlots.js` (IDs estables, alta/baja, ocultamiento, 
 ## 37. Fondo de Malvina y formas de botones (17/11/2026)
 
 Usuario confirma: campo único e isla Malvina comparten fondo configurable (color, opacidad y degradado), como Soledad; engranaje y lupa deben poder ser cuadrados o circulares por separado. Código experimental ya conecta estas propiedades, reemplaza fondo fijo del editor, elimina relleno normal opaco de botones y guarda formas en KConfig/visor/favoritos. **Sin pruebas en CachyOS**; verificar apariencia al Aplicar, reiniciar, X y foco. No tocar panel instalado.
+
+## 38. Campo de búsqueda también hereda forma de Malvina (17/11/2026)
+
+Tras captura de tooltip excesivo y borde demasiado luminoso, usuario especificó «el buscador lo mismo»: campo de búsqueda debe tener forma coherente con isla. En MalvinaSearch se redujo tooltip, se atenuó borde y se da a TextArea Popup el mismo radio/esquinas mixtas de Malvina, además de color/gradiente ya conectado. SmartBarContent pasa malvinaShape/malvinaRadius. Revisiones bf2ae33, f9b494a, da05c07. **Sin retest Qt/CachyOS.** Próxima prueba de cambio de forma desde Configuración, color y borde; no tocar panel KDE.
