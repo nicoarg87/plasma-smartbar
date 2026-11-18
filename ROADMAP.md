@@ -346,3 +346,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Dar ancho máximo disponible al comenzar a escribir, con presupuesto de media pantalla que incluye botones.
 - [ ] Retest Qt/CachyOS de todo el campo extendido: clic final y selección, escritura de múltiples líneas, X, Tab Web/IA, Espacio, Enter, clic exterior y límite Soledad.
 - [ ] Confirmar interacción y forma visual exacta antes de cerrar el fallo.
+
+## Prioridad y orden modular de Web/IA (17/11/2026)
+
+- [x] Implementar inversión de filas Web/IA por rótulo y por botón en preferencias.
+- [x] Programar arrastre horizontal de los tres proveedores dentro de cada fila.
+- [x] Definir primer elemento habilitado de fila superior como default al abrir búsqueda.
+- [x] Persistir prioridad y órdenes en KConfig y visor, sin tocar URL, nombres ni permisos.
+- [x] Validar representación de órdenes canónicos por IDs, no por etiquetas.
+- [ ] Retest en CachyOS: arrastrar Web/IA y fichas, selección vs arrastre, activar/desactivar proveedores, Tab y Espacio, orden predeterminado y persistencia tras reinicio.
+- [ ] Verificar usabilidad de arrastre con accesibilidad, etiquetas largas y escalas KDE, sin modificar altura de isla ni invadir Soledad.
