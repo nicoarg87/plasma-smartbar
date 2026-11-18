@@ -42,6 +42,11 @@ function resolve(providerUrl, query, isAi) {
 function resolveAiPrefill(providerIndex, providerUrl, query, authorized) {
     const base = resolve(providerUrl, query, true)
     if (!base.ok || !authorized) return base
+    // Gemini web no admite oficialmente q= como mecanismo de precarga.
+    // La prueba real del mantenedor en CachyOS confirmó que no funciona.
+    // Conservamos el permiso guardado pero no lo usamos para transmitir texto.
+    if (providerIndex === 1)
+        return { ok: true, url: base.url, warning: "Gemini: precarga web no compatible; no se envió la consulta" }
     const normalized = String(providerUrl).trim().toLowerCase().replace(/\/$/, "")
     const official = [
         { bases: ["https://chatgpt.com", "https://www.chatgpt.com"], target: "https://chatgpt.com/" },
