@@ -415,3 +415,10 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Probar Aplicar y cerrar/reabrir tras modificar figuras, color/degradado, respiración, orden/alta/baja de proveedores y nombres.
 - [ ] Confirmar mensaje de error de proveedores inválidos sin pérdida de ajustes visuales.
 - [ ] Verificar persistencia con QtCore.Settings del runner instalado en CachyOS; conservar salida de Konsole ante cualquier fallo.
+
+## Predeterminada personal de estética (18/11/2026)
+
+- [x] Añadir fijación explícita de todos los valores actuales en `personalDefaultV1`, separada de favorito y última apariencia.
+- [x] Permitir restaurar esa predeterminada personal sin borrar las otras preferencias.
+- [ ] Validar en CachyOS fijar, editar, cerrar/abrir, restaurar y comprobar que favoritos antiguos permanecen.
+- [ ] Solo publicar estética exacta del mantenedor como valores por defecto del repositorio si proporciona su configuración y autoriza compartir esos ajustes.
