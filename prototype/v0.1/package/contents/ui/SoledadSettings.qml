@@ -23,6 +23,27 @@ Window {
     minimumWidth: 560
     minimumHeight: 510
 
+    // Botones del menú lateral: no cortar nombres cuando la ventana es angosta
+    // o cuando el usuario aumenta la escala de fuentes de KDE.
+    component SettingsMenuButton: QQC2.Button {
+        id: navigationButton
+        Layout.fillWidth: true
+        Layout.minimumHeight: 44
+        Layout.preferredHeight: Math.max(44,
+            menuText.contentHeight + navigationButton.topPadding + navigationButton.bottomPadding)
+        padding: 8
+        contentItem: Text {
+            id: menuText
+            text: navigationButton.text
+            font: navigationButton.font
+            color: navigationButton.enabled ? "#ffffff" : "#999999"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            elide: Text.ElideNone
+        }
+    }
+
     // Navegación orientada al usuario; usa las mismas páginas y ajustes
     // existentes para preservar aplicación y persistencia anteriores.
     function showSoledadLogo() { currentTab = 1; logoSubtabs.currentIndex = 0 }
@@ -676,7 +697,7 @@ Window {
             Layout.fillHeight: true
             spacing: 12
             Rectangle {
-                Layout.preferredWidth: Math.min(220, Math.max(184, settings.width * 0.26))
+                Layout.preferredWidth: Math.min(250, Math.max(200, settings.width * 0.28))
                 Layout.fillHeight: true
                 radius: 10
                 color: "#292c3f"
@@ -695,25 +716,25 @@ Window {
                         text: "SOLEDAD · Isla 1"
                         color: "#d7e5f4"; font.bold: true
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Logo e imagen SO"
                         highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0
                         onClicked: settings.showSoledadLogo()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Efectos luminosos SO"
                         highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadEffects()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Fichas de ventanas"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadWindows()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Colores y degradados Soledad"
                         highlighted: settings.currentTab === 2 &&
@@ -725,19 +746,19 @@ Window {
                         text: "MALVINA · Isla 2"
                         color: "#d7e5f4"; font.bold: true
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Buscadores Web e IA"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 2
                         onClicked: settings.showMalvinaProviders()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Figura y tamaño Malvina"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0
                         onClicked: settings.showMalvinaShape()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Color, degradado y respiración"
                         highlighted: settings.currentTab === 2 &&
@@ -749,25 +770,25 @@ Window {
                         text: "GENERAL Y COMPARTIDAS"
                         color: "#d7e5f4"; font.bold: true
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Posición y geometría"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0
                         onClicked: settings.showSharedLayout()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Comportamiento"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1
                         onClicked: settings.showSharedBehavior()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Contornos de islas y botones"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 2
                         onClicked: settings.showSharedOutlines()
                     }
-                    QQC2.Button {
+                    SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Ayuda"
                         highlighted: settings.currentTab === 3
