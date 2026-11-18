@@ -32,6 +32,12 @@ PlasmoidItem {
         malvinaWidth: Plasmoid.configuration.malvinaWidth
         soledadShape: Plasmoid.configuration.soledadShape
         malvinaShape: Plasmoid.configuration.malvinaShape
+        malvinaGearButtonShape: Plasmoid.configuration.malvinaGearButtonShape
+        malvinaSearchButtonShape: Plasmoid.configuration.malvinaSearchButtonShape
+        onRequestMalvinaButtonShapesChange: function(gearShape, searchShape) {
+            Plasmoid.configuration.malvinaGearButtonShape = gearShape
+            Plasmoid.configuration.malvinaSearchButtonShape = searchShape
+        }
         gripShape: Plasmoid.configuration.gripShape
         trayButtonShape: Plasmoid.configuration.trayButtonShape
         soButtonFrameShape: Plasmoid.configuration.soButtonFrameShape
