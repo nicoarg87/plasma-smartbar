@@ -901,3 +901,9 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 **CONFIRMADO POR EL MANTENEDOR:** autorizar el envío directo de texto a IA desde Malvina deberá ser una acción positiva, informada, específica por proveedor, desactivada de fábrica y revocable en cualquier momento. La pantalla explicará datos enviados, destinatario, cuándo se envían, y límites de privacidad. **Sin sudo** ni privilegios de sistema. Seleccionar IA con Tab/Espacio no constituye autorización; no transmitir mientras se escribe.
 
 **NO IMPLEMENTADO NI PROBADO:** aún no existen controles de consentimiento, integración de envío directo, almacenamiento de credenciales ni pruebas de dicha funcionalidad. El comportamiento vigente continúa siendo abrir la web IA sin enviar automáticamente el texto. Antes de codificar, verificar posibilidades oficiales por proveedor y evitar sugerir que una API genera una conversación en la cuenta web personal. Nunca pedir contraseñas o tokens sin un diseño seguro aprobado.
+
+## Aclaración de alcance: sesión web e IA integrada en buscadores (17/11/2026)
+
+**CONFIRMADO:** Malvina contempla buscadores web que pueden incorporar IA y chats IA. La búsqueda web ordinaria se abre con el proveedor elegido, sin requerir permiso administrativo. El envío **directo a un chat** exige autorización interna explícita por proveedor, desactivada por defecto y revocable. Si se necesita autenticación, el usuario se identifica exclusivamente en la web del proveedor desde su navegador. Malvina no solicita ni conserva contraseñas/cookies.
+
+**PENDIENTE / NO IMPLEMENTADO:** mecanismos compatibles para colocar automáticamente el texto en chats web. La sesión del navegador no asegura dicha posibilidad. Hasta verificar integración específica y autorización, Malvina solo abre el sitio sin transferir automáticamente la consulta. No afirmar que la autorización equivale a acceso a cookies, cuenta o privilegios.
