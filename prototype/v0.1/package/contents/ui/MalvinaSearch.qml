@@ -311,10 +311,13 @@ Item {
             padding: 3
             background: Rectangle {
                 radius: search.gearButtonShape === "circle" ? width / 2 : 0
+                // Contorno fino siempre visible: permite distinguir
+                // cuadrado/círculo sin tapar color ni degradado de Malvina.
                 color: gear.down ? "#30ffffff" :
-                       (gear.hovered ? "#18ffffff" : "transparent")
-                border.width: gear.activeFocus ? 1 : 0
-                border.color: "#9be8ff"
+                       (gear.hovered ? "#18ffffff" : "#09000000")
+                border.width: 1
+                border.color: gear.activeFocus ? "#9be8ff" :
+                              (gear.hovered ? "#668fc1d2" : "#405f8598")
             }
             QQC2.ToolTip.visible: hovered
             QQC2.ToolTip.text: "Configuración de Malvina"
@@ -328,13 +331,16 @@ Item {
             padding: 3
             background: Rectangle {
                 radius: search.searchButtonShape === "circle" ? width / 2 : 0
+                // Contorno fino siempre visible: permite distinguir
+                // cuadrado/círculo sin tapar color ni degradado de Malvina.
                 color: magnifier.down ? "#30ffffff" :
-                       (magnifier.hovered ? "#18ffffff" : "transparent")
-                border.width: magnifier.activeFocus ? 1 : 0
-                border.color: "#9be8ff"
+                       (magnifier.hovered ? "#18ffffff" : "#09000000")
+                border.width: 1
+                border.color: magnifier.activeFocus ? "#9be8ff" :
+                              (magnifier.hovered ? "#668fc1d2" : "#405f8598")
             }
             QQC2.ToolTip.visible: hovered
-            QQC2.ToolTip.text: "Hacer búsqueda (Super + Espaciadora; ventana activa)"
+            QQC2.ToolTip.text: "Buscar · Super+Espacio (ventana activa)"
             onClicked: {
                 if (search.expanded) search.closeSearch()
                 else search.focusSearch()
@@ -396,7 +402,9 @@ Item {
                     }
                 }
             }
-            border.color: queryInput.activeFocus ? "#54c9e8" : "#4e8499"
+            // El foco conserva indicación accesible, sin marco fluorescente
+            // permanente que esconda la estética personalizada.
+            border.color: queryInput.activeFocus ? "#8d91b5c5" : "#5c748594"
             border.width: 1
         }
         contentItem: Item {
