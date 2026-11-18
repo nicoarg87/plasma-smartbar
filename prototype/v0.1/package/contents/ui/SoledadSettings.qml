@@ -34,6 +34,9 @@ Window {
     property bool malvinaWebFirst: true
     property string malvinaWebOrder: "google,duck,yahoo"
     property string malvinaAiOrder: "chatgpt,gemini,claude"
+    property string malvinaExtraWeb: "[]"
+    property string malvinaExtraAi: "[]"
+    signal saveMalvinaExtrasRequested(string webJson, string aiJson)
     signal saveMalvinaOrderRequested(bool firstWeb, string webOrder, string aiOrder)
     property string malvinaGoogleName: "Google"
     property string malvinaDuckName: "DuckDuckGo"
@@ -374,6 +377,7 @@ Window {
                                      malvinaGeminiUrl, malvinaClaudeUrl)
         saveMalvinaWebEnabledRequested(malvinaWebGoogleEnabled,
                                        malvinaWebDuckEnabled, malvinaWebYahooEnabled)
+        saveMalvinaExtrasRequested(malvinaExtraWeb, malvinaExtraAi)
         saveMalvinaOrderRequested(malvinaWebFirst, malvinaWebOrder, malvinaAiOrder)
         saveMalvinaConsentsRequested(malvinaAllowChatGpt,
                                     malvinaAllowGemini, malvinaAllowClaude)
