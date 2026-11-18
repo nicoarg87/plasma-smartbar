@@ -111,6 +111,8 @@ Window {
     property string soledadGradientDirection: "topBottom"
     property bool soledadGradientSyncBreathing: false
     property real soledadGradientBreathingIntensity: 0.6
+    property bool malvinaGradientSyncBreathing: false
+    property real malvinaGradientBreathingIntensity: 0.6
     property bool malvinaGradientEnabled: false
     property color malvinaGradientEnd: "#445577"
     property string malvinaGradientDirection: "topBottom"
@@ -301,6 +303,7 @@ Window {
     }
     signal saveOutlineRequested(var updated)
     signal saveGradientBreathingRequested(bool enabled, real intensity)
+    signal saveMalvinaGradientBreathingRequested(bool enabled, real intensity)
     signal saveIslandGradientRequested(bool soEnabled, string soEnd, string soDirection,
                                        bool malEnabled, string malEnd, string malDirection)
 
@@ -399,6 +402,8 @@ Window {
         refreshOutlinePreview()
         saveGradientBreathingRequested(soledadGradientSyncBreathing,
                                      soledadGradientBreathingIntensity)
+        saveMalvinaGradientBreathingRequested(malvinaGradientSyncBreathing,
+                                             malvinaGradientBreathingIntensity)
         saveIslandGradientRequested(soledadGradientEnabled, toHex(soledadGradientEnd),
                                    soledadGradientDirection, malvinaGradientEnabled,
                                    toHex(malvinaGradientEnd), malvinaGradientDirection)
@@ -2166,6 +2171,51 @@ Window {
                             else settings.malvinaGradientDirection = d
                         }
                     }
+                    QQC2.Button {
+                        visible: appearanceTarget.currentIndex === 1
+                        Layout.fillWidth: true
+                        text: "Copiar colores y degradado de Soledad a Malvina"
+                        onClicked: {
+                            settings.malvinaColor = settings.soledadColor
+                            settings.malvinaOpacity = settings.soledadOpacity
+                            settings.malvinaGradientEnabled = settings.soledadGradientEnabled
+                            settings.malvinaGradientEnd = settings.soledadGradientEnd
+                            settings.malvinaGradientDirection = settings.soledadGradientDirection
+                            // Sólo copiamos tonos; sincronización sigue siendo independiente.
+                        }
+                    }
+                    QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex === 1 && settings.malvinaGradientEnabled
+                        text: "Sincronizar respiración del degradado de Malvina con SO"
+                        checked: settings.malvinaGradientSyncBreathing
+                        onToggled: settings.malvinaGradientSyncBreathing = checked
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 1 &&
+                                 settings.malvinaGradientEnabled &&
+                                 settings.malvinaGradientSyncBreathing
+                        text: "Usa la fase y velocidad de Respiración luminosa de SO, pero conserva intensidad propia. Requiere SO en modo respiración y se guarda con Aplicar."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex === 1 &&
+                                 settings.malvinaGradientEnabled &&
+                                 settings.malvinaGradientSyncBreathing
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Intensidad"; color: "white" }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.malvinaGradientBreathingIntensity
+                            onMoved: settings.malvinaGradientBreathingIntensity = value
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.malvinaGradientBreathingIntensity * 100) + "%"
+                            color: "white"
+                        }
+                    }
                     QQC2.CheckBox {
                         visible: appearanceTarget.currentIndex === 0 && settings.soledadGradientEnabled
                         text: "Sincronizar respiración del degradado de Soledad con SO"
@@ -2226,6 +2276,8 @@ Window {
                             settings.soledadGradientEnabled = false
                             settings.soledadGradientSyncBreathing = false
                             settings.soledadGradientBreathingIntensity = 0.6
+                            settings.malvinaGradientSyncBreathing = false
+                            settings.malvinaGradientBreathingIntensity = 0.6
                             settings.soledadGradientEnd = "#ee9852"
                             settings.soledadGradientDirection = "topBottom"
                             settings.malvinaGradientEnabled = false
