@@ -1119,6 +1119,8 @@ Item {
                 id: malvinaSearch
                 gearButtonShape: root.malvinaGearButtonShape
                 searchButtonShape: root.malvinaSearchButtonShape
+                islandShape: root.malvinaShape
+                islandRadius: root.malvinaRadius
                 islandColor: root.malvinaColor
                 islandOpacity: root.malvinaOpacity
                 islandGradientEnabled: root.malvinaGradientEnabled
