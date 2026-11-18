@@ -335,6 +335,9 @@ Window {
         malvinaShape: previewWindow.demoMalvinaShape
         malvinaGearButtonShape: previewWindow.demoMalvinaGearButtonShape
         malvinaSearchButtonShape: previewWindow.demoMalvinaSearchButtonShape
+        // Aplicar solicita guardado inmediato de TODOS los valores, no solo
+        // los que tenían on...Changed histórico.
+        onRequestPersistCurrentSettings: previewWindow.saveAppearancePreset()
         onRequestMalvinaButtonShapesChange: function(gearShape, searchShape) {
             previewWindow.demoMalvinaGearButtonShape = gearShape
             previewWindow.demoMalvinaSearchButtonShape = searchShape
@@ -868,6 +871,79 @@ Window {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
     onDemoSoledadGradientBreathingIntensityChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    // Evitar pérdida de cambios de preferencias incorporadas en nuevas revisiones.
+    onDemoMalvinaWebFirstChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaWebOrderChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaAiOrderChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaExtraWebChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaExtraAiChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaHiddenWebChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaHiddenAiChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaCompactAiChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGoogleNameChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaDuckNameChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaYahooNameChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaChatGptNameChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGeminiNameChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaClaudeNameChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaWebGoogleEnabledChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaWebDuckEnabledChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaWebYahooEnabledChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaAllowChatGptChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaAllowGeminiChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaAllowClaudeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGearButtonShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaSearchButtonShapeChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGradientSyncBreathingChanged: {
+        if (appearanceRestored) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGradientBreathingIntensityChanged: {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
     onWidthChanged: console.log("SmartBar ventana independiente: ancho =", width)
