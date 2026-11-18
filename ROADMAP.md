@@ -404,3 +404,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Ejecutar prueba Qt/CachyOS de seis figuras: margen de controles, clics, campo, X, navegación, gradiente/respiración y persistencia.
 - [ ] Revisar recorte/contorno con punta y alta transparencia, sin agrandar altura de barra.
 - [ ] Solo considerar formas complejas de SO (rombo/corazón/estrella) para la isla completa si pueden preservar usabilidad, sin prometer compatibilidad antes de prueba.
+
+## Prioridad máxima: preservar y aplicar ajustes del usuario (18/11/2026)
+
+- [x] Detectar y eliminar retorno temprano que impedía aplicar geometría/colores por URLs/nombres inválidos de Malvina.
+- [x] Añadir 24 observadores de cambios de Malvina ausentes del autoguardado del visor.
+- [x] Forzar persistencia completa inmediata después de Aplicar y antes de cerrar el visor, reutilizando Qt Settings actuales.
+- [x] Mantener favoritos y configuración activa como claves locales separadas, sin resetear datos existentes.
+- [ ] Prueba en CachyOS: guardar favoritos en visor antiguo aún abierto, cerrar, actualizar, relanzar y verificar migración sin valores predeterminados.
+- [ ] Probar Aplicar y cerrar/reabrir tras modificar figuras, color/degradado, respiración, orden/alta/baja de proveedores y nombres.
+- [ ] Confirmar mensaje de error de proveedores inválidos sin pérdida de ajustes visuales.
+- [ ] Verificar persistencia con QtCore.Settings del runner instalado en CachyOS; conservar salida de Konsole ante cualquier fallo.
