@@ -271,3 +271,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Probar preferencias y persistencia real en CachyOS, incluyendo revocación, scroll, reabrir ajustes y reinicio del visor.
 - [ ] Implementar cuando esté verificada la integración nativa la elección segura de navegador alternativo, sin shell construido con texto del usuario.
 - [ ] Investigar por proveedor el envío compatible a chat y agregar pruebas de consentimiento antes de habilitar cualquier transmisión.
+
+## Preferencias Malvina implementadas en código (17/11/2026)
+
+- [x] Añadir opciones de habilitación individual de Web (Google, DuckDuckGo, Yahoo, activas inicialmente).
+- [x] Añadir casillas informadas y revocables IA (ChatGPT, Gemini, Claude, desactivadas inicialmente).
+- [x] Conectar las seis preferencias a Aplicar, KConfig y persistencia local del visor; impedir búsqueda Web en proveedor deshabilitado.
+- [x] Mostrar navegador predeterminado KDE como opción operativa, sin ofrecer ejecución insegura de navegadores alternativos.
+- [ ] Probar en CachyOS configuración, botones Web deshabilitados, selección por teclado, guardar/reabrir/reiniciar y consentimiento IA sin envío.
+- [ ] Resolver caso de todos los buscadores Web deshabilitados con una indicación visible y accesible al usuario.
+- [ ] Investigar selección segura de navegador específico con integración nativa KF6/KDE, sin comandos shell desde texto.
+- [ ] Implementar envío a chat solo tras verificar compatibilidad del proveedor y mecanismo de consentimiento efectivo.
