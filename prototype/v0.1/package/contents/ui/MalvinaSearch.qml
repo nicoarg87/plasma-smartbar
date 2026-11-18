@@ -377,6 +377,7 @@ Item {
         closePolicy: QQC2.Popup.NoAutoClose
         background: Rectangle {
             radius: search.islandShape === "square" ? 0 :
+                    search.islandShape === "capsule" ? height / 2 :
                     Math.max(0, Math.min(search.islandRadius, height / 2))
             topLeftRadius: search.islandShape === "leftSquareRightRound" ? 0 : radius
             bottomLeftRadius: search.islandShape === "leftSquareRightRound" ? 0 : radius
