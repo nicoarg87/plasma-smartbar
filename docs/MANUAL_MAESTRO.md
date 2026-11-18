@@ -1075,3 +1075,12 @@ Si el sitio solicita autenticación, la persona inicia sesión personalmente en 
 **CONFIRMADO:** el **campo único de búsqueda** comparte la apariencia configurable de Malvina: color, opacidad, degradado, dirección y también **forma/radio de sus esquinas**. La forma del propio campo sigue la forma seleccionada para la isla (cuadrada, redondeada o esquinas mixtas); engranaje y lupa conservan sus selectores de forma individuales. No se añade un segundo recuadro de escritura. El cartel de la lupa debe ser compacto y desaparecer con el buscador expandido; el foco permanece indicado sin un borde celeste dominante.
 
 **IMPLEMENTADO en rama de prueba; no probado aún en CachyOS.** Validar formas, gradientes, tamaños y cambios después de Aplicar, sin afectar a Soledad.
+
+## Malvina: personalización de botones y respiración de gradiente (17/11/2026)
+
+**FORMAS CONFIRMADAS Y PROGRAMADAS EN RAMA:** dos selectores independientes para engranaje y lupa: Cuadrado (inicial), Cuadrado con esquinas redondeadas, Circular y Cápsula. Los botones de 34×32 px usan un radio adecuado a cada silueta y borde fino visible sin ocultar el fondo. Se reutiliza lenguaje visual de Soledad donde corresponde; formas de recorte complejas de SO todavía no están adaptadas a estos controles pequeños.
+
+**COLORES:** Malvina ya permite escoger tono principal, segundo tono de degradado, dirección y opacidad. En Apariencia → Malvina se añadió «Copiar colores y degradado de Soledad a Malvina», que copia los valores actuales una vez; después pueden editarse independientemente. Al aplicar, isla y campo de escritura reciben color y gradiente.
+
+**RESPIRACIÓN:** nueva casilla «Sincronizar respiración del degradado de Malvina con SO», visible cuando el degradado de Malvina está activado. Usa fase/velocidad de Respiración luminosa de SO y slider propio de intensidad 0–100%; se aplica sin modificar la sincronización de Soledad. La variación implementada modula la opacidad del gradiente, como el mecanismo ya establecido para Soledad, no intercambia cromáticamente los tonos. El efecto requiere SO en modo respiración y condiciones de actividad correspondientes; no se activa solo por marcar casilla. Se guarda junto a los ajustes de favoritos del visor y KConfig. **Código no probado en CachyOS.**
+
