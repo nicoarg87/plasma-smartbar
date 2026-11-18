@@ -282,3 +282,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Resolver caso de todos los buscadores Web deshabilitados con una indicación visible y accesible al usuario.
 - [ ] Investigar selección segura de navegador específico con integración nativa KF6/KDE, sin comandos shell desde texto.
 - [ ] Implementar envío a chat solo tras verificar compatibilidad del proveedor y mecanismo de consentimiento efectivo.
+
+## Ensayo de integración de ChatGPT, Gemini y Claude con consentimiento (17/11/2026)
+
+- [x] Conectar permisos guardados con `MalvinaSearch`, antes desconectados.
+- [x] Añadir política URL experimental `?q=` solo para las tres bases oficiales y usuarios que autorizaron el proveedor.
+- [x] Advertir que un enlace puede precargar, ignorar o enviar texto, sin garantía oficial universal.
+- [x] Agregar pruebas estáticas automatizables de URL, permiso apagado, dominio no oficial y codificación.
+- [ ] Ejecutar tests Node y visor Qt en CachyOS. Comprobar cada proveedor con permiso activo y desactivado; registrar resultados reales.
+- [ ] Determinar si `q` precarga/autoenvía/ignora según navegador y sesión; si no funciona, deshabilitar el ensayo por proveedor y diseñar alternativa oficialmente compatible.
+- [ ] Comprobar que solo Enter abre la URL y que no hay filtración durante escritura, Tab o Espacio.
