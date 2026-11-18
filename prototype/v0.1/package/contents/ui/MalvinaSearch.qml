@@ -386,6 +386,7 @@ Item {
                     readonly property int section: modelData === "web" ? 1 : 2
                     spacing: 3
                     QQC2.Button {
+                        id: sectionButton
                         Layout.preferredWidth: 53
                         Layout.preferredHeight: 32
                         text: (search.navigationSection === sectionRow.section ? "▶ " : "") +
@@ -396,16 +397,16 @@ Item {
                         QQC2.ToolTip.text: "Invertir prioridad Web / IA (también podés arrastrar verticalmente)"
                         onClicked: search.swapRows()
                         property real rowDragY: 0
-                        transform: Translate { y: parent.rowDragY }
+                        transform: Translate { y: sectionButton.rowDragY }
                         DragHandler {
                             target: null
                             yAxis.enabled: true
                             xAxis.enabled: false
-                            onTranslationChanged: if (active) parent.rowDragY = translation.y
+                            onTranslationChanged: if (active) sectionButton.rowDragY = translation.y
                             onActiveChanged: {
                                 if (!active) {
-                                    const delta = parent.rowDragY
-                                    parent.rowDragY = 0
+                                    const delta = sectionButton.rowDragY
+                                    sectionButton.rowDragY = 0
                                     if (Math.abs(delta) > 18) search.swapRows()
                                 }
                             }
