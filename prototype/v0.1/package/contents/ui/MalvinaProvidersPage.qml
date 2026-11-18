@@ -8,6 +8,7 @@ QQC2.ScrollView {
     id: panel
     property var settingsTarget
     property string feedback: ""
+    property int sectionIndex: 0 // General, Web, IA, personalizados: no altera proveedores guardados.
     function extrasFor(section) {
         return Slots.extras(section,section === "web" ?
                             settingsTarget.malvinaExtraWeb : settingsTarget.malvinaExtraAi)
@@ -46,10 +47,31 @@ QQC2.ScrollView {
         feedback="Proveedor quitado. Pulsá Aplicar."
     }
     clip: true
+    contentWidth: Math.max(0, availableWidth - 8)
+    QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
     QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
     ColumnLayout {
         width: Math.max(0, panel.availableWidth - 8)
         spacing: 10
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+            Repeater {
+                model: ["General", "Web", "IA", "Personalizados"]
+                delegate: QQC2.Button {
+                    required property int index
+                    required property string modelData
+                    Layout.fillWidth: true
+                    text: modelData
+                    highlighted: panel.sectionIndex === index
+                    onClicked: { panel.sectionIndex = index; panel.contentItem.contentY = 0 }
+                }
+            }
+        }
+        ColumnLayout {
+            visible: panel.sectionIndex === 0
+            Layout.fillWidth: true
+            spacing: 9
         QQC2.Label { text: "Buscador Malvina"; font.bold: true; color: "white" }
         QQC2.CheckBox {
             text: "IA: mostrar lista recortada con desplazamiento horizontal"
@@ -103,6 +125,11 @@ QQC2.ScrollView {
             text: "Se utiliza el navegador predeterminado configurado en KDE. Elegir otro navegador desde Malvina requiere una integración nativa adicional; no se ejecutan comandos arbitrarios."
             color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
+        }
+        ColumnLayout {
+            visible: panel.sectionIndex === 1
+            Layout.fillWidth: true
+            spacing: 9
         QQC2.Label { text: "Buscadores Web: URLs HTTPS con {query}"; font.bold: true; color: "white" }
         QQC2.Label {
             text: "Podés habilitar o deshabilitar cada buscador Web. Los tres están disponibles por defecto; Enter abre la búsqueda en el navegador del sistema. Se compartirá la consulta con el buscador elegido cuando decidas buscar."
@@ -168,6 +195,11 @@ QQC2.ScrollView {
             checked: panel.settingsTarget.malvinaWebYahooEnabled
             onToggled: panel.settingsTarget.malvinaWebYahooEnabled = checked
         }
+        }
+        ColumnLayout {
+            visible: panel.sectionIndex === 2
+            Layout.fillWidth: true
+            spacing: 9
         QQC2.Label { text: "Chats IA: sitios HTTPS"; font.bold: true; color: "white" }
         QQC2.Label {
             text: "El permiso autoriza únicamente a Malvina a enviar la consulta escrita al proveedor indicado al presionar Enter, mediante una URL experimental. La página podría procesarlo o enviarlo automáticamente. No autoriza acceso a archivos, contraseñas ni ventanas. Podés revocarlo destildando la casilla y pulsando Aplicar. El proveedor procesa datos bajo sus propias condiciones."
@@ -241,6 +273,11 @@ QQC2.ScrollView {
             checked: panel.settingsTarget.malvinaAllowClaude
             onToggled: panel.settingsTarget.malvinaAllowClaude = checked
         }
+        }
+        ColumnLayout {
+            visible: panel.sectionIndex === 3
+            Layout.fillWidth: true
+            spacing: 9
         QQC2.Label {
             text: "Proveedores personalizados (hasta 10 visibles en Web y 10 en IA)"
             font.bold: true; color: "white"
@@ -338,6 +375,7 @@ QQC2.ScrollView {
         QQC2.Label {
             text: "Tab selecciona Web y después IA. Las flechas cambian proveedor. Super + Espacio global en Wayland queda pendiente."
             color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+        }
         }
     }
 }
