@@ -453,3 +453,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Implementar ejecución real de aplicaciones mediante integración KDE aprobada, no por comandos arbitrarios del .desktop; comprobar seguridad.
 - [ ] Investigar e implementar búsqueda global de archivos (KRunner/Baloo u otra API verificada) y apertura segura, por ahora solo exploración/filtro de carpeta.
 - [ ] Revisar compatibilidad del archivo local XHR utilizado solo por el visor experimental y alternativa de producción sin permisos globales de lectura de archivos.
+
+## Activación y visibilidad de Malvina como estados distintos — 18/11/2026
+
+- [x] Clarificar requisito del mantenedor: Malvina activa con autoocultamiento por defecto; activa NO implica siempre visible. Siempre visible es opción adicional voluntaria.
+- [x] Diferenciar `Activar Malvina` de `Visibilidad de Malvina (Automática / Siempre visible)` en centro de configuración, reutilizando `launcherIslandVisible` y `autoHideMalvina`.
+- [x] Añadir `Mantener Malvina siempre visible` al menú de seis puntos con estado marcado persistible y mantener allí Activar/Desactivar Malvina.
+- [x] Nombrar «Activar Malvina» al botón de recuperación del launcher y conservar aviso temporal de 1 s al habilitar/deshabilitar desde el menú del agarre.
+- [ ] Probar en CachyOS con preferencia autoocultar, siempre visible, desactivada, persistencia tras reinicio, ventana maximizada/fullscreen y alternativa sin panel instalado.
