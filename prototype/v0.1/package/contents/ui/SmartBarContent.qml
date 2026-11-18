@@ -1287,6 +1287,10 @@ Item {
                 islandGradientEnabled: root.malvinaGradientEnabled
                 islandGradientEnd: root.malvinaGradientEnd
                 islandGradientDirection: root.malvinaGradientDirection
+                islandOutlineColor: root.outlineConfig.malvina.color
+                islandOutlineOpacity: root.outlineConfig.malvina.opacity
+                islandOutlineWidth: root.outlineConfig.malvina.width
+                islandOutlineStyle: root.outlineConfig.malvina.style
                 anchors.left: parent.left
                 anchors.leftMargin: root.malvinaShape === "leftTip" ? 27 : 5
                 anchors.verticalCenter: parent.verticalCenter
