@@ -220,8 +220,8 @@ Item {
     // Preferencias independientes: no contraer por abrir la otra sección
     // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
     property bool autoCollapseSO: true
-    // Predeterminado aprobado 18/11: izquierdo = lanzador; derecho = ventanas abiertas.
-    // Preferencia independiente del auto-cierre de SO, reversible en Configuración.
+    // Corrección del mantenedor 18/11: izquierdo = cajón (ventanas abiertas),
+    // derecho = launcher de aplicaciones. Es reversible en Configuración.
     property bool soLeftClickOpensLauncher: false
     property bool soTooltipSuppressed: false
     property var localAppCatalog: []
