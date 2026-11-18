@@ -332,6 +332,11 @@ Window {
 
     property bool autoCollapseSO: true
     property bool soLeftClickOpensLauncher: false
+    property int launcherCategoryLayout: 0
+    property string launcherSwitchShape: "capsule"
+    property bool launcherSwitchColorOverride: false
+    property color launcherSwitchColor: "#010111"
+    property int launcherMaxSlots: 20
     property bool autoCollapseTray: false
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
@@ -409,6 +414,9 @@ Window {
                                  bool showWhenEmpty, bool showWhenOpen)
     signal saveAutoHideMalvinaRequested(bool enabled)
     signal saveSoClickMappingRequested(bool leftOpensLauncher)
+    signal saveLauncherStyleRequested(int layoutMode, string switchShape,
+                                     bool customColor, string switchColor,
+                                     int maxVisibleSlots)
     signal saveBehaviorRequested(bool collapseSO, bool collapseTray,
                                  bool returnRight, bool showMalvina,
                                  bool alignRight, bool alignmentEdited)
@@ -507,6 +515,9 @@ Window {
                               showOutlineWhenEmpty, showOutlineWhenOpen)
         saveAutoHideMalvinaRequested(autoHideMalvina)
         saveSoClickMappingRequested(soLeftClickOpensLauncher)
+        saveLauncherStyleRequested(launcherCategoryLayout, launcherSwitchShape,
+                                   launcherSwitchColorOverride, toHex(launcherSwitchColor),
+                                   launcherMaxSlots)
         savePositionModeRequested(positionMode)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
@@ -545,6 +556,11 @@ Window {
             else if (editingTarget === 4 && settings.gripButtonColorOverride)
                 settings.gripButtonColor = selectedColor
         }
+    }
+    ColorDialog {
+        id: launcherSwitchColorDialog
+        title: "Color propio del interruptor Aplicaciones / Archivos"
+        onAccepted: settings.launcherSwitchColor = selectedColor
     }
     ColorDialog {
         id: islandGradientEndDialog
@@ -1265,6 +1281,77 @@ Window {
                     }
                     QQC2.Label {
                         text: "Podés invertir los clics cuando quieras. El mensaje al pasar el cursor sobre SO muestra las acciones elegidas. Mantener pulsado el botón sigue abriendo el lanzador."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Launcher de aplicaciones · Soledad"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.Label {
+                        text: "El fondo, degradado, contorno, transparencia y respiración del launcher siguen automáticamente los de Soledad."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Ubicación del panel de aplicaciones"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: [
+                            "A · Original: opciones a la derecha, cerca del cursor (inicial)",
+                            "B · Opciones a la izquierda, cuadro principal fijo"
+                        ]
+                        currentIndex: settings.launcherCategoryLayout
+                        onActivated: function(i) { settings.launcherCategoryLayout = i }
+                    }
+                    QQC2.Label {
+                        text: "Forma del interruptor Aplicaciones / Archivos"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Cápsula", "Cuadrado redondeado", "Cuadrado"]
+                        currentIndex: ["capsule", "rounded", "square"].indexOf(settings.launcherSwitchShape)
+                        onActivated: function(i) {
+                            settings.launcherSwitchShape = ["capsule", "rounded", "square"][i]
+                        }
+                    }
+                    QQC2.CheckBox {
+                        text: "Elegir un color propio para el interruptor"
+                        checked: settings.launcherSwitchColorOverride
+                        onToggled: settings.launcherSwitchColorOverride = checked
+                    }
+                    QQC2.Button {
+                        text: "Elegir color del interruptor…"
+                        visible: settings.launcherSwitchColorOverride
+                        onClicked: launcherSwitchColorDialog.open()
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+                        QQC2.Label {
+                            text: "Máximo de filas antes de desplazarse"
+                            color: "white"
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                        }
+                        QQC2.SpinBox {
+                            from: 5
+                            to: 20
+                            editable: true
+                            value: settings.launcherMaxSlots
+                            onValueChanged: settings.launcherMaxSlots = value
+                        }
+                    }
+                    QQC2.Label {
+                        text: "El launcher también se limita al espacio inferior disponible. En Archivos busca por nombre dentro de la carpeta actual; la búsqueda global sigue pendiente."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
