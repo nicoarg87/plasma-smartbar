@@ -30,6 +30,12 @@
     <entry name="soLogoPath" type="String"><default></default></entry>
     <entry name="taskActiveGlowEnabled" type="Bool"><default>true</default></entry>
     <entry name="taskActiveDoubleBorderEnabled" type="Bool"><default>false</default></entry>
+    <entry name="malvinaGoogleName" type="String"><default>Google</default></entry>
+    <entry name="malvinaDuckName" type="String"><default>DuckDuckGo</default></entry>
+    <entry name="malvinaYahooName" type="String"><default>Yahoo</default></entry>
+    <entry name="malvinaChatGptName" type="String"><default>ChatGPT</default></entry>
+    <entry name="malvinaGeminiName" type="String"><default>Gemini</default></entry>
+    <entry name="malvinaClaudeName" type="String"><default>Claude</default></entry>
     <entry name="malvinaGoogleUrl" type="String"><default>https://www.google.com/search?q={query}</default></entry>
     <entry name="malvinaDuckUrl" type="String"><default>https://duckduckgo.com/?q={query}</default></entry>
     <entry name="malvinaYahooUrl" type="String"><default>https://search.yahoo.com/search?p={query}</default></entry>
