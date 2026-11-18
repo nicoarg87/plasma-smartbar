@@ -28,4 +28,21 @@ for (const bad of [
 }
 assert.equal(sandbox.resolve("https://example.com/search", "texto", false).ok, false);
 assert.equal(sandbox.resolve("https://example.com/?q={query}", "", false).ok, false);
+for (const [index, url] of [
+    [0, "https://chatgpt.com/"],
+    [1, "https://gemini.google.com/app"],
+    [2, "https://claude.ai/new"]
+]) {
+    const noPermission = sandbox.resolveAiPrefill(index, url, "cerveza artesanal", false);
+    assert.equal(noPermission.url, url, "sin permiso no anexar texto");
+    const allowed = sandbox.resolveAiPrefill(index, url, "cerveza artesanal", true);
+    assert.equal(allowed.ok, true);
+    assert.equal(allowed.experimental, true);
+    assert.ok(allowed.url.endsWith("?q=cerveza%20artesanal"), allowed.url);
+}
+const unrelated = sandbox.resolveAiPrefill(0, "https://ejemplo.com/", "texto privado", true);
+assert.equal(unrelated.url, "https://ejemplo.com/");
+assert.equal(unrelated.experimental, undefined);
+const injected = sandbox.resolveAiPrefill(0, "https://chatgpt.com/?redirect=https://ejemplo.com", "dato", true);
+assert.equal(injected.experimental, undefined);
 console.log("MalvinaUrlPolicy: pruebas aisladas OK");
