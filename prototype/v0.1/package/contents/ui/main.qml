@@ -59,6 +59,14 @@ PlasmoidItem {
             Plasmoid.configuration.malvinaGeminiName = gemini
             Plasmoid.configuration.malvinaClaudeName = claude
         }
+        malvinaWebFirst: Plasmoid.configuration.malvinaWebFirst
+        malvinaWebOrder: Plasmoid.configuration.malvinaWebOrder
+        malvinaAiOrder: Plasmoid.configuration.malvinaAiOrder
+        onRequestMalvinaOrderChange: function(firstWeb, webOrder, aiOrder) {
+            Plasmoid.configuration.malvinaWebFirst = firstWeb
+            Plasmoid.configuration.malvinaWebOrder = webOrder
+            Plasmoid.configuration.malvinaAiOrder = aiOrder
+        }
         malvinaGoogleUrl: Plasmoid.configuration.malvinaGoogleUrl
         malvinaDuckUrl: Plasmoid.configuration.malvinaDuckUrl
         malvinaYahooUrl: Plasmoid.configuration.malvinaYahooUrl
