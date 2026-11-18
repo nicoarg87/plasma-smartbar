@@ -23,6 +23,7 @@ Item {
     // 0: campo de texto, 1: fila Web, 2: fila IA. Es foco visual sin sacar foco al TextField.
     property int navigationSection: 0
     property int navigationIndex: 0
+    property bool suppressPopupDismissal: false
     signal requestSettings()
     signal requestInstalledApps()
     readonly property var webNames: ["Google", "DuckDuckGo", "Yahoo"]
@@ -42,7 +43,10 @@ Item {
         // Evitar confundir el atajo local Meta+Espacio con la bandeja de opciones.
         expanded = true
         navigationSection = 0
-        options.close()
+        if (options.visible) {
+            suppressPopupDismissal = true
+            options.close()
+        }
         queryInput.forceActiveFocus()
     }
     function openSelected() {
@@ -160,7 +164,15 @@ Item {
         padding: 8
         modal: false
         focus: false
-        closePolicy: QQC2.Popup.CloseOnEscape
+        // Cerrar al pulsar fuera del panel y del campo que es su padre.
+        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+        onClosed: {
+            if (search.suppressPopupDismissal) {
+                search.suppressPopupDismissal = false
+            } else if (search.expanded) {
+                search.closeSearch()
+            }
+        }
         background: Rectangle {
             radius: 10
             color: "#172a3d"
