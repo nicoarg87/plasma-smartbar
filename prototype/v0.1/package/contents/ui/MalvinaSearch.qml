@@ -395,11 +395,23 @@ Item {
                     spacing: 3
                     QQC2.Button {
                         id: sectionButton
-                        Layout.preferredWidth: 53
+                        // El texto predeterminado del Button se elidía como "...".
+                        // Etiqueta propia y ancho suficiente, sin ocupar otra fila.
+                        Layout.preferredWidth: 72
+                        Layout.minimumWidth: 72
                         Layout.preferredHeight: 32
-                        text: (search.navigationSection === sectionRow.section ? "▶" : "↕") +
-                              (sectionRow.section === 1 ? " Web" : " IA")
-                        font.pixelSize: 12
+                        padding: 1
+                        text: sectionRow.section === 1 ? "Web" : "IA"
+                        contentItem: QQC2.Label {
+                            text: (search.navigationSection === sectionRow.section ? "▶ " : "↕ ") +
+                                  (sectionRow.section === 1 ? "Web" : "IA")
+                            color: "#ffffff"
+                            font.pixelSize: 12
+                            font.bold: search.navigationSection === sectionRow.section
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideNone
+                        }
                         highlighted: search.navigationSection === sectionRow.section
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Invertir prioridad Web / IA (también podés arrastrar verticalmente)"
