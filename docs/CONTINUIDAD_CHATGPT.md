@@ -276,3 +276,7 @@ El mantenedor rechazó expresamente crear una segunda ventana de texto: Mayús+E
 ## 34. X de borrar sin franja vertical (17/11/2026)
 
 El usuario reportó que el botón X reservaba una columna entera. Ajustado `MalvinaSearch.qml` en rama experimental: se quitó el margen derecho de 28 px del ScrollView, la X ahora es un botón transparente de 17×17 px superpuesto en esquina superior derecha; se deja padding de texto de 25 px por legibilidad. Commit 841351f. Sin retest en CachyOS. No reintroducir columnas ni recuadros para X.
+
+## 35. Orden de filas Web/IA y proveedores arrastrables (17/11/2026)
+
+Usuario confirmó arrastre vertical de Web/IA y horizontal de proveedores, con **primera opción habilitada a izquierda de fila superior como predeterminada para nueva búsqueda**. Implementación experimental en `MalvinaSearch.qml` mediante Repeater dinámico por fila, DragHandler, rótulo ↕ para invertir, función de default al abrir, orden por IDs y validación. Orden persiste con señales en SmartBarContent, ajustes en SoledadSettings/MalvinaProvidersPage, KConfig/main.xml/main.qml y visor local. **NO PROBADO AÚN EN CACHYOS**. Probar invertir filas, arrastrar Claude a la izquierda, cerrar/abrir y verificar Enter apunta al nuevo predeterminado; reiniciar visor, verificar persistencia y consentimiento propio. Mantener altura de isla, sin tocar panel KDE.
