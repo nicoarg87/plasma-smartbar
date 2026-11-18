@@ -59,6 +59,18 @@ PlasmoidItem {
             Plasmoid.configuration.malvinaGeminiName = gemini
             Plasmoid.configuration.malvinaClaudeName = claude
         }
+        malvinaExtraWeb: Plasmoid.configuration.malvinaExtraWeb
+        malvinaExtraAi: Plasmoid.configuration.malvinaExtraAi
+        malvinaHiddenWeb: Plasmoid.configuration.malvinaHiddenWeb
+        malvinaHiddenAi: Plasmoid.configuration.malvinaHiddenAi
+        malvinaCompactAi: Plasmoid.configuration.malvinaCompactAi
+        onRequestMalvinaExtrasChange: function(webJson, aiJson, hiddenWeb, hiddenAi, compactAi) {
+            Plasmoid.configuration.malvinaExtraWeb = webJson
+            Plasmoid.configuration.malvinaExtraAi = aiJson
+            Plasmoid.configuration.malvinaHiddenWeb = hiddenWeb
+            Plasmoid.configuration.malvinaHiddenAi = hiddenAi
+            Plasmoid.configuration.malvinaCompactAi = compactAi
+        }
         malvinaWebFirst: Plasmoid.configuration.malvinaWebFirst
         malvinaWebOrder: Plasmoid.configuration.malvinaWebOrder
         malvinaAiOrder: Plasmoid.configuration.malvinaAiOrder
