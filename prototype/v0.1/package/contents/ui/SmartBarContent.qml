@@ -101,8 +101,10 @@ Item {
     property string soTextBackgroundImage: ""
     implicitHeight: fixedHeight
     property bool autoReturnRight: true
-    // Malvina está disponible por defecto, pero su superficie se oculta
-    // cuando no se usa. El usuario puede desactivar el autoocultamiento.
+    // Malvina permanece ACTIVADA por defecto, pero NO siempre visible.
+    // launcherIslandVisible es la clave histórica KConfig de habilitación;
+    // no cambiar su nombre para conservar preferencias previas. Visibilidad
+    // automática es el valor inicial; siempre visible es opción explícita.
     property bool launcherIslandVisible: true
     property bool autoHideMalvina: true
     property bool malvinaHoverRevealed: false
@@ -1879,7 +1881,7 @@ Item {
                     QQC2.ToolTip.delay: 850
                     QQC2.ToolTip.text: root.launcherIslandVisible
                         ? "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
-                        : "Malvina oculta · Derecho: opciones → Mostrar Malvina"
+                        : "Malvina desactivada · Derecho: opciones → Activar Malvina"
 
                     // target=null: el gesto modifica el margen, nunca la
                     // geometría vertical ni el panel real de KDE.
@@ -1981,10 +1983,19 @@ Item {
                         QQC2.MenuItem {
                             id: gripMalvinaVisibility
                             text: root.launcherIslandVisible
-                                ? "Ocultar Malvina (isla 2)"
-                                : "Mostrar Malvina (isla 2)"
+                                ? "Desactivar Malvina (isla 2)"
+                                : "Activar Malvina (isla 2)"
                             onTriggered: root.setLauncherIslandVisible(
                                 !root.launcherIslandVisible, true
+                            )
+                        }
+                        QQC2.MenuItem {
+                            text: "Mantener Malvina siempre visible"
+                            checkable: true
+                            checked: !root.autoHideMalvina
+                            enabled: root.launcherIslandVisible
+                            onTriggered: root.requestAutoHideMalvinaChange(
+                                !root.autoHideMalvina
                             )
                         }
                         QQC2.MenuSeparator {}
