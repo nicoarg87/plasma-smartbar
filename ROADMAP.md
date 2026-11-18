@@ -255,3 +255,10 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Evitar que focusSearch() abra popup de proveedores al invocar atajo local; Tab abre selección.
 - [ ] Retest del visor Qt en CachyOS: Meta+Espacio solo campo, Tab Web/IA, Enter búsqueda, Esc cierra.
 - [ ] Investigar KGlobalAccel/KF6 para un atajo global configurable desde cualquier ventana, respetando atajos existentes y fullscreen.
+
+## Cierre por clic exterior de Malvina (17/11/2026)
+
+- [x] Implementar cierre de campo y herramientas por clic fuera dentro del visor, sin MouseArea que absorba controles de Soledad.
+- [x] Aplicar cierre del popup por clic exterior y por pérdida de actividad de la ventana Qt.
+- [ ] Retest CachyOS: clic dentro de buscador/popup, fuera en fondo/SO, sobre otras aplicaciones, Tab/Espacio/Enter/Esc, autoocultamiento activo e inactivo.
+- [ ] Validar comportamiento externo real en KWin/Wayland y ausencia de consumo de clics ajenos antes de instalar como plasmoide.
