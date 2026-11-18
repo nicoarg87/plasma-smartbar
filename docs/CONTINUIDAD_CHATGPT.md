@@ -314,3 +314,7 @@ Usuario quiere su estética ACTUAL como valor predeterminado. No tenemos lectura
 ## 43. Menús Soledad/Malvina/Compartidas y esquinas del buscador — 18/11/2026
 
 Usuario pide simplificar/reordenar el centro de configuración: separar funciones de Soledad, Malvina y compartidas; evitar subpestañas y controles mezclados. Se reestructuró la navegación lateral de SoledadSettings en esos tres grupos, con ScrollView de menú para ventanas pequeñas y accesos a las páginas y controles existentes; sin tocar la estructura de persistencia. Acceso «Figura y tamaño Malvina» intenta posicionar el scroll en el selector correspondiente. Se retiraron fondos de estilo Qt de ScrollView/TextArea en MalvinaSearch para respetar redondeo derecho del campo. **Aún no probado en CachyOS:** revisar compilación QML, desplazamiento a figura, claridad de enlaces, guardado, transparencia y clics. No instalar panel.
+
+## Entorno de consola del mantenedor — 18/11/2026
+
+**CONFIRMADO POR EL USUARIO:** utiliza **Fish (`fish`)** como shell interactiva en CachyOS. Todas las instrucciones para pegar en Konsole deben usar sintaxis compatible con Fish, sin asumir Bash para operadores, variables, asignaciones ni funciones. Los scripts existentes con intérprete Bash pueden ejecutarse explícitamente con `bash ruta/al/script.sh` desde Fish. Mostrar bloques de comandos listos para copiar en Fish y no pedirle que cambie su shell.
