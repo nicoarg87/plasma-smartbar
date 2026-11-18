@@ -2,6 +2,7 @@
 // proveedores en panel flotante debajo, sin modificar grosor de isla.
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Window
 import QtQuick.Controls as QQC2
 import "MalvinaUrlPolicy.js" as UrlPolicy
 
@@ -79,6 +80,16 @@ Item {
     function confirmCandidate() {
         if (navigationSection !== 0)
             chooseProvider(navigationSection, navigationIndex)
+    }
+
+    // Clic sobre otra aplicacion: la ventana de ensayo pierde actividad.
+    // No intercepta clics externos ni manipula el escritorio KWin.
+    Connections {
+        target: search.Window.window
+        function onActiveChanged() {
+            if (target && !target.active && search.expanded)
+                search.closeSearch()
+        }
     }
 
     RowLayout {
