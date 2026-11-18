@@ -957,3 +957,11 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 **PROBADO POR EL MANTENEDOR EN CACHYOS:** tras seleccionar Claude desde Malvina y autenticarse en el navegador con una cuenta registrada, el enlace experimental de Claude con la consulta **funciona**. El usuario confirma que requiere inicio de sesión o registro antes de acceder a esa experiencia; no confundir con una integración sin cuenta ni garantizar igual comportamiento para usuarios sin autenticar.
 
 **ESTADO:** probado positivamente en el entorno y sesión del mantenedor; todavía experimental, sin garantizar compatibilidad permanente en todas las versiones de la web. La autorización de Malvina es independiente de la autenticación que gestiona Claude. Malvina no solicita credenciales, cookies ni `sudo`. **PENDIENTE:** comprobar reapertura con sesión iniciada, revocación del permiso, casos sin sesión, y si Claude precarga frente a enviar automáticamente el texto. Gemini continúa fallando en precarga web por `q` y ese método está desactivado.
+
+## Malvina — etiquetas descriptivas por URL editables (17/11/2026)
+
+**CONFIRMADO:** el usuario debe poder nombrar descriptivamente cada enlace Web/IA; la etiqueta mostrada es independiente del destino URL y del permiso específico del proveedor.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL, NO PROBADO EN CACHYOS:** se añadieron seis propiedades de nombre (Google/DuckDuckGo/Yahoo/ChatGPT/Gemini/Claude) con valores iniciales y persistencia en KConfig y visor Qt. MalvinaProvidersPage permite editar «Nombre visible», SoledadSettings valida no vacío/máximo 48 caracteres y emite señal al Aplicar, SmartBarContent transmite estado, MalvinaSearch renderiza los nombres dinámicos en las filas Web/IA. La precarga de chats IA sigue asociada a índice/URL verificados, no a nombres personalizados, para impedir confundir etiqueta con identidad o permiso.
+
+**PENDIENTE:** validar en el visor la carga QML, edición, Aplicar, reabrir, persistencia tras reinicio, nombres largos, texto vacío, cambios simultáneos de URLs/permisos, resaltado/foco. No se alteró el panel KDE instalado. La creación/eliminación de proveedores arbitrarios aún no forma parte de este cambio.
