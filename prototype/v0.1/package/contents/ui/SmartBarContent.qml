@@ -57,6 +57,9 @@ Item {
                                          string chatGpt, string gemini, string claude)
     property string soledadShape: "leftRoundRightSquare"
     property string malvinaShape: "rounded"
+    property string malvinaGearButtonShape: "square"
+    property string malvinaSearchButtonShape: "square"
+    signal requestMalvinaButtonShapesChange(string gearShape, string searchShape)
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     property bool taskActiveGlowEnabled: true
@@ -737,6 +740,8 @@ Item {
             soledadSettings.malvinaAllowClaude = root.malvinaAllowClaude
             soledadSettings.soledadShape = root.soledadShape
             soledadSettings.malvinaShape = root.malvinaShape
+            soledadSettings.malvinaGearButtonShape = root.malvinaGearButtonShape
+            soledadSettings.malvinaSearchButtonShape = root.malvinaSearchButtonShape
             soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
             soledadSettings.taskActiveGlowEnabled = root.taskActiveGlowEnabled
             soledadSettings.taskActiveDoubleBorderEnabled = root.taskActiveDoubleBorderEnabled
@@ -832,6 +837,9 @@ Item {
         }
         onSaveMalvinaConsentsRequested: function(chatGpt, gemini, claude) {
             root.requestMalvinaConsentsChange(chatGpt, gemini, claude)
+        }
+        onSaveMalvinaButtonShapesRequested: function(gearShape, searchShape) {
+            root.requestMalvinaButtonShapesChange(gearShape, searchShape)
         }
         defaultImage: root.defaultSoLogo
         onSaveClockAppearanceRequested: function(family, size, color) {
@@ -1109,6 +1117,8 @@ Item {
             }
             MalvinaSearch {
                 id: malvinaSearch
+                gearButtonShape: root.malvinaGearButtonShape
+                searchButtonShape: root.malvinaSearchButtonShape
                 anchors.left: parent.left
                 anchors.leftMargin: 5
                 anchors.verticalCenter: parent.verticalCenter
