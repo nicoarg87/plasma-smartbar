@@ -1019,3 +1019,9 @@ Si el sitio solicita autenticación, la persona inicia sesión personalmente en 
 ## Claude con cuenta iniciada — comportamiento validado (17/11/2026)
 
 **Resultado de prueba del mantenedor:** la integración experimental `?q=` de Claude desde Malvina funciona después de que la persona se registra/inicia sesión en Claude en su navegador. Al usarla sin sesión, el servicio puede solicitar autenticación. No se debe exigir contraseña a Malvina ni otorgarle permisos de sistema; la cuenta se gestiona en la web del proveedor. El permiso de Malvina sigue siendo explícito, individual y revocable. Esta prueba positiva no garantiza funcionamiento futuro ni acredita cómo actúa Claude ante la consulta (precarga o envío automático). **Estado: probado en un entorno real, aún experimental**.
+
+## Nombres descriptivos editables de enlaces Web e IA (17/11/2026)
+
+**CONFIRMADO:** en opciones de Malvina, cada proveedor Web (Google, DuckDuckGo, Yahoo) y chat IA (ChatGPT, Gemini, Claude) presenta dos campos diferentes: «Nombre visible» y dirección URL. El nombre es decidido por el usuario, con nombre existente como valor inicial, máximo de 48 caracteres y no vacío; al aplicar se valida. Las filas de proveedores muestran ese nombre personalizado. Cambiar el nombre no cambia la URL, el permiso, el servicio o el comportamiento de la búsqueda. La asignación de autorizaciones permanece por identificador interno, no por etiqueta.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL:** propiedades de nombres y persistencia conectadas entre MalvinaProvidersPage, SoledadSettings, SmartBarContent, MalvinaSearch, main.qml/KConfig, main.xml y visor independiente con ajustes locales. **PENDIENTE PRUEBA REAL QT/CACHYOS:** editar nombre, aplicar, seleccionar con Tab, reiniciar visor y comprobar persistencia sin romper URL o autorización. No se agregaron ni eliminaron proveedores mediante esta modificación.
