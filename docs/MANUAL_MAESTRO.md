@@ -991,3 +991,13 @@ Si el sitio solicita autenticación, la persona inicia sesión personalmente en 
 **IMPLEMENTADO en rama experimental:** la página MalvinaProvidersPage contiene tres casillas separadas de autorización futura (ChatGPT, Gemini, Claude), desactivadas por defecto. Informa destinatario, envío solo al pulsar Enter cuando exista integración verificada, revocación mediante desmarcar y Aplicar, y no acceso a claves, archivos ni permisos sudo. Las opciones se cargan al abrir Configuración y se guardan al Aplicar mediante señales del núcleo, KConfig del plasmoide y preferencias locales del visor Qt. La lista de navegador muestra «Predeterminado del sistema (KDE)», única opción operativa ahora: la selección de un navegador específico requiere integración nativa posterior y la interfaz no debe aparentar que ya funciona.
 
 **LÍMITE EXPLÍCITO:** guardar un permiso no activa envíos; Malvina sigue abriendo la página de IA sin pasar el texto. Esta función fue implementada solo a nivel de preferencias, pendiente de prueba en CachyOS y de evaluar proveedores para envío a chat web. Evitar confundir el navegador predeterminado del sistema con permisos de envío de consultas a IA.
+
+## Malvina — controles de proveedores Web e IA y navegador (17/11/2026)
+
+**CONFIRMADO Y CODIFICADO EN RAMA EXPERIMENTAL:** la página de Malvina, dentro del centro único de configuración, muestra el navegador **Predeterminado del sistema (KDE)**, que es el método actualmente compatible. El selector de navegadores específicos está deshabilitado explícitamente para no simular integración nativa inexistente. La apertura se hace mediante `Qt.openUrlExternally` sin privilegios de sistema.
+
+**BUSCADORES WEB:** Google, DuckDuckGo y Yahoo tienen casillas independientes de habilitación (true de fábrica, para preservar el comportamiento previo). Al deshabilitar uno y pulsar Aplicar, su botón no se puede elegir y no se ejecuta la búsqueda si estaba seleccionado. En Web, Enter envía la consulta a la página del buscador elegido, según sus condiciones.
+
+**CHAT IA:** ChatGPT, Gemini y Claude tienen consentimiento informado individual para un eventual envío directo (false de fábrica). Marcar un permiso y Aplicar **solo almacena una preferencia**, no implementa ni habilita hoy el envío de texto: el comportamiento actual sigue siendo abrir el sitio de IA. Mensaje explícito en la página de opciones. No se capturan cookies, claves ni contraseñas y no se usa sudo.
+
+**PENDIENTE:** pruebas visuales y funcionales en CachyOS, recarga de preferencias locales/KConfig, gestión de todos los buscadores Web deshabilitados, integración opcional de navegador específico, método oficial para chat IA y autorización efectiva antes de cualquier transmisión.
