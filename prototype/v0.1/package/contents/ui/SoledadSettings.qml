@@ -893,6 +893,10 @@ Window {
                         text: "Soledad: el modelo inicial conserva la izquierda redondeada y termina recto a la derecha."
                         color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                     }
+                    QQC2.Label {
+                        text: "SOLEDAD · Figura exterior"
+                        color: "#cde6f5"; font.bold: true
+                    }
                     QQC2.Label { text: "Forma de Soledad"; color: "white" }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
@@ -907,6 +911,11 @@ Window {
                             settings.soledadShape = ["leftRoundRightSquare","rounded",
                                 "square","leftSquareRightRound","leftTip"][i]
                         }
+                    }
+                    QQC2.Label {
+                        text: "MALVINA · Figura exterior y controles"
+                        color: "#cde6f5"; font.bold: true
+                        visible: settings.launcherIslandVisible
                     }
                     QQC2.Label {
                         text: "Forma de Malvina";
@@ -956,6 +965,10 @@ Window {
                         onActivated: function(i) {
                             settings.malvinaSearchButtonShape = ["square","rounded","circle","capsule"][i]
                         }
+                    }
+                    QQC2.Label {
+                        text: "COMPARTIDAS · Controles del panel"
+                        color: "#cde6f5"; font.bold: true
                     }
                     QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
                     QQC2.ComboBox {
