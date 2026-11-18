@@ -313,7 +313,9 @@ Item {
             text: ""
             padding: 3
             background: Rectangle {
-                radius: search.gearButtonShape === "circle" ? width / 2 : 0
+                radius: search.gearButtonShape === "circle" ? Math.min(width,height)/2 :
+                        search.gearButtonShape === "rounded" ? Math.min(7,height/4) :
+                        search.gearButtonShape === "capsule" ? height/2 : 0
                 // Contorno fino siempre visible: permite distinguir
                 // cuadrado/círculo sin tapar color ni degradado de Malvina.
                 color: gear.down ? "#30ffffff" :
@@ -333,7 +335,9 @@ Item {
             text: ""
             padding: 3
             background: Rectangle {
-                radius: search.searchButtonShape === "circle" ? width / 2 : 0
+                radius: search.searchButtonShape === "circle" ? Math.min(width,height)/2 :
+                        search.searchButtonShape === "rounded" ? Math.min(7,height/4) :
+                        search.searchButtonShape === "capsule" ? height/2 : 0
                 // Contorno fino siempre visible: permite distinguir
                 // cuadrado/círculo sin tapar color ni degradado de Malvina.
                 color: magnifier.down ? "#30ffffff" :
