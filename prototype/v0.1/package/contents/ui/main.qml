@@ -51,6 +51,14 @@ PlasmoidItem {
         malvinaChatGptUrl: Plasmoid.configuration.malvinaChatGptUrl
         malvinaGeminiUrl: Plasmoid.configuration.malvinaGeminiUrl
         malvinaClaudeUrl: Plasmoid.configuration.malvinaClaudeUrl
+        malvinaAllowChatGpt: Plasmoid.configuration.malvinaAllowChatGpt
+        malvinaAllowGemini: Plasmoid.configuration.malvinaAllowGemini
+        malvinaAllowClaude: Plasmoid.configuration.malvinaAllowClaude
+        onRequestMalvinaConsentsChange: function(chatGpt, gemini, claude) {
+            Plasmoid.configuration.malvinaAllowChatGpt = chatGpt
+            Plasmoid.configuration.malvinaAllowGemini = gemini
+            Plasmoid.configuration.malvinaAllowClaude = claude
+        }
         onRequestMalvinaProvidersChange: function(google, duck, yahoo, chatGpt, gemini, claude) {
             Plasmoid.configuration.malvinaGoogleUrl = google
             Plasmoid.configuration.malvinaDuckUrl = duck
