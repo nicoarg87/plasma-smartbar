@@ -25,6 +25,11 @@ Item {
     property string malvinaChatGptUrl: "https://chatgpt.com/"
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
+    // Consentimiento futuro para envío directo; nunca habilita envíos por sí mismo.
+    property bool malvinaAllowChatGpt: false
+    property bool malvinaAllowGemini: false
+    property bool malvinaAllowClaude: false
+    signal requestMalvinaConsentsChange(bool chatGpt, bool gemini, bool claude)
     signal requestMalvinaProvidersChange(string google, string duck, string yahoo,
                                          string chatGpt, string gemini, string claude)
     property string soledadShape: "leftRoundRightSquare"
@@ -686,6 +691,9 @@ Item {
             soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
             soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
             soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
+            soledadSettings.malvinaAllowChatGpt = root.malvinaAllowChatGpt
+            soledadSettings.malvinaAllowGemini = root.malvinaAllowGemini
+            soledadSettings.malvinaAllowClaude = root.malvinaAllowClaude
             soledadSettings.soledadShape = root.soledadShape
             soledadSettings.malvinaShape = root.malvinaShape
             soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
@@ -768,6 +776,9 @@ Item {
         onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaProvidersChange(google, duck, yahoo,
                                                chatGpt, gemini, claude)
+        }
+        onSaveMalvinaConsentsRequested: function(chatGpt, gemini, claude) {
+            root.requestMalvinaConsentsChange(chatGpt, gemini, claude)
         }
         defaultImage: root.defaultSoLogo
         onSaveClockAppearanceRequested: function(family, size, color) {
