@@ -847,10 +847,10 @@ Window {
                     QQC2.ComboBox {
                         visible: settings.launcherIslandVisible
                         Layout.fillWidth: true
-                        model: ["Cuadrado (inicial)", "Redondo"]
-                        currentIndex: settings.malvinaGearButtonShape === "circle" ? 1 : 0
+                        model: ["Cuadrado (inicial)", "Cuadrado con esquinas redondeadas", "Circular", "Cápsula"]
+                        currentIndex: Math.max(0,["square","rounded","circle","capsule"].indexOf(settings.malvinaGearButtonShape))
                         onActivated: function(i) {
-                            settings.malvinaGearButtonShape = i === 1 ? "circle" : "square"
+                            settings.malvinaGearButtonShape = ["square","rounded","circle","capsule"][i]
                         }
                     }
                     QQC2.Label {
@@ -861,10 +861,10 @@ Window {
                     QQC2.ComboBox {
                         visible: settings.launcherIslandVisible
                         Layout.fillWidth: true
-                        model: ["Cuadrado (inicial)", "Redondo"]
-                        currentIndex: settings.malvinaSearchButtonShape === "circle" ? 1 : 0
+                        model: ["Cuadrado (inicial)", "Cuadrado con esquinas redondeadas", "Circular", "Cápsula"]
+                        currentIndex: Math.max(0,["square","rounded","circle","capsule"].indexOf(settings.malvinaSearchButtonShape))
                         onActivated: function(i) {
-                            settings.malvinaSearchButtonShape = i === 1 ? "circle" : "square"
+                            settings.malvinaSearchButtonShape = ["square","rounded","circle","capsule"][i]
                         }
                     }
                     QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
