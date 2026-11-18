@@ -338,3 +338,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Conservar Tab hacia Web/IA, flechas, Espacio para elegir y Enter para buscar; ajustar detector de clic exterior.
 - [ ] Retest en CachyOS: verificar único campo visible, X, salto de línea, Ctrl+V largo, Enter, selector, clic exterior, control de foco y ausencia de choque con Soledad.
 - [ ] Revisar el límite 520 px con pantallas pequeñas/grandes, anchos configurados y comportamiento KWin/Wayland real antes de cerrar este hito.
+
+## Corregir superficie interactiva del campo expansible Malvina (17/11/2026)
+
+- [x] Registrar fallos probados: ancho no crece y clics atraviesan renglones inferiores.
+- [x] Reemplazar superficie desbordada fuera del Item por un único TextArea en Popup no modal superpuesto sobre el campo original, sin duplicación.
+- [x] Dar ancho máximo disponible al comenzar a escribir, con presupuesto de media pantalla que incluye botones.
+- [ ] Retest Qt/CachyOS de todo el campo extendido: clic final y selección, escritura de múltiples líneas, X, Tab Web/IA, Espacio, Enter, clic exterior y límite Soledad.
+- [ ] Confirmar interacción y forma visual exacta antes de cerrar el fallo.
