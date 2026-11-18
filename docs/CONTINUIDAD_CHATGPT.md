@@ -252,3 +252,7 @@ En SmartBarContent.qml existe Shortcut Meta+Space con Qt.WindowShortcut. Se limi
 ## 28. Gemini no precarga por URL q — prueba negativa (17/11/2026)
 
 Usuario probó en CachyOS: Gemini autorizado, el texto de Malvina no apareció en el chat. Búsqueda externa confirmó ausencia de documentación oficial del parámetro `q` como precarga nativa Gemini web; hay extensiones externas que lo implementan. En rama v0.1: política `resolveAiPrefill` deja de añadir `q` para índice Gemini (1) aun con permiso, la interfaz informa la limitación, tests actualizados. Commits 77c06e6, cb6f8a8, 656b89c. Falta volver a ejecutar tests Node y visor Qt. Buscar solución oficial por proveedor, no inventar que una URL nueva funciona ni instalar extensiones sin pedido expreso.
+
+## 29. Claude funciona con sesión web — prueba del mantenedor (17/11/2026)
+
+El usuario confirma en CachyOS que Claude **funciona** desde Malvina tras registrarse/iniciar sesión en su cuenta. Registrar como **PROBADO positivamente con autenticación**, no como compatibilidad universal ni sin cuenta. Separar permiso IA Malvina de credenciales del proveedor; no pedir contraseña ni sudo. Pendientes: verificar revocación, comportamiento con/sin sesión, si `?q=` precarga o envía, y mantener criterio experimental. Gemini sigue sin precarga funcional.
