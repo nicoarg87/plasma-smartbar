@@ -17,6 +17,12 @@ Item {
     property string chatGptUrl: "https://chatgpt.com/"
     property string geminiUrl: "https://gemini.google.com/app"
     property string claudeUrl: "https://claude.ai/new"
+    property string googleName: "Google"
+    property string duckName: "DuckDuckGo"
+    property string yahooName: "Yahoo"
+    property string chatGptName: "ChatGPT"
+    property string geminiName: "Gemini"
+    property string claudeName: "Claude"
     property bool allowChatGptPrefill: false
     property bool allowGeminiPrefill: false
     property bool allowClaudePrefill: false
@@ -34,8 +40,8 @@ Item {
     property bool suppressPopupDismissal: false
     signal requestSettings()
     signal requestInstalledApps()
-    readonly property var webNames: ["Google", "DuckDuckGo", "Yahoo"]
-    readonly property var aiNames: ["ChatGPT", "Gemini", "Claude"]
+    readonly property var webNames: [googleName, duckName, yahooName]
+    readonly property var aiNames: [chatGptName, geminiName, claudeName]
     readonly property var webUrls: [googleTemplate, duckTemplate, yahooTemplate]
     readonly property var aiUrls: [chatGptUrl, geminiUrl, claudeUrl]
     implicitWidth: expanded ? 396 : 76
