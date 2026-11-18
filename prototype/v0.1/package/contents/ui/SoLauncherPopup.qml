@@ -23,7 +23,8 @@ QQC2.Popup {
     property int categoryLayout: 0
     property int maxVisibleSlots: 20
     // Disponible hasta la parte inferior del visor. El ScrollView toma el excedente.
-    property real availableHeight: 470
+    // Evitar availableHeight: es una propiedad FINAL del tipo Popup en Qt 6.
+    property real popupHeightLimit: 470
     // Valores heredados de Soledad: ninguna copia de colores de Malvina.
     property color islandColor: "#010111"
     property color islandGradientEnd: "#ee9852"
@@ -68,7 +69,7 @@ QQC2.Popup {
     // La posición y el orden del subpanel son configurables (A/B).
     width: filesMode ? filesWidth :
         (showCategoryPanel ? primaryWidth + categoryWidth + 1 : primaryWidth)
-    height: Math.min(Math.max(170, availableHeight),
+    height: Math.min(Math.max(170, popupHeightLimit),
         Math.max(filesMode ? 240 : 170, headerHeight + rowsToShow * rowHeight))
     padding: 9
     modal: false
