@@ -396,3 +396,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Probar QML en CachyOS: copia de paleta, Aplicar, ritmo compartido, intensidades, desactivar cada sincronía, reinicio, bordes y fondos.
 - [ ] Evaluar compatibilidad de otras siluetas de SO en controles pequeños y accesibilidad, antes de agregarlas.
 
+## Figura de isla Malvina al estilo Soledad (17/11/2026)
+
+- [x] Ampliar forma de isla Malvina a seis variantes, incluyendo punta triangular izquierda y cápsula.
+- [x] Añadir punta con Canvas, contorno y relleno/degradado/respiración, sin botones en el vértice estrecho.
+- [x] Conectar radio de cápsula al editor y conservar guardado en propiedad `malvinaShape` existente.
+- [ ] Ejecutar prueba Qt/CachyOS de seis figuras: margen de controles, clics, campo, X, navegación, gradiente/respiración y persistencia.
+- [ ] Revisar recorte/contorno con punta y alta transparencia, sin agrandar altura de barra.
+- [ ] Solo considerar formas complejas de SO (rombo/corazón/estrella) para la isla completa si pueden preservar usabilidad, sin prometer compatibilidad antes de prueba.
