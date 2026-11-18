@@ -331,7 +331,7 @@ Window {
     readonly property bool outlineCanMove: outlineIsOrbit || effectStyle === "breathe"
 
     property bool autoCollapseSO: true
-    property bool soLeftClickOpensLauncher: true
+    property bool soLeftClickOpensLauncher: false
     property bool autoCollapseTray: false
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
@@ -1239,8 +1239,8 @@ Window {
                     QQC2.ComboBox {
                         Layout.fillWidth: true
                         model: [
-                            "Izquierdo: aplicaciones · Derecho: ventanas abiertas (inicial)",
-                            "Izquierdo: ventanas abiertas · Derecho: aplicaciones"
+                            "Izquierdo: Launcher de aplicaciones · Derecho: Cajón de aplicaciones",
+                            "Izquierdo: Cajón de aplicaciones · Derecho: Launcher de aplicaciones (inicial)"
                         ]
                         currentIndex: settings.soLeftClickOpensLauncher ? 0 : 1
                         onActivated: function(i) { settings.soLeftClickOpensLauncher = i === 0 }
