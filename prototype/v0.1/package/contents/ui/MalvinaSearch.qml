@@ -428,9 +428,13 @@ Item {
             QQC2.ScrollView {
                 id: queryScroll
                 anchors.fill: parent
+                // Evitar el fondo rectangular del estilo Qt que tapa la
+                // geometría del extremo derecho del Popup redondeado.
+                background: Item {}
                 clip: true
                 QQC2.TextArea {
                     id: queryInput
+                    background: Item {}
                     text: search.queryText
                     onTextChanged: if (search.queryText !== text) search.queryText = text
                     font.pixelSize: 14
