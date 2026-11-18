@@ -232,3 +232,7 @@ La prueba aislada `probar_ventanas.sh` ya está **PROBADA** en CachyOS por el ma
 ## 23. Atajo Meta+Espacio: local, no global (17/11/2026)
 
 En SmartBarContent.qml existe Shortcut Meta+Space con Qt.WindowShortcut. Se limita a ventana Qt activa; no registra atajo global KWin/Wayland. El método focusSearch() abría indebidamente opciones junto al campo; [commit fc3e990](https://github.com/nicoarg87/plasma-smartbar/commit/fc3e990039c519f5f3b181c3e7c45de268f14f8b) separa apertura del campo de selección Web/IA (Tab). **Pendiente retest en CachyOS y desarrollar atajo global KDE sin sobrescribir atajos existentes.**
+
+## 24. Cerrar Malvina por clic exterior — pendiente de retest (17/11/2026)
+
+**Nueva regla confirmada:** si el usuario clica fuera del campo de búsqueda de Malvina y del popup de herramientas, cerrar ambos. Con autoocultamiento activado, ocultar isla; si está desactivado, solo contraer búsqueda. Mantener interacciones normales sobre SO/otras ventanas. **Código experimental:** `TapHandler` pasivo en SmartBarContent, `Connections` para ventana Qt inactiva, y política de cierre exterior en popup de MalvinaSearch. Commits 85cabed, a000e97, 0a78dac. **Sin test Qt/CachyOS.** Retest con `bash prototype/v0.1/probar_ancho.sh` tras `git pull --ff-only`, incluyendo clic sobre campo, Web/IA, fondo, SO y otras aplicaciones; también preferencia autoHideMalvina=false.
