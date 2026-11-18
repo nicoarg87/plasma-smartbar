@@ -226,6 +226,14 @@ Item {
     // derecho = launcher de aplicaciones. Es reversible en Configuración.
     property bool soLeftClickOpensLauncher: false
     property bool soTooltipSuppressed: false
+    // Estética del launcher heredada de Soledad; solo el interruptor
+    // tiene opciones independientes, desactivadas por defecto.
+    property int launcherCategoryLayout: 0  // A = original, B = panel a la izquierda
+    property string launcherSwitchShape: "capsule"
+    property bool launcherSwitchColorOverride: false
+    property color launcherSwitchColor: "#010111"
+    property int launcherMaxSlots: 20
+    property real launcherAvailableHeight: 450
     property var localAppCatalog: []
     property bool localCatalogReady: false
     // El visor carga metadatos .desktop locales de solo lectura, si existen.
@@ -454,6 +462,9 @@ Item {
     signal requestAutoHideMalvinaChange(bool newValue)
     signal requestAutoCollapseSOChange(bool newValue)
     signal requestSoClickMappingChange(bool leftOpensLauncher)
+    signal requestLauncherStyleChange(int layoutMode, string switchShape,
+                                     bool switchCustomColor, string switchColor,
+                                     int maxVisibleSlots)
     signal requestAutoCollapseTrayChange(bool newValue)
     onWidthChanged: console.log("SmartBar v0.1: ancho útil de las islas =", width)
 
@@ -894,6 +905,11 @@ Item {
             soledadSettings.showOutlineWhenOpen = root.soActivityShowWhenOpen
             soledadSettings.autoCollapseSO = root.autoCollapseSO
             soledadSettings.soLeftClickOpensLauncher = root.soLeftClickOpensLauncher
+            soledadSettings.launcherCategoryLayout = root.launcherCategoryLayout
+            soledadSettings.launcherSwitchShape = root.launcherSwitchShape
+            soledadSettings.launcherSwitchColorOverride = root.launcherSwitchColorOverride
+            soledadSettings.launcherSwitchColor = root.launcherSwitchColor
+            soledadSettings.launcherMaxSlots = root.launcherMaxSlots
             soledadSettings.autoCollapseTray = root.autoCollapseTray
             soledadSettings.autoReturnRight = root.autoReturnRight
             soledadSettings.launcherIslandVisible = root.launcherIslandVisible
@@ -1007,6 +1023,11 @@ Item {
             if (leftOpensLauncher !== root.soLeftClickOpensLauncher)
                 root.requestSoClickMappingChange(leftOpensLauncher)
         }
+        onSaveLauncherStyleRequested: function(layoutMode, switchShape, customColor,
+                                               switchColor, maxVisibleSlots) {
+            root.requestLauncherStyleChange(layoutMode, switchShape, customColor,
+                                            switchColor, maxVisibleSlots)
+        }
         onSaveBehaviorRequested: function(collapseSO, collapseTray,
                                           returnRight, showMalvina, alignRight,
                                           alignmentEdited) {
@@ -1040,11 +1061,40 @@ Item {
     SoLauncherPopup {
         id: installedAppsPopup
         parent: root
-        x: Math.max(0, Math.min(Math.max(0, root.width - width),
-               root.installedLauncherSource === "malvina" && root.launcherIslandVisible
-               ? launcherIsland.x + (launcherIsland.width - width) / 2
-               : systemIsland.x + (systemIsland.width - width) / 2))
+        x: {
+            const center = root.installedLauncherSource === "malvina" &&
+                root.launcherIslandVisible
+                ? launcherIsland.x + launcherIsland.width / 2
+                : systemIsland.x + systemIsland.width / 2
+            if (categoryLayout === 1 && showCategoryPanel) {
+                // B: conservar el borde derecho del cuadro principal en
+                // su sitio; el segundo cuadro ocupa espacio a la izquierda.
+                const baseX = Math.max(0, Math.min(
+                    Math.max(0, root.width - primaryWidth), center - primaryWidth / 2))
+                return Math.max(0, Math.min(Math.max(0, root.width - width),
+                    baseX - (width - primaryWidth)))
+            }
+            // A: mismo cálculo centrado del lanzador original (aprobado).
+            return Math.max(0, Math.min(Math.max(0, root.width - width),
+                center - width / 2))
+        }
         y: root.fixedHeight + 5
+        availableHeight: root.launcherAvailableHeight
+        categoryLayout: root.launcherCategoryLayout
+        maxVisibleSlots: root.launcherMaxSlots
+        switchShape: root.launcherSwitchShape
+        switchCustomColor: root.launcherSwitchColorOverride
+        switchColor: root.launcherSwitchColor
+        islandColor: root.soledadColor
+        islandGradientEnd: root.soledadGradientEnd
+        islandOpacity: root.soledadOpacity
+        islandGradientEnabled: root.soledadGradientEnabled
+        islandGradientDirection: root.soledadGradientDirection
+        islandBreathingFactor: root.gradientBreathingFactor
+        outlineColor: root.outlineConfig.soledad.color
+        outlineOpacity: root.outlineConfig.soledad.opacity
+        outlineWidth: root.outlineConfig.soledad.width
+        outlineStyle: root.outlineConfig.soledad.style
         malvinaVisible: root.launcherIslandVisible
         installedApplications: root.localAppCatalog
         catalogIsReal: root.localCatalogReady
