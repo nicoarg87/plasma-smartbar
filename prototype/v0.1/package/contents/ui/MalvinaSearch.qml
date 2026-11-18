@@ -41,6 +41,15 @@ Item {
     // Formato de fichas compartido con la isla de Soledad.
     property string extraWeb: "[]"
     property string extraAi: "[]"
+    property string hiddenWeb: ""
+    property string hiddenAi: ""
+    property bool compactAi: false
+    readonly property real fullOptionsWidth: Math.max(396,Math.min(
+        search.Window.window ? Math.max(360, search.Window.window.width - 26) : 970,
+        92 + 96 * Math.max(orderedWebIds.length, compactAi ? 0 : orderedAiIds.length)))
+    readonly property real optionsWidth: compactAi
+        ? Math.max(396, Math.min(fullOptionsWidth, 92 + 96 * orderedWebIds.length))
+        : fullOptionsWidth
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
@@ -48,8 +57,8 @@ Item {
 
     readonly property var webExtras: Slots.extras("web",extraWeb)
     readonly property var aiExtras: Slots.extras("ai",extraAi)
-    readonly property var orderedWebIds: Slots.order("web",extraWeb,webOrder)
-    readonly property var orderedAiIds: Slots.order("ai",extraAi,aiOrder)
+    readonly property var orderedWebIds: Slots.order("web",extraWeb,webOrder,hiddenWeb)
+    readonly property var orderedAiIds: Slots.order("ai",extraAi,aiOrder,hiddenAi)
     signal requestOrderChange(bool webFirst, string webOrder, string aiOrder)
     function nameFor(id) {
         const names = {
@@ -83,9 +92,12 @@ Item {
     }
     function resetDefault() {
         const firstWeb = firstEnabledWebIndex()
-        currentSection = webFirst && firstWeb >= 0 ? 1 : 2
+        const firstAi = orderedAiIds.findIndex(id => enabledFor(id))
+        currentSection = webFirst
+            ? (firstWeb >= 0 ? 1 : (firstAi >= 0 ? 2 : 0))
+            : (firstAi >= 0 ? 2 : (firstWeb >= 0 ? 1 : 0))
         webIndex = Math.max(0, firstWeb)
-        aiIndex = 0
+        aiIndex = Math.max(0, firstAi)
         navigationSection = 0
         navigationIndex = 0
     }
@@ -161,9 +173,13 @@ Item {
     function openSelected() {
         const query = queryText.trim()
         const isAi = currentSection === 2
+        if (currentSection === 0) {
+            console.warn("Malvina: no hay proveedores visibles y habilitados")
+            return
+        }
         const providerId = isAi ? aiIdAt(aiIndex) : webIdAt(webIndex)
         const template = urlFor(providerId)
-        if (!isAi && !enabledFor(providerId)) {
+        if (!providerId || !enabledFor(providerId)) {
             console.warn("Malvina: el buscador Web seleccionado está deshabilitado en Configuración")
             return
         }
@@ -223,19 +239,31 @@ Item {
     }
     function moveSection(backwards) {
         if (!options.opened) options.open()
-        const sections = webFirst ? [0, 1, 2] : [0, 2, 1]
+        const sections = [0]
+        if (webFirst) {
+            if (orderedWebIds.length) sections.push(1)
+            if (orderedAiIds.length) sections.push(2)
+        } else {
+            if (orderedAiIds.length) sections.push(2)
+            if (orderedWebIds.length) sections.push(1)
+        }
         const n = sections.indexOf(navigationSection)
-        navigationSection = sections[(n + (backwards ? 2 : 1)) % 3]
+        navigationSection = sections[(Math.max(0,n) + (backwards ? sections.length-1 : 1)) % sections.length]
         navigationIndex = navigationSection === 1 ? webIndex : aiIndex
     }
     function moveCandidate(delta) {
         if (navigationSection === 0) return
-        const length = navigationSection === 1 ? orderedWebIds.length : orderedAiIds.length
-        navigationIndex = (navigationIndex + delta + length) % length
+        const ids = navigationSection === 1 ? orderedWebIds : orderedAiIds
+        if (!ids.length) return
+        for (let j=0;j<ids.length;j++) {
+            const next=(navigationIndex + delta + ids.length)%ids.length
+            navigationIndex=next
+            if (enabledFor(ids[next])) break
+        }
     }
     // Solo elegir: no abrir la URL ni modificar la consulta.
     function chooseProvider(section, index) {
-        currentSection = section
+        if (section === 2 && !enabledFor(aiIdAt(index))) return
         if (section === 1) {
             if (!enabledFor(webIdAt(index))) {
                 console.warn("Malvina: proveedor Web deshabilitado")
@@ -244,6 +272,7 @@ Item {
             webIndex = index
         }
         else if (section === 2) aiIndex = index
+        currentSection = section
         navigationSection = 0
         activeEditorFocus()
     }
@@ -374,7 +403,7 @@ Item {
         parent: search
         x: 0
         y: search.desiredEditorHeight + 6
-        width: 396
+        width: search.optionsWidth
         height: 152
         padding: 8
         modal: false
@@ -401,6 +430,7 @@ Item {
                 model: search.webFirst ? ["web", "ai"] : ["ai", "web"]
                 delegate: RowLayout {
                     id: sectionRow
+                    visible: section === 1 ? search.orderedWebIds.length > 0 : search.orderedAiIds.length > 0
                     required property string modelData
                     readonly property int section: modelData === "web" ? 1 : 2
                     spacing: 3
@@ -449,7 +479,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 35
                         clip: true
-                        QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AsNeeded
+                        QQC2.ScrollBar.horizontal.policy: sectionRow.section === 2 && search.compactAi ? QQC2.ScrollBar.AsNeeded : QQC2.ScrollBar.AlwaysOff
                         QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOff
                         Row {
                             id: providersRow
@@ -461,7 +491,13 @@ Item {
                                     required property string modelData
                                     required property int index
                                     property real dragX: 0
-                                    width: Math.max(76, Math.min(122, implicitWidth))
+                                    width: sectionRow.section === 2 && search.compactAi
+                                        ? 96
+                                        : Math.max(45, Math.floor(
+                                            (search.optionsWidth - 92 -
+                                            ((sectionRow.section === 1 ? search.orderedWebIds.length : search.orderedAiIds.length) - 1) * 4) /
+                                            Math.max(1, sectionRow.section === 1 ?
+                                                search.orderedWebIds.length : search.orderedAiIds.length)))
                                     height: 30
                                     text: search.nameFor(modelData)
                                     enabled: search.enabledFor(modelData)
