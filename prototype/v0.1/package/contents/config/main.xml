@@ -89,6 +89,8 @@
     <entry name="malvinaWidth" type="Double"><default>52</default></entry>
     <!-- Preajustes visuales; el usuario puede mantener el radio individual. -->
     <entry name="soledadShape" type="String"><default>leftRoundRightSquare</default></entry>
+    <entry name="malvinaGearButtonShape" type="String"><default>square</default></entry>
+    <entry name="malvinaSearchButtonShape" type="String"><default>square</default></entry>
     <entry name="malvinaShape" type="String"><default>rounded</default></entry>
     <entry name="gripShape" type="String"><default>square</default></entry>
     <entry name="trayButtonShape" type="String"><default>rounded</default></entry>
