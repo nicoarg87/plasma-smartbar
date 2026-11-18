@@ -431,3 +431,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Eliminar fondos rectangulares del ScrollView/TextArea del editor para respetar la esquina derecha redondeada.
 - [ ] Verificar en CachyOS la carga QML, enlaces, desplazamiento, Aplicar, autoguardado, figuras, transparencia, gradiente y teclado.
 - [ ] Evaluar mejora posterior de distribución interna en páginas extensas a partir de pruebas del mantenedor, sin ocultar controles o cambiar requisitos.
+
+## Soledad: gestos reversibles y tooltip contextual — 18/11/2026
+
+- [x] Implementar predeterminado SO: clic izquierdo lanzador; clic derecho aplicaciones activas, y opción reversible persistible con valor inicial verdadero.
+- [x] Tooltip sobre SO/GIF con acciones izquierda/derecha actuales; aclarar que Archivos aún no funciona.
+- [x] Conectar Configuración a KConfig y preferencias locales/favoritos del visor sin sobrescribir claves previas.
+- [ ] Validar clics, tooltip, pulsación sostenida y guardado/reinicio en CachyOS.
+- [ ] En etapa separada, implementar el lanzador real por categorías (Internet, Oficina, Multimedia, Sistema, Utilidades y +) y conmutador Aplicaciones/Archivos con búsqueda KDE de archivos validada, sin afectar el panel.
