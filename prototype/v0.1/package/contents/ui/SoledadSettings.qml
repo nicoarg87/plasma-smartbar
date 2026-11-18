@@ -11,7 +11,7 @@ Window {
     id: settings
     visible: false
     flags: Qt.Dialog
-    title: "Configuración de Soledad"
+    title: "Plasma SmartBar · Configuración de Soledad, Malvina y ajustes comunes"
     color: "#242236"
 
     // Tamaño de referencia: el editor de logo es la pestaña más alta.
@@ -23,6 +23,20 @@ Window {
     minimumWidth: 560
     minimumHeight: 510
 
+    // Navegación orientada al usuario; usa las mismas páginas y ajustes
+    // existentes para preservar aplicación y persistencia anteriores.
+    function showSoledadLogo() { currentTab = 1; logoSubtabs.currentIndex = 0 }
+    function showSoledadEffects() { currentTab = 1; logoSubtabs.currentIndex = 1 }
+    function showSoledadWindows() { currentTab = 2; appearanceSubtabs.currentIndex = 1 }
+    function showMalvinaProviders() { currentTab = 0; islandSubtabs.currentIndex = 2 }
+    function showMalvinaShape() { currentTab = 0; islandSubtabs.currentIndex = 0 }
+    function showSharedLayout() { currentTab = 0; islandSubtabs.currentIndex = 0 }
+    function showSharedBehavior() { currentTab = 0; islandSubtabs.currentIndex = 1 }
+    function showSharedColors(target) {
+        currentTab = 2
+        appearanceSubtabs.currentIndex = 0
+        appearanceTarget.currentIndex = target
+    }
     property int currentTab: 0
     property alias currentIslandSubtab: islandSubtabs.currentIndex
     property string malvinaGoogleUrl: "https://www.google.com/search?q={query}"
@@ -633,11 +647,17 @@ Window {
         spacing: 10
 
         QQC2.Label {
-            text: "Configuración de Soledad y sus islas"
+            text: "Plasma SmartBar · Configuración"
             font.bold: true
             font.pixelSize: 17
             color: "white"
             Layout.fillWidth: true
+        }
+        QQC2.Label {
+            text: "Soledad = ventanas y logo · Malvina = buscador Web/IA · Compartidas = posición, colores y tamaño"
+            color: "#d8d9e5"
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
         }
 
         RowLayout {
@@ -645,7 +665,7 @@ Window {
             Layout.fillHeight: true
             spacing: 12
             Rectangle {
-                Layout.preferredWidth: Math.min(190, Math.max(146, settings.width * 0.23))
+                Layout.preferredWidth: Math.min(220, Math.max(184, settings.width * 0.26))
                 Layout.fillHeight: true
                 radius: 10
                 color: "#292c3f"
@@ -655,31 +675,78 @@ Window {
                     anchors.fill: parent
                     anchors.margins: 8
                     spacing: 5
-                    QQC2.Button {
-                        Layout.fillWidth: true
-                        text: "Islas y posición"
-                        icon.name: "preferences-desktop"
-                        highlighted: settings.currentTab === 0
-                        onClicked: settings.currentTab = 0
+                    QQC2.Label {
+                        text: "SOLEDAD · Isla 1"
+                        color: "#d7e5f4"; font.bold: true
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
-                        text: "Logo SO"
-                        icon.name: "image-x-generic"
-                        highlighted: settings.currentTab === 1
-                        onClicked: settings.currentTab = 1
+                        text: "Logo e imagen SO"
+                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0
+                        onClicked: settings.showSoledadLogo()
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
-                        text: "Apariencia"
-                        icon.name: "preferences-desktop-theme"
-                        highlighted: settings.currentTab === 2
-                        onClicked: settings.currentTab = 2
+                        text: "Efectos luminosos SO"
+                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 1
+                        onClicked: settings.showSoledadEffects()
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
-                        text: "Acerca de"
-                        icon.name: "help-about"
+                        text: "Fichas de ventanas"
+                        highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 1
+                        onClicked: settings.showSoledadWindows()
+                    }
+                    QQC2.Label {
+                        text: "MALVINA · Isla 2"
+                        color: "#d7e5f4"; font.bold: true
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Buscadores Web e IA"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 2
+                        onClicked: settings.showMalvinaProviders()
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Figura y tamaño Malvina"
+                        onClicked: settings.showMalvinaShape()
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Colores Malvina"
+                        highlighted: settings.currentTab === 2 &&
+                                     appearanceSubtabs.currentIndex === 0 &&
+                                     appearanceTarget.currentIndex === 1
+                        onClicked: settings.showSharedColors(1)
+                    }
+                    QQC2.Label {
+                        text: "COMPARTIDAS"
+                        color: "#d7e5f4"; font.bold: true
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Posición y geometría"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0
+                        onClicked: settings.showSharedLayout()
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Comportamiento"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1
+                        onClicked: settings.showSharedBehavior()
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Colores Soledad y fondo"
+                        highlighted: settings.currentTab === 2 &&
+                                     appearanceSubtabs.currentIndex === 0 &&
+                                     appearanceTarget.currentIndex !== 1
+                        onClicked: settings.showSharedColors(0)
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Ayuda"
                         highlighted: settings.currentTab === 3
                         onClicked: settings.currentTab = 3
                     }
@@ -699,9 +766,9 @@ Window {
                 QQC2.TabBar {
                     id: islandSubtabs
                     Layout.fillWidth: true
-                    QQC2.TabButton { text: "Geometría y ubicación"; width: implicitWidth }
-                    QQC2.TabButton { text: "Comportamiento"; width: implicitWidth }
-                    QQC2.TabButton { text: "Buscador Malvina"; width: implicitWidth }
+                    QQC2.TabButton { text: "Figuras y posición (ambas islas)"; width: implicitWidth }
+                    QQC2.TabButton { text: "Autocontracción"; width: implicitWidth }
+                    QQC2.TabButton { text: "Proveedores Malvina"; width: implicitWidth }
                 }
                 StackLayout {
                     currentIndex: islandSubtabs.currentIndex
@@ -716,7 +783,7 @@ Window {
                     width: positionScroll.availableWidth - 8
                     spacing: 16
                     QQC2.Label {
-                        text: "Islas y posición"
+                        text: "Geometría compartida · Soledad y Malvina"
                         font.bold: true
                         color: "white"
                     }
@@ -1955,8 +2022,8 @@ Window {
                 QQC2.TabBar {
                     id: appearanceSubtabs
                     Layout.fillWidth: true
-                    QQC2.TabButton { text: "Colores y degradados"; width: implicitWidth }
-                    QQC2.TabButton { text: "Fichas y líneas"; width: implicitWidth }
+                    QQC2.TabButton { text: "Color por isla"; width: implicitWidth }
+                    QQC2.TabButton { text: "Fichas SO y contornos"; width: implicitWidth }
                 }
                 StackLayout {
                     currentIndex: appearanceSubtabs.currentIndex
@@ -1976,7 +2043,7 @@ Window {
                         color: "white"
                     }
                     QQC2.Label {
-                        text: "Color por isla y fondo; bandeja y agarre heredan Soledad salvo personalización."
+                        text: "Elegí primero qué superficie modificar. Soledad y Malvina tienen colores y degradados independientes; bandeja y agarre pueden heredar los de Soledad."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -2525,10 +2592,11 @@ Window {
                         font.pixelSize: 16
                     }
                     QQC2.Label {
-                        text: "Islas y posición: ubicación y autocontracción.\n" +
-                              "Logo SO: imagen, texto y contorno luminoso.\n" +
-                              "Apariencia: degradados y presentación de aplicaciones.\n" +
-                              "Aplicar confirma los cambios sin cerrar."
+                        text: "Soledad: botón SO, logo, efectos y fichas de ventanas.\n" +
+                              "Malvina: proveedores Web/IA, figura, controles y colores propios.\n" +
+                              "Compartidas: geometría, posición, comportamiento y fondos.\n" +
+                              "Colores: seleccioná la isla o superficie que querés editar.\n" +
+                              "Aplicar guarda los cambios sin cerrar la ventana."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
