@@ -39,14 +39,22 @@ Item {
     property int navigationIndex: 0
     property bool suppressPopupDismissal: false
     property string queryText: ""
-    property bool multiLineEditing: false
+    // Único editor: aumenta su superficie hacia abajo, sin otro Popup.
     readonly property int multilineMaxHeight: 220
-    onQueryTextChanged: {
-        if (expanded && !multiLineEditing && (queryText.length > 125 || queryText.indexOf("\n") >= 0)) {
-            multiLineEditing = true
-            editorPopup.open()
-            longInput.forceActiveFocus()
-        }
+    property real maximumSearchWidth: 520
+    readonly property real desiredEditorWidth: Math.min(maximumSearchWidth,
+        Math.max(396, 116 + longestLineLength() * 7.4))
+    readonly property bool expandedDown: queryText.indexOf("\n") >= 0 ||
+                                          queryText.length > 125
+    readonly property real desiredEditorHeight: expandedDown
+        ? Math.min(multilineMaxHeight, Math.max(56, queryInput.contentHeight + 12))
+        : 32
+    function longestLineLength() {
+        const lines = queryText.split("\n")
+        let longest = 0
+        for (let i = 0; i < lines.length; ++i)
+            longest = Math.max(longest, lines[i].length)
+        return longest
     }
     signal requestSettings()
     signal requestInstalledApps()
@@ -54,14 +62,13 @@ Item {
     readonly property var aiNames: [chatGptName, geminiName, claudeName]
     readonly property var webUrls: [googleTemplate, duckTemplate, yahooTemplate]
     readonly property var aiUrls: [chatGptUrl, geminiUrl, claudeUrl]
-    implicitWidth: expanded ? 396 : 76
+    implicitWidth: expanded ? desiredEditorWidth : 76
     implicitHeight: 34
 
     function closeSearch() {
         expanded = false
         navigationSection = 0
         options.close()
-        editorPopup.close()
     }
     function focusSearch() {
         // Abrir solo el campo: la fila de proveedores aparece con Tab.
@@ -72,10 +79,7 @@ Item {
             suppressPopupDismissal = true
             options.close()
         }
-        if (multiLineEditing) {
-            editorPopup.open()
-            longInput.forceActiveFocus()
-        } else queryInput.forceActiveFocus()
+        queryInput.forceActiveFocus()
     }
     function openSelected() {
         const query = queryText.trim()
@@ -101,29 +105,17 @@ Item {
     // Navegacion por filas. El foco real permanece en TextField para que Tab
     // no dependa del manejo de foco entre Popup y ventana en Qt/Wayland.
     function clearQuery() {
-        queryText = ""
-        multiLineEditing = false
-        editorPopup.close()
-        navigationSection = 0
+        queryInput.text = ""
         queryInput.forceActiveFocus()
+        navigationSection = 0
     }
     function addLine() {
-        if (!multiLineEditing) {
-            multiLineEditing = true
-            editorPopup.open()
-            longInput.text = queryText + "\n"
-            longInput.cursorPosition = longInput.length
-            longInput.forceActiveFocus()
-            queryText = longInput.text
-        } else {
-            const p = longInput.cursorPosition
-            longInput.insert(p, "\n")
-            longInput.cursorPosition = p + 1
-        }
+        const p = queryInput.cursorPosition
+        queryInput.insert(p, "\n")
+        queryInput.cursorPosition = p + 1
     }
     function activeEditorFocus() {
-        if (multiLineEditing) longInput.forceActiveFocus()
-        else queryInput.forceActiveFocus()
+        queryInput.forceActiveFocus()
     }
     function handleEditorKey(event) {
         if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
@@ -139,12 +131,11 @@ Item {
             closeSearch()
             event.accepted = true
         } else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) &&
-                   !(event.modifiers & Qt.ShiftModifier)) {
-            openSelected()
-            event.accepted = true
-        } else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) &&
                    (event.modifiers & Qt.ShiftModifier)) {
             addLine()
+            event.accepted = true
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            openSelected()
             event.accepted = true
         }
     }
@@ -209,85 +200,69 @@ Item {
                 else search.focusSearch()
             }
         }
-        // Una sola línea en la isla. Un editor flotante baja cuando
-        // el usuario solicita varias líneas: no cambia el grosor de la barra.
-        QQC2.TextField {
-            id: queryInput
+        // Un único campo, sin segunda ventana. El contenedor ocupa 32 px
+        // en la isla; su superficie de edición puede crecer hacia abajo.
+        Item {
+            id: editorAnchor
             visible: search.expanded
             Layout.fillWidth: true
             Layout.preferredHeight: 32
-            Layout.minimumWidth: 60
-            text: search.queryText
-            onTextEdited: search.queryText = text
-            font.pixelSize: 14
-            font.bold: false
-            verticalAlignment: TextInput.AlignVCenter
-            topPadding: 4
-            bottomPadding: 4
-            placeholderText: "Buscar en Web o IA…"
-            selectByMouse: true
-            cursorVisible: activeFocus && search.navigationSection === 0
-            Keys.priority: Keys.BeforeItem
-            Keys.onTabPressed: function(event) { search.moveSection(false); event.accepted = true }
-            Keys.onBacktabPressed: function(event) { search.moveSection(true); event.accepted = true }
-            Keys.onPressed: function(event) { search.handleEditorKey(event) }
-        }
-        QQC2.Button {
-            id: clearButton
-            visible: search.expanded && search.queryText.length > 0
-            Layout.preferredWidth: 28
-            Layout.preferredHeight: 28
-            text: "×"
-            font.pixelSize: 19
-            QQC2.ToolTip.visible: hovered
-            QQC2.ToolTip.text: "Borrar todo el texto"
-            onClicked: search.clearQuery()
-        }
-    }
-    QQC2.Popup {
-        id: editorPopup
-        parent: search
-        x: 0
-        y: search.height + 6
-        width: search.expanded ? search.width : 396
-        height: Math.min(search.multilineMaxHeight,
-                         Math.max(78, longInput.contentHeight + 38))
-        padding: 8
-        focus: false
-        modal: false
-        closePolicy: QQC2.Popup.NoAutoClose
-        background: Rectangle {
-            radius: 8
-            color: "#172a3d"
-            border.color: "#4e8499"
-            border.width: 1
-        }
-        contentItem: ColumnLayout {
-            spacing: 4
-            QQC2.Label {
-                text: "Texto de búsqueda · Mayús + Enter: otra línea · Enter: buscar"
-                color: "#d7eaf4"
-                font.pixelSize: 11
-            }
-            QQC2.ScrollView {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                clip: true
-                QQC2.TextArea {
-                    id: longInput
-                    text: search.queryText
-                    onTextChanged: if (search.multiLineEditing && search.queryText !== text)
-                                       search.queryText = text
-                    wrapMode: TextEdit.Wrap
-                    font.pixelSize: 14
-                    font.bold: false
-                    color: "#ffffff"
-                    selectByMouse: true
-                    cursorVisible: activeFocus && search.navigationSection === 0
-                    Keys.priority: Keys.BeforeItem
-                    Keys.onTabPressed: function(event) { search.moveSection(false); event.accepted = true }
-                    Keys.onBacktabPressed: function(event) { search.moveSection(true); event.accepted = true }
-                    Keys.onPressed: function(event) { search.handleEditorKey(event) }
+            Layout.minimumWidth: 90
+            Rectangle {
+                id: editorSurface
+                width: parent.width
+                height: search.desiredEditorHeight
+                radius: 5
+                color: "#101d2d"
+                border.color: queryInput.activeFocus ? "#54c9e8" : "#4e8499"
+                border.width: 1
+                z: 5
+                QQC2.ScrollView {
+                    id: queryScroll
+                    anchors.fill: parent
+                    anchors.rightMargin: 27
+                    clip: true
+                    QQC2.TextArea {
+                        id: queryInput
+                        text: search.queryText
+                        onTextChanged: if (search.queryText !== text) search.queryText = text
+                        font.pixelSize: 14
+                        font.bold: false
+                        color: "white"
+                        wrapMode: TextEdit.Wrap
+                        topPadding: search.expandedDown ? 6 : 5
+                        bottomPadding: 4
+                        leftPadding: 7
+                        rightPadding: 3
+                        selectByMouse: true
+                        placeholderText: "Buscar en Web o IA…"
+                        cursorVisible: activeFocus && search.navigationSection === 0
+                        Keys.priority: Keys.BeforeItem
+                        Keys.onTabPressed: function(event) {
+                            search.moveSection(false); event.accepted = true
+                        }
+                        Keys.onBacktabPressed: function(event) {
+                            search.moveSection(true); event.accepted = true
+                        }
+                        Keys.onPressed: function(event) { search.handleEditorKey(event) }
+                    }
+                }
+                QQC2.Button {
+                    id: clearButton
+                    anchors.right: parent.right
+                    anchors.rightMargin: 2
+                    anchors.top: parent.top
+                    anchors.topMargin: 2
+                    width: 25
+                    height: 26
+                    visible: search.queryText.length > 0
+                    text: "×"
+                    font.pixelSize: 18
+                    padding: 0
+                    z: 10
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.text: "Borrar todo el texto"
+                    onClicked: search.clearQuery()
                 }
             }
         }
@@ -296,7 +271,7 @@ Item {
         id: options
         parent: search
         x: 0
-        y: search.height + 6 + (editorPopup.visible ? editorPopup.height + 6 : 0)
+        y: search.desiredEditorHeight + 6
         width: 396
         height: 152
         padding: 8
@@ -307,7 +282,7 @@ Item {
         onClosed: {
             if (search.suppressPopupDismissal) {
                 search.suppressPopupDismissal = false
-            } else if (search.expanded && !editorPopup.visible) {
+            } else if (search.expanded) {
                 search.closeSearch()
             }
         }
