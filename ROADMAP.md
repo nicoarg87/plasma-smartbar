@@ -329,3 +329,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Probar QML real en CachyOS: alineación, editor multilinea, Ctrl+V, Tab/Espacio/clic, Enter, X, Esc, clic fuera, cambios de tamaño/escala y compatibilidad con Popup.
 - [ ] Confirmar con prueba que el editor largo no cubra incorrectamente contenido o se recorte cerca del límite de pantalla; ajustar geometría en función de espacio disponible, sin redimensionar barra.
 - [ ] Registrar las verificaciones de Google como comportamiento del sitio, sin intentar eludir captchas ni exigir autenticación desde Malvina.
+
+## Reemplazo del editor duplicado de Malvina (17/11/2026)
+
+- [x] Eliminar segundo Popup de edición: conservar **un solo campo** en todo momento.
+- [x] Permitir crecer hacia abajo con Mayús+Enter/texto largo y hacia derecha hasta media pantalla (máximo provisional 520 px) sin cambiar grosor de barra.
+- [x] Mantener X siempre dentro del extremo derecho de la superficie de escritura cuando exista texto.
+- [x] Conservar Tab hacia Web/IA, flechas, Espacio para elegir y Enter para buscar; ajustar detector de clic exterior.
+- [ ] Retest en CachyOS: verificar único campo visible, X, salto de línea, Ctrl+V largo, Enter, selector, clic exterior, control de foco y ausencia de choque con Soledad.
+- [ ] Revisar el límite 520 px con pantallas pequeñas/grandes, anchos configurados y comportamiento KWin/Wayland real antes de cerrar este hito.
