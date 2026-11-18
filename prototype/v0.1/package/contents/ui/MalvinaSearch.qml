@@ -22,6 +22,11 @@ Item {
     property bool islandGradientEnabled: false
     property color islandGradientEnd: "#445577"
     property string islandGradientDirection: "topBottom"
+    // Los paneles flotantes heredan los contornos de la isla 2.
+    property color islandOutlineColor: "#4e8499"
+    property real islandOutlineOpacity: 1
+    property real islandOutlineWidth: 1
+    property string islandOutlineStyle: "solid"
     property string googleTemplate: "https://www.google.com/search?q={query}"
     property string duckTemplate: "https://duckduckgo.com/?q={query}"
     property string yahooTemplate: "https://search.yahoo.com/search?p={query}"
@@ -421,8 +426,18 @@ Item {
             }
             // El foco conserva indicación accesible, sin marco fluorescente
             // permanente que esconda la estética personalizada.
-            border.color: queryInput.activeFocus ? "#8d91b5c5" : "#5c748594"
-            border.width: 1
+            border.width: 0
+            OutlineStyle {
+                anchors.fill: parent
+                lineColor: search.islandOutlineColor
+                lineOpacity: search.islandOutlineOpacity
+                lineWidth: search.islandOutlineWidth
+                lineStyle: search.islandOutlineStyle
+                topLeft: parent.topLeftRadius
+                topRight: parent.topRightRadius
+                bottomLeft: parent.bottomLeftRadius
+                bottomRight: parent.bottomRightRadius
+            }
         }
         contentItem: Item {
             QQC2.ScrollView {
@@ -506,11 +521,19 @@ Item {
                 search.closeSearch()
             }
         }
-        background: Rectangle {
-            radius: 10
-            color: "#172a3d"
-            border.width: 1
-            border.color: "#4e8499"
+        background: IslandPopupSurface {
+            cornerRadius: 10
+            baseColor: search.islandColor
+            endColor: search.islandGradientEnd
+            gradientEnabled: search.islandGradientEnabled
+            gradientDirection: search.islandGradientDirection
+            baseOpacity: search.islandOpacity
+            // islandOpacity ya incluye el factor de respiración de Malvina.
+            breathingFactor: 1
+            outlineColor: search.islandOutlineColor
+            outlineOpacity: search.islandOutlineOpacity
+            outlineWidth: search.islandOutlineWidth
+            outlineStyle: search.islandOutlineStyle
         }
         contentItem: ColumnLayout {
             spacing: 4
