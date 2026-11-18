@@ -292,3 +292,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Ejecutar tests Node y visor Qt en CachyOS. Comprobar cada proveedor con permiso activo y desactivado; registrar resultados reales.
 - [ ] Determinar si `q` precarga/autoenvía/ignora según navegador y sesión; si no funciona, deshabilitar el ensayo por proveedor y diseñar alternativa oficialmente compatible.
 - [ ] Comprobar que solo Enter abre la URL y que no hay filtración durante escritura, Tab o Espacio.
+
+## Gemini — corrección tras prueba fallida (17/11/2026)
+
+- [x] Registrar prueba del mantenedor: Gemini autorizado no recibía consulta desde Malvina.
+- [x] Investigar: `?q=` no está documentado como interfaz web nativa compatible; depender de extensiones de terceros no es solución obligatoria.
+- [x] Desactivar `q` de Gemini aunque tenga permiso, abrir página sin consulta y mostrar aviso honesto en Configuración.
+- [x] Ajustar pruebas automatizadas para impedir `q` accidental con permiso Gemini.
+- [ ] Retest Node y CachyOS para validar mitigación y conservar navegación Web/IA.
+- [ ] Investigar alternativa oficial para precargar chat Gemini y validar permisos específicos antes de proponer implementación.
