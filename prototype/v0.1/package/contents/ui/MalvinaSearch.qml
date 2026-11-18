@@ -37,9 +37,11 @@ Item {
         options.close()
     }
     function focusSearch() {
+        // Abrir solo el campo: la fila de proveedores aparece con Tab.
+        // Evitar confundir el atajo local Meta+Espacio con la bandeja de opciones.
         expanded = true
         navigationSection = 0
-        options.open()
+        options.close()
         queryInput.forceActiveFocus()
     }
     function openSelected() {
