@@ -1069,3 +1069,9 @@ Si el sitio solicita autenticación, la persona inicia sesión personalmente en 
 ## Fondo del editor y botones de Malvina (17/11/2026)
 
 **Confirmado:** al modificar los colores/degradado/opacidad de Malvina y pulsar Aplicar, tanto isla como campo de escritura deben reflejar esa apariencia. Antes, el campo usaba un azul fijo y los botones Qt tenían relleno propio. Ahora el campo toma las propiedades cromáticas de Malvina; engranaje y lupa tienen fondo normal transparente y selectores independientes de forma «Cuadrado (inicial)» o «Redondo» en Configuración de formas. Los valores se guardan en KConfig y en preferencias locales/favoritas del visor. Mantener un solo editor, X, desplazamiento y altura de isla fija. **Sin prueba Qt/CachyOS tras los cambios.**
+
+## Estilo coincidente de isla y campo de búsqueda Malvina (17/11/2026)
+
+**CONFIRMADO:** el **campo único de búsqueda** comparte la apariencia configurable de Malvina: color, opacidad, degradado, dirección y también **forma/radio de sus esquinas**. La forma del propio campo sigue la forma seleccionada para la isla (cuadrada, redondeada o esquinas mixtas); engranaje y lupa conservan sus selectores de forma individuales. No se añade un segundo recuadro de escritura. El cartel de la lupa debe ser compacto y desaparecer con el buscador expandido; el foco permanece indicado sin un borde celeste dominante.
+
+**IMPLEMENTADO en rama de prueba; no probado aún en CachyOS.** Validar formas, gradientes, tamaños y cambios después de Aplicar, sin afectar a Soledad.
