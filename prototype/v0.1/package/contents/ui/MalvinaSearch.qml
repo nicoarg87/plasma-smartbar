@@ -447,7 +447,7 @@ Item {
                     // Sólo un margen interior para el icono, no una columna.
                     rightPadding: 25
                     selectByMouse: true
-                    placeholderText: "Buscar en Web o IA…"
+                    placeholderText: "Buscador: pulsá Tab para elegir Web o IA…"
                     cursorVisible: activeFocus && search.navigationSection === 0
                     Keys.priority: Keys.BeforeItem
                     Keys.onTabPressed: function(event) {
