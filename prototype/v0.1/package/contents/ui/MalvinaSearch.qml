@@ -45,7 +45,7 @@ Item {
     readonly property real desiredEditorWidth: Math.min(maximumSearchWidth,
         Math.max(396, 116 + longestLineLength() * 7.4))
     readonly property bool expandedDown: queryText.indexOf("\n") >= 0 ||
-                                          queryText.length > 125
+                                          queryText.length > 70
     readonly property real desiredEditorHeight: expandedDown
         ? Math.min(multilineMaxHeight, Math.max(56, queryInput.contentHeight + 12))
         : 32
@@ -102,7 +102,7 @@ Item {
         if (result.experimental) console.log("Malvina: enlace IA experimental con permiso explícito")
         Qt.openUrlExternally(result.url)
     }
-    // Navegacion por filas. El foco real permanece en TextField para que Tab
+    // Navegacion por filas. El foco real permanece en TextArea para que Tab
     // no dependa del manejo de foco entre Popup y ventana en Qt/Wayland.
     function clearQuery() {
         queryInput.text = ""
@@ -277,8 +277,9 @@ Item {
         padding: 8
         modal: false
         focus: false
-        // Cerrar al pulsar fuera del panel y del campo que es su padre.
-        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+        // El campo crece fuera de los 34 px nominales; no confundir sus clics
+        // con clics exteriores al Popup. El detector de la barra gestiona el cierre.
+        closePolicy: QQC2.Popup.CloseOnEscape
         onClosed: {
             if (search.suppressPopupDismissal) {
                 search.suppressPopupDismissal = false
