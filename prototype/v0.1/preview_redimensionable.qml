@@ -14,7 +14,7 @@ Window {
     minimumWidth: 760
     minimumHeight: 210
     visible: true
-    title: "Plasma SmartBar v0.1 — 10 SLOTS / IA horizontal completa (sin panel)"
+    title: "Plasma SmartBar v0.1 — REVISIÓN VISUAL MALVINA / 17-11 (sin panel)"
     color: "#242236"
 
 
