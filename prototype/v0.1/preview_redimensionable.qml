@@ -14,7 +14,7 @@ Window {
     minimumWidth: 760
     minimumHeight: 210
     visible: true
-    title: "Plasma SmartBar v0.1 — MALVINA FORMAS + RESPIRACIÓN (sin panel)"
+    title: "Plasma SmartBar v0.1 — CONFIGURACIÓN PERSISTENTE / 18-11 (sin panel)"
     color: "#242236"
 
 
@@ -93,6 +93,13 @@ Window {
         appearanceRestored = true
     }
     Component.onCompleted: restoreAppearancePreset()
+    // Al cerrar, guardar incluso cambios recientes que todavía no alcanzaron
+    // el intervalo del temporizador de autoguardado.
+    onClosing: function(close) {
+        saveAppearanceTimer.stop()
+        saveAppearancePreset()
+        console.log("SmartBar: configuración actual sincronizada al cerrar el visor")
+    }
 
     // Solo este visor Qt utiliza la opción real. El plasmoide sigue
     // sin conexión a ventanas y el panel instalado no se modifica.
