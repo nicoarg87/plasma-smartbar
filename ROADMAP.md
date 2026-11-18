@@ -232,3 +232,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Registrar fallo observado: Tab no desplazaba el foco a fila Web/IA al buscar «cerveza».
 - [x] Reemplazar paso de foco a Popup por navegación por filas con foco real en campo y resaltado explícito (`▶ Web`, `▶ IA`).
 - [ ] Retest en CachyOS: texto «cerveza», Tab Web, Tab IA, flechas, Espacio para elegir, Enter para abrir, Mayús+Tab y Esc; verificar que no se borre la búsqueda.
+
+## Consentimiento explícito para envío IA desde Malvina (confirmado 17/11/2026)
+
+- [x] Definir que no se usa `sudo`: permisos propios de Malvina, específicos por proveedor, apagados por defecto, revocables e informados.
+- [ ] Diseñar texto accesible de autorización: datos enviados, destino, momento, terceros y modo de retirar permiso, sin casillas premarcadas.
+- [ ] Verificar integraciones oficiales por proveedor y distinguir enlaces de chats web vs API con credenciales/costos.
+- [ ] Implementar preferencias persistentes y control estricto de envío solo en Enter y solo con autorización vigente.
+- [ ] Pruebas negativas: sin permiso nunca se transmite; selección Tab/Espacio nunca transmite; revocar bloquea la siguiente consulta.
+- [ ] Validar en CachyOS el flujo completo y cualquier uso futuro de KWallet/secretos, antes de etiquetar la función como disponible.
