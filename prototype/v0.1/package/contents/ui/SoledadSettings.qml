@@ -31,6 +31,14 @@ Window {
     property string malvinaChatGptUrl: "https://chatgpt.com/"
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
+    property string malvinaGoogleName: "Google"
+    property string malvinaDuckName: "DuckDuckGo"
+    property string malvinaYahooName: "Yahoo"
+    property string malvinaChatGptName: "ChatGPT"
+    property string malvinaGeminiName: "Gemini"
+    property string malvinaClaudeName: "Claude"
+    signal saveMalvinaNamesRequested(string google, string duck, string yahoo,
+                                     string chatGpt, string gemini, string claude)
     // Solo consentimiento guardado. No activa envío al chat hasta existir una integración verificada.
     property bool malvinaWebGoogleEnabled: true
     property bool malvinaWebDuckEnabled: true
@@ -42,6 +50,10 @@ Window {
     signal saveMalvinaConsentsRequested(bool chatGpt, bool gemini, bool claude)
     signal saveMalvinaProvidersRequested(string google, string duck, string yahoo,
                                          string chatGpt, string gemini, string claude)
+    function malvinaNameValid(name) {
+        return typeof name === "string" && name.trim().length > 0 &&
+               name.trim().length <= 48 && !/[\\x00-\\x1f\\x7f]/.test(name)
+    }
     function malvinaWebTemplateValid(url) {
         return /^https:\/\//i.test(url.trim()) && url.indexOf("{query}") >= 0
     }
@@ -344,6 +356,15 @@ Window {
             appliedLabel.text = "Malvina: Web requiere HTTPS y {query}; IA requiere HTTPS."
             return
         }
+        const names = [malvinaGoogleName, malvinaDuckName, malvinaYahooName,
+                       malvinaChatGptName, malvinaGeminiName, malvinaClaudeName]
+        if (!names.every(malvinaNameValid)) {
+            appliedLabel.text = "Malvina: cada nombre debe tener entre 1 y 48 caracteres y no contener saltos de línea."
+            return
+        }
+        saveMalvinaNamesRequested(malvinaGoogleName.trim(), malvinaDuckName.trim(),
+                                  malvinaYahooName.trim(), malvinaChatGptName.trim(),
+                                  malvinaGeminiName.trim(), malvinaClaudeName.trim())
         saveMalvinaProvidersRequested(malvinaGoogleUrl, malvinaDuckUrl,
                                      malvinaYahooUrl, malvinaChatGptUrl,
                                      malvinaGeminiUrl, malvinaClaudeUrl)
