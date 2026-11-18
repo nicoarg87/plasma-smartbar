@@ -1079,7 +1079,7 @@ Item {
                 center - width / 2))
         }
         y: root.fixedHeight + 5
-        availableHeight: root.launcherAvailableHeight
+        popupHeightLimit: root.launcherAvailableHeight
         categoryLayout: root.launcherCategoryLayout
         maxVisibleSlots: root.launcherMaxSlots
         switchShape: root.launcherSwitchShape
