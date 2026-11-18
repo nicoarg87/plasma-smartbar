@@ -461,3 +461,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Añadir `Mantener Malvina siempre visible` al menú de seis puntos con estado marcado persistible y mantener allí Activar/Desactivar Malvina.
 - [x] Nombrar «Activar Malvina» al botón de recuperación del launcher y conservar aviso temporal de 1 s al habilitar/deshabilitar desde el menú del agarre.
 - [ ] Probar en CachyOS con preferencia autoocultar, siempre visible, desactivada, persistencia tras reinicio, ventana maximizada/fullscreen y alternativa sin panel instalado.
+
+## Launcher SO A/B y herencia de estilo de islas — 18/11/2026
+
+- [x] Registrar opción A predeterminada confirmada (apps a la derecha cerca del cursor, el principal se desplaza) y B alternativa (apps a la izquierda, principal fijo).
+- [x] Implementar A/B con selector persistente en SoledadSettings, conexión a SmartBarContent, main.qml/KConfig y visor Qt Settings, conservando perfiles locales previos.
+- [x] Ajustar launcher de Archivos a ancho mayor, altura proporcional a resultados de carpeta actual, tope configurable 5–20 filas, scroll vertical y rutas de archivo.
+- [x] Incorporar estilo de Soledad al launcher (color/transparencia/degradado/contorno/respiración) y configuración de forma/color del interruptor; reutilizar IslandPopupSurface.
+- [x] Aplicar apariencia independiente de Malvina al popup Web/IA, con contorno/gradiente y factor de respiración del propio buscador Malvina.
+- [x] Registrar prueba positiva del mantenedor: confirmación de mostrar/ocultar Malvina por 1 s desde menú de los seis puntos.
+- [ ] Verificar en CachyOS que A no desplace el cursor fuera de las aplicaciones, que B conserve posición sin sobresalir, que archivos se filtren correctamente y que scroll/colores/gradiente/contorno/respiración y preferencia tras reiniciar funcionen.
+- [ ] Integrar búsqueda global de archivos y ejecución segura de apps en una etapa independiente con pruebas KDE/KWin; nunca inventar que el prototipo ya ejecuta o indexa todo el equipo.
