@@ -18,8 +18,8 @@
       <default>true</default>
     </entry>
     <entry name="soLeftClickOpensLauncher" type="Bool">
-      <label>Clic izquierdo SO abre aplicaciones; clic derecho abre ventanas activas</label>
-      <default>true</default>
+      <label>Clic izquierdo SO abre cajon de aplicaciones; derecho abre launcher</label>
+      <default>false</default>
     </entry>
     <entry name="autoCollapseSO" type="Bool">
       <label>Contraer SO después de seleccionar una ventana</label>
