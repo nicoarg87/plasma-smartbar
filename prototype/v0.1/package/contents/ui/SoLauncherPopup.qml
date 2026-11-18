@@ -64,7 +64,7 @@ QQC2.Popup {
     // El cuadro principal termina siempre en el mismo punto derecho.
     // El panel de categoría se agrega exclusivamente hacia la IZQUIERDA.
     width: filesMode ? filesWidth :
-        (showCategoryPanel ? primaryWidth + categoryWidth + 13 : primaryWidth)
+        (showCategoryPanel ? primaryWidth + categoryWidth + 1 : primaryWidth)
     height: Math.min(Math.max(170, availableHeight),
         Math.max(filesMode ? 196 : 170, headerHeight + rowsToShow * rowHeight))
     padding: 9
@@ -91,6 +91,34 @@ QQC2.Popup {
         return currentApplications.filter(function(app) {
             return app.name.toLowerCase().includes(query)
         })
+    }
+    component LauncherActionButton: QQC2.Button {
+        id: action
+        implicitHeight: 34
+        background: IslandPopupSurface {
+            baseColor: launcher.islandColor
+            endColor: launcher.islandGradientEnd
+            gradientEnabled: launcher.islandGradientEnabled
+            gradientDirection: launcher.islandGradientDirection
+            baseOpacity: Math.max(0.32, Math.min(1, launcher.islandOpacity *
+                (action.down ? 1 : action.highlighted ? 0.92 : action.hovered ? 0.85 : 0.66)))
+            breathingFactor: launcher.islandBreathingFactor
+            outlineColor: launcher.outlineColor
+            outlineOpacity: Math.min(1, launcher.outlineOpacity *
+                (action.activeFocus || action.highlighted ? 1 : 0.6))
+            outlineWidth: launcher.outlineWidth
+            outlineStyle: launcher.outlineStyle
+            cornerRadius: launcher.switchShape === "square" ? 0 :
+                launcher.switchShape === "rounded" ? 6 : 13
+        }
+        contentItem: Text {
+            text: action.text
+            font: action.font
+            color: "white"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
     }
     function resetAndFocus() {
         filesMode = false
@@ -156,7 +184,7 @@ QQC2.Popup {
                         clip: true
                         spacing: 5
                         model: launcher.appsForCategory()
-                        delegate: QQC2.Button {
+                        delegate: LauncherActionButton {
                             required property var modelData
                             width: appsList.width - 5
                             height: 32
@@ -191,6 +219,40 @@ QQC2.Popup {
                     id: appFileSwitch
                     Layout.alignment: Qt.AlignHCenter
                     checked: launcher.filesMode
+                    implicitWidth: 58
+                    implicitHeight: 30
+                    indicator: Item {
+                        implicitWidth: 58
+                        implicitHeight: 28
+                        x: appFileSwitch.leftPadding
+                        y: (appFileSwitch.height - height) / 2
+                        IslandPopupSurface {
+                            anchors.fill: parent
+                            baseColor: launcher.effectiveSwitchColor
+                            endColor: launcher.switchCustomColor ? launcher.switchColor : launcher.islandGradientEnd
+                            gradientEnabled: launcher.islandGradientEnabled && !launcher.switchCustomColor
+                            gradientDirection: launcher.islandGradientDirection
+                            baseOpacity: Math.max(0.35, launcher.islandOpacity)
+                            breathingFactor: launcher.islandBreathingFactor
+                            outlineColor: launcher.outlineColor
+                            outlineOpacity: launcher.outlineOpacity
+                            outlineWidth: launcher.outlineWidth
+                            outlineStyle: launcher.outlineStyle
+                            cornerRadius: launcher.switchShape === "square" ? 0 :
+                                launcher.switchShape === "rounded" ? 6 : 14
+                        }
+                        Rectangle {
+                            width: 23
+                            height: 23
+                            x: appFileSwitch.checked ? parent.width - width - 3 : 3
+                            y: 2.5
+                            radius: launcher.switchShape === "square" ? 0 :
+                                launcher.switchShape === "rounded" ? 5 : width / 2
+                            color: launcher.outlineColor
+                            border.color: launcher.islandColor
+                            border.width: Math.max(1, launcher.outlineWidth)
+                        }
+                    }
                     onToggled: {
                         launcher.filesMode = checked
                         launcher.selectedCategory = ""
@@ -209,13 +271,27 @@ QQC2.Popup {
             QQC2.TextField {
                 id: searchInput
                 Layout.fillWidth: true
+                color: "white"
+                background: IslandPopupSurface {
+                    cornerRadius: 8
+                    baseColor: launcher.islandColor
+                    endColor: launcher.islandGradientEnd
+                    gradientEnabled: launcher.islandGradientEnabled
+                    gradientDirection: launcher.islandGradientDirection
+                    baseOpacity: Math.max(0.45, launcher.islandOpacity)
+                    breathingFactor: launcher.islandBreathingFactor
+                    outlineColor: launcher.outlineColor
+                    outlineOpacity: launcher.outlineOpacity
+                    outlineWidth: launcher.outlineWidth
+                    outlineStyle: launcher.outlineStyle
+                }
                 placeholderText: launcher.filesMode ? "Buscar archivo en esta carpeta…" : "Buscar aplicación…"
                 onTextChanged: {
                     if (!launcher.filesMode && text.length > 0)
                         launcher.selectedCategory = ""
                 }
             }
-            QQC2.Button {
+            LauncherActionButton {
                 visible: !launcher.malvinaVisible
                 Layout.fillWidth: true
                 text: "Activar Malvina (isla 2)"
@@ -224,19 +300,25 @@ QQC2.Popup {
             QQC2.Label {
                 visible: launcher.filesMode
                 Layout.fillWidth: true
-                text: "Archivos locales · " + String(fileList.folder).replace("file://", "")
-                color: "#d9e5ed"
-                elide: Text.ElideMiddle
+                text: "Carpeta: " + decodeURIComponent(String(fileList.folder).replace("file://", ""))
+                color: "#ffffff"
                 font.pixelSize: 11
+                wrapMode: Text.WrapAnywhere
+                maximumLineCount: 3
+                elide: Text.ElideRight
+                QQC2.ToolTip.visible: folderPathHover.hovered
+                QQC2.ToolTip.text: text
+                // El texto completo puede consultarse sin barra horizontal.
+                HoverHandler { id: folderPathHover }
             }
             RowLayout {
                 visible: launcher.filesMode
                 Layout.fillWidth: true
-                QQC2.Button {
+                LauncherActionButton {
                     text: "Inicio"
                     onClicked: fileList.folder = launcher.homeFolder
                 }
-                QQC2.Button {
+                LauncherActionButton {
                     text: "Subir carpeta"
                     onClicked: {
                         const path = String(fileList.folder).replace(/\/$/, "")
@@ -263,7 +345,7 @@ QQC2.Popup {
                     spacing: 4
                     model: searchInput.text.trim().length
                         ? launcher.appMatches() : launcher.categoryOptions()
-                    delegate: QQC2.Button {
+                    delegate: LauncherActionButton {
                         required property var modelData
                         width: categoryList.width - 5
                         height: 31
@@ -286,7 +368,7 @@ QQC2.Popup {
                     clip: true
                     spacing: 4
                     model: fileList
-                    delegate: QQC2.Button {
+                    delegate: LauncherActionButton {
                         required property string fileName
                         required property bool fileIsDir
                         required property url fileUrl
@@ -314,6 +396,9 @@ QQC2.Popup {
     FolderListModel {
         id: fileList
         folder: launcher.homeFolder
+        nameFilters: searchInput.text.trim().length
+            ? ["*" + searchInput.text.trim() + "*"] : ["*"]
+        caseSensitive: false
         showDirs: true
         showFiles: true
         showDotAndDotDot: false
