@@ -272,3 +272,7 @@ El mantenedor rechazó expresamente crear una segunda ventana de texto: Mayús+E
 ## 33. Campo Malvina: clics atraviesan extensión vertical (17/11/2026)
 
 **FALLO REAL REPORTADO**: al escribir y extender el campo hacia abajo, la parte inferior deja pasar clics al fondo; el ancho no llega a media pantalla. La superficie `TextArea` estaba fuera de los límites interactivos de un Item de 34 px. **CORRECCIÓN EXPERIMENTAL**: único `TextArea` dentro de un `QQC2.Popup` no modal alineado en el campo original (no duplicarlo ni crear una segunda caja), ancho máximo al escribir, límite horizontal incluye 73 px de botones. Commits 037ecc3 y 6fde6a3. **No retestado en CachyOS**. Prioridad absoluta: verificar clic/selección en el último renglón y no sobre el fondo, ancho casi media pantalla, X, Enter/Shift+Enter, Tab y Espacio antes de otras funciones. No tocar panel KDE.
+
+## 34. X de borrar sin franja vertical (17/11/2026)
+
+El usuario reportó que el botón X reservaba una columna entera. Ajustado `MalvinaSearch.qml` en rama experimental: se quitó el margen derecho de 28 px del ScrollView, la X ahora es un botón transparente de 17×17 px superpuesto en esquina superior derecha; se deja padding de texto de 25 px por legibilidad. Commit 841351f. Sin retest en CachyOS. No reintroducir columnas ni recuadros para X.
