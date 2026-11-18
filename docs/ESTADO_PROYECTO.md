@@ -895,3 +895,9 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 ## Corrección del Tab de Malvina tras fallo observado (17/11/2026)
 
 **PROBADO CON FALLO POR EL MANTENEDOR:** al escribir «cerveza» Tab no trasladó la selección visual a Web ni con un segundo Tab a IA. **IMPLEMENTADO, AÚN NO REPROBADO:** `MalvinaSearch.qml` usa `navigationSection` (0 texto, 1 Web, 2 IA), `navigationIndex` y `Keys.priority: Keys.BeforeItem` para manejar Tab/Mayús+Tab, flechas izquierda/derecha y Espacio sin depender del foco en los botones de Popup. El texto y foco real permanecen en el TextField, y Espacio confirma sin llamar a URL externa. Las filas muestran un indicador `▶` y el candidato resaltado. [Commit 6f32f9b](https://github.com/nicoarg87/plasma-smartbar/commit/6f32f9ba50ce5c9098b91b677073739317f2fec8). **PENDIENTE:** repetir la prueba con Fish en CachyOS y comprobar que Tab no es interceptado por el control o la ventana.
+
+## Consentimiento informado para chat IA — requisito confirmado (17/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** autorizar el envío directo de texto a IA desde Malvina deberá ser una acción positiva, informada, específica por proveedor, desactivada de fábrica y revocable en cualquier momento. La pantalla explicará datos enviados, destinatario, cuándo se envían, y límites de privacidad. **Sin sudo** ni privilegios de sistema. Seleccionar IA con Tab/Espacio no constituye autorización; no transmitir mientras se escribe.
+
+**NO IMPLEMENTADO NI PROBADO:** aún no existen controles de consentimiento, integración de envío directo, almacenamiento de credenciales ni pruebas de dicha funcionalidad. El comportamiento vigente continúa siendo abrir la web IA sin enviar automáticamente el texto. Antes de codificar, verificar posibilidades oficiales por proveedor y evitar sugerir que una API genera una conversación en la cuenta web personal. Nunca pedir contraseñas o tokens sin un diseño seguro aprobado.
