@@ -32,6 +32,10 @@ Window {
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
     // Solo consentimiento guardado. No activa envío al chat hasta existir una integración verificada.
+    property bool malvinaWebGoogleEnabled: true
+    property bool malvinaWebDuckEnabled: true
+    property bool malvinaWebYahooEnabled: true
+    signal saveMalvinaWebEnabledRequested(bool google, bool duck, bool yahoo)
     property bool malvinaAllowChatGpt: false
     property bool malvinaAllowGemini: false
     property bool malvinaAllowClaude: false
@@ -343,6 +347,8 @@ Window {
         saveMalvinaProvidersRequested(malvinaGoogleUrl, malvinaDuckUrl,
                                      malvinaYahooUrl, malvinaChatGptUrl,
                                      malvinaGeminiUrl, malvinaClaudeUrl)
+        saveMalvinaWebEnabledRequested(malvinaWebGoogleEnabled,
+                                       malvinaWebDuckEnabled, malvinaWebYahooEnabled)
         saveMalvinaConsentsRequested(malvinaAllowChatGpt,
                                     malvinaAllowGemini, malvinaAllowClaude)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
