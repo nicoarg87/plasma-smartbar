@@ -140,6 +140,7 @@ PlasmoidItem {
         // por hover sobre otras aplicaciones. Evitar interrupciones.
         windowStateKnown: false
         autoCollapseSO: Plasmoid.configuration.autoCollapseSO
+        soLeftClickOpensLauncher: Plasmoid.configuration.soLeftClickOpensLauncher
         autoCollapseTray: Plasmoid.configuration.autoCollapseTray
         soLogoMode: Plasmoid.configuration.soLogoMode
         soTextLabel: Plasmoid.configuration.soTextLabel
@@ -308,6 +309,9 @@ PlasmoidItem {
         }
         onRequestAutoCollapseSOChange: function(newValue) {
             Plasmoid.configuration.autoCollapseSO = newValue
+        }
+        onRequestSoClickMappingChange: function(leftOpensLauncher) {
+            Plasmoid.configuration.soLeftClickOpensLauncher = leftOpensLauncher
         }
         onRequestAutoCollapseTrayChange: function(newValue) {
             Plasmoid.configuration.autoCollapseTray = newValue
