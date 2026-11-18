@@ -189,7 +189,7 @@ Window {
     property bool demoLauncherIslandVisible: true
     property bool demoAutoHideMalvina: true
     property bool demoAutoCollapseSO: true
-    property bool demoSoLeftClickOpensLauncher: true
+    property bool demoSoLeftClickOpensLauncher: false
     property bool demoAutoCollapseTray: false
     // Estados de sesión de la maqueta (el panel KDE no se instala).
     property string demoSoLogoMode: "default"
