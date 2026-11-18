@@ -256,3 +256,7 @@ Usuario probó en CachyOS: Gemini autorizado, el texto de Malvina no apareció e
 ## 29. Claude funciona con sesión web — prueba del mantenedor (17/11/2026)
 
 El usuario confirma en CachyOS que Claude **funciona** desde Malvina tras registrarse/iniciar sesión en su cuenta. Registrar como **PROBADO positivamente con autenticación**, no como compatibilidad universal ni sin cuenta. Separar permiso IA Malvina de credenciales del proveedor; no pedir contraseña ni sudo. Pendientes: verificar revocación, comportamiento con/sin sesión, si `?q=` precarga o envía, y mantener criterio experimental. Gemini sigue sin precarga funcional.
+
+## 30. Nombres descriptivos por enlace de Malvina (17/11/2026)
+
+**CONFIRMADO E IMPLEMENTADO EXPERIMENTALMENTE:** el usuario elige nombre visible de cada uno de los seis proveedores Web/IA sin alterar URL ni permisos. Campos individuales «Nombre visible» (máximo 48, no vacío) en MalvinaProvidersPage; validación en SoledadSettings; propiedades/señales en SmartBarContent; etiquetas dinámicas en MalvinaSearch; persistencia en KConfig y visor. Identificadores de proveedor permanecen fijos: renombrar no modifica autorización ni habilita enviar texto a otros dominios. No se incorporaron proveedores nuevos. **Sin prueba de CachyOS**: abrir Opciones de Malvina, renombrar «DuckDuckGo» a «Buscador privado», Aplicar, comprobar lista Tab y persistencia reiniciando visor. Mantener panel KDE intacto.
