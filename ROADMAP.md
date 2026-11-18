@@ -248,3 +248,10 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Confirmar que autenticación web corresponde al usuario y no habilita acceso de Malvina a contraseñas, cookies o sesión.
 - [ ] Verificar por proveedor si hay mecanismo compatible para abrir conversación web con texto sin automatizar el navegador ni capturar sesiones.
 - [ ] Distinguir claramente «abrir sitio» de «enviar consulta al chat» en la interfaz y pruebas; con ausencia de compatibilidad, no enviar automáticamente.
+
+## Atajo local y global de Malvina (17/11/2026)
+
+- [x] Identificar que Meta+Espacio ya estaba declarado como Qt.WindowShortcut, no global.
+- [x] Evitar que focusSearch() abra popup de proveedores al invocar atajo local; Tab abre selección.
+- [ ] Retest del visor Qt en CachyOS: Meta+Espacio solo campo, Tab Web/IA, Enter búsqueda, Esc cierra.
+- [ ] Investigar KGlobalAccel/KF6 para un atajo global configurable desde cualquier ventana, respetando atajos existentes y fullscreen.
