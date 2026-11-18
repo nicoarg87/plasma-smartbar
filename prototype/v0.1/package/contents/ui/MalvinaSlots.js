@@ -1,6 +1,7 @@
 // Proveedores añadidos por el usuario. Independiente de QML y de la navegación.
 // Tres proveedores originales + hasta siete adicionales por categoría.
 .pragma library
+.import "MalvinaUrlPolicy.js" as UrlPolicy
 function canonical(section) {
     return section === "web" ? ["google","duck","yahoo"] : ["chatgpt","gemini","claude"]
 }
@@ -16,7 +17,8 @@ function extras(section, serialized) {
         if (!new RegExp("^"+section+"-[4-9]$|^"+section+"-10$").test(id) || used[id]) continue
         const name = String(item.name || "").trim()
         const url = String(item.url || "").trim()
-        if (!name || name.length > 48 || !url || url.length > 2048) continue
+        if (!name || name.length > 48 || url.length > 2048 ||
+            !UrlPolicy.validHttpsUrl(url) || (section === "web" && url.indexOf("{query}") < 0)) continue
         used[id] = true
         result.push({id:id,name:name,url:url,enabled:item.enabled === true})
     }
@@ -25,8 +27,9 @@ function extras(section, serialized) {
 function ids(section, serialized) {
     return canonical(section).concat(extras(section,serialized).map(x=>x.id))
 }
-function order(section, serializedExtras, preferred) {
-    const available = ids(section,serializedExtras)
+function order(section, serializedExtras, preferred, hidden) {
+    const excluded = String(hidden || "").split(",")
+    const available = ids(section,serializedExtras).filter(x=>excluded.indexOf(x)<0)
     const requested = String(preferred || "").split(",")
     const ordered=[]
     for (let i=0;i<requested.length;i++) {
@@ -41,8 +44,9 @@ function add(section, serialized, name, url) {
     const current = extras(section,serialized)
     if (current.length >= 7) return {ok:false,reason:"Máximo de 10 opciones"}
     const label=String(name || "").trim(), address=String(url || "").trim()
-    if (!label || label.length>48 || !address || address.length>2048)
-        return {ok:false,reason:"Nombre o URL no válidos"}
+    if (!label || label.length>48 || address.length>2048 ||
+        !UrlPolicy.validHttpsUrl(address) || (section === "web" && address.indexOf("{query}") < 0))
+        return {ok:false,reason:"Nombre o URL HTTPS no válidos"}
     let id
     for(let n=4;n<=10;n++) if(!current.some(x=>x.id===section+"-"+n)){id=section+"-"+n;break}
     current.push({id:id,name:label,url:address,enabled:true})
@@ -53,8 +57,9 @@ function update(section,serialized,id,name,url,enabled) {
     const found=current.findIndex(x=>x.id===id)
     if(found<0) return {ok:false,reason:"Opción inexistente"}
     const label=String(name||"").trim(), address=String(url||"").trim()
-    if(!label || label.length>48 || !address || address.length>2048)
-        return {ok:false,reason:"Nombre o URL no válidos"}
+    if(!label || label.length>48 || address.length>2048 ||
+       !UrlPolicy.validHttpsUrl(address) || (section === "web" && address.indexOf("{query}") < 0))
+        return {ok:false,reason:"Nombre o URL HTTPS no válidos"}
     current[found]={id:id,name:label,url:address,enabled:!!enabled}
     return {ok:true,value:JSON.stringify(current)}
 }
