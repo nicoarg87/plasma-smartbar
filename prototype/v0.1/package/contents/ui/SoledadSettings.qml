@@ -893,19 +893,37 @@ Window {
                         color: "white"
                     }
                     QQC2.CheckBox {
-                        text: "Mostrar Malvina (isla 2)"
+                        text: "Activar Malvina (isla 2)"
                         checked: settings.launcherIslandVisible
                         onToggled: settings.launcherIslandVisible = checked
                     }
-                    QQC2.CheckBox {
-                        visible: settings.launcherIslandVisible
-                        text: "Ocultar Malvina automáticamente (predeterminado)"
-                        checked: settings.autoHideMalvina
-                        onToggled: settings.autoHideMalvina = checked
+                    QQC2.Label {
+                        text: "Activada significa disponible, no siempre visible. Al desactivarla, Malvina deja de responder y no aparece por proximidad."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
                         visible: settings.launcherIslandVisible
-                        text: "Con esta opción activada, Malvina aparece solo si dejás el cursor 0,6 segundos en su ubicación. Al salir vuelve a ocultarse. Si desactivás esta opción, permanece a la vista. «Mostrar Malvina» permite habilitarla o quitarla por completo."
+                        text: "Visibilidad de Malvina"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.ComboBox {
+                        visible: settings.launcherIslandVisible
+                        Layout.fillWidth: true
+                        model: ["Automática: se oculta sola (predeterminado)",
+                                "Siempre visible (opcional)"]
+                        currentIndex: settings.autoHideMalvina ? 0 : 1
+                        onActivated: function(index) {
+                            settings.autoHideMalvina = index === 0
+                        }
+                    }
+                    QQC2.Label {
+                        visible: settings.launcherIslandVisible
+                        text: settings.autoHideMalvina
+                            ? "Modo automático: Malvina sigue activa aunque esté escondida. Aparece al sostener el cursor 0,6 s en su ubicación y se oculta al salir. El menú de los seis puntos la muestra 1 s al activarla."
+                            : "Modo siempre visible: Malvina permanece a la vista mientras esté activa, salvo protección de ventanas maximizadas o pantalla completa."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
