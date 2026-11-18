@@ -9,6 +9,8 @@ QQC2.ScrollView {
     property var settingsTarget
     property string feedback: ""
     property int sectionIndex: 0 // General, Web, IA, personalizados: no altera proveedores guardados.
+    property int customKind: 0 // 0 = Web, 1 = IA; ambas categorías conservan sus valores.
+    property int customEditorIndex: 0 // Solo un formulario personalizado visible por vez.
     function extrasFor(section) {
         return Slots.extras(section,section === "web" ?
                             settingsTarget.malvinaExtraWeb : settingsTarget.malvinaExtraAi)
@@ -29,6 +31,7 @@ QQC2.ScrollView {
         const result=Slots.add(section,settingsTarget[key],name,url,hidden)
         if (result.ok) {
             settingsTarget[key]=result.value
+            customEditorIndex = Math.max(0, extrasFor(section).length - 1)
             feedback="Proveedor agregado. Pulsá Aplicar para guardarlo."
         } else feedback=result.reason
         return result.ok
@@ -44,6 +47,7 @@ QQC2.ScrollView {
     function deleteExtra(section,id) {
         const key=section === "web" ? "malvinaExtraWeb" : "malvinaExtraAi"
         settingsTarget[key]=Slots.remove(section,settingsTarget[key],id)
+        customEditorIndex = 0
         feedback="Proveedor quitado. Pulsá Aplicar."
     }
     clip: true
@@ -286,10 +290,27 @@ QQC2.ScrollView {
             text: "Los agregados por el usuario tienen nombre y URL propios. En Web, la URL debe ser HTTPS e incluir {query}. Las IA nuevas solo abren su página, sin enviar automáticamente el texto. Quitar los originales los oculta y se pueden restaurar."
             color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+            QQC2.Button {
+                Layout.fillWidth: true
+                text: "Personalizados Web"
+                highlighted: panel.customKind === 0
+                onClicked: { panel.customKind = 0; panel.customEditorIndex = 0; panel.contentItem.contentY = 0 }
+            }
+            QQC2.Button {
+                Layout.fillWidth: true
+                text: "Personalizados IA"
+                highlighted: panel.customKind === 1
+                onClicked: { panel.customKind = 1; panel.customEditorIndex = 0; panel.contentItem.contentY = 0 }
+            }
+        }
         Repeater {
             model: ["web","ai"]
             delegate: ColumnLayout {
                 required property string modelData
+                visible: modelData === (panel.customKind === 0 ? "web" : "ai")
                 Layout.fillWidth: true
                 spacing: 5
                 QQC2.Label {
@@ -318,11 +339,20 @@ QQC2.ScrollView {
                         }
                     }
                 }
+                QQC2.ComboBox {
+                    Layout.fillWidth: true
+                    visible: panel.extrasFor(modelData).length > 0
+                    model: panel.extrasFor(modelData).map(function(p) { return p.name })
+                    currentIndex: panel.customEditorIndex
+                    onActivated: function(i) { panel.customEditorIndex = i }
+                }
                 Repeater {
                     model: panel.extrasFor(modelData)
                     delegate: ColumnLayout {
                         id: extraEditor
+                        required property int index
                         required property var modelData
+                        visible: index === panel.customEditorIndex
                         Layout.fillWidth: true
                         spacing: 3
                         QQC2.Label {
