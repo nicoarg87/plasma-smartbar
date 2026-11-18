@@ -915,3 +915,11 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 ## Tooltip de lupa Malvina — atajo visible (17/11/2026)
 
 **SOLICITADO:** al pasar el cursor sobre la lupa, el cartel de búsqueda debe informar el atajo `Super + Espaciadora`. **IMPLEMENTADO en rama v0.1:** texto `Hacer búsqueda (Super + Espaciadora; ventana activa)` en `MalvinaSearch.qml`, [commit 010c264](https://github.com/nicoarg87/plasma-smartbar/commit/010c264b6071d39e94db43d202c630879ee89693). La aclaración `ventana activa` evita presentar el atajo local Qt.WindowShortcut como global. Pendiente comprobación visual en CachyOS; no se cambia el atajo global del sistema.
+
+## Cierre y autoocultamiento de Malvina por clic exterior (17/11/2026)
+
+**CONFIRMADO:** cuando el buscador de Malvina está expandido, un clic fuera del campo y de las herramientas debe cerrar la búsqueda y, si `autoHideMalvina=true`, ocultar la isla. Si el autoocultamiento fue desactivado en preferencias, solo contraer la búsqueda. No interceptar clics sobre Soledad o aplicaciones ajenas.
+
+**IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL:** `SmartBarContent.qml` añade `TapHandler` con agarre pasivo para clics de la vista principal y descarta clics dentro del campo; `MalvinaSearch.qml` escucha desactivación de su ventana Qt y configura el popup de proveedores para cerrar al pulsar fuera de su padre. Componente usa `closeSearch()` para evitar cierres parciales. Commits [85cabed](https://github.com/nicoarg87/plasma-smartbar/commit/85cabed394164cb169319712064e7d323a616d0d), [a000e97](https://github.com/nicoarg87/plasma-smartbar/commit/a000e9709665a6a3285f39a6b9748739e374f53e), [0a78dac](https://github.com/nicoarg87/plasma-smartbar/commit/0a78dacb58483a0aafadb3bd2928d94af3ed7487).
+
+**PENDIENTE DE PROBAR EN CACHYOS:** clic dentro del campo y dentro de Web/IA no debe cerrar; clic en fondo o Soledad cierra sin consumir acción ajena; clic sobre Dolphin/Brave fuera del visor cierra y activa correctamente esa ventana; Escape, Tab, selección por Espacio y opción de autoocultamiento desactivada deben conservar su comportamiento. No se modificó el panel instalado. La propagación de clics externos, fullscreen y superposición real aún no fueron validados en KWin/Wayland.
