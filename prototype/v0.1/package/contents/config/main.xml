@@ -17,6 +17,11 @@
       <label>Mostrar Malvina (isla 2)</label>
       <default>true</default>
     </entry>
+    <entry name="launcherCategoryLayout" type="Int"><default>0</default></entry>
+    <entry name="launcherSwitchShape" type="String"><default>capsule</default></entry>
+    <entry name="launcherSwitchColorOverride" type="Bool"><default>false</default></entry>
+    <entry name="launcherSwitchColor" type="String"><default>#010111</default></entry>
+    <entry name="launcherMaxSlots" type="Int"><default>20</default></entry>
     <entry name="soLeftClickOpensLauncher" type="Bool">
       <label>Clic izquierdo SO abre cajon de aplicaciones; derecho abre launcher</label>
       <default>false</default>
