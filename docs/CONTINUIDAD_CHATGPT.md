@@ -228,3 +228,7 @@ La prueba aislada `probar_ventanas.sh` ya está **PROBADA** en CachyOS por el ma
 ## 22. Alcance confirmado de Malvina: navegador y chats IA (17/11/2026)
 
 **CONFIRMADO:** buscadores Web pueden tener respuestas IA propias; se usan como búsquedas web normales. Chats IA tendrán autorización informada por proveedor **solo para el envío directo de texto desde Malvina**, apagada por defecto, revocable, sin sudo. Si el servicio necesita login, el usuario inicia su sesión directamente en el navegador; Malvina no manipula contraseñas/cookies. Sesión abierta no significa permiso ni garantiza integración web oficial. Mientras no exista vía compatible verificada, abrir página de IA sin enviar consulta. **Función directa aún pendiente de investigación, implementación y test en CachyOS.**
+
+## 23. Atajo Meta+Espacio: local, no global (17/11/2026)
+
+En SmartBarContent.qml existe Shortcut Meta+Space con Qt.WindowShortcut. Se limita a ventana Qt activa; no registra atajo global KWin/Wayland. El método focusSearch() abría indebidamente opciones junto al campo; [commit fc3e990](https://github.com/nicoarg87/plasma-smartbar/commit/fc3e990039c519f5f3b181c3e7c45de268f14f8b) separa apertura del campo de selección Web/IA (Tab). **Pendiente retest en CachyOS y desarrollar atajo global KDE sin sobrescribir atajos existentes.**
