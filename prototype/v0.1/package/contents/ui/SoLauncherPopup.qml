@@ -17,6 +17,10 @@ QQC2.Popup {
     property int primaryWidth: 285
     property int filesWidth: 500
     property int categoryWidth: 280
+    // Opción A (predeterminada): las aplicaciones aparecen a la derecha
+    // y el panel principal se desplaza hacia la izquierda, como en la prueba.
+    // Opción B: aplicaciones a la izquierda, panel principal fijo a la derecha.
+    property int categoryLayout: 0
     property int maxVisibleSlots: 20
     // Disponible hasta la parte inferior del visor. El ScrollView toma el excedente.
     property real availableHeight: 470
@@ -61,8 +65,7 @@ QQC2.Popup {
     readonly property var moreCategories: ["Educación", "Juegos", "Gráficos", "Desarrollo", "Ciencia", "Otras"]
     readonly property var currentApplications: catalogIsReal ? installedApplications : demoApplications
     readonly property bool showCategoryPanel: !filesMode && selectedCategory.length > 0
-    // El cuadro principal termina siempre en el mismo punto derecho.
-    // El panel de categoría se agrega exclusivamente hacia la IZQUIERDA.
+    // La posición y el orden del subpanel son configurables (A/B).
     width: filesMode ? filesWidth :
         (showCategoryPanel ? primaryWidth + categoryWidth + 1 : primaryWidth)
     height: Math.min(Math.max(170, availableHeight),
@@ -145,6 +148,7 @@ QQC2.Popup {
     }
     contentItem: RowLayout {
         spacing: 9
+        layoutDirection: launcher.categoryLayout === 0 ? Qt.RightToLeft : Qt.LeftToRight
         IslandPopupSurface {
             visible: launcher.showCategoryPanel
             Layout.preferredWidth: launcher.categoryWidth - 8
@@ -194,7 +198,8 @@ QQC2.Popup {
                     }
                 }
             }
-        }        ColumnLayout {
+        }
+        ColumnLayout {
             Layout.preferredWidth: (launcher.filesMode ? launcher.filesWidth :
                                     launcher.primaryWidth) - 18
             Layout.minimumWidth: (launcher.filesMode ? launcher.filesWidth :
