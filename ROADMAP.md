@@ -262,3 +262,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Aplicar cierre del popup por clic exterior y por pérdida de actividad de la ventana Qt.
 - [ ] Retest CachyOS: clic dentro de buscador/popup, fuera en fondo/SO, sobre otras aplicaciones, Tab/Espacio/Enter/Esc, autoocultamiento activo e inactivo.
 - [ ] Validar comportamiento externo real en KWin/Wayland y ausencia de consumo de clics ajenos antes de instalar como plasmoide.
+
+## Ajustes de navegador y permisos IA en Malvina (17/11/2026)
+
+- [x] Incorporar casillas explícitas ChatGPT, Gemini y Claude con valores falsos por defecto, explicación informada y revocación al Aplicar.
+- [x] Conectar permisos a SoledadSettings, SmartBarContent, KConfig/main.qml y visor local sin habilitar tráfico de consultas.
+- [x] Mostrar navegador predeterminado KDE como opción efectiva; evitar mostrar selección de navegador particular que todavía no funciona.
+- [ ] Probar preferencias y persistencia real en CachyOS, incluyendo revocación, scroll, reabrir ajustes y reinicio del visor.
+- [ ] Implementar cuando esté verificada la integración nativa la elección segura de navegador alternativo, sin shell construido con texto del usuario.
+- [ ] Investigar por proveedor el envío compatible a chat y agregar pruebas de consentimiento antes de habilitar cualquier transmisión.
