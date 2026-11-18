@@ -36,22 +36,27 @@ function resolve(providerUrl, query, isAi) {
     return { ok: true, url: url }
 }
 
-// Modo experimental, solo ChatGPT y solo tras consentimiento explícito.
-// El parámetro q puede precargar o incluso enviar la consulta según versión/
-// sesión web: no prometer un comportamiento uniforme ni su carácter oficial.
-// Jamás adjuntar texto a una URL configurable o dominio de un tercero.
-function resolveChatGptExperimental(providerUrl, query, authorized) {
+// Precarga experimental: q= puede incluso causar envío automático según el
+// proveedor y su versión. Solo se genera con consentimiento por proveedor.
+// NUNCA incluir consultas en destinos editados, aunque usen HTTPS.
+function resolveAiPrefill(providerIndex, providerUrl, query, authorized) {
     const base = resolve(providerUrl, query, true)
     if (!base.ok || !authorized) return base
-    const normalized = String(providerUrl).trim().toLowerCase()
-    if (normalized !== "https://chatgpt.com/" &&
-        normalized !== "https://chatgpt.com" &&
-        normalized !== "https://www.chatgpt.com/" &&
-        normalized !== "https://www.chatgpt.com")
-        return { ok: true, url: base.url, warning: "URL personalizada: no se comparte el texto" }
+    const normalized = String(providerUrl).trim().toLowerCase().replace(/\/$/, "")
+    const official = [
+        { bases: ["https://chatgpt.com", "https://www.chatgpt.com"], target: "https://chatgpt.com/" },
+        { bases: ["https://gemini.google.com/app"], target: "https://gemini.google.com/app" },
+        { bases: ["https://claude.ai/new"], target: "https://claude.ai/new" }
+    ]
+    if (providerIndex < 0 || providerIndex >= official.length)
+        return base
+    const item = official[providerIndex]
+    if (item.bases.indexOf(normalized) < 0)
+        return { ok: true, url: base.url, warning: "URL personalizada: no se comparte texto" }
+    const encoded = encodeURIComponent(String(query).trim())
+    // No anexar parámetros a direcciones que contengan redirecciones.
     return {
-        ok: true,
-        url: "https://chatgpt.com/?q=" + encodeURIComponent(String(query).trim()),
+        ok: true, url: item.target + "?q=" + encoded,
         experimental: true
     }
 }
