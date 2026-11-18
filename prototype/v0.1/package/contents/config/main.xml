@@ -36,6 +36,9 @@
     <entry name="malvinaChatGptName" type="String"><default>ChatGPT</default></entry>
     <entry name="malvinaGeminiName" type="String"><default>Gemini</default></entry>
     <entry name="malvinaClaudeName" type="String"><default>Claude</default></entry>
+    <entry name="malvinaWebFirst" type="Bool"><default>true</default></entry>
+    <entry name="malvinaWebOrder" type="String"><default>google,duck,yahoo</default></entry>
+    <entry name="malvinaAiOrder" type="String"><default>chatgpt,gemini,claude</default></entry>
     <entry name="malvinaGoogleUrl" type="String"><default>https://www.google.com/search?q={query}</default></entry>
     <entry name="malvinaDuckUrl" type="String"><default>https://duckduckgo.com/?q={query}</default></entry>
     <entry name="malvinaYahooUrl" type="String"><default>https://search.yahoo.com/search?p={query}</default></entry>
