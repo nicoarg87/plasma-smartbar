@@ -25,6 +25,14 @@ Item {
     property string malvinaChatGptUrl: "https://chatgpt.com/"
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
+    property string malvinaGoogleName: "Google"
+    property string malvinaDuckName: "DuckDuckGo"
+    property string malvinaYahooName: "Yahoo"
+    property string malvinaChatGptName: "ChatGPT"
+    property string malvinaGeminiName: "Gemini"
+    property string malvinaClaudeName: "Claude"
+    signal requestMalvinaNamesChange(string google, string duck, string yahoo,
+                                     string chatGpt, string gemini, string claude)
     // Consentimiento futuro para envío directo; nunca habilita envíos por sí mismo.
     property bool malvinaWebGoogleEnabled: true
     property bool malvinaWebDuckEnabled: true
@@ -695,6 +703,12 @@ Item {
             soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
             soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
             soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
+            soledadSettings.malvinaGoogleName = root.malvinaGoogleName
+            soledadSettings.malvinaDuckName = root.malvinaDuckName
+            soledadSettings.malvinaYahooName = root.malvinaYahooName
+            soledadSettings.malvinaChatGptName = root.malvinaChatGptName
+            soledadSettings.malvinaGeminiName = root.malvinaGeminiName
+            soledadSettings.malvinaClaudeName = root.malvinaClaudeName
             soledadSettings.malvinaWebGoogleEnabled = root.malvinaWebGoogleEnabled
             soledadSettings.malvinaWebDuckEnabled = root.malvinaWebDuckEnabled
             soledadSettings.malvinaWebYahooEnabled = root.malvinaWebYahooEnabled
@@ -786,6 +800,9 @@ Item {
         }
         onSaveMalvinaWebEnabledRequested: function(google, duck, yahoo) {
             root.requestMalvinaWebEnabledChange(google, duck, yahoo)
+        }
+        onSaveMalvinaNamesRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
+            root.requestMalvinaNamesChange(google, duck, yahoo, chatGpt, gemini, claude)
         }
         onSaveMalvinaConsentsRequested: function(chatGpt, gemini, claude) {
             root.requestMalvinaConsentsChange(chatGpt, gemini, claude)
@@ -1072,6 +1089,12 @@ Item {
                 webGoogleEnabled: root.malvinaWebGoogleEnabled
                 webDuckEnabled: root.malvinaWebDuckEnabled
                 webYahooEnabled: root.malvinaWebYahooEnabled
+                googleName: root.malvinaGoogleName
+                duckName: root.malvinaDuckName
+                yahooName: root.malvinaYahooName
+                chatGptName: root.malvinaChatGptName
+                geminiName: root.malvinaGeminiName
+                claudeName: root.malvinaClaudeName
                 googleTemplate: root.malvinaGoogleUrl
                 duckTemplate: root.malvinaDuckUrl
                 yahooTemplate: root.malvinaYahooUrl
