@@ -25,6 +25,10 @@ Item {
     property string malvinaChatGptUrl: "https://chatgpt.com/"
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
+    property bool malvinaWebFirst: true
+    property string malvinaWebOrder: "google,duck,yahoo"
+    property string malvinaAiOrder: "chatgpt,gemini,claude"
+    signal requestMalvinaOrderChange(bool firstWeb, string webOrder, string aiOrder)
     property string malvinaGoogleName: "Google"
     property string malvinaDuckName: "DuckDuckGo"
     property string malvinaYahooName: "Yahoo"
@@ -704,6 +708,9 @@ Item {
             soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
             soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
             soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
+            soledadSettings.malvinaWebFirst = root.malvinaWebFirst
+            soledadSettings.malvinaWebOrder = root.malvinaWebOrder
+            soledadSettings.malvinaAiOrder = root.malvinaAiOrder
             soledadSettings.malvinaGoogleName = root.malvinaGoogleName
             soledadSettings.malvinaDuckName = root.malvinaDuckName
             soledadSettings.malvinaYahooName = root.malvinaYahooName
@@ -804,6 +811,9 @@ Item {
         }
         onSaveMalvinaNamesRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaNamesChange(google, duck, yahoo, chatGpt, gemini, claude)
+        }
+        onSaveMalvinaOrderRequested: function(firstWeb, webOrder, aiOrder) {
+            root.requestMalvinaOrderChange(firstWeb, webOrder, aiOrder)
         }
         onSaveMalvinaConsentsRequested: function(chatGpt, gemini, claude) {
             root.requestMalvinaConsentsChange(chatGpt, gemini, claude)
@@ -1098,6 +1108,12 @@ Item {
                 chatGptName: root.malvinaChatGptName
                 geminiName: root.malvinaGeminiName
                 claudeName: root.malvinaClaudeName
+                webFirst: root.malvinaWebFirst
+                webOrder: root.malvinaWebOrder
+                aiOrder: root.malvinaAiOrder
+                onRequestOrderChange: function(firstWeb, webOrder, aiOrder) {
+                    root.requestMalvinaOrderChange(firstWeb, webOrder, aiOrder)
+                }
                 googleTemplate: root.malvinaGoogleUrl
                 duckTemplate: root.malvinaDuckUrl
                 yahooTemplate: root.malvinaYahooUrl
