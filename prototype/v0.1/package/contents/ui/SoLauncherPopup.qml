@@ -199,16 +199,18 @@ QQC2.Popup {
                     spacing: 4
                     model: fileList
                     delegate: QQC2.Button {
-                        required property var model
+                        required property string fileName
+                        required property bool fileIsDir
+                        required property url fileUrl
                         width: filesList.width - 5
                         height: visible ? 32 : 0
-                        readonly property string fileLabel: String(model.fileName)
+                        readonly property string fileLabel: fileName
                         visible: !searchInput.text.trim() ||
                             fileLabel.toLowerCase().includes(searchInput.text.toLowerCase())
-                        text: fileLabel + (model.fileIsDir ? "  📁" : "")
+                        text: fileLabel + (fileIsDir ? "  📁" : "")
                         onClicked: {
-                            if (model.fileIsDir) {
-                                fileList.folder = model.fileURL
+                            if (fileIsDir) {
+                                fileList.folder = fileUrl
                                 searchInput.text = ""
                             } else {
                                 // La primera prueba no abre ni ejecuta archivos.
