@@ -14,7 +14,7 @@ Window {
     minimumWidth: 760
     minimumHeight: 210
     visible: true
-    title: "Plasma SmartBar v0.1 — CONFIGURACIÓN PERSISTENTE / 18-11 (sin panel)"
+    title: "Plasma SmartBar v0.1 — PREDETERMINADA PERSONAL / 18-11 (sin panel)"
     color: "#242236"
 
 
@@ -56,6 +56,36 @@ Window {
         localPreviewSettings.setValue("appearanceV1", current)
         localPreviewSettings.sync()
         console.log("SmartBar: estética favorita guardada localmente")
+    }
+    // Instantánea personal elegida por el usuario. No se sube al repositorio,
+    // ni se reemplaza por los valores por defecto del código.
+    function savePersonalDefault() {
+        if (!appearanceRestored) return
+        saveAppearanceTimer.stop()
+        const current = collectAppearancePreset()
+        localPreviewSettings.setValue("personalDefaultV1", current)
+        localPreviewSettings.setValue("appearanceV1", current)
+        localPreviewSettings.sync()
+        console.log("SmartBar: configuración completa fijada como predeterminada personal local")
+    }
+    function restorePersonalDefault() {
+        if (!appearanceRestored) return
+        const raw = localPreviewSettings.value("personalDefaultV1", "")
+        if (typeof raw !== "string" || !raw.length) {
+            console.warn("SmartBar: todavía no hay una predeterminada personal guardada")
+            return
+        }
+        try {
+            const values = JSON.parse(raw)
+            for (const key of appearanceKeys)
+                if (Object.prototype.hasOwnProperty.call(values,key))
+                    previewWindow[key] = values[key]
+            saveAppearanceTimer.stop()
+            saveAppearancePreset()
+            console.log("SmartBar: predeterminada personal restaurada")
+        } catch(e) {
+            console.warn("SmartBar: no se pudo restaurar predeterminada personal:",e)
+        }
     }
     function restoreFavoriteAppearance() {
         if (!appearanceRestored) return
@@ -613,6 +643,18 @@ Window {
         anchors.rightMargin: 18
         anchors.bottomMargin: 6
         spacing: 8
+        QQC2.Button {
+            text: "Fijar actual como predeterminada"
+            onClicked: previewWindow.savePersonalDefault()
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.text: "Guarda todos los ajustes actuales como referencia local permanente"
+        }
+        QQC2.Button {
+            text: "Restaurar predeterminada"
+            onClicked: previewWindow.restorePersonalDefault()
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.text: "Recupera tu configuración personal sin usar valores de fábrica"
+        }
         QQC2.Button {
             text: "Guardar estética favorita"
             onClicked: previewWindow.saveFavoriteAppearance()
