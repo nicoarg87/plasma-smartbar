@@ -28,6 +28,9 @@ Item {
     property bool malvinaWebFirst: true
     property string malvinaWebOrder: "google,duck,yahoo"
     property string malvinaAiOrder: "chatgpt,gemini,claude"
+    property string malvinaExtraWeb: "[]"
+    property string malvinaExtraAi: "[]"
+    signal requestMalvinaExtrasChange(string webJson, string aiJson)
     signal requestMalvinaOrderChange(bool firstWeb, string webOrder, string aiOrder)
     property string malvinaGoogleName: "Google"
     property string malvinaDuckName: "DuckDuckGo"
@@ -711,6 +714,8 @@ Item {
             soledadSettings.malvinaWebFirst = root.malvinaWebFirst
             soledadSettings.malvinaWebOrder = root.malvinaWebOrder
             soledadSettings.malvinaAiOrder = root.malvinaAiOrder
+            soledadSettings.malvinaExtraWeb = root.malvinaExtraWeb
+            soledadSettings.malvinaExtraAi = root.malvinaExtraAi
             soledadSettings.malvinaGoogleName = root.malvinaGoogleName
             soledadSettings.malvinaDuckName = root.malvinaDuckName
             soledadSettings.malvinaYahooName = root.malvinaYahooName
@@ -811,6 +816,9 @@ Item {
         }
         onSaveMalvinaNamesRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaNamesChange(google, duck, yahoo, chatGpt, gemini, claude)
+        }
+        onSaveMalvinaExtrasRequested: function(webJson, aiJson) {
+            root.requestMalvinaExtrasChange(webJson, aiJson)
         }
         onSaveMalvinaOrderRequested: function(firstWeb, webOrder, aiOrder) {
             root.requestMalvinaOrderChange(firstWeb, webOrder, aiOrder)
@@ -1108,6 +1116,12 @@ Item {
                 chatGptName: root.malvinaChatGptName
                 geminiName: root.malvinaGeminiName
                 claudeName: root.malvinaClaudeName
+                extraWeb: root.malvinaExtraWeb
+                extraAi: root.malvinaExtraAi
+                taskFrameShape: root.taskFrameShape
+                taskFrameColor: root.taskFrameColor
+                taskFrameOpacity: root.taskFrameOpacity
+                taskFrameWidth: root.taskFrameWidth
                 webFirst: root.malvinaWebFirst
                 webOrder: root.malvinaWebOrder
                 aiOrder: root.malvinaAiOrder
