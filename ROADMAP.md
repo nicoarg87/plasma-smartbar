@@ -309,3 +309,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Verificar revocación del permiso Malvina y ausencia de consulta en URL cuando esté desautorizado.
 - [ ] Determinar si la página precarga o envía automáticamente, sin presumir un comportamiento no informado por la prueba.
 - [ ] Mantener la integración clasificada como experimental hasta validar compatibilidad más amplia.
+
+## Etiquetas descriptivas personalizadas por proveedor (17/11/2026)
+
+- [x] Permitir editar y almacenar nombre visible independiente para Google, DuckDuckGo, Yahoo, ChatGPT, Gemini y Claude.
+- [x] Usar etiquetas configuradas en las filas Web e IA, con nombres predeterminados y validación de longitud y vacío.
+- [x] Persistir nombres en KConfig y preferencias locales del visor sin alterar permisos ni validación de URL.
+- [ ] Ejecutar visor en CachyOS, probar renombrado, Aplicar, reabrir y reiniciar; verificar Tab/flechas/Espacio/Enter.
+- [ ] Verificar visualización de etiquetas largas en una sola fila sin alterar altura de isla y accesibilidad con lector de pantalla.
+- [ ] Tratar la incorporación/eliminación de nuevos proveedores como otro requisito y preservar seguridad por identificador, no nombre de presentación.
