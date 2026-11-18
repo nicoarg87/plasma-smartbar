@@ -439,3 +439,17 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Conectar Configuración a KConfig y preferencias locales/favoritos del visor sin sobrescribir claves previas.
 - [ ] Validar clics, tooltip, pulsación sostenida y guardado/reinicio en CachyOS.
 - [ ] En etapa separada, implementar el lanzador real por categorías (Internet, Oficina, Multimedia, Sistema, Utilidades y +) y conmutador Aplicaciones/Archivos con búsqueda KDE de archivos validada, sin afectar el panel.
+
+## Corrección terminológica y primer launcher SO local — 18/11/2026
+
+- [x] Actualizar especificación VIGENTE: cajón de aplicaciones = ventanas activas/abiertas, launcher de aplicaciones = programas; cajón de sistema = bandeja; clic IZQUIERDO SO abre cajón y DERECHO SO launcher (reversible). Sustituye texto histórico anterior en esta hoja.
+- [x] Crear UI de launcher SO con conmutador Aplicaciones/Archivos, cinco categorías y +, panel lateral y búsqueda por nombre.
+- [x] Conectar al visor un catálogo local efímero de entradas .desktop para listar aplicaciones instaladas sin ejecutarlas; muestras solo como fallback.
+- [x] Exploración de carpetas/archivos en modo solo lectura mediante FolderListModel, con filtro por nombre en carpeta actual.
+- [x] Al pulsar SO, ocultar ayuda contextual para no cubrir launcher/cajón; tooltip conciso y contextual.
+- [x] Malvina: mostrar texto guía «Buscador: pulsá Tab para elegir Web o IA…».
+- [x] Malvina: vista indicativa de un segundo al mostrar/ocultar desde menú de seis puntos, respetando autoocultamiento y bloqueo KWin.
+- [ ] Probar nuevas páginas en CachyOS/Qt (carga módulos, lista .desktop, scroll, clics, archivos, visibilidad de Malvina y persistencia).
+- [ ] Implementar ejecución real de aplicaciones mediante integración KDE aprobada, no por comandos arbitrarios del .desktop; comprobar seguridad.
+- [ ] Investigar e implementar búsqueda global de archivos (KRunner/Baloo u otra API verificada) y apertura segura, por ahora solo exploración/filtro de carpeta.
+- [ ] Revisar compatibilidad del archivo local XHR utilizado solo por el visor experimental y alternativa de producción sin permisos globales de lectura de archivos.
