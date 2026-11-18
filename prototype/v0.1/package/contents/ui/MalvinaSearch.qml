@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Controls as QQC2
 import "MalvinaUrlPolicy.js" as UrlPolicy
+import "MalvinaSlots.js" as Slots
 
 Item {
     id: search
@@ -37,26 +38,30 @@ Item {
     property bool webFirst: true
     property string webOrder: "google,duck,yahoo"
     property string aiOrder: "chatgpt,gemini,claude"
-    function safeOrder(value, canonical) {
-        const parts = String(value).split(",")
-        const expected = canonical.split(",")
-        if (parts.length !== expected.length) return expected
-        for (let i = 0; i < expected.length; ++i)
-            if (parts.indexOf(expected[i]) < 0 || parts.lastIndexOf(expected[i]) !== parts.indexOf(expected[i]))
-                return expected
-        return parts
-    }
-    readonly property var orderedWebIds: safeOrder(webOrder, "google,duck,yahoo")
-    readonly property var orderedAiIds: safeOrder(aiOrder, "chatgpt,gemini,claude")
+    // Formato de fichas compartido con la isla de Soledad.
+    property string extraWeb: "[]"
+    property string extraAi: "[]"
+    property string taskFrameShape: "rounded"
+    property color taskFrameColor: "#ffffff"
+    property real taskFrameOpacity: 0.12
+    property real taskFrameWidth: 1
+
+    readonly property var webExtras: Slots.extras("web",extraWeb)
+    readonly property var aiExtras: Slots.extras("ai",extraAi)
+    readonly property var orderedWebIds: Slots.order("web",extraWeb,webOrder)
+    readonly property var orderedAiIds: Slots.order("ai",extraAi,aiOrder)
     signal requestOrderChange(bool webFirst, string webOrder, string aiOrder)
     function nameFor(id) {
         const names = {
             google: googleName, duck: duckName, yahoo: yahooName,
             chatgpt: chatGptName, gemini: geminiName, claude: claudeName
         }
-        return names[id] || id
+        const extra=webExtras.concat(aiExtras).find(x=>x.id===id)
+        return extra ? extra.name : (names[id] || id)
     }
     function enabledFor(id) {
+        const extra=webExtras.concat(aiExtras).find(x=>x.id===id)
+        if(extra) return extra.enabled
         return id === "google" ? webGoogleEnabled :
                id === "duck" ? webDuckEnabled :
                id === "yahoo" ? webYahooEnabled : true
@@ -66,13 +71,14 @@ Item {
             google: googleTemplate, duck: duckTemplate, yahoo: yahooTemplate,
             chatgpt: chatGptUrl, gemini: geminiUrl, claude: claudeUrl
         }
-        return urls[id] || ""
+        const extra=webExtras.concat(aiExtras).find(x=>x.id===id)
+        return extra ? extra.url : (urls[id] || "")
     }
     function aiIndexFor(id) { return ["chatgpt", "gemini", "claude"].indexOf(id) }
-    function webIdAt(index) { return orderedWebIds[Math.max(0, Math.min(2,index))] }
-    function aiIdAt(index) { return orderedAiIds[Math.max(0, Math.min(2,index))] }
+    function webIdAt(index) { return orderedWebIds[Math.max(0, Math.min(orderedWebIds.length-1,index))] }
+    function aiIdAt(index) { return orderedAiIds[Math.max(0, Math.min(orderedAiIds.length-1,index))] }
     function firstEnabledWebIndex() {
-        for (let i=0;i<3;i++) if (enabledFor(webIdAt(i))) return i
+        for (let i=0;i<orderedWebIds.length;i++) if (enabledFor(webIdAt(i))) return i
         return -1
     }
     function resetDefault() {
@@ -92,8 +98,9 @@ Item {
         applyOrder(!webFirst, webOrder, aiOrder)
     }
     function reorderProvider(section, fromIndex, destinationIndex) {
+        const size=section === 1 ? orderedWebIds.length : orderedAiIds.length
         if (fromIndex === destinationIndex || fromIndex < 0 || destinationIndex < 0 ||
-            fromIndex > 2 || destinationIndex > 2) return
+            fromIndex >= size || destinationIndex >= size) return
         const arr = (section === 1 ? orderedWebIds : orderedAiIds).slice()
         const moved = arr.splice(fromIndex, 1)[0]
         arr.splice(destinationIndex, 0, moved)
@@ -160,10 +167,13 @@ Item {
             console.warn("Malvina: el buscador Web seleccionado está deshabilitado en Configuración")
             return
         }
-        const result = isAi
-            ? UrlPolicy.resolveAiPrefill(aiIndexFor(providerId), template, query,
-                                         aiPrefillAllowed[aiIndexFor(providerId)])
-            : UrlPolicy.resolve(template, query, false)
+        const officialAi = aiIndexFor(providerId)
+        // Los proveedores IA añadidos por usuarios abren su web sin incluir el
+        // texto. Nunca heredan permisos de ChatGPT/Claude por nombre ni posición.
+        const result = isAi && officialAi >= 0
+            ? UrlPolicy.resolveAiPrefill(officialAi, template, query,
+                                         aiPrefillAllowed[officialAi])
+            : UrlPolicy.resolve(template, query, isAi)
         if (!result.ok) {
             console.warn("Malvina: " + result.reason)
             return
@@ -220,7 +230,8 @@ Item {
     }
     function moveCandidate(delta) {
         if (navigationSection === 0) return
-        navigationIndex = (navigationIndex + delta + 3) % 3
+        const length = navigationSection === 1 ? orderedWebIds.length : orderedAiIds.length
+        navigationIndex = (navigationIndex + delta + length) % length
     }
     // Solo elegir: no abrir la URL ni modificar la consulta.
     function chooseProvider(section, index) {
@@ -432,42 +443,65 @@ Item {
                             }
                         }
                     }
-                    Repeater {
-                        model: sectionRow.section === 1 ? search.orderedWebIds : search.orderedAiIds
-                        delegate: QQC2.Button {
-                            id: providerButton
-                            required property string modelData
-                            required property int index
-                            property real dragX: 0
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 32
-                            text: search.nameFor(modelData)
-                            enabled: search.enabledFor(modelData)
-                            highlighted: (search.navigationSection === sectionRow.section &&
-                                          search.navigationIndex === index) ||
-                                         (search.navigationSection === 0 &&
-                                          search.currentSection === sectionRow.section &&
-                                          (sectionRow.section === 1 ? search.webIndex : search.aiIndex) === index)
-                            z: dragControl.active ? 10 : 0
-                            transform: Translate { x: providerButton.dragX }
-                            QQC2.ToolTip.visible: hovered
-                            QQC2.ToolTip.text: search.nameFor(modelData) + " · Arrastrá para cambiar prioridad"
-                            onClicked: search.chooseProvider(sectionRow.section, index)
-                            DragHandler {
-                                id: dragControl
-                                target: null
-                                xAxis.enabled: true
-                                yAxis.enabled: false
-                                onTranslationChanged: if (active) providerButton.dragX = translation.x
-                                onActiveChanged: {
-                                    if (!active) {
-                                        const delta = providerButton.dragX
-                                        providerButton.dragX = 0
-                                        if (Math.abs(delta) > 18) {
-                                            const distance = providerButton.width + sectionRow.spacing
-                                            const dest = Math.max(0, Math.min(2,
-                                                index + Math.round(delta / Math.max(1, distance))))
-                                            search.reorderProvider(sectionRow.section, index, dest)
+                    // Una sola fila aunque haya diez fichas. Desplazamiento
+                    // horizontal; no aumentar alto del popup ni altura de isla.
+                    QQC2.ScrollView {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 35
+                        clip: true
+                        QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AsNeeded
+                        QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOff
+                        Row {
+                            id: providersRow
+                            spacing: 4
+                            Repeater {
+                                model: sectionRow.section === 1 ? search.orderedWebIds : search.orderedAiIds
+                                delegate: IslandButton {
+                                    id: providerButton
+                                    required property string modelData
+                                    required property int index
+                                    property real dragX: 0
+                                    width: Math.max(76, Math.min(122, implicitWidth))
+                                    height: 30
+                                    text: search.nameFor(modelData)
+                                    enabled: search.enabledFor(modelData)
+                                    inheritIslandFill: true
+                                    taskDisplayMode: "text"
+                                    taskFrameShape: search.taskFrameShape
+                                    taskFrameColor: search.taskFrameColor
+                                    taskFrameOpacity: search.taskFrameOpacity
+                                    taskFrameWidth: search.taskFrameWidth
+                                    taskIsActive: (search.navigationSection === sectionRow.section &&
+                                                   search.navigationIndex === index) ||
+                                                  (search.navigationSection === 0 &&
+                                                   search.currentSection === sectionRow.section &&
+                                                   (sectionRow.section === 1 ? search.webIndex : search.aiIndex) === index)
+                                    taskActiveGlowEnabled: false
+                                    taskActiveDoubleBorderEnabled: true
+                                    z: dragControl.active ? 10 : 0
+                                    transform: Translate { x: providerButton.dragX }
+                                    QQC2.ToolTip.visible: hovered
+                                    QQC2.ToolTip.text: search.nameFor(modelData) + " · Arrastrá para cambiar prioridad"
+                                    onClicked: search.chooseProvider(sectionRow.section, index)
+                                    DragHandler {
+                                        id: dragControl
+                                        target: null
+                                        xAxis.enabled: true
+                                        yAxis.enabled: false
+                                        onTranslationChanged: if (active) providerButton.dragX = translation.x
+                                        onActiveChanged: {
+                                            if (!active) {
+                                                const delta = providerButton.dragX
+                                                providerButton.dragX = 0
+                                                if (Math.abs(delta) > 18) {
+                                                    const step = providerButton.width + providersRow.spacing
+                                                    const count = sectionRow.section === 1 ?
+                                                        search.orderedWebIds.length : search.orderedAiIds.length
+                                                    const dest = Math.max(0, Math.min(count - 1,
+                                                        index + Math.round(delta / Math.max(1, step))))
+                                                    search.reorderProvider(sectionRow.section,index,dest)
+                                                }
+                                            }
                                         }
                                     }
                                 }
