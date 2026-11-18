@@ -17,6 +17,10 @@
       <label>Mostrar Malvina (isla 2)</label>
       <default>true</default>
     </entry>
+    <entry name="soLeftClickOpensLauncher" type="Bool">
+      <label>Clic izquierdo SO abre aplicaciones; clic derecho abre ventanas activas</label>
+      <default>true</default>
+    </entry>
     <entry name="autoCollapseSO" type="Bool">
       <label>Contraer SO después de seleccionar una ventana</label>
       <default>true</default>
