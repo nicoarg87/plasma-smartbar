@@ -29,7 +29,27 @@ else
     echo "GIF predeterminado de SO localizado: $GIF_SO"
 fi
 
+# Catálogo efímero local para el launcher de SO: únicamente nombres/categorías
+# de archivos .desktop, sin ejecutar programas ni indexar archivos personales.
+# No se guarda en GitHub, KConfig ni en configuraciones del usuario.
+LOCAL_CATALOG="$HERE/package/contents/ui/.smartbar-app-catalog-preview.json"
+CATALOG_CREATED=0
+if [ ! -e "$LOCAL_CATALOG" ] && command -v python3 >/dev/null 2>&1; then
+    if python3 "$HERE/catalogo_aplicaciones.py" "$LOCAL_CATALOG"; then
+        CATALOG_CREATED=1
+    else
+        echo "AVISO: no se pudo generar el catálogo de aplicaciones. Se usan muestras." >&2
+    fi
+fi
+cleanup_catalog() {
+    if [ "$CATALOG_CREATED" -eq 1 ]; then
+        rm -f -- "$LOCAL_CATALOG"
+    fi
+}
+trap cleanup_catalog EXIT
+export QML_XHR_ALLOW_FILE_READ=1
+
 echo "Abriendo la vista de geometría Qt Quick de Plasma SmartBar Islands…"
 echo "Esta ventana usa SmartBarContent.qml, igual que el plasmoide."
 echo "No se instala ni cambia ningún panel. Cerrala con la X."
-exec "$QML_RUNNER" "$HERE/preview_redimensionable.qml"
+"$QML_RUNNER" "$HERE/preview_redimensionable.qml"
