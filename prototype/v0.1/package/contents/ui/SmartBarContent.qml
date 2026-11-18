@@ -106,6 +106,21 @@ Item {
     property bool launcherIslandVisible: true
     property bool autoHideMalvina: true
     property bool malvinaHoverRevealed: false
+    // Confirmación breve de la acción Mostrar/Ocultar del menú de seis puntos.
+    // Es visible solo en el visor permitido; no añade animaciones ni altura.
+    property bool malvinaVisibilityCue: false
+    property bool malvinaPendingHide: false
+    Timer {
+        id: malvinaVisibilityCueTimer
+        interval: 1000
+        repeat: false
+        onTriggered: {
+            if (root.malvinaPendingHide)
+                root.requestLauncherIslandVisibilityChange(false)
+            root.malvinaPendingHide = false
+            root.malvinaVisibilityCue = false
+        }
+    }
     // Política general para islas que se autoactivan: nunca aparecer sobre
     // una superficie maximizada/fullscreen. Si KWin aún NO informó estado
     // real, bloquear por seguridad (fail-closed) en el plasmoide.
@@ -118,6 +133,11 @@ Item {
         hostMaximized || hostFullscreen
     onAutoRevealBlockedChanged: {
         if (autoRevealBlocked) {
+            malvinaVisibilityCueTimer.stop()
+            if (malvinaPendingHide)
+                requestLauncherIslandVisibilityChange(false)
+            malvinaPendingHide = false
+            malvinaVisibilityCue = false
             malvinaRevealTimer.stop()
             malvinaHideTimer.stop()
             malvinaHoverRevealed = false
@@ -134,9 +154,13 @@ Item {
          soledadSettings.currentIslandSubtab === 2)
     readonly property bool malvinaActuallyVisible:
         !autoRevealBlocked && launcherIslandVisible &&
-        (!autoHideMalvina || malvinaHoverRevealed || malvinaPopupActive)
+        (!autoHideMalvina || malvinaHoverRevealed || malvinaPopupActive ||
+         malvinaVisibilityCue)
     onLauncherIslandVisibleChanged: {
         if (!launcherIslandVisible) {
+            malvinaVisibilityCueTimer.stop()
+            malvinaPendingHide = false
+            malvinaVisibilityCue = false
             malvinaRevealTimer.stop()
             malvinaHideTimer.stop()
             malvinaHoverRevealed = false
@@ -680,12 +704,33 @@ Item {
                     installedLauncherSource, "(sin iniciar aplicaciones)")
     }
 
-    function setLauncherIslandVisible(value) {
-        requestLauncherIslandVisibilityChange(value)
-        if (!value) {
-            launcherPreview = false
+    function setLauncherIslandVisible(value, previewForNovice) {
+        malvinaVisibilityCueTimer.stop()
+        malvinaPendingHide = false
+        malvinaVisibilityCue = false
+        if (!previewForNovice || autoRevealBlocked) {
+            requestLauncherIslandVisibilityChange(value)
+            if (!value) launcherPreview = false
+            return
         }
-        console.log("SmartBar v0.1: isla 2 visible =", value)
+        if (value) {
+            requestLauncherIslandVisibilityChange(true)
+            // Mostrar un segundo la isla para señalar dónde se encuentra.
+            // Si el usuario desactivó autoocultamiento, permanece visible.
+            if (autoHideMalvina) {
+                malvinaVisibilityCue = true
+                malvinaVisibilityCueTimer.restart()
+            }
+        } else if (launcherIslandVisible) {
+            // Si estaba autooculta, volver a mostrarla un segundo para que
+            // se comprenda qué control se está deshabilitando.
+            malvinaVisibilityCue = true
+            malvinaPendingHide = true
+            malvinaVisibilityCueTimer.restart()
+        } else {
+            requestLauncherIslandVisibilityChange(false)
+        }
+        if (!value) launcherPreview = false
     }
 
     function toggleGripMenu() {
@@ -1939,7 +1984,7 @@ Item {
                                 ? "Ocultar Malvina (isla 2)"
                                 : "Mostrar Malvina (isla 2)"
                             onTriggered: root.setLauncherIslandVisible(
-                                !root.launcherIslandVisible
+                                !root.launcherIslandVisible, true
                             )
                         }
                         QQC2.MenuSeparator {}
