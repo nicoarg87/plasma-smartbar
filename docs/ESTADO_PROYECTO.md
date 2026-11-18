@@ -999,3 +999,11 @@ Commits de implementación: [f4fecdd](https://github.com/nicoarg87/plasma-smartb
 ## Icono X de Malvina sin columna propia (17/11/2026)
 
 **REPORTE DEL MANTENEDOR:** la X estaba ocupando una franja vertical completa dentro del editor de búsqueda. **CORRECCIÓN IMPLEMENTADA EN RAMA EXPERIMENTAL:** el `ScrollView` ocupa todo el ancho del campo, sin `anchors.rightMargin: 28`; la X es ahora un botón transparente de 17×17 px superpuesto arriba a la derecha, sin fondo ni columna de diseño. Solo queda `rightPadding: 25` en el texto para evitar que las letras se solapen con el icono. La acción de borrar todo se mantiene. [Commit 841351f](https://github.com/nicoarg87/plasma-smartbar/commit/841351f34df46e0d0fd62501ec40567c71d7ebc5). **Pendiente de prueba visual en CachyOS**; no se modificó panel instalado.
+
+## Reordenación modular de Web/IA en Malvina (17/11/2026)
+
+**CONFIRMADO:** Web e IA se pueden mover arriba/abajo y cada proveedor de una fila arrastrarse horizontalmente. La prioridad para nuevas búsquedas es la primera opción habilitada de izquierda a derecha en la fila superior. Los nombres, URL y permisos individuales no cambian al moverlos.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL:** `MalvinaSearch.qml` crea filas dinámicas por `webFirst`, usa `DragHandler` vertical sobre rótulos ↕ Web/IA y horizontal sobre botones de proveedores, clic sobre rótulo para invertir fila y separación entre selección actual y prioridad por defecto al abrir nueva búsqueda. Emite `requestOrderChange` sin romper bindings, valida órdenes canónicos de tres IDs por grupo y utiliza ID original para seleccionar URL y consentimiento IA. `MalvinaProvidersPage.qml` añade inversión accesible en Configuración. `SoledadSettings.qml`, `SmartBarContent.qml`, `main.qml`, `main.xml` y `preview_redimensionable.qml` conectan y persisten `malvinaWebFirst`, `malvinaWebOrder`, `malvinaAiOrder`. Configuración inicial: Web arriba, Google/DuckDuckGo/Yahoo e IA ChatGPT/Gemini/Claude.
+
+**NO PROBADO EN QT/CACHYOS:** arrastre de filas y fichas, posición visual, clic sin mover, cambios guardados tras reinicio del visor, Tab/Shift+Tab y selección por Espacio, URL correcta y no transmisión a IA no autorizada. Pruebas reales pendientes; no se modificó panel KDE.
