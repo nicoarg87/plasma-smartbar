@@ -12,11 +12,15 @@ Item {
     property string googleTemplate: "https://www.google.com/search?q={query}"
     property string duckTemplate: "https://duckduckgo.com/?q={query}"
     property string yahooTemplate: "https://search.yahoo.com/search?p={query}"
-    // Sin contrato universal para enviar prompts por enlaces públicos.
-    // Los servicios de IA se abren en su sitio, sin enviar la consulta.
+    // Precarga experimental q= solo con permiso para cada proveedor.
+    // La página podría enviar el texto al cargar; nunca garantizar solo prellenado.
     property string chatGptUrl: "https://chatgpt.com/"
     property string geminiUrl: "https://gemini.google.com/app"
     property string claudeUrl: "https://claude.ai/new"
+    property bool allowChatGptPrefill: false
+    property bool allowGeminiPrefill: false
+    property bool allowClaudePrefill: false
+    readonly property var aiPrefillAllowed: [allowChatGptPrefill, allowGeminiPrefill, allowClaudePrefill]
     property int currentSection: 1 // proveedor seleccionado: Web de forma predeterminada (Google)
     property int webIndex: 0
     property int aiIndex: 0
@@ -61,13 +65,17 @@ Item {
             console.warn("Malvina: el buscador Web seleccionado está deshabilitado en Configuración")
             return
         }
-        const result = UrlPolicy.resolve(template, query, isAi)
+        const result = isAi
+            ? UrlPolicy.resolveAiPrefill(aiIndex, template, query, aiPrefillAllowed[aiIndex])
+            : UrlPolicy.resolve(template, query, false)
         if (!result.ok) {
             console.warn("Malvina: " + result.reason)
             return
         }
-        // Una unica salida hacia el navegador predeterminado de KDE.
-        // Nunca ejecutar comandos del sistema ni enviar prompts IA por enlaces genericos.
+        // Apertura exclusivamente al pulsar Enter; nada se transmite en Tab/Espacio.
+        // q= es experimental, NO es garantía de precarga ni de envío controlado.
+        if (result.warning) console.warn("Malvina: " + result.warning)
+        if (result.experimental) console.log("Malvina: enlace IA experimental con permiso explícito")
         Qt.openUrlExternally(result.url)
     }
     // Navegacion por filas. El foco real permanece en TextField para que Tab
