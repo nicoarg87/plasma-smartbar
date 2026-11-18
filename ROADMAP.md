@@ -422,3 +422,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Permitir restaurar esa predeterminada personal sin borrar las otras preferencias.
 - [ ] Validar en CachyOS fijar, editar, cerrar/abrir, restaurar y comprobar que favoritos antiguos permanecen.
 - [ ] Solo publicar estética exacta del mantenedor como valores por defecto del repositorio si proporciona su configuración y autoriza compartir esos ajustes.
+
+## Configuración organizada y campo de Malvina coherente — 18/11/2026
+
+- [x] Separar accesos principales por Soledad (logo, efectos, fichas), Malvina (Web/IA, figura, colores) y Compartidas (geometría, posición, comportamiento, fondos).
+- [x] Reutilizar páginas, señales y propiedades anteriores en lugar de borrar/renombrar las claves locales.
+- [x] Hacer desplazable la navegación para alturas reducidas y enlazar la figura de Malvina.
+- [x] Eliminar fondos rectangulares del ScrollView/TextArea del editor para respetar la esquina derecha redondeada.
+- [ ] Verificar en CachyOS la carga QML, enlaces, desplazamiento, Aplicar, autoguardado, figuras, transparencia, gradiente y teclado.
+- [ ] Evaluar mejora posterior de distribución interna en páginas extensas a partir de pruebas del mantenedor, sin ocultar controles o cambiar requisitos.
