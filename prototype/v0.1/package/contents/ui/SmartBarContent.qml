@@ -60,6 +60,7 @@ Item {
     property string malvinaGearButtonShape: "square"
     property string malvinaSearchButtonShape: "square"
     signal requestMalvinaButtonShapesChange(string gearShape, string searchShape)
+    signal requestPersistCurrentSettings()
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     property bool taskActiveGlowEnabled: true
@@ -832,6 +833,7 @@ Item {
 
     SoledadSettings {
         id: soledadSettings
+        onSettingsApplied: root.requestPersistCurrentSettings()
         onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaProvidersChange(google, duck, yahoo,
                                                chatGpt, gemini, claude)
