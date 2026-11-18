@@ -165,7 +165,8 @@ Item {
         onTapped: function(point) {
             const position = malvinaSearch.mapFromItem(root, point.position.x, point.position.y)
             const insideSearch = position.x >= 0 && position.x <= malvinaSearch.width &&
-                                 position.y >= 0 && position.y <= malvinaSearch.height
+                                 position.y >= 0 &&
+                                 position.y <= Math.max(malvinaSearch.height, malvinaSearch.desiredEditorHeight)
             if (!insideSearch) {
                 malvinaSearch.closeSearch()
                 if (root.autoHideMalvina) {
@@ -1086,6 +1087,7 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: 5
                 anchors.verticalCenter: parent.verticalCenter
+                maximumSearchWidth: Math.max(180, Math.min(520, root.width / 2))
                 webGoogleEnabled: root.malvinaWebGoogleEnabled
                 webDuckEnabled: root.malvinaWebDuckEnabled
                 webYahooEnabled: root.malvinaWebYahooEnabled
