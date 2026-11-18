@@ -41,6 +41,13 @@ Item {
     property string queryText: ""
     property bool multiLineEditing: false
     readonly property int multilineMaxHeight: 220
+    onQueryTextChanged: {
+        if (expanded && !multiLineEditing && (queryText.length > 125 || queryText.indexOf("\n") >= 0)) {
+            multiLineEditing = true
+            editorPopup.open()
+            longInput.forceActiveFocus()
+        }
+    }
     signal requestSettings()
     signal requestInstalledApps()
     readonly property var webNames: [googleName, duckName, yahooName]
@@ -104,13 +111,13 @@ Item {
         if (!multiLineEditing) {
             multiLineEditing = true
             editorPopup.open()
-            longInput.text = queryText + "\\n"
+            longInput.text = queryText + "\n"
             longInput.cursorPosition = longInput.length
             longInput.forceActiveFocus()
             queryText = longInput.text
         } else {
             const p = longInput.cursorPosition
-            longInput.insert(p, "\\n")
+            longInput.insert(p, "\n")
             longInput.cursorPosition = p + 1
         }
     }
