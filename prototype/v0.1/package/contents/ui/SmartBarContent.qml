@@ -1087,7 +1087,8 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: 5
                 anchors.verticalCenter: parent.verticalCenter
-                maximumSearchWidth: Math.max(180, Math.min(520, root.width / 2))
+                // Los 73 px de botones también cuentan en el límite de media ventana.
+                maximumSearchWidth: Math.max(180, Math.min(520, root.width / 2 - 82))
                 webGoogleEnabled: root.malvinaWebGoogleEnabled
                 webDuckEnabled: root.malvinaWebDuckEnabled
                 webYahooEnabled: root.malvinaWebYahooEnabled
