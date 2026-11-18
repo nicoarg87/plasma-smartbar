@@ -241,3 +241,10 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Implementar preferencias persistentes y control estricto de envío solo en Enter y solo con autorización vigente.
 - [ ] Pruebas negativas: sin permiso nunca se transmite; selección Tab/Espacio nunca transmite; revocar bloquea la siguiente consulta.
 - [ ] Validar en CachyOS el flujo completo y cualquier uso futuro de KWallet/secretos, antes de etiquetar la función como disponible.
+
+## Integración de buscadores con IA y sesión del navegador (17/11/2026)
+
+- [x] Registrar que buscadores Web pueden ofrecer IA propia, distinta del envío directo al chat autorizado en Malvina.
+- [x] Confirmar que autenticación web corresponde al usuario y no habilita acceso de Malvina a contraseñas, cookies o sesión.
+- [ ] Verificar por proveedor si hay mecanismo compatible para abrir conversación web con texto sin automatizar el navegador ni capturar sesiones.
+- [ ] Distinguir claramente «abrir sitio» de «enviar consulta al chat» en la interfaz y pruebas; con ausencia de compatibilidad, no enviar automáticamente.
