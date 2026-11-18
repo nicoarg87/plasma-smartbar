@@ -1080,6 +1080,7 @@ Item {
             visible: root.malvinaActuallyVisible
             anchors.fill: parent
             radius: root.malvinaShape === "square" || root.malvinaShape === "leftTip" ? 0 :
+                root.malvinaShape === "capsule" ? height / 2 :
                 Math.max(0, Math.min(root.malvinaRadius, height / 2))
             topLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
             bottomLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
