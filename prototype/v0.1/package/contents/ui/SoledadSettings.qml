@@ -23,8 +23,25 @@ Window {
     minimumWidth: 560
     minimumHeight: 510
 
+    // Secciones de geometría reducidas para que entren en la ventana de configuración.
+    property int geometrySection: 0
+
     // Botones del menú lateral: no cortar nombres cuando la ventana es angosta
     // o cuando el usuario aumenta la escala de fuentes de KDE.
+    component SettingsPageTab: QQC2.TabButton {
+        id: pageTab
+        implicitHeight: 48
+        contentItem: Text {
+            text: pageTab.text
+            font: pageTab.font
+            color: pageTab.enabled ? "#ffffff" : "#999999"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            elide: Text.ElideNone
+        }
+    }
+
     component SettingsMenuButton: QQC2.Button {
         id: navigationButton
         Layout.fillWidth: true
@@ -53,12 +70,15 @@ Window {
     function showMalvinaShape() {
         currentTab = 0
         islandSubtabs.currentIndex = 0
-        Qt.callLater(function() {
-            if (positionScroll.contentItem)
-                positionScroll.contentItem.contentY = Math.max(0, malvinaFigureSelector.y - 45)
-        })
+        geometrySection = 1
+        if (positionScroll.contentItem) positionScroll.contentItem.contentY = 0
     }
-    function showSharedLayout() { currentTab = 0; islandSubtabs.currentIndex = 0 }
+    function showSharedLayout() {
+        currentTab = 0
+        islandSubtabs.currentIndex = 0
+        geometrySection = 0
+        if (positionScroll.contentItem) positionScroll.contentItem.contentY = 0
+    }
     function showSharedBehavior() { currentTab = 0; islandSubtabs.currentIndex = 1 }
     function showSharedColors(target) {
         currentTab = 2
@@ -755,7 +775,7 @@ Window {
                     SettingsMenuButton {
                         Layout.fillWidth: true
                         text: "Figura y tamaño Malvina"
-                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 && settings.geometrySection === 1
                         onClicked: settings.showMalvinaShape()
                     }
                     SettingsMenuButton {
@@ -811,9 +831,9 @@ Window {
                 QQC2.TabBar {
                     id: islandSubtabs
                     Layout.fillWidth: true
-                    QQC2.TabButton { text: "Figuras y posición (ambas islas)"; width: implicitWidth }
-                    QQC2.TabButton { text: "Autocontracción"; width: implicitWidth }
-                    QQC2.TabButton { text: "Proveedores Malvina"; width: implicitWidth }
+                    SettingsPageTab { text: "Posición y figuras"; width: islandSubtabs.width / 3 }
+                    SettingsPageTab { text: "Autocontracción"; width: islandSubtabs.width / 3 }
+                    SettingsPageTab { text: "Proveedores Malvina"; width: islandSubtabs.width / 3 }
                 }
                 StackLayout {
                     currentIndex: islandSubtabs.currentIndex
@@ -823,10 +843,38 @@ Window {
             QQC2.ScrollView {
                 id: positionScroll
                 clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: positionScroll.availableWidth - 8
+                    width: Math.max(0, positionScroll.availableWidth - 8)
                     spacing: 16
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+                        QQC2.Button {
+                            Layout.fillWidth: true
+                            text: "Ubicación"
+                            highlighted: settings.geometrySection === 0
+                            onClicked: { settings.geometrySection = 0; positionScroll.contentItem.contentY = 0 }
+                        }
+                        QQC2.Button {
+                            Layout.fillWidth: true
+                            text: "Figuras"
+                            highlighted: settings.geometrySection === 1
+                            onClicked: { settings.geometrySection = 1; positionScroll.contentItem.contentY = 0 }
+                        }
+                        QQC2.Button {
+                            Layout.fillWidth: true
+                            text: "Tamaños"
+                            highlighted: settings.geometrySection === 2
+                            onClicked: { settings.geometrySection = 2; positionScroll.contentItem.contentY = 0 }
+                        }
+                    }
+                    ColumnLayout {
+                        visible: settings.geometrySection === 0
+                        Layout.fillWidth: true
+                        spacing: 10
                     QQC2.Label {
                         text: "Soledad y Malvina · ajustá cada isla por separado"
                         color: "#ddd6e8"; Layout.fillWidth: true
@@ -917,6 +965,11 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.geometrySection === 1
+                        Layout.fillWidth: true
+                        spacing: 10
                     QQC2.Label {
                         text: "Terminaciones visuales"
                         color: "white"; font.bold: true
@@ -1020,6 +1073,11 @@ Window {
                             settings.trayButtonShape = i === 1 ? "square" : "rounded"
                         }
                     }
+                    }
+                    ColumnLayout {
+                        visible: settings.geometrySection === 2
+                        Layout.fillWidth: true
+                        spacing: 10
                     QQC2.Label { text: "Geometría de las islas"; color: "white"; font.bold: true }
                     QQC2.Label {
                         text: "La altura elegida es constante durante el uso. Al aumentar una isla, Aplicar también aumenta la altura general si hace falta (máximo 120 px, con 4 px de margen)."
@@ -1152,6 +1210,7 @@ Window {
                             settings.trayButtonShape = "rounded"
                         }
                     }
+                    }
                 }
             }
 
@@ -1159,9 +1218,11 @@ Window {
             QQC2.ScrollView {
                 id: collapseScroll
                 clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: collapseScroll.availableWidth - 8
+                    width: Math.max(0, collapseScroll.availableWidth - 8)
                     spacing: 16
                     QQC2.Label {
                         text: "Autocontracción"
@@ -1218,8 +1279,8 @@ Window {
                 QQC2.TabBar {
                     id: logoSubtabs
                     Layout.fillWidth: true
-                    QQC2.TabButton { text: "Imagen y texto"; width: implicitWidth }
-                    QQC2.TabButton { text: "Contorno e iluminación"; width: implicitWidth }
+                    SettingsPageTab { text: "Imagen y texto"; width: logoSubtabs.width / 2 }
+                    SettingsPageTab { text: "Contorno e iluminación"; width: logoSubtabs.width / 2 }
                 }
                 StackLayout {
                     currentIndex: logoSubtabs.currentIndex
@@ -1229,9 +1290,11 @@ Window {
             QQC2.ScrollView {
                 id: logoScroll
                 clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: logoScroll.availableWidth - 8
+                    width: Math.max(0, logoScroll.availableWidth - 8)
                     spacing: 10
                     QQC2.Label {
                         text: "Imagen del botón SO · vista previa"
@@ -1734,9 +1797,11 @@ Window {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
+                    contentWidth: Math.max(0, availableWidth - 8)
+                    QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                     QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                     ColumnLayout {
-                        width: outlineScroll.availableWidth - 8
+                        width: Math.max(0, outlineScroll.availableWidth - 8)
                         spacing: 13
                     QQC2.CheckBox {
                         visible: settings.effectStyle !== "off"
@@ -2086,9 +2151,9 @@ Window {
                 QQC2.TabBar {
                     id: appearanceSubtabs
                     Layout.fillWidth: true
-                    QQC2.TabButton { text: "Color por isla"; width: implicitWidth }
-                    QQC2.TabButton { text: "Fichas SO"; width: implicitWidth }
-                    QQC2.TabButton { text: "Contornos compartidos"; width: implicitWidth }
+                    SettingsPageTab { text: "Color por isla"; width: appearanceSubtabs.width / 3 }
+                    SettingsPageTab { text: "Fichas SO"; width: appearanceSubtabs.width / 3 }
+                    SettingsPageTab { text: "Contornos compartidos"; width: appearanceSubtabs.width / 3 }
                 }
                 StackLayout {
                     currentIndex: appearanceSubtabs.currentIndex
@@ -2098,9 +2163,11 @@ Window {
             QQC2.ScrollView {
                 id: appearanceScroll
                 clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: appearanceScroll.availableWidth - 8
+                    width: Math.max(0, appearanceScroll.availableWidth - 8)
                     spacing: 14
                     QQC2.Label {
                         text: "Colores y transparencia"
@@ -2438,9 +2505,11 @@ Window {
             QQC2.ScrollView {
                 id: taskStylesScroll
                 clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: taskStylesScroll.availableWidth - 8
+                    width: Math.max(0, taskStylesScroll.availableWidth - 8)
                     spacing: 14
                     QQC2.Label {
                         text: "Presentación de aplicaciones y líneas"
@@ -2577,9 +2646,11 @@ Window {
             QQC2.ScrollView {
                 id: sharedOutlineScroll
                 clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: sharedOutlineScroll.availableWidth - 8
+                    width: Math.max(0, sharedOutlineScroll.availableWidth - 8)
                     spacing: 14
                     QQC2.Label {
                         text: "Editá el contorno de cada superficie por separado.\n" +
@@ -2666,9 +2737,11 @@ Window {
             QQC2.ScrollView {
                 id: aboutScroll
                 clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
                 ColumnLayout {
-                    width: aboutScroll.availableWidth - 8
+                    width: Math.max(0, aboutScroll.availableWidth - 8)
                     spacing: 16
                     QQC2.Label {
                         text: "Ayuda rápida"
