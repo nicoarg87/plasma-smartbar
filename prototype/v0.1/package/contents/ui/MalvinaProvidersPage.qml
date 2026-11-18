@@ -13,6 +13,29 @@ QQC2.ScrollView {
         spacing: 10
         QQC2.Label { text: "Buscador Malvina"; font.bold: true; color: "white" }
         QQC2.Label {
+            text: "Orden y prioridad de búsqueda"
+            font.bold: true; color: "white"
+        }
+        QQC2.Label {
+            text: "La fila de arriba tiene prioridad: la primera opción habilitada de izquierda a derecha se usa por defecto al abrir una nueva búsqueda. En el selector podés arrastrar Web/IA verticalmente y cada proveedor horizontalmente. También podés invertir las filas acá."
+            color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+        }
+        QQC2.Button {
+            Layout.fillWidth: true
+            text: panel.settingsTarget.malvinaWebFirst ? "Arriba: Web · Abajo: IA — Invertir" :
+                                                          "Arriba: IA · Abajo: Web — Invertir"
+            onClicked: panel.settingsTarget.malvinaWebFirst = !panel.settingsTarget.malvinaWebFirst
+        }
+        QQC2.Label {
+            text: "Web, izquierda a derecha: " + panel.settingsTarget.malvinaWebOrder
+            color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+        }
+        QQC2.Label {
+            text: "IA, izquierda a derecha: " + panel.settingsTarget.malvinaAiOrder
+            color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+        }
+
+        QQC2.Label {
             text: "Cada proveedor tiene un nombre descriptivo editable y una dirección web independiente. El nombre aparece en el selector, pero no cambia por sí solo el sitio ni sus permisos. Usá Aplicar para guardar."
             color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
