@@ -29,7 +29,14 @@ Window {
     function showSoledadEffects() { currentTab = 1; logoSubtabs.currentIndex = 1 }
     function showSoledadWindows() { currentTab = 2; appearanceSubtabs.currentIndex = 1 }
     function showMalvinaProviders() { currentTab = 0; islandSubtabs.currentIndex = 2 }
-    function showMalvinaShape() { currentTab = 0; islandSubtabs.currentIndex = 0 }
+    function showMalvinaShape() {
+        currentTab = 0
+        islandSubtabs.currentIndex = 0
+        Qt.callLater(function() {
+            if (positionScroll.contentItem)
+                positionScroll.contentItem.contentY = Math.max(0, malvinaFigureSelector.y - 45)
+        })
+    }
     function showSharedLayout() { currentTab = 0; islandSubtabs.currentIndex = 0 }
     function showSharedBehavior() { currentTab = 0; islandSubtabs.currentIndex = 1 }
     function showSharedColors(target) {
@@ -671,10 +678,15 @@ Window {
                 color: "#292c3f"
                 border.width: 1
                 border.color: "#41475e"
-                ColumnLayout {
+                QQC2.ScrollView {
                     anchors.fill: parent
-                    anchors.margins: 8
-                    spacing: 5
+                    anchors.margins: 7
+                    clip: true
+                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                    QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                    ColumnLayout {
+                        width: Math.max(0, parent.width - 16)
+                        spacing: 5
                     QQC2.Label {
                         text: "SOLEDAD · Isla 1"
                         color: "#d7e5f4"; font.bold: true
@@ -750,7 +762,8 @@ Window {
                         highlighted: settings.currentTab === 3
                         onClicked: settings.currentTab = 3
                     }
-                    Item { Layout.fillHeight: true }
+                    Item { Layout.preferredHeight: 8 }
+                    }
                 }
             }
             StackLayout {
@@ -782,6 +795,11 @@ Window {
                 ColumnLayout {
                     width: positionScroll.availableWidth - 8
                     spacing: 16
+                    QQC2.Label {
+                        text: "Soledad y Malvina · ajustá cada isla por separado"
+                        color: "#ddd6e8"; Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
                     QQC2.Label {
                         text: "Geometría compartida · Soledad y Malvina"
                         font.bold: true
@@ -903,6 +921,7 @@ Window {
                                 "Izquierda recta / derecha redondeada",
                                 "Punta triangular izquierda / derecha recta",
                                 "Cápsula (extremos totalmente redondos)"]
+                        id: malvinaFigureSelector
                         currentIndex: Math.max(0, ["rounded","square","leftRoundRightSquare",
                                        "leftSquareRightRound","leftTip","capsule"].indexOf(settings.malvinaShape))
                         onActivated: function(i) {
