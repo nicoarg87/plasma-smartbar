@@ -98,7 +98,7 @@ Item {
             icon.name: "edit-find"
             text: ""
             QQC2.ToolTip.visible: hovered
-            QQC2.ToolTip.text: "Abrir búsqueda"
+            QQC2.ToolTip.text: "Hacer búsqueda (Super + Espaciadora; ventana activa)"
             onClicked: {
                 if (search.expanded) search.closeSearch()
                 else search.focusSearch()
