@@ -241,7 +241,6 @@ Item {
             QQC2.ScrollView {
                 id: queryScroll
                 anchors.fill: parent
-                anchors.rightMargin: 28
                 clip: true
                 QQC2.TextArea {
                     id: queryInput
@@ -254,7 +253,8 @@ Item {
                     topPadding: 5
                     bottomPadding: 4
                     leftPadding: 7
-                    rightPadding: 3
+                    // Sólo un margen interior para el icono, no una columna.
+                    rightPadding: 25
                     selectByMouse: true
                     placeholderText: "Buscar en Web o IA…"
                     cursorVisible: activeFocus && search.navigationSection === 0
@@ -271,16 +271,22 @@ Item {
             QQC2.Button {
                 id: clearButton
                 anchors.right: parent.right
-                anchors.rightMargin: 2
+                anchors.rightMargin: 5
                 anchors.top: parent.top
-                anchors.topMargin: 2
-                width: 25
-                height: 26
+                anchors.topMargin: 6
+                width: 17
+                height: 17
                 visible: search.queryText.length > 0
-                text: "×"
-                font.pixelSize: 18
                 padding: 0
                 z: 10
+                background: Item {}
+                contentItem: QQC2.Label {
+                    text: "×"
+                    font.pixelSize: 17
+                    color: clearButton.hovered ? "#ffffff" : "#b8cbd5"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: "Borrar todo el texto"
                 onClicked: search.clearQuery()
