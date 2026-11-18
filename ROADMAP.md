@@ -301,3 +301,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Ajustar pruebas automatizadas para impedir `q` accidental con permiso Gemini.
 - [ ] Retest Node y CachyOS para validar mitigación y conservar navegación Web/IA.
 - [ ] Investigar alternativa oficial para precargar chat Gemini y validar permisos específicos antes de proponer implementación.
+
+## Claude — prueba positiva con autenticación (17/11/2026)
+
+- [x] Registrar que el mantenedor probó Claude desde Malvina: el enlace experimental funciona **después de iniciar sesión con una cuenta registrada**.
+- [ ] Comprobar persistencia del resultado con sesión abierta, ingreso sin sesión y nueva autenticación.
+- [ ] Verificar revocación del permiso Malvina y ausencia de consulta en URL cuando esté desautorizado.
+- [ ] Determinar si la página precarga o envía automáticamente, sin presumir un comportamiento no informado por la prueba.
+- [ ] Mantener la integración clasificada como experimental hasta validar compatibilidad más amplia.
