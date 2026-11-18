@@ -10,6 +10,9 @@ import "MalvinaSlots.js" as Slots
 Item {
     id: search
     property bool expanded: false
+    // Los controles heredan el relleno de la isla; solo cambia la silueta.
+    property string gearButtonShape: "square"
+    property string searchButtonShape: "square"
     property string googleTemplate: "https://www.google.com/search?q={query}"
     property string duckTemplate: "https://duckduckgo.com/?q={query}"
     property string yahooTemplate: "https://search.yahoo.com/search?p={query}"
@@ -299,14 +302,31 @@ Item {
             Layout.preferredWidth: 34; Layout.preferredHeight: 32
             icon.name: "configure"
             text: ""
+            padding: 3
+            background: Rectangle {
+                radius: search.gearButtonShape === "circle" ? width / 2 : 0
+                color: gear.down ? "#30ffffff" :
+                       (gear.hovered ? "#18ffffff" : "transparent")
+                border.width: gear.activeFocus ? 1 : 0
+                border.color: "#9be8ff"
+            }
             QQC2.ToolTip.visible: hovered
             QQC2.ToolTip.text: "Configuración de Malvina"
             onClicked: search.requestSettings()
         }
         QQC2.Button {
+            id: magnifier
             Layout.preferredWidth: 34; Layout.preferredHeight: 32
             icon.name: "edit-find"
             text: ""
+            padding: 3
+            background: Rectangle {
+                radius: search.searchButtonShape === "circle" ? width / 2 : 0
+                color: magnifier.down ? "#30ffffff" :
+                       (magnifier.hovered ? "#18ffffff" : "transparent")
+                border.width: magnifier.activeFocus ? 1 : 0
+                border.color: "#9be8ff"
+            }
             QQC2.ToolTip.visible: hovered
             QQC2.ToolTip.text: "Hacer búsqueda (Super + Espaciadora; ventana activa)"
             onClicked: {
