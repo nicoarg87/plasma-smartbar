@@ -1075,6 +1075,9 @@ Item {
                 googleTemplate: root.malvinaGoogleUrl
                 duckTemplate: root.malvinaDuckUrl
                 yahooTemplate: root.malvinaYahooUrl
+                allowChatGptPrefill: root.malvinaAllowChatGpt
+                allowGeminiPrefill: root.malvinaAllowGemini
+                allowClaudePrefill: root.malvinaAllowClaude
                 chatGptUrl: root.malvinaChatGptUrl
                 geminiUrl: root.malvinaGeminiUrl
                 claudeUrl: root.malvinaClaudeUrl
