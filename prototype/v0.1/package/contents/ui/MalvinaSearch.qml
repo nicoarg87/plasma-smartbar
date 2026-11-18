@@ -13,6 +13,9 @@ Item {
     // Los controles heredan el relleno de la isla; solo cambia la silueta.
     property string gearButtonShape: "square"
     property string searchButtonShape: "square"
+    // El editor comparte la silueta elegida para la isla Malvina.
+    property string islandShape: "rounded"
+    property real islandRadius: 18
     // Apariencia compartida con la superficie de la isla Malvina.
     property color islandColor: "#101e31"
     property real islandOpacity: 1
@@ -369,7 +372,12 @@ Item {
         focus: false
         closePolicy: QQC2.Popup.NoAutoClose
         background: Rectangle {
-            radius: 5
+            radius: search.islandShape === "square" ? 0 :
+                    Math.max(0, Math.min(search.islandRadius, height / 2))
+            topLeftRadius: search.islandShape === "leftSquareRightRound" ? 0 : radius
+            bottomLeftRadius: search.islandShape === "leftSquareRightRound" ? 0 : radius
+            topRightRadius: search.islandShape === "leftRoundRightSquare" ? 0 : radius
+            bottomRightRadius: search.islandShape === "leftRoundRightSquare" ? 0 : radius
             clip: true
             color: search.islandGradientEnabled ? "transparent" :
                    Qt.rgba(search.islandColor.r, search.islandColor.g,
@@ -378,6 +386,10 @@ Item {
                 anchors.fill: parent
                 visible: search.islandGradientEnabled
                 radius: parent.radius
+                topLeftRadius: parent.topLeftRadius
+                bottomLeftRadius: parent.bottomLeftRadius
+                topRightRadius: parent.topRightRadius
+                bottomRightRadius: parent.bottomRightRadius
                 gradient: Gradient {
                     orientation: search.islandGradientDirection === "leftRight" ||
                                  search.islandGradientDirection === "rightLeft"
