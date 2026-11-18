@@ -31,6 +31,10 @@ Window {
     property string malvinaChatGptUrl: "https://chatgpt.com/"
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
+    property bool malvinaWebFirst: true
+    property string malvinaWebOrder: "google,duck,yahoo"
+    property string malvinaAiOrder: "chatgpt,gemini,claude"
+    signal saveMalvinaOrderRequested(bool firstWeb, string webOrder, string aiOrder)
     property string malvinaGoogleName: "Google"
     property string malvinaDuckName: "DuckDuckGo"
     property string malvinaYahooName: "Yahoo"
@@ -370,6 +374,7 @@ Window {
                                      malvinaGeminiUrl, malvinaClaudeUrl)
         saveMalvinaWebEnabledRequested(malvinaWebGoogleEnabled,
                                        malvinaWebDuckEnabled, malvinaWebYahooEnabled)
+        saveMalvinaOrderRequested(malvinaWebFirst, malvinaWebOrder, malvinaAiOrder)
         saveMalvinaConsentsRequested(malvinaAllowChatGpt,
                                     malvinaAllowGemini, malvinaAllowClaude)
         saveOutlineRequested(JSON.parse(JSON.stringify(outlineConfig)))
