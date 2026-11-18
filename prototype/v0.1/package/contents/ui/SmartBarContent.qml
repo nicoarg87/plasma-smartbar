@@ -26,6 +26,10 @@ Item {
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
     // Consentimiento futuro para envío directo; nunca habilita envíos por sí mismo.
+    property bool malvinaWebGoogleEnabled: true
+    property bool malvinaWebDuckEnabled: true
+    property bool malvinaWebYahooEnabled: true
+    signal requestMalvinaWebEnabledChange(bool google, bool duck, bool yahoo)
     property bool malvinaAllowChatGpt: false
     property bool malvinaAllowGemini: false
     property bool malvinaAllowClaude: false
@@ -691,6 +695,9 @@ Item {
             soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
             soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
             soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
+            soledadSettings.malvinaWebGoogleEnabled = root.malvinaWebGoogleEnabled
+            soledadSettings.malvinaWebDuckEnabled = root.malvinaWebDuckEnabled
+            soledadSettings.malvinaWebYahooEnabled = root.malvinaWebYahooEnabled
             soledadSettings.malvinaAllowChatGpt = root.malvinaAllowChatGpt
             soledadSettings.malvinaAllowGemini = root.malvinaAllowGemini
             soledadSettings.malvinaAllowClaude = root.malvinaAllowClaude
@@ -776,6 +783,9 @@ Item {
         onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaProvidersChange(google, duck, yahoo,
                                                chatGpt, gemini, claude)
+        }
+        onSaveMalvinaWebEnabledRequested: function(google, duck, yahoo) {
+            root.requestMalvinaWebEnabledChange(google, duck, yahoo)
         }
         onSaveMalvinaConsentsRequested: function(chatGpt, gemini, claude) {
             root.requestMalvinaConsentsChange(chatGpt, gemini, claude)
@@ -1059,6 +1069,9 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: 5
                 anchors.verticalCenter: parent.verticalCenter
+                webGoogleEnabled: root.malvinaWebGoogleEnabled
+                webDuckEnabled: root.malvinaWebDuckEnabled
+                webYahooEnabled: root.malvinaWebYahooEnabled
                 googleTemplate: root.malvinaGoogleUrl
                 duckTemplate: root.malvinaDuckUrl
                 yahooTemplate: root.malvinaYahooUrl
