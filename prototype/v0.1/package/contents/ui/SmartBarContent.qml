@@ -198,7 +198,30 @@ Item {
     property bool autoCollapseSO: true
     // Predeterminado aprobado 18/11: izquierdo = lanzador; derecho = ventanas abiertas.
     // Preferencia independiente del auto-cierre de SO, reversible en Configuración.
-    property bool soLeftClickOpensLauncher: true
+    property bool soLeftClickOpensLauncher: false
+    property bool soTooltipSuppressed: false
+    property var localAppCatalog: []
+    property bool localCatalogReady: false
+    // El visor carga metadatos .desktop locales de solo lectura, si existen.
+    // El plasmoide no ejecuta archivos ni comandos a través de este catálogo.
+    function loadLocalAppCatalog() {
+        const req = new XMLHttpRequest()
+        req.onreadystatechange = function() {
+            if (req.readyState !== XMLHttpRequest.DONE) return
+            if (req.status === 200 || req.status === 0) {
+                try {
+                    const data = JSON.parse(req.responseText)
+                    if (Array.isArray(data) && data.length > 0) {
+                        root.localAppCatalog = data
+                        root.localCatalogReady = true
+                    }
+                } catch(e) { console.warn("SmartBar: catálogo local no legible", e) }
+            }
+        }
+        req.open("GET", Qt.resolvedUrl(".smartbar-app-catalog-preview.json"), true)
+        req.send()
+    }
+    Component.onCompleted: loadLocalAppCatalog()
     property bool autoCollapseTray: false
 
     // Identidad visual configurable del botón SO. El archivo original nunca
@@ -650,9 +673,9 @@ Item {
         // NO debe modificar soExpanded ni trayExpanded.
         // Sólo la selección, el cierre manual y la falta real de espacio
         // pueden contraer las expansiones según sus reglas propias.
-        installedAppsSearch.text = ""
+        installedAppsPopup.resetAndFocus()
         installedAppsPopup.open()
-        installedAppsSearch.forceActiveFocus()
+        installedAppsPopup.focusInput()
         console.log("SmartBar v0.1: lanzador simulado desde",
                     installedLauncherSource, "(sin iniciar aplicaciones)")
     }
@@ -966,88 +989,31 @@ Item {
         onAlignNowRequested: root.alignRightNow()
     }
 
-    // Lanzador flotante de muestra, independiente del grosor de la barra.
-    // NO enumera ni inicia aplicaciones instaladas; eso sigue pendiente.
-    QQC2.Popup {
+    // Lanzador aislado debajo de la barra: no modifica grosor ni ventanas externas.
+    SoLauncherPopup {
         id: installedAppsPopup
         parent: root
-        // Un solo lanzador, dos puntos de apertura. El origen es reactivo
-        // tanto al arrastre de Soledad como al ancho del contenedor.
-        // Malvina queda a la izquierda: el popup abre DEBAJO de Malvina,
-        // no bajo SO a la derecha. Los bordes siempre se respetan.
         x: Math.max(0, Math.min(Math.max(0, root.width - width),
                root.installedLauncherSource === "malvina" && root.launcherIslandVisible
                ? launcherIsland.x + (launcherIsland.width - width) / 2
                : systemIsland.x + (systemIsland.width - width) / 2))
         y: root.fixedHeight + 5
-        width: 275
-        height: 265
-        padding: 10
-        modal: false
-        focus: true
-        // CloseOnPressOutside cerraba al PRESIONAR Malvina antes de que
-        // onClicked comprobara el estado. Luego onClicked lo reabría:
-        // parecía imposible cerrar el lanzador pulsando M de nuevo.
-        // El botón está DENTRO del padre root; preservar ese evento y
-        // cerrar por botón, Escape o clic fuera de la zona de la barra.
-        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+        malvinaVisible: root.launcherIslandVisible
+        installedApplications: root.localAppCatalog
+        catalogIsReal: root.localCatalogReady
+        onRequestShowMalvina: {
+            root.setLauncherIslandVisible(true)
+            installedAppsPopup.close()
+        }
+        onAppSelected: function(name, realCatalog) {
+            console.log("SmartBar: aplicación seleccionada:", name,
+                        realCatalog ? "(identificada en el equipo, no se ejecuta)"
+                                    : "(muestra, no se ejecuta)")
+            installedAppsPopup.close()
+        }
         onClosed: {
             if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
                 malvinaHideTimer.restart()
-        }
-        background: Rectangle {
-            radius: 12
-            color: "#102538"
-            border.color: "#4e8499"
-            border.width: 1
-        }
-        contentItem: Column {
-            spacing: 7
-            QQC2.Label {
-                text: "Aplicaciones (simulación)"
-                color: "#eaf7ff"
-                font.bold: true
-            }
-            QQC2.TextField {
-                id: installedAppsSearch
-                width: 248
-                placeholderText: "Buscar aplicación…"
-                focus: true
-            }
-            // Recuperación visible incluso cuando Malvina está oculta:
-            // mantener SO y pulsar una sola opción, sin clic derecho.
-            QQC2.Button {
-                visible: !root.launcherIslandVisible
-                width: 248
-                height: 30
-                text: "Mostrar Malvina (isla 2)"
-                onClicked: {
-                    root.setLauncherIslandVisible(true)
-                    installedAppsPopup.close()
-                }
-            }
-            QQC2.ScrollView {
-                width: 248
-                height: root.launcherIslandVisible ? 162 : 128
-                clip: true
-                ListView {
-                    model: root.demoInstalledApps.filter(function(name) {
-                        return name.toLowerCase().indexOf(installedAppsSearch.text.toLowerCase()) >= 0
-                    })
-                    spacing: 4
-                    clip: true
-                    delegate: QQC2.Button {
-                        required property string modelData
-                        text: modelData + "  · muestra"
-                        width: 240
-                        height: 28
-                        onClicked: {
-                            console.log("SmartBar: app simulada", modelData, "(no se ejecuta)")
-                            installedAppsPopup.close()
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -1513,7 +1479,7 @@ Item {
                     outlineOpacity: root.outlineConfig.tray.opacity
                     onClicked: root.toggleTray()
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Abrir/cerrar bandeja simulada"
+                    QQC2.ToolTip.text: "Cajón de sistema: abrir/cerrar bandeja"
                 }
 
                 Repeater {
@@ -1705,8 +1671,12 @@ Item {
                     // inversa muestra ventanas abiertas. Mantener ~400 ms
                     // conserva el lanzador sin disparar el clic al soltar.
                     onPressed: {
+                        root.soTooltipSuppressed = true
                         root.soHoldTriggered = false
                         soHoldTimer.restart()
+                    }
+                    onHoveredChanged: {
+                        if (!hovered) root.soTooltipSuppressed = false
                     }
                     onReleased: soHoldTimer.stop()
                     onCanceled: soHoldTimer.stop()
@@ -1741,18 +1711,16 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton
+                        onPressed: root.soTooltipSuppressed = true
                         onClicked: root.triggerSOButton(false)
                     }
 
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: 650
+                    QQC2.ToolTip.visible: hovered && !root.soTooltipSuppressed &&
+                        !installedAppsPopup.visible && !root.soExpanded
+                    QQC2.ToolTip.delay: 900
                     QQC2.ToolTip.text: root.soLeftClickOpensLauncher
-                        ? "Clic izquierdo: Aplicaciones (lanzador)\n" +
-                          "Clic derecho: aplicaciones activas (ventanas abiertas)\n" +
-                          "Archivos: búsqueda pendiente · Opciones: seis puntos"
-                        : "Clic izquierdo: aplicaciones activas (ventanas abiertas)\n" +
-                          "Clic derecho: Aplicaciones (lanzador)\n" +
-                          "Archivos: búsqueda pendiente · Opciones: seis puntos"
+                        ? "Clic izquierdo: Launcher de aplicaciones\nClic derecho: Cajón de aplicaciones"
+                        : "Clic izquierdo: Cajón de aplicaciones\nClic derecho: Launcher de aplicaciones"
                 }
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
