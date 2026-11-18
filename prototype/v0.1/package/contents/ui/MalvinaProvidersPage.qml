@@ -28,12 +28,31 @@ QQC2.ScrollView {
             color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
         QQC2.Label { text: "Buscadores Web: URLs HTTPS con {query}"; font.bold: true; color: "white" }
+        QQC2.Label {
+            text: "Podés habilitar o deshabilitar cada buscador Web. Los tres están disponibles por defecto; Enter abre la búsqueda en el navegador del sistema. Se compartirá la consulta con el buscador elegido cuando decidas buscar."
+            color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
+        }
         QQC2.Label { text: "Google"; color: "white" }
         QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaGoogleUrl; onEditingFinished: panel.settingsTarget.malvinaGoogleUrl = text }
+        QQC2.CheckBox {
+            text: "Habilitar búsquedas con Google"
+            checked: panel.settingsTarget.malvinaWebGoogleEnabled
+            onToggled: panel.settingsTarget.malvinaWebGoogleEnabled = checked
+        }
         QQC2.Label { text: "DuckDuckGo"; color: "white" }
         QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaDuckUrl; onEditingFinished: panel.settingsTarget.malvinaDuckUrl = text }
+        QQC2.CheckBox {
+            text: "Habilitar búsquedas con DuckDuckGo"
+            checked: panel.settingsTarget.malvinaWebDuckEnabled
+            onToggled: panel.settingsTarget.malvinaWebDuckEnabled = checked
+        }
         QQC2.Label { text: "Yahoo"; color: "white" }
         QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaYahooUrl; onEditingFinished: panel.settingsTarget.malvinaYahooUrl = text }
+        QQC2.CheckBox {
+            text: "Habilitar búsquedas con Yahoo"
+            checked: panel.settingsTarget.malvinaWebYahooEnabled
+            onToggled: panel.settingsTarget.malvinaWebYahooEnabled = checked
+        }
         QQC2.Label { text: "Chats IA: sitios HTTPS"; font.bold: true; color: "white" }
         QQC2.Label {
             text: "El permiso autoriza únicamente a Malvina a enviar la consulta escrita al proveedor indicado al presionar Enter, cuando exista una integración verificada. No autoriza acceso a archivos, contraseñas ni ventanas. Podés revocarlo destildando la casilla y pulsando Aplicar. El proveedor procesa datos bajo sus propias condiciones."
