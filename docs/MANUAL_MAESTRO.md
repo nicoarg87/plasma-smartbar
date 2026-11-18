@@ -1001,3 +1001,11 @@ Si el sitio solicita autenticación, la persona inicia sesión personalmente en 
 **CHAT IA:** ChatGPT, Gemini y Claude tienen consentimiento informado individual para un eventual envío directo (false de fábrica). Marcar un permiso y Aplicar **solo almacena una preferencia**, no implementa ni habilita hoy el envío de texto: el comportamiento actual sigue siendo abrir el sitio de IA. Mensaje explícito en la página de opciones. No se capturan cookies, claves ni contraseñas y no se usa sudo.
 
 **PENDIENTE:** pruebas visuales y funcionales en CachyOS, recarga de preferencias locales/KConfig, gestión de todos los buscadores Web deshabilitados, integración opcional de navegador específico, método oficial para chat IA y autorización efectiva antes de cualquier transmisión.
+
+## Primer ensayo experimental de enlaces a ChatGPT, Gemini y Claude (17/11/2026)
+
+**CONFIRMADO:** autorización separada por proveedor en Configuración → Malvina, desactivada por defecto, para preparar la consulta al pulsar Enter; sin `sudo`, sin manejar cookies o sesiones y con login realizado por el usuario dentro del navegador.
+
+**IMPLEMENTADO EN CÓDIGO DE PRUEBA:** `MalvinaUrlPolicy.js` contiene `resolveAiPrefill(index,url,text,autorizado)`. Valida destino HTTPS y solo agrega `?q=` con `encodeURIComponent` a `https://chatgpt.com/`, `https://gemini.google.com/app` y `https://claude.ai/new`. La consulta no se incorpora a URLs personalizadas. `MalvinaSearch.qml` usa los tres permisos persistidos desde `SmartBarContent.qml`. Sin permiso sigue abriendo el sitio sin texto. Elegir por Tab/Espacio no navega ni envía; solamente Enter abre la URL.
+
+**PRECAUCIÓN:** `q` no es una API universal ni garantiza completar el campo. Algún proveedor puede ignorarlo o enviarlo de inmediato. Claude documenta `q` para enlaces de su aplicación de escritorio, que no constituye garantía de equivalencia con el navegador web. Gemini depende de implementaciones web cambiantes y no se confirmó mecanismo oficial público estable. ChatGPT también requiere comprobar el efecto real. La advertencia de privacidad aparece en la configuración. **SIN PRUEBA Qt/CachyOS luego del cambio**; no declarar funcionalidad estable. [Fuentes Claude](https://support.claude.com/en/articles/14729294-open-claude-desktop-with-a-link) y [Gemini](https://support.google.com/gemini/answer/13275745).
