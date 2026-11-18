@@ -1147,3 +1147,15 @@ El mantenedor pidió guardar **toda la configuración actual que tiene en su Cac
 **PRUEBAS ESTÁTICAS**: QML de 7 archivos con delimitadores balanceados y conexiones verificadas; documentación Qt 6 confirma `RowLayout.layoutDirection` y los roles de `FolderListModel` usados. **PENDIENTE PRUEBA VISUAL EN CACHYOS**: A y B con SO a la derecha y SO movida, popup en borde; filtros/rutas (1, 3, 20+ coincidencias), scroll vertical, nombres largos, fuentes escaladas; estética de Soledad con gradiente/contorno/respiración; Malvina independiente; color de interruptor, Aplicar/cerrar/restaurar favorito, mensajes de QML. Entorno de ejecución Qt/KWin no disponible acá. No fusionar main.
 
 **Commits principales:** [orientación A/B](https://github.com/nicoarg87/plasma-smartbar/commit/d1641f14e41a75f14b93d43921c367ea44a6e548), [posición y estilo SO](https://github.com/nicoarg87/plasma-smartbar/commit/3ed8907256ab564e8b628e966f646bbd342836c3), [opciones](https://github.com/nicoarg87/plasma-smartbar/commit/85aa747ee0a56b990ca7f6bd88f15e432ecf0c85), [persistencia visor](https://github.com/nicoarg87/plasma-smartbar/commit/8ef6134f60536af03be4589ae462af8ee1846b8b), [superficie común](https://github.com/nicoarg87/plasma-smartbar/commit/14beb682affcf654b96024618e05519a24143b46), [opciones Web/IA Malvina](https://github.com/nicoarg87/plasma-smartbar/commit/478954fd045b52dcca31fd18bebba5f31f49123a), [altura adaptativa](https://github.com/nicoarg87/plasma-smartbar/commit/727ed4adcbd94c8cb5d597c3f8929be6f2dd02eb).
+
+## Incidencia Qt: propiedad FINAL availableHeight en launcher — 18/11/2026
+
+**PROBADO EN CACHYOS (FALLA):** el mantenedor ejecutó en Fish `bash prototype/v0.1/probar_ancho.sh`. El script detectó 270 entradas `.desktop` y encontró el GIF SO, pero el motor Qt falló antes de abrir la ventana:
+
+`SoLauncherPopup.qml:26:5: Cannot override FINAL property` y `qt.qml.propertyCache.append: Final member availableHeight is overridden`.
+
+**CAUSA VERIFICADA EN CÓDIGO:** `SoLauncherPopup.qml` (deriva de `QQC2.Popup`) declaraba `property real availableHeight: 470`; en Qt 6 es una propiedad FINAL del Popup y no puede redefinirse, por lo que se detuvo la carga de `SmartBarContent.qml` y el visor.
+
+**CORRECCIÓN PUBLICADA EN RAMA EXPERIMENTAL:** [9914e84](https://github.com/nicoarg87/plasma-smartbar/commit/9914e8400dd19b16d5f4b81aa3ad9eb4647b54f6) renombra la propiedad a `popupHeightLimit` y usa el nuevo nombre en la fórmula de altura; [d555782](https://github.com/nicoarg87/plasma-smartbar/commit/d555782b503a7c308666375082cfdb5e3de998e7) cambia la conexión de `SmartBarContent.qml` a `popupHeightLimit: root.launcherAvailableHeight`. No cambia valores de preferencias ni el panel instalado.
+
+**REVISIÓN ESTÁTICA:** las dos referencias se sincronizan y no queda redefinición `property real availableHeight`. **PENDIENTE DE PRUEBA CACHYOS:** volver a abrir el visor; si aparece otro error Qt, registrar salida completa sin presentar solución como probada. Este entorno no incluye ejecutable Qt/QML para prueba gráfica.
