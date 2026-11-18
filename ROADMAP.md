@@ -318,3 +318,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Ejecutar visor en CachyOS, probar renombrado, Aplicar, reabrir y reiniciar; verificar Tab/flechas/Espacio/Enter.
 - [ ] Verificar visualización de etiquetas largas en una sola fila sin alterar altura de isla y accesibilidad con lector de pantalla.
 - [ ] Tratar la incorporación/eliminación de nuevos proveedores como otro requisito y preservar seguridad por identificador, no nombre de presentación.
+
+## Malvina — campo de búsqueda y edición de consultas largas (17/11/2026)
+
+- [x] Ajustar visualmente campo: tipografía normal de 14 px y centrado vertical.
+- [x] Incorporar X contextual para borrar consulta completa.
+- [x] Programar Mayús+Enter para nueva línea, Enter para ejecutar, y popup editor para texto largo o pegado, hasta 220 px con scroll.
+- [x] Ocultar cursor de escritura al navegar con Tab por Web/IA y recuperarlo al confirmar Espacio o clic.
+- [x] Conservar altura de isla constante y mostrar selector bajo editor flotante.
+- [ ] Probar QML real en CachyOS: alineación, editor multilinea, Ctrl+V, Tab/Espacio/clic, Enter, X, Esc, clic fuera, cambios de tamaño/escala y compatibilidad con Popup.
+- [ ] Confirmar con prueba que el editor largo no cubra incorrectamente contenido o se recorte cerca del límite de pantalla; ajustar geometría en función de espacio disponible, sin redimensionar barra.
+- [ ] Registrar las verificaciones de Google como comportamiento del sitio, sin intentar eludir captchas ni exigir autenticación desde Malvina.
