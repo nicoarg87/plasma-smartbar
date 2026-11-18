@@ -86,6 +86,7 @@ Item {
     signal requestIslandGradientChange(bool soEnabled, string soEnd, string soDirection,
                                        bool malEnabled, string malEnd, string malDirection)
     signal requestGradientBreathingChange(bool enabled, real intensity)
+    signal requestMalvinaGradientBreathingChange(bool enabled, real intensity)
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
     property string soButtonFrameShape: "capsule"
     property real soButtonWidth: 96
@@ -278,17 +279,25 @@ Item {
     property bool soledadGradientSyncBreathing: false
     property real soledadGradientBreathingIntensity: 0.6
     property real sharedBreathingPhase: 0
-    readonly property bool sharedBreathingActive:
-        soledadGradientSyncBreathing && soledadGradientEnabled &&
+    // Una sola fase: Soledad y Malvina pueden sumarse de forma independiente.
+    readonly property bool soBreathingSourceActive:
         soActivityStyle === "breathe" && soActivityMotion &&
         (soWindowCount > 0 ? soActivityShowWhenOpen : soActivityShowWhenEmpty)
-    readonly property real gradientBreathingFactor: {
-        if (!sharedBreathingActive) return 1
+    readonly property bool soledadGradientBreathingActive:
+        soBreathingSourceActive && soledadGradientEnabled && soledadGradientSyncBreathing
+    readonly property bool malvinaGradientBreathingActive:
+        soBreathingSourceActive && malvinaGradientEnabled && malvinaGradientSyncBreathing
+    readonly property bool sharedBreathingActive:
+        soledadGradientBreathingActive || malvinaGradientBreathingActive
+    function breathingFactor(intensity) {
         const wave = 0.5 - 0.5 * Math.cos(2 * Math.PI * sharedBreathingPhase)
         const depth = Math.max(0, Math.min(1, soActivityPulseDepth))
-        const intensity = Math.max(0, Math.min(1, soledadGradientBreathingIntensity))
-        return 1 - intensity * depth * (1 - wave)
+        return 1 - Math.max(0, Math.min(1, intensity)) * depth * (1 - wave)
     }
+    readonly property real gradientBreathingFactor:
+        soledadGradientBreathingActive ? breathingFactor(soledadGradientBreathingIntensity) : 1
+    readonly property real malvinaGradientBreathingFactor:
+        malvinaGradientBreathingActive ? breathingFactor(malvinaGradientBreathingIntensity) : 1
     Timer {
         id: synchronizedBreathingTimer
         interval: 50
@@ -299,6 +308,8 @@ Item {
             root.sharedBreathingPhase = (root.sharedBreathingPhase + speed * interval / 1000) % 1
         }
     }
+    property bool malvinaGradientSyncBreathing: false
+    property real malvinaGradientBreathingIntensity: 0.6
     property bool malvinaGradientEnabled: false
     property color malvinaGradientEnd: "#445577"
     property string malvinaGradientDirection: "topBottom"
@@ -769,6 +780,8 @@ Item {
             soledadSettings.soledadGradientDirection = root.soledadGradientDirection
             soledadSettings.soledadGradientSyncBreathing = root.soledadGradientSyncBreathing
             soledadSettings.soledadGradientBreathingIntensity = root.soledadGradientBreathingIntensity
+            soledadSettings.malvinaGradientSyncBreathing = root.malvinaGradientSyncBreathing
+            soledadSettings.malvinaGradientBreathingIntensity = root.malvinaGradientBreathingIntensity
             soledadSettings.malvinaGradientEnabled = root.malvinaGradientEnabled
             soledadSettings.malvinaGradientEnd = root.malvinaGradientEnd
             soledadSettings.malvinaGradientDirection = root.malvinaGradientDirection
@@ -863,6 +876,9 @@ Item {
         }
         onSaveGradientBreathingRequested: function(enabled, intensity) {
             root.requestGradientBreathingChange(enabled, intensity)
+        }
+        onSaveMalvinaGradientBreathingRequested: function(enabled, intensity) {
+            root.requestMalvinaGradientBreathingChange(enabled, intensity)
         }
         onSaveIslandGradientRequested: function(a, b, c, d, e, f) {
             root.requestIslandGradientChange(a, b, c, d, e, f)
@@ -1070,7 +1086,7 @@ Item {
             bottomRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
             color: root.malvinaGradientEnabled ? "transparent" :
                 Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                        root.malvinaColor.b, root.malvinaOpacity)
+                        root.malvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
             Rectangle {
                 anchors.fill: parent
                 visible: root.malvinaGradientEnabled
@@ -1088,18 +1104,18 @@ Item {
                         color: root.malvinaGradientDirection === "bottomTop" ||
                                root.malvinaGradientDirection === "rightLeft"
                             ? Qt.rgba(root.malvinaGradientEnd.r, root.malvinaGradientEnd.g,
-                                      root.malvinaGradientEnd.b, root.malvinaOpacity)
+                                      root.malvinaGradientEnd.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
                             : Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                                      root.malvinaColor.b, root.malvinaOpacity)
+                                      root.malvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
                     }
                     GradientStop {
                         position: 1
                         color: root.malvinaGradientDirection === "bottomTop" ||
                                root.malvinaGradientDirection === "rightLeft"
                             ? Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                                      root.malvinaColor.b, root.malvinaOpacity)
+                                      root.malvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
                             : Qt.rgba(root.malvinaGradientEnd.r, root.malvinaGradientEnd.g,
-                                      root.malvinaGradientEnd.b, root.malvinaOpacity)
+                                      root.malvinaGradientEnd.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
                     }
                 }
             }
@@ -1122,7 +1138,7 @@ Item {
                 islandShape: root.malvinaShape
                 islandRadius: root.malvinaRadius
                 islandColor: root.malvinaColor
-                islandOpacity: root.malvinaOpacity
+                islandOpacity: root.malvinaOpacity * root.malvinaGradientBreathingFactor
                 islandGradientEnabled: root.malvinaGradientEnabled
                 islandGradientEnd: root.malvinaGradientEnd
                 islandGradientDirection: root.malvinaGradientDirection
