@@ -356,3 +356,16 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Validar representación de órdenes canónicos por IDs, no por etiquetas.
 - [ ] Retest en CachyOS: arrastrar Web/IA y fichas, selección vs arrastre, activar/desactivar proveedores, Tab y Espacio, orden predeterminado y persistencia tras reinicio.
 - [ ] Verificar usabilidad de arrastre con accesibilidad, etiquetas largas y escalas KDE, sin modificar altura de isla ni invadir Soledad.
+
+## Hasta diez proveedores por categoría y fila IA completa — 17/11/2026
+
+- [x] Registrar hasta diez proveedores visibles Web y diez IA; no forzar mínimo de tres.
+- [x] Implementar módulo de datos con ID estable, HTTPS, marcador Web, alta/baja y ocultación/restauración de originales.
+- [x] Agregar en opciones los controles de proveedores y preferencia IA en fila completa (predeterminada) o recortada con desplazamiento horizontal.
+- [x] Generar filas únicas dinámicas en selector, usar IslandButton y apariencia de fichas de Soledad.
+- [x] Conectar persistencia de preferencias en visor y KConfig; no conceder envíos IA a nuevos dominios.
+- [x] Crear test Node aislado de orden, límites, ocultación y validación, **no ejecutado**.
+- [ ] Ejecutar pruebas Node y Qt/CachyOS; comprobar render, altas hasta diez, bajas, restauraciones, Tab, flechas, arrastre y Enter.
+- [ ] Confirmar IA totalmente visible por defecto en distintos tamaños y alternativa compacta con scroll utilizable.
+- [ ] Probar permisos individuales, restauración estética favorita, ocultación de isla desde Soledad y compatibilidad KWin/Wayland.
+- [ ] Cerrar issue [#12](https://github.com/nicoarg87/plasma-smartbar/issues/12) solo después de evidencia real y corrección de errores.
