@@ -281,7 +281,6 @@ Item {
                     wrapMode: TextEdit.Wrap
                     font.pixelSize: 14
                     font.bold: false
-            font.bold: false
                     color: "#ffffff"
                     selectByMouse: true
                     cursorVisible: activeFocus && search.navigationSection === 0
