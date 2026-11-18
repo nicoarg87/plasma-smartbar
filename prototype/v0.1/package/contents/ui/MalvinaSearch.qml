@@ -339,7 +339,7 @@ Item {
                 border.color: magnifier.activeFocus ? "#9be8ff" :
                               (magnifier.hovered ? "#668fc1d2" : "#405f8598")
             }
-            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.visible: hovered && !search.expanded
             QQC2.ToolTip.text: "Buscar · Super+Espacio (ventana activa)"
             onClicked: {
                 if (search.expanded) search.closeSearch()
