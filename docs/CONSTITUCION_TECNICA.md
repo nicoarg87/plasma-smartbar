@@ -445,3 +445,10 @@ El usuario puede elegir buscadores web convencionales o que incorporen respuesta
 ## Fondo común y forma de controles Malvina (17/11/2026)
 
 **Confirmado por el mantenedor:** isla Malvina y campo único de búsqueda comparten por defecto el color, transparencia, degradado y dirección configurados para Malvina, siguiendo el sistema visual de Soledad. Engranaje y lupa permiten formas independientes cuadrada (inicial) o circular; sus fondos normales son transparentes para no ocultar los colores de isla. El foco/hover debe mantenerse accesible. Sin rediseñar la isla ni cambiar altura fija de barra. **Implementado en rama experimental; todavía no probado en CachyOS.**
+
+## Personalización de Malvina al estilo Soledad — formas compatibles (17/11/2026)
+
+**CONFIRMADO POR EL MANTENEDOR:** engranaje y lupa ofrecen, de forma independiente, al menos Cuadrado, Cuadrado con esquinas redondeadas, Circular y Cápsula, reutilizando criterios visuales de Soledad. Las formas más complejas de SO (rombo, estrella, corazón, etc.) requieren comprobar cómo se adaptan a los controles funcionales pequeños antes de presentarlas como compatibles. No cambiar la forma de isla por elegir forma de botón. Mantener la opción de heredar el color/degradado y no oscurecer su fondo.
+
+**SINCRONIZACIÓN CONFIRMADA:** Malvina puede copiar los colores y dirección del degradado de Soledad sin quedar acoplada permanentemente a esos colores. Ambos degradados pueden optar, de forma independiente, por respirar en la misma fase y velocidad que el efecto Respiración luminosa de SO, cada uno con intensidad propia, sin activarse por defecto. El editor de texto comparte la apariencia y respiración de Malvina. Se implementó un único temporizador de fase, activo solo cuando al menos un degradado sincronizado lo necesita, sujeto al modo respiración de SO. **Pendiente validación de Qt/CachyOS.**
+
