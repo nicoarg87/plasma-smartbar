@@ -43,7 +43,7 @@ Item {
     readonly property int multilineMaxHeight: 220
     property real maximumSearchWidth: 520
     readonly property real desiredEditorWidth: Math.min(maximumSearchWidth,
-        Math.max(396, 116 + longestLineLength() * 7.4))
+        queryText.length > 0 ? maximumSearchWidth : 396)
     readonly property bool expandedDown: queryText.indexOf("\n") >= 0 ||
                                           queryText.length > 70
     readonly property real desiredEditorHeight: expandedDown
@@ -62,8 +62,17 @@ Item {
     readonly property var aiNames: [chatGptName, geminiName, claudeName]
     readonly property var webUrls: [googleTemplate, duckTemplate, yahooTemplate]
     readonly property var aiUrls: [chatGptUrl, geminiUrl, claudeUrl]
-    implicitWidth: expanded ? desiredEditorWidth : 76
+    // El Popup ES el único editor: mismo lugar en la isla, sin duplicarlo.
+    implicitWidth: expanded ? desiredEditorWidth + 73 : 76
     implicitHeight: 34
+    onExpandedChanged: {
+        if (expanded) {
+            fieldPopup.open()
+            queryInput.forceActiveFocus()
+        } else {
+            fieldPopup.close()
+        }
+    }
 
     function closeSearch() {
         expanded = false
@@ -200,70 +209,81 @@ Item {
                 else search.focusSearch()
             }
         }
-        // Un único campo, sin segunda ventana. El contenedor ocupa 32 px
-        // en la isla; su superficie de edición puede crecer hacia abajo.
+        // Área vacía que reserva espacio para el único campo real,
+        // alojado en Popup sobre la misma posición para capturar clics.
         Item {
             id: editorAnchor
             visible: search.expanded
             Layout.fillWidth: true
             Layout.preferredHeight: 32
-            Layout.minimumWidth: 90
-            Rectangle {
-                id: editorSurface
-                width: parent.width
-                height: search.desiredEditorHeight
-                radius: 5
-                color: "#101d2d"
-                border.color: queryInput.activeFocus ? "#54c9e8" : "#4e8499"
-                border.width: 1
-                z: 5
-                QQC2.ScrollView {
-                    id: queryScroll
-                    anchors.fill: parent
-                    anchors.rightMargin: 27
-                    clip: true
-                    QQC2.TextArea {
-                        id: queryInput
-                        text: search.queryText
-                        onTextChanged: if (search.queryText !== text) search.queryText = text
-                        font.pixelSize: 14
-                        font.bold: false
-                        color: "white"
-                        wrapMode: TextEdit.Wrap
-                        topPadding: search.expandedDown ? 6 : 5
-                        bottomPadding: 4
-                        leftPadding: 7
-                        rightPadding: 3
-                        selectByMouse: true
-                        placeholderText: "Buscar en Web o IA…"
-                        cursorVisible: activeFocus && search.navigationSection === 0
-                        Keys.priority: Keys.BeforeItem
-                        Keys.onTabPressed: function(event) {
-                            search.moveSection(false); event.accepted = true
-                        }
-                        Keys.onBacktabPressed: function(event) {
-                            search.moveSection(true); event.accepted = true
-                        }
-                        Keys.onPressed: function(event) { search.handleEditorKey(event) }
+            Layout.minimumWidth: 80
+        }
+    }
+
+    QQC2.Popup {
+        id: fieldPopup
+        parent: search
+        x: 73
+        y: 1
+        width: Math.max(80, search.width - 73)
+        height: search.desiredEditorHeight
+        padding: 0
+        modal: false
+        focus: false
+        closePolicy: QQC2.Popup.NoAutoClose
+        background: Rectangle {
+            radius: 5
+            color: "#101d2d"
+            border.color: queryInput.activeFocus ? "#54c9e8" : "#4e8499"
+            border.width: 1
+        }
+        contentItem: Item {
+            QQC2.ScrollView {
+                id: queryScroll
+                anchors.fill: parent
+                anchors.rightMargin: 28
+                clip: true
+                QQC2.TextArea {
+                    id: queryInput
+                    text: search.queryText
+                    onTextChanged: if (search.queryText !== text) search.queryText = text
+                    font.pixelSize: 14
+                    font.bold: false
+                    color: "white"
+                    wrapMode: TextEdit.Wrap
+                    topPadding: 5
+                    bottomPadding: 4
+                    leftPadding: 7
+                    rightPadding: 3
+                    selectByMouse: true
+                    placeholderText: "Buscar en Web o IA…"
+                    cursorVisible: activeFocus && search.navigationSection === 0
+                    Keys.priority: Keys.BeforeItem
+                    Keys.onTabPressed: function(event) {
+                        search.moveSection(false); event.accepted = true
                     }
+                    Keys.onBacktabPressed: function(event) {
+                        search.moveSection(true); event.accepted = true
+                    }
+                    Keys.onPressed: function(event) { search.handleEditorKey(event) }
                 }
-                QQC2.Button {
-                    id: clearButton
-                    anchors.right: parent.right
-                    anchors.rightMargin: 2
-                    anchors.top: parent.top
-                    anchors.topMargin: 2
-                    width: 25
-                    height: 26
-                    visible: search.queryText.length > 0
-                    text: "×"
-                    font.pixelSize: 18
-                    padding: 0
-                    z: 10
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Borrar todo el texto"
-                    onClicked: search.clearQuery()
-                }
+            }
+            QQC2.Button {
+                id: clearButton
+                anchors.right: parent.right
+                anchors.rightMargin: 2
+                anchors.top: parent.top
+                anchors.topMargin: 2
+                width: 25
+                height: 26
+                visible: search.queryText.length > 0
+                text: "×"
+                font.pixelSize: 18
+                padding: 0
+                z: 10
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: "Borrar todo el texto"
+                onClicked: search.clearQuery()
             }
         }
     }
