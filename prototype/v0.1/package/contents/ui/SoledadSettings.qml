@@ -274,6 +274,9 @@ Window {
     property real malvinaWidth: 52
     property string soledadShape: "leftRoundRightSquare"
     property string malvinaShape: "rounded"
+    property string malvinaGearButtonShape: "square"
+    property string malvinaSearchButtonShape: "square"
+    signal saveMalvinaButtonShapesRequested(string gearShape, string searchShape)
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     // No reinterpretar un arrastre posterior como una orden de alineación.
@@ -383,6 +386,7 @@ Window {
                                        malvinaWebDuckEnabled, malvinaWebYahooEnabled)
         saveMalvinaExtrasRequested(malvinaExtraWeb, malvinaExtraAi,
                                             malvinaHiddenWeb, malvinaHiddenAi, malvinaCompactAi)
+        saveMalvinaButtonShapesRequested(malvinaGearButtonShape, malvinaSearchButtonShape)
         saveMalvinaOrderRequested(malvinaWebFirst, malvinaWebOrder, malvinaAiOrder)
         saveMalvinaConsentsRequested(malvinaAllowChatGpt,
                                     malvinaAllowGemini, malvinaAllowClaude)
@@ -828,6 +832,34 @@ Window {
                         onActivated: function(i) {
                             settings.malvinaShape = ["rounded","square",
                                 "leftRoundRightSquare","leftSquareRightRound"][i]
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Botón engranaje de Malvina"
+                        color: "white"
+                        visible: settings.launcherIslandVisible
+                    }
+                    QQC2.ComboBox {
+                        visible: settings.launcherIslandVisible
+                        Layout.fillWidth: true
+                        model: ["Cuadrado (inicial)", "Redondo"]
+                        currentIndex: settings.malvinaGearButtonShape === "circle" ? 1 : 0
+                        onActivated: function(i) {
+                            settings.malvinaGearButtonShape = i === 1 ? "circle" : "square"
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Botón lupa de Malvina"
+                        color: "white"
+                        visible: settings.launcherIslandVisible
+                    }
+                    QQC2.ComboBox {
+                        visible: settings.launcherIslandVisible
+                        Layout.fillWidth: true
+                        model: ["Cuadrado (inicial)", "Redondo"]
+                        currentIndex: settings.malvinaSearchButtonShape === "circle" ? 1 : 0
+                        onActivated: function(i) {
+                            settings.malvinaSearchButtonShape = i === 1 ? "circle" : "square"
                         }
                     }
                     QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
