@@ -61,7 +61,19 @@ def desktop_info(filename):
             category = "Ciencia"
         else:
             category = "Otras"
-        return {"name": name[:160], "category": category}
+        # Solo metadatos del lanzador KDE; no ejecutar Exec= ni cargar
+        # archivos de usuario. Los iconos de tema se resuelven localmente.
+        icon_value = section.get("Icon", "").strip()
+        icon_name = ""
+        icon_source = ""
+        if icon_value.startswith("/") and Path(icon_value).suffix.lower() in {
+            ".png", ".svg", ".svgz", ".xpm", ".jpg", ".jpeg", ".webp"
+        }:
+            icon_source = Path(icon_value).as_uri()
+        elif icon_value and "/" not in icon_value and "\\" not in icon_value:
+            icon_name = icon_value[:180]
+        return {"name": name[:160], "category": category,
+                "icon": icon_name, "iconSource": icon_source}
     except (OSError, UnicodeError, configparser.Error):
         return None
 
