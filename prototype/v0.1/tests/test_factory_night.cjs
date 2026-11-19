@@ -30,7 +30,8 @@ assert(ui.includes('factoryNightExportDialog.open()'));
 assert(ui.includes("factoryNightExportText.copy()"));
 assert(ui.includes("settings.factoryNightCandidateJson()"));
 assert(ui.includes("originalImageUrl = logoMode === \"text\" ? \"\" : selectedImage.toString()"));
-assert(ui.includes("filePath = factoryNightImage.toString()"));
+assert(ui.includes("factorySunsetImage.toString() : factoryNightImage.toString()"),
+       "Noche debe recuperar su propia imagen, separada de Atardecer");
 assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
 assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
 assert(!ui.includes("themeImageSource(settings.themeNightJson)"),
