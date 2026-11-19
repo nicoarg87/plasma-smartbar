@@ -1705,7 +1705,12 @@ Item {
                     frameShape: root.trayButtonShape
                     useTileColor: true
                     tileColor: root.effectiveTrayButtonColor
-                    tileOpacity: root.effectiveTrayButtonOpacity
+                    // Si usa la paleta heredada, dejar ver el degradado
+                    // debajo de la bandeja. Un color propio explícito se
+                    // mantiene intacto.
+                    tileOpacity: root.soledadGradientEnabled &&
+                                 !root.trayButtonColorOverride
+                        ? 0 : root.effectiveTrayButtonOpacity
                     outlineStyle: root.outlineConfig.tray.style
                     outlineWidth: root.outlineConfig.tray.width
                     outlineColor: root.outlineConfig.tray.color
@@ -2022,7 +2027,9 @@ Item {
                         color: Qt.rgba(root.effectiveGripButtonColor.r,
                                        root.effectiveGripButtonColor.g,
                                        root.effectiveGripButtonColor.b,
-                                       root.effectiveGripButtonOpacity)
+                                       root.soledadGradientEnabled &&
+                                       !root.gripButtonColorOverride
+                                           ? 0 : root.effectiveGripButtonOpacity)
                         border.width: 0
                         OutlineStyle {
                             anchors.fill: parent
