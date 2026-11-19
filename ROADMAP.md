@@ -642,3 +642,17 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Regresión de lógica JS QML y presencia de controles sobre fuentes GitHub, 275 PASS distribuidos en tres tests ([UI 7ac071b](https://github.com/nicoarg87/plasma-smartbar/commit/7ac071bf32ad60d94cf9e7c4a091384b64d14394)).
 - [ ] **Prueba visual del mantenedor en CachyOS**: confirmar edición de velocidad con sincronización heredada activa, persistencia, cambios en preview, controles ±, scroll de navegación y pulsación visible en SO con/sin ventanas. Registrar captura/log de error en [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
 - [ ] Mantener panel KDE actual intacto y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador hasta validación.
+
+
+## Hito aprobado 19/11/2026 — una sola página de SO y pie Cancelar/Aplicar
+
+- [x] Fusionar **Logo, ancho y texto** con **Efectos luminosos del botón SO** en un único `ScrollView`, colocando los efectos **debajo de los ajustes del logo, encuadre y reloj**, sin subpestaña independiente.
+- [x] Eliminar la pestaña `Texto` redundante: selector Predeterminada / Imagen propia / Texto SO dentro del bloque principal, con edición de texto contextual al elegir ese modo. Conservar ajustes de fuente, fondo, imagen/GIF, tamaño y color.
+- [x] Integrar **Restablecer logo y formato** junto a las opciones del logo, no como sección/pestaña suelta; conservar salto directo desde Color y transparencia a los efectos.
+- [x] Sustituir pie **Aplicar + Cerrar** por **Cancelar (izquierda) + Aplicar (derecha)** en todos los menús; la X descarta pendientes también.
+- [x] Crear snapshot recuperable de las **139 propiedades de la configuración cargadas en el visor**, con manejo de colores y objetos anidados. `Aplicar` actualiza el checkpoint; `Cancelar` revierte los cambios posteriores, sin modificar favoritos ni configuración ya guardada.
+- [x] Deferir guardado de Atardecer/Noche/Personalizado y rotación de respaldo hasta Aplicar; permitir Cancelar para descartar un tema preparado.
+- [x] Deferir comandos «Centrar» y «Mover a derecha» hasta Aplicar; evitar mover isla antes de que el usuario pueda cancelar, conservar alineación efectiva después de aplicar.
+- [x] Regresión sobre fuentes de GitHub **470 comprobaciones PASS** (349 configuración/respiración/cancelación, 77 temas, 44 gradientes). Código [12983ef](https://github.com/nicoarg87/plasma-smartbar/commit/12983eff1634240ff49276c33a61d35f5a2f7a95), [5eca518](https://github.com/nicoarg87/plasma-smartbar/commit/5eca51815222368930b18ae4e8637f6a2feeb4d8), [426a78f](https://github.com/nicoarg87/plasma-smartbar/commit/426a78f188a805410495a4151f9d74d3469e2f99), [481505c](https://github.com/nicoarg87/plasma-smartbar/commit/481505cbf253d40d10eda1bddcf05e68936b139b).
+- [ ] **Prueba real Qt/CachyOS**: navegación única, velocidad/intensidad de línea SO al final; modo Texto SO editable sin pestaña; botones Cancelar y Aplicar en cada menú; Cancelar/X antes y después de Aplicar, temas guardados/descartados y movimiento diferido de isla.
+- [ ] Mantener issue #15 abierto, PR #3 borrador y panel KDE del usuario intacto.
