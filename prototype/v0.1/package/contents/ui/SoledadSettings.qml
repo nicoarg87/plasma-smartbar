@@ -7,6 +7,7 @@ import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import QtQuick.Dialogs
 import "PaletteExtractor.js" as PaletteExtractor
+import "assets/FactoryNightTheme.js" as FactoryNightTheme
 
 Window {
     id: settings
@@ -86,19 +87,67 @@ Window {
     property string themeDayPreviousJson: ""
     property string themeNightJson: ""
     property string themeCustomJson: ""
-    // Recurso oficial opcional: se carga solo cuando el GIF exacto está instalado.
-    // La falta del binario NO invalida los temas locales existentes.
-    readonly property url officialNightImage: Qt.resolvedUrl("assets/so-night.gif")
-    readonly property bool officialNightAvailable: officialNightProbe.status === Image.Ready
+    // Perfil Noche original de fábrica: SOLO manifiesto distribuido con el
+    // programa; el tema histórico guardado localmente no lo modifica.
+    readonly property var factoryNightPreset: FactoryNightTheme.preset
+    readonly property url factoryNightImage:
+        factoryNightPreset && factoryNightPreset.assetFile
+            ? Qt.resolvedUrl("assets/" + factoryNightPreset.assetFile) : ""
+    readonly property bool factoryNightAvailable:
+        factoryNightPreset !== null && factoryNightPreset !== undefined &&
+        factoryNightPreset.version === 1 &&
+        (factoryNightPreset.logoMode === "text" ||
+         (factoryNightPreset.assetFile && factoryNightProbe.status === Image.Ready))
     Image {
-        id: officialNightProbe
+        id: factoryNightProbe
         visible: false
         asynchronous: false
         cache: true
-        source: settings.visible ? settings.officialNightImage : ""
+        source: settings.factoryNightImage
     }
-    property string themeStatus: "Elegí un tema guardado o creá uno a partir del logo SO."
+    readonly property string factoryNightJson:
+        factoryNightAvailable ? JSON.stringify(factoryNightPreset) : ""
+    property string themeStatus: "Noche de fábrica conserva su original; los cambios se guardan por separado."
     signal saveThemeSlotRequested(string slot, string jsonData)
+    QQC2.Dialog {
+        id: factoryNightExportDialog
+        title: "Copiar apariencia exacta para Noche de fábrica"
+        modal: true
+        parent: QQC2.Overlay.overlay
+        width: Math.min(740, settings.width - 80)
+        height: Math.min(560, settings.height - 90)
+        standardButtons: QQC2.Dialog.Close
+        contentItem: ColumnLayout {
+            spacing: 8
+            QQC2.Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: "Copiá este JSON y aportá el GIF o imagen original del logo. " +
+                      "La captura incluye los valores visuales exactos actuales y no escribe en la fábrica."
+            }
+            QQC2.ScrollView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                QQC2.TextArea {
+                    id: factoryNightExportText
+                    readOnly: true
+                    selectByMouse: true
+                    wrapMode: TextEdit.WrapAnywhere
+                    text: settings.themeSnapshot()
+                }
+            }
+            QQC2.Button {
+                text: "Copiar JSON actual"
+                Layout.alignment: Qt.AlignRight
+                onClicked: {
+                    factoryNightExportText.selectAll()
+                    factoryNightExportText.copy()
+                    factoryNightExportText.deselect()
+                }
+            }
+        }
+    }
     QQC2.Dialog {
         id: updateSunsetConfirmation
         title: "Confirmar actualización de Atardecer"
@@ -354,13 +403,16 @@ Window {
     }
     function slotJson(slot) {
         return slot === "day" ? themeDayJson :
-               slot === "night" ? themeNightJson : themeCustomJson
+               slot === "night" ? factoryNightJson : themeCustomJson
     }
     function storeTheme(slot) {
-        // Día y Noche se fijan una sola vez: evitar sobrescrituras
-        // accidentales desde el editor de temas.
-        if ((slot === "day" || slot === "night") && slotJson(slot).length > 0) {
-            themeStatus = "Este tema está protegido. Aplicalo para recuperar sus colores originales."
+        // El original Noche no se puede sobreescribir desde el editor.
+        if (slot === "night") {
+            themeStatus = "Noche de fábrica está protegida; usá Personalizado."
+            return
+        }
+        if (slot === "day" && slotJson(slot).length > 0) {
+            themeStatus = "Atardecer está protegido; recuperalo con Aplicar."
             return
         }
         const data = themeSnapshot()
@@ -404,7 +456,9 @@ Window {
     function activateTheme(slot) {
         const jsonData = slotJson(slot)
         if (!jsonData) {
-            themeStatus = "Este tema todavía no está guardado. Personalizá la isla y pulsá Guardar."
+            themeStatus = slot === "night"
+                ? "Falta incorporar el perfil Noche exacto y su imagen original; no se aplicará otro tema."
+                : "Este tema todavía no está guardado. Personalizá la isla y pulsá Guardar."
             return
         }
         try {
@@ -455,22 +509,23 @@ Window {
             // e intensidad, sin reactivar interruptores apagados.
             // Respetar exactamente colores y orientaciones guardados,
             // sin copiar el degradado de una isla hacia la otra.
-            // Si el GIF nocturno verificado está instalado, usarlo como
-            // imagen oficial de Noche. El JSON mantiene sus colores propios
-            // y no se reescribe la ruta de la foto de ningún otro tema.
-            if (slot === "night" && officialNightAvailable) {
-                logoMode = "custom"
-                filePath = officialNightImage.toString()
-                enableGif = true
+            // Noche utiliza recursos inmutables del paquete (no rutas locales
+            // del equipo del autor ni la foto activa de otro tema).
+            if (slot === "night") {
+                if (info.assetFile) {
+                    logoMode = "custom"
+                    filePath = factoryNightImage.toString()
+                }
+                if (info.assetTextFile)
+                    soTextBackgroundImage =
+                        Qt.resolvedUrl("assets/" + info.assetTextFile).toString()
             }
             // Reusar la ruta de guardado vigente, inclusive los favoritos que
             // son independientes de estos tres espacios de tema.
             applyChanges()
-            themeStatus = "Tema " + (slot === "day" ? "Atardecer" : slot === "night" ? "Noche" : "Personalizado") +
-                          " aplicado. Los controles siguen siendo editables por isla." +
-                          (slot === "night" && !officialNightAvailable
-                              ? " El recurso nocturno oficial no está instalado: se conservó la imagen local del tema."
-                              : "")
+            themeStatus = "Tema " +
+                (slot === "day" ? "Atardecer" : slot === "night" ? "Noche de fábrica" : "Personalizado") +
+                " restaurado. Podés personalizar la barra sin modificar el original."
         } catch(e) {
             themeStatus = "No se pudo aplicar el tema guardado: " + e
             console.warn("SmartBar: tema local inválido", e)
