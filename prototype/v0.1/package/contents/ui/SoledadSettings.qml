@@ -105,6 +105,98 @@ Window {
     function showSoledadGradient() { showSharedColors(0); appearanceSection = 1 }
     function showMalvinaGradient() { showSharedColors(1); appearanceSection = 1 }
     property int currentTab: 0
+    // V1 de tema visual: foto/logo + colores de las dos islas, líneas y
+    // contornos, sin alterar posición, controles de ventanas ni permisos IA.
+    // Sólo snapshots explícitos; no se publican GIFs personales en GitHub.
+    function themeSnapshot() {
+        return JSON.stringify({
+            version: 1,
+            logoMode: logoMode, filePath: filePath, shape: shape,
+            cropFitMode: cropFitMode, cropZoom: cropZoom,
+            cropPanX: cropPanX, cropPanY: cropPanY,
+            cropRotation: cropRotation, enableGif: enableGif,
+            soledadColor: toHex(soledadColor), soledadOpacity: soledadOpacity,
+            soledadGradientEnabled: soledadGradientEnabled,
+            soledadGradientEnd: toHex(soledadGradientEnd),
+            soledadGradientDirection: soledadGradientDirection,
+            soledadGradientSyncBreathing: soledadGradientSyncBreathing,
+            soledadGradientBreathingIntensity: soledadGradientBreathingIntensity,
+            malvinaColor: toHex(malvinaColor), malvinaOpacity: malvinaOpacity,
+            malvinaGradientEnabled: malvinaGradientEnabled,
+            malvinaGradientEnd: toHex(malvinaGradientEnd),
+            malvinaGradientDirection: malvinaGradientDirection,
+            malvinaGradientSyncBreathing: malvinaGradientSyncBreathing,
+            malvinaGradientBreathingIntensity: malvinaGradientBreathingIntensity,
+            accentColor: toHex(accentColor), glowColor: toHex(glowColor),
+            glowGradient: glowGradient, glowIntensity: glowIntensity,
+            glowSpread: glowSpread,
+            outlineConfig: JSON.parse(JSON.stringify(outlineConfig)),
+            launcherOpacityOverride: launcherOpacityOverride,
+            launcherOpacity: launcherOpacity,
+            malvinaOptionsOpacityOverride: malvinaOptionsOpacityOverride,
+            malvinaOptionsOpacity: malvinaOptionsOpacity
+        })
+    }
+    function slotJson(slot) {
+        return slot === "day" ? themeDayJson :
+               slot === "night" ? themeNightJson : themeCustomJson
+    }
+    function storeTheme(slot) {
+        const data = themeSnapshot()
+        if (slot === "day") themeDayJson = data
+        else if (slot === "night") themeNightJson = data
+        else themeCustomJson = data
+        saveThemeSlotRequested(slot, data)
+        themeStatus = "Tema " + (slot === "day" ? "Día" : slot === "night" ? "Noche" : "Personalizado") +
+                      " guardado con el logo y los colores actuales. No reemplaza otros temas."
+    }
+    function themeImageSource(jsonData) {
+        try {
+            if (!jsonData) return ""
+            const info = JSON.parse(jsonData)
+            return info.logoMode === "custom" && info.filePath
+                ? info.filePath : defaultImage.toString()
+        } catch(e) { return "" }
+    }
+    function activateTheme(slot) {
+        const jsonData = slotJson(slot)
+        if (!jsonData) {
+            themeStatus = "Este tema todavía no está guardado. Personalizá la isla y pulsá Guardar."
+            return
+        }
+        try {
+            const info = JSON.parse(jsonData)
+            if (info.version !== 1) throw new Error("Versión de tema desconocida")
+            const fields = [
+                "logoMode","filePath","shape","cropFitMode","cropZoom",
+                "cropPanX","cropPanY","cropRotation","enableGif",
+                "soledadColor","soledadOpacity","soledadGradientEnabled",
+                "soledadGradientEnd","soledadGradientDirection",
+                "soledadGradientSyncBreathing","soledadGradientBreathingIntensity",
+                "malvinaColor","malvinaOpacity","malvinaGradientEnabled",
+                "malvinaGradientEnd","malvinaGradientDirection",
+                "malvinaGradientSyncBreathing","malvinaGradientBreathingIntensity",
+                "accentColor","glowColor","glowGradient","glowIntensity","glowSpread",
+                "launcherOpacityOverride","launcherOpacity",
+                "malvinaOptionsOpacityOverride","malvinaOptionsOpacity"
+            ]
+            for (let i = 0; i < fields.length; ++i) {
+                const key = fields[i]
+                if (info[key] !== undefined && info[key] !== null)
+                    settings[key] = info[key]
+            }
+            if (info.outlineConfig && typeof info.outlineConfig === "object")
+                outlineConfig = JSON.parse(JSON.stringify(info.outlineConfig))
+            // Reusar la ruta de guardado vigente, inclusive los favoritos que
+            // son independientes de estos tres espacios de tema.
+            applyChanges()
+            themeStatus = "Tema " + (slot === "day" ? "Día" : slot === "night" ? "Noche" : "Personalizado") +
+                          " aplicado. Los controles siguen siendo editables por isla."
+        } catch(e) {
+            themeStatus = "No se pudo aplicar el tema guardado: " + e
+            console.warn("SmartBar: tema local inválido", e)
+        }
+    }
     property alias currentIslandSubtab: islandSubtabs.currentIndex
     property string malvinaGoogleUrl: "https://www.google.com/search?q={query}"
     property string malvinaDuckUrl: "https://duckduckgo.com/?q={query}"
