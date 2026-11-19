@@ -72,3 +72,12 @@ La imagen nocturna aún **no está incorporada como binario al repositorio GitHu
 `favoriteSoledadV1`, `personalDefaultV1` y `appearanceV1` se mantienen independientes de las tres ranuras. Guardar favorita solo modifica la primera clave; al restaurar favorita, se copia al estado activo sin tocar temas y con guardado atómico (un solo guardado final del estado activo). Los nuevos snapshots de temas incorporan otros campos visuales (fondo, texto, controles, fichas); los JSON V1 antiguos no se borran ni reemplazan.
 
 **Pendiente:** validar en Qt/CachyOS, especialmente que la favorita con el degradado recién ajustado pueda restaurarse y fijarse como Atardecer sin alterar Noche. «Día claro» con colores más luminosos sobre una playa similar queda como **propuesta futura**, sin imagen nueva, ranura funcional ni cambios de requisitos confirmados.
+
+
+## Paleta manual a partir del GIF — nueva política aprobada el 19/11/2026
+
+El usuario confirmó que el anterior sistema de sugerencias automáticas era confuso y debía reemplazarse. La nueva opción **«Abrir paleta del GIF y elegir colores…»** analiza un fotograma del logo SO y ofrece **hasta tres tonos cromáticos frecuentes** que realmente aparezcan en el fotograma. Cada tono se puede editar mediante selector visual o HEX, copiar al portapapeles y asignar explícitamente como color base/final del degradado de Soledad o Malvina. Si hay menos de tres tonos diferenciables, no se inventan colores.
+
+Analizar no aplica ninguna modificación al fondo ni al contorno. El usuario puede sustituir manualmente cualquier tono por `#000000` u otro HEX; los colores activos se guardan mediante **Aplicar** por la ruta existente, con opción de degradado activa/inactiva y dirección independiente en cuatro orientaciones. La luz/contorno SO es un sistema de color separado. Los temas Atardecer/Noche y la favorita no cambian solo por analizar; se actualizan cuando el usuario ejecuta explícitamente su acción de guardado.
+
+Implementación experimental: `PaletteExtractor.js` y `SoledadSettings.qml` en la rama `prototype/v0.1-islas-so`. **NO PROBADO aún con Qt/CachyOS**: ver [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
