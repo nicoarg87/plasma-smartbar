@@ -19,6 +19,8 @@ Item {
     // Apariencia compartida con la superficie de la isla Malvina.
     property color islandColor: "#101e31"
     property real islandOpacity: 1
+    // Solo el panel de opciones Web/IA: sigue a la isla salvo anulación.
+    property real optionsPanelOpacity: islandOpacity
     property bool islandGradientEnabled: false
     property color islandGradientEnd: "#445577"
     property string islandGradientDirection: "topBottom"
@@ -527,8 +529,8 @@ Item {
             endColor: search.islandGradientEnd
             gradientEnabled: search.islandGradientEnabled
             gradientDirection: search.islandGradientDirection
-            baseOpacity: search.islandOpacity
-            // islandOpacity ya incluye el factor de respiración de Malvina.
+            baseOpacity: search.optionsPanelOpacity
+            // Opacidad efectiva incluye respiración; no multiplicarla dos veces.
             breathingFactor: 1
             outlineColor: search.islandOutlineColor
             outlineOpacity: search.islandOutlineOpacity
