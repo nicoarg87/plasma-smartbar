@@ -616,7 +616,7 @@ Window {
             soledadGradientSyncBreathing = false
             soledadGradientBreathingIntensity = 0.6
             soledadOpacity = 0.5
-            invalidateSuggestedPalette()
+            resetSampledColors()
             paletteFeedback = "Soledad volvió a tonos neutros. Para la playa nocturna, " +
                               "elegí Sugerir desde GIF y aplicá sus dos colores."
         } else if (target === 1) {
@@ -883,23 +883,16 @@ Window {
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
                               alignedRight, alignmentEdited)
-        if (hasSuggestedPalette) {
-            const realBase = toHex(soledadColor)
-            const realEnd = toHex(soledadGradientEnd)
-            const wantedBase = toHex(suggestedIslandBase)
-            const wantedEnd = toHex(suggestedIslandEnd)
-            const copied = suggestedPaletteAppliedMode === "both" &&
-                realBase === wantedBase && realEnd === wantedEnd
-            paletteFeedback = "Aplicar guardó los valores actuales de Soledad: " +
-                realBase + " → " + realEnd + ". " +
-                (copied
-                    ? "Coinciden con los dos tonos sugeridos."
-                    : "Los tonos sugeridos (" + wantedBase + " → " + wantedEnd +
-                      ") son diferentes. Elegí «Usar ambos tonos» para copiarlos.")
-            console.log("SmartBar: Aplicar Soledad: real", realBase, realEnd,
-                        "sugerido", wantedBase, wantedEnd,
-                        "sugerencia copiada", suggestedPaletteAppliedMode)
-        }
+        paletteFeedback = "Aplicar guardó los valores seleccionados: Soledad " +
+            toHex(soledadColor) + " → " + toHex(soledadGradientEnd) +
+            " (" + (soledadGradientEnabled ? "degradado activo" : "sin degradado") +
+            "), Malvina " + toHex(malvinaColor) + " → " +
+            toHex(malvinaGradientEnd) +
+            " (" + (malvinaGradientEnabled ? "degradado activo" : "sin degradado") +
+            "). La luz SO no interviene en estos colores."
+        console.log("SmartBar: paletas activas aplicadas",
+                    "Soledad", toHex(soledadColor), toHex(soledadGradientEnd),
+                    "Malvina", toHex(malvinaColor), toHex(malvinaGradientEnd))
         alignmentEdited = false
         settingsApplied()
         appliedLabel.text = validProviderUrls && validProviderNames
@@ -987,56 +980,48 @@ Window {
         nameFilters: ["Imágenes (*.png *.jpg *.jpeg *.webp *.gif)", "Todos los archivos (*)"]
         onAccepted: settings.soTextBackgroundImage = selectedFile.toString()
     }
-    // Qt Canvas solo ofrece imageLoaded; los errores se consultan mediante
-    // isImageError() y no mediante un inexistente onImageLoadingFailed.
+    // Muestreo de GIF bajo demanda: nunca modifica el fondo por sí mismo.
     Timer {
         id: paletteImageLoadTimeout
         interval: 3500
         repeat: false
         onTriggered: {
-            if (paletteSampler.pending) {
-                if (paletteSampler.isImageLoaded(paletteSampler.requestedUrl)) {
-                    paletteSampler.requestPaint()
-                } else {
-                    paletteSampler.pending = false
-                    settings.paletteFeedback = paletteSampler.isImageError(paletteSampler.requestedUrl)
-                        ? "No se pudo abrir el GIF/imagen. Comprobá la ruta del archivo."
-                        : "La imagen todavía no está disponible para analizar; volvé a intentar."
-                    if (paletteSampler.requestMode === "automatic")
-                        settings.themeStatus = settings.paletteFeedback
-                }
+            if (!paletteSampler.pending) return
+            if (paletteSampler.isImageLoaded(paletteSampler.requestedUrl)) {
+                paletteSampler.requestPaint()
+            } else {
+                paletteSampler.pending = false
+                settings.paletteFeedback = "No se pudo leer la imagen. Revisá la ruta GIF/PNG."
             }
         }
     }
-    // Sugeridor óptico local. No transmite imágenes ni modifica archivos.
-    // Sólo analiza la imagen cuando se pulsa el botón correspondiente.
     Canvas {
         id: paletteSampler
         width: 64
         height: 64
-        opacity: 0
+        visible: false
         property string requestedUrl: ""
         property bool pending: false
-        property string requestMode: "contour"
-        onImageLoaded: if (pending) requestPaint()
+        property string requestMode: "island"
+        onImageLoaded: {
+            if (pending && isImageLoaded(requestedUrl)) requestPaint()
+        }
         function suggestFromImage(mode) {
-            requestMode = mode === "automatic" ? "automatic" :
-                mode === "island" ? "island" : "contour"
+            requestMode = mode === "contour" ? "contour" : "island"
             requestedUrl = settings.logoMode === "text"
-                ? (settings.soTextBackgroundImage.length > 0
-                   ? settings.soTextBackgroundImage : settings.defaultImage.toString())
+                ? (settings.soTextBackgroundImage.length
+                    ? settings.soTextBackgroundImage
+                    : settings.defaultImage.toString())
                 : settings.selectedImage.toString()
-            if (requestedUrl.length === 0) {
-                settings.paletteFeedback = "No hay imagen para analizar."
-                if (requestMode === "automatic")
-                    settings.themeStatus = settings.paletteFeedback
+            if (!requestedUrl.length) {
+                settings.paletteFeedback = "No se eligió ninguna imagen."
                 return
             }
-            settings.paletteFeedback = "Analizando una muestra local de la imagen…"
+            settings.paletteFeedback = "Leyendo un fotograma del GIF para ofrecer tres tonos…"
             pending = true
             paletteImageLoadTimeout.restart()
-            // Volver a leer incluso si el usuario reemplazó el GIF en la
-            // misma ruta. No mantener un fotograma antiguo en caché.
+            // Releer el archivo incluso si un GIF fue reemplazado en la
+            // misma ruta. Sin cachear un resultado de análisis anterior.
             if (isImageLoaded(requestedUrl)) unloadImage(requestedUrl)
             loadImage(requestedUrl)
         }
@@ -1044,125 +1029,49 @@ Window {
             if (!pending || !isImageLoaded(requestedUrl)) return
             pending = false
             paletteImageLoadTimeout.stop()
-            // No usar el resultado de una imagen que cambió durante el análisis.
             const activeUrl = settings.logoMode === "text"
-                ? (settings.soTextBackgroundImage.length > 0
-                    ? settings.soTextBackgroundImage : settings.defaultImage.toString())
+                ? (settings.soTextBackgroundImage.length
+                    ? settings.soTextBackgroundImage
+                    : settings.defaultImage.toString())
                 : settings.selectedImage.toString()
             if (activeUrl !== requestedUrl) {
-                settings.invalidateSuggestedPalette()
-                settings.paletteFeedback = "La imagen cambió durante el análisis. Volvé a sugerir."
+                settings.resetSampledColors()
+                settings.paletteFeedback = "La imagen cambió durante el análisis. Volvé a analizar."
                 return
             }
             try {
                 const ctx = getContext("2d")
                 ctx.reset()
                 ctx.clearRect(0, 0, width, height)
-                // GIF: Qt Canvas ofrece un fotograma representativo, no
-                // todos los fotogramas ni un promedio temporal.
                 ctx.drawImage(requestedUrl, 0, 0, width, height)
-                const rgba = ctx.getImageData(0, 0, width, height).data
-                const binWeights = Array(18).fill(0)
-                const samples = []
-                for (let n = 0; n < 18; ++n) samples.push([])
-                for (let i = 0; i < rgba.length; i += 4) {
-                    if (rgba[i + 3] < 128) continue
-                    const r = rgba[i] / 255, g = rgba[i + 1] / 255,
-                          b = rgba[i + 2] / 255
-                    const high = Math.max(r, g, b), low = Math.min(r, g, b)
-                    const chroma = high - low
-                    // Descartar negros sin información tonal y luces casi
-                    // blancas como la luna. NO descartar azules oscuros.
-                    if (high < 0.055 || chroma < 0.035) continue
-                    const saturation = chroma / Math.max(0.001, high)
-                    if (saturation < 0.12) continue
-                    let hue = high === r ? (g - b) / chroma
-                            : high === g ? 2 + (b - r) / chroma
-                            : 4 + (r - g) / chroma
-                    hue = ((hue / 6) % 1 + 1) % 1
-                    const bin = Math.min(17, Math.floor(hue * 18))
-                    // Favorecer presencia y saturación, no brillo: el mar y
-                    // el cielo nocturnos no deben perder ante reflejos claros.
-                    binWeights[bin] += 0.5 + Math.min(1, saturation)
-                    samples[bin].push([r, g, b, high])
+                const raw = ctx.getImageData(0, 0, width, height).data
+                // Un solo análisis cuando el usuario lo pide; sin muestreo
+                // por cada fotograma GIF ni trabajo continuo de CPU/GPU.
+                const colors = PaletteExtractor.extractDominantColors(raw, 3)
+                if (colors.length === 0) {
+                    settings.resetSampledColors()
+                    settings.paletteFeedback = "No se detectaron suficientes tonos cromáticos " +
+                        "en este fotograma; podés elegir cualquier HEX manualmente."
+                    return
                 }
-                let winner = 0
-                for (let n = 1; n < 18; ++n)
-                    if (binWeights[n] > binWeights[winner]) winner = n
-                const chosen = samples[winner]
-                if (chosen.length > 0) {
-                    // Trabajar con los RGB realmente observados en la imagen:
-                    // jamás generar un V=0.93 fijo que aclare artificialmente.
-                    chosen.sort(function(a, b) { return a[3] - b[3] })
-                    function meanRange(from, to) {
-                        const first = Math.min(chosen.length - 1,
-                            Math.floor(chosen.length * from))
-                        const last = Math.max(first + 1,
-                            Math.ceil(chosen.length * to))
-                        let rr = 0, gg = 0, bb = 0, n = 0
-                        for (let j = first; j < Math.min(chosen.length, last); ++j) {
-                            rr += chosen[j][0]
-                            gg += chosen[j][1]
-                            bb += chosen[j][2]
-                            n++
-                        }
-                        return Qt.rgba(rr / n, gg / n, bb / n, 1)
-                    }
-                    const base = meanRange(0.12, 0.52)
-                    const endColor = meanRange(0.53, 0.88)
-                    if (requestMode === "automatic") {
-                        // Tema automático: compartir la FUENTE (GIF) de la
-                        // paleta, no vincular para siempre ambas islas.
-                        // Se pueden editar por separado luego.
-                        settings.soledadColor = base
-                        settings.soledadGradientEnd = endColor
-                        settings.soledadGradientEnabled = true
-                        settings.malvinaColor = base
-                        settings.malvinaGradientEnd = endColor
-                        settings.malvinaGradientEnabled = true
-                        settings.invalidateSuggestedPalette()
-                        settings.storeTheme("custom")
-                        settings.themeStatus = "Tema Personalizado creado desde el logo SO: " +
-                            settings.toHex(base) + " → " + settings.toHex(endColor) +
-                            ". Revisá Soledad y Malvina y pulsá Aplicar para verlos " +
-                            "en la barra. El contorno y su luz no se modificaron."
-                    } else if (requestMode === "island") {
-                        settings.suggestedPaletteAppliedMode = ""
-                        settings.suggestedIslandBase = base
-                        settings.suggestedIslandEnd = endColor
-                        settings.suggestedPaletteName =
-                            "GIF/imagen actual, tonos oscuros respetados (aproximación)"
-                        settings.suggestedPaletteOrigin = "gif"
-                        settings.suggestedPaletteImage = requestedUrl
-                        settings.hasSuggestedPalette = true
-                        settings.paletteFeedback = "Se analizaron tonos reales de un fotograma: " +
-                            "base " + settings.toHex(base) + " y segundo " +
-                            settings.toHex(endColor) + ". No se cambió el contorno " +
-                            "ni la respiración. Elegí qué aplicar al fondo."
-                    } else {
-                        // El pedido fue CONTORNO: editar solo luz y brillo,
-                        // sin crear una sugerencia aplicable al fondo.
-                        settings.chooseCoordinatedPalette(
-                            "fotograma del GIF para contorno",
-                            Qt.lighter(endColor, 1.40),
-                            Qt.lighter(base, 1.25),
-                            base, endColor)
-                    }
-                    console.log("SmartBar: tonos RGB muestreados del GIF local; pendientes de Aplicar")
+                if (requestMode === "contour") {
+                    // El botón explícito del editor de CONTORNO solo altera
+                    // acento y brillo, nunca fondos o degradados de islas.
+                    settings.chooseCoordinatedPalette(
+                        "GIF (contorno)", Qt.lighter(colors[0].hex, 1.35),
+                        Qt.lighter(colors[Math.min(1, colors.length - 1)].hex, 1.2),
+                        "", "")
                 } else {
-                    settings.invalidateSuggestedPalette()
-                    settings.paletteFeedback = "No se detectaron tonos cromáticos suficientes " +
-                        "en este fotograma. Elegí colores manuales o un GIF con más detalle."
-                    if (requestMode === "automatic")
-                        settings.themeStatus = settings.paletteFeedback
-                    console.warn("SmartBar: fotograma sin tonos suficientes")
+                    settings.sampledColors = colors.map(function(x) { return x.hex })
+                    settings.sampledSource = requestedUrl
+                    settings.paletteFeedback = "Se encontraron " + colors.length +
+                        " tonos representativos de un fotograma. " +
+                        "Elegí primer y segundo tono para cada isla; " +
+                        "el análisis no cambia nada automáticamente."
                 }
             } catch (e) {
-                settings.paletteFeedback = "No fue posible analizar esta imagen. " +
-                    "Podés elegir colores manualmente sin perder los actuales."
-                if (requestMode === "automatic")
-                    settings.themeStatus = settings.paletteFeedback
-                console.warn("SmartBar: error muestreando paleta:", e)
+                settings.paletteFeedback = "No se pudo analizar el GIF: " + e
+                console.warn("SmartBar: error de análisis de paleta", e)
             }
         }
     }
