@@ -35,6 +35,8 @@ Window {
     property string colorScope: "soledad"
     property string navigationGroup: "themes"
     property string themeDayJson: ""
+    // Respaldo recuperable del Atardecer previo; conservar la clave histórica.
+    property string themeDayPreviousJson: ""
     property string themeNightJson: ""
     property string themeCustomJson: ""
     // Recurso oficial opcional: se carga solo cuando el GIF exacto está instalado.
@@ -50,6 +52,30 @@ Window {
     }
     property string themeStatus: "Elegí un tema guardado o creá uno a partir del logo SO."
     signal saveThemeSlotRequested(string slot, string jsonData)
+    QQC2.Dialog {
+        id: updateSunsetConfirmation
+        title: "Confirmar actualización de Atardecer"
+        modal: true
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.Cancel
+        QQC2.Label {
+            text: "Guardar la estética actual como Atardecer. La versión anterior quedará recuperable."
+            wrapMode: Text.WordWrap
+            width: 290
+        }
+        onAccepted: settings.updateSunsetFromCurrent()
+    }
+    QQC2.Dialog {
+        id: restoreSunsetConfirmation
+        title: "Recuperar Atardecer anterior"
+        modal: true
+        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.Cancel
+        QQC2.Label {
+            text: "Intercambiar la versión anterior y la actual. No se tocará la estética favorita."
+            wrapMode: Text.WordWrap
+            width: 290
+        }
+        onAccepted: settings.restorePreviousSunset()
+    }
 
     // Botones del menú lateral: no cortar nombres cuando la ventana es angosta
     // o cuando el usuario aumenta la escala de fuentes de KDE.
@@ -160,16 +186,6 @@ Window {
         if (pulseDepth <= 0) pulseDepth = 0.7
         if (pulseSpeed <= 0) pulseSpeed = 0.6
     }
-    // Paleta diurna: las dos islas comparten los tonos del tema Dia,
-    // sin alterar el preset Noche ni los ajustes personalizados.
-    // Cada isla conserva su propia direccion de degradado.
-    function applyBeachDayPalette() {
-        soledadGradientDirection = "leftRight"
-        malvinaColor = soledadColor
-        malvinaGradientEnd = soledadGradientEnd
-        malvinaOpacity = soledadOpacity
-        malvinaGradientDirection = "rightLeft"
-    }
     function themeSnapshot() {
         return JSON.stringify({
             version: 1,
@@ -216,15 +232,36 @@ Window {
         }
         if (slot === "day" || slot === "night")
             ensureBeachBreathing()
-        if (slot === "day")
-            applyBeachDayPalette()
         const data = themeSnapshot()
         if (slot === "day") themeDayJson = data
         else if (slot === "night") themeNightJson = data
         else themeCustomJson = data
         saveThemeSlotRequested(slot, data)
-        themeStatus = "Tema " + (slot === "day" ? "Día" : slot === "night" ? "Noche" : "Personalizado") +
+        themeStatus = "Tema " + (slot === "day" ? "Atardecer" : slot === "night" ? "Noche" : "Personalizado") +
                       " guardado con el logo y los colores actuales. No reemplaza otros temas."
+    }
+    // Acción excepcional, solicitada por el mantenedor, con confirmación:
+    // no reescribir Atardecer durante Aplicar, favoritos o autoguardado.
+    function updateSunsetFromCurrent() {
+        if (themeDayJson.length > 0) {
+            themeDayPreviousJson = themeDayJson
+            saveThemeSlotRequested("dayPrevious", themeDayPreviousJson)
+        }
+        ensureBeachBreathing()
+        const data = themeSnapshot()
+        themeDayJson = data
+        saveThemeSlotRequested("day", data)
+        themeStatus = "Atardecer actualizado. La versión anterior quedó recuperable."
+    }
+    function restorePreviousSunset() {
+        if (!themeDayPreviousJson.length) return
+        const previous = themeDayPreviousJson
+        const current = themeDayJson
+        themeDayPreviousJson = current
+        themeDayJson = previous
+        saveThemeSlotRequested("dayPrevious", current)
+        saveThemeSlotRequested("day", previous)
+        themeStatus = "Atardecer anterior recuperado. Aplicalo para verlo."
     }
     function themeImageSource(jsonData) {
         try {
@@ -270,11 +307,8 @@ Window {
             // No se aplica esta regla a los temas personalizados.
             if (slot === "day" || slot === "night")
                 ensureBeachBreathing()
-            // El JSON antiguo de Dia contiene direcciones verticales y
-            // una paleta nocturna residual en Malvina. Corregir al aplicarlo,
-            // sin reescribir el snapshot ni modificar Playa Noche.
-            if (slot === "day")
-                applyBeachDayPalette()
+            // Respetar exactamente colores y orientaciones guardados,
+            // sin copiar el degradado de una isla hacia la otra.
             // Si el GIF nocturno verificado está instalado, usarlo como
             // imagen oficial de Noche. El JSON mantiene sus colores propios
             // y no se reescribe la ruta de la foto de ningún otro tema.
@@ -286,7 +320,7 @@ Window {
             // Reusar la ruta de guardado vigente, inclusive los favoritos que
             // son independientes de estos tres espacios de tema.
             applyChanges()
-            themeStatus = "Tema " + (slot === "day" ? "Día" : slot === "night" ? "Noche" : "Personalizado") +
+            themeStatus = "Tema " + (slot === "day" ? "Atardecer" : slot === "night" ? "Noche" : "Personalizado") +
                           " aplicado. Los controles siguen siendo editables por isla." +
                           (slot === "night" && !officialNightAvailable
                               ? " El recurso nocturno oficial no está instalado: se conservó la imagen local del tema."
@@ -3767,7 +3801,7 @@ Window {
                                 anchors.fill: parent
                                 anchors.margins: 8
                                 spacing: 5
-                                QQC2.Label { text: "Día"; color: "white"; font.bold: true }
+                                QQC2.Label { text: "Atardecer"; color: "white"; font.bold: true }
                                 Image {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 64
@@ -3782,15 +3816,27 @@ Window {
                                     QQC2.Button {
                                         Layout.fillWidth: true
                                         visible: settings.themeDayJson.length === 0
-                                        text: "Fijar tema Día"
+                                        text: "Fijar Atardecer"
                                         onClicked: settings.storeTheme("day")
                                     }
                                     QQC2.Button {
                                         Layout.fillWidth: true
                                         enabled: settings.themeDayJson.length > 0
-                                        text: "Aplicar Día"
+                                        text: "Aplicar Atardecer"
                                         onClicked: settings.activateTheme("day")
                                     }
+                                }
+                                QQC2.Button {
+                                    Layout.fillWidth: true
+                                    enabled: settings.themeDayJson.length > 0
+                                    text: "Actualizar Atardecer con estética actual…"
+                                    onClicked: updateSunsetConfirmation.open()
+                                }
+                                QQC2.Button {
+                                    Layout.fillWidth: true
+                                    enabled: settings.themeDayPreviousJson.length > 0
+                                    text: "Recuperar Atardecer anterior…"
+                                    onClicked: restoreSunsetConfirmation.open()
                                 }
                             }
                         }
