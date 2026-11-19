@@ -656,3 +656,17 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Regresión sobre fuentes de GitHub **470 comprobaciones PASS** (349 configuración/respiración/cancelación, 77 temas, 44 gradientes). Código [12983ef](https://github.com/nicoarg87/plasma-smartbar/commit/12983eff1634240ff49276c33a61d35f5a2f7a95), [5eca518](https://github.com/nicoarg87/plasma-smartbar/commit/5eca51815222368930b18ae4e8637f6a2feeb4d8), [426a78f](https://github.com/nicoarg87/plasma-smartbar/commit/426a78f188a805410495a4151f9d74d3469e2f99), [481505c](https://github.com/nicoarg87/plasma-smartbar/commit/481505cbf253d40d10eda1bddcf05e68936b139b).
 - [ ] **Prueba real Qt/CachyOS**: navegación única, velocidad/intensidad de línea SO al final; modo Texto SO editable sin pestaña; botones Cancelar y Aplicar en cada menú; Cancelar/X antes y después de Aplicar, temas guardados/descartados y movimiento diferido de isla.
 - [ ] Mantener issue #15 abierto, PR #3 borrador y panel KDE del usuario intacto.
+
+
+## Tema Noche de fábrica — entrega dividida y captura real pendiente (19/11/2026)
+
+- [x] **Decisión funcional:** Noche es tema oscuro original del sistema, no regrabable por el usuario; el botón «Restaurar Noche de fábrica» recupera siempre sus valores originales, permitiendo personalizar después sin modificar el preset.
+- [x] Reemplazar la Noche mutable `themeNightJson` por origen independiente `assets/FactoryNightTheme.js`. Conservar ranuras antiguas sin borrarlas. Quitar «Fijar tema Noche».
+- [x] Impedir miniaturas engañosas: la imagen de Noche proviene del preset y el GIF real empaquetado, no del logo actual, una imagen de Atardecer ni una ruta fallback. Comprobar que cargue la imagen.
+- [x] Exponer «Restaurar Noche de fábrica» deshabilitado si falta su perfil o recurso; no inventar estética, ni sobreescribir el aspecto personal, ni publicar una Noche incorrecta.
+- [x] Agregar exportación de los ajustes visuales exactos actuales desde Temas y script `prototype/v0.1/scripts/fijar_noche_fabrica.cjs` para copiar GIF/imagen, construir preset fijo, eliminar rutas locales del archivo distribuido y calcular SHA-256; rechazar sustituciones automáticas.
+- [x] Ampliar la instantánea visual con ancho de botón SO, alturas/radios y modo de fichas para recuperar realmente la apariencia de barra.
+- [x] Validaciones V8/FS sobre código GitHub: `test_factory_night.cjs` 35 PASS, más pruebas anteriores 470 PASS = 505.
+- [ ] **Bloqueante:** recibir de CachyOS el JSON exportado desde la apariencia que el mantenedor usa **ahora mismo** y el archivo GIF/imagen correspondiente (o identificar inequívocamente su SHA). Todavía `FactoryNightTheme.js` contiene `preset=null`: **NO es un tema de fábrica completo ni restaurable**.
+- [ ] Incorporar perfil exacto + binarios al paquete, verificar licencia/origen de las imágenes, actualizar manifest con hash, ejecutar pruebas reales Node/Qt/CachyOS, validar miniatura, restauración después de cambios y recuperación tras reinstalación.
+- [ ] Mantener issue #15 y PR #3 en borrador, sin modificar panel KDE del usuario ni fusionar a main.
