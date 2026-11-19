@@ -481,9 +481,9 @@ Window {
     property int malvinaGradientColorCount: 2
     property string malvinaGradientDirection: "topBottom"
     property color backgroundColor: "#202333"
-    property real soledadOpacity: 0.5
-    property real malvinaOpacity: 1
-    property real backgroundOpacity: 0.5
+    property real soledadOpacity: 0.7
+    property real malvinaOpacity: 0.7
+    property real backgroundOpacity: 0.7
     property bool showBackground: false
     property bool trayButtonColorOverride: false
     property color trayButtonColor: "#010111"
@@ -756,10 +756,10 @@ Window {
     property color launcherSwitchColor: "#010111"
     property int launcherMaxSlots: 20
     property bool launcherOpacityOverride: false
-    property real launcherOpacity: 1
+    property real launcherOpacity: 0.7
     property bool launcherIconsWithNames: true
     property bool malvinaOptionsOpacityOverride: false
-    property real malvinaOptionsOpacity: 1
+    property real malvinaOptionsOpacity: 0.7
     property bool autoCollapseTray: false
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
