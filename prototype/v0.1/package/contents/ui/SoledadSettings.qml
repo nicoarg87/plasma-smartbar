@@ -806,6 +806,26 @@ Window {
         nameFilters: ["Imágenes (*.png *.jpg *.jpeg *.webp *.gif)", "Todos los archivos (*)"]
         onAccepted: settings.soTextBackgroundImage = selectedFile.toString()
     }
+    // Qt Canvas solo ofrece imageLoaded; los errores se consultan mediante
+    // isImageError() y no mediante un inexistente onImageLoadingFailed.
+    Timer {
+        id: paletteImageLoadTimeout
+        interval: 3500
+        repeat: false
+        onTriggered: {
+            if (!paletteSampler.pending) return
+            if (paletteSampler.isImageLoaded(paletteSampler.requestedUrl)) {
+                paletteSampler.requestPaint()
+                return
+            }
+            paletteSampler.pending = false
+            settings.paletteFeedback = paletteSampler.isImageError(paletteSampler.requestedUrl)
+                ? "No se pudo abrir el GIF/imagen. Comprobá la ruta del archivo."
+                : "La imagen todavía no está disponible para analizar; volvé a intentar."
+            if (paletteSampler.requestMode === "automatic")
+                settings.themeStatus = settings.paletteFeedback
+        }
+    }
     // Sugeridor óptico local. No transmite imágenes ni modifica archivos.
     // Sólo analiza la imagen cuando se pulsa el botón correspondiente.
     Canvas {
@@ -817,15 +837,6 @@ Window {
         property bool pending: false
         property string requestMode: "contour"
         onImageLoaded: if (pending) requestPaint()
-        onImageLoadingFailed: function(url) {
-            if (pending && String(url) === requestedUrl) {
-                pending = false
-                settings.paletteFeedback = "No se pudo abrir el logo/GIF seleccionado. " +
-                    "Comprobá que el archivo siga en su ruta original."
-                if (requestMode === "automatic")
-                    settings.themeStatus = settings.paletteFeedback
-            }
-        }
         function suggestFromImage(mode) {
             requestMode = mode === "automatic" ? "automatic" :
                 mode === "island" ? "island" : "contour"
@@ -841,6 +852,7 @@ Window {
             }
             settings.paletteFeedback = "Analizando una muestra local de la imagen…"
             pending = true
+            paletteImageLoadTimeout.restart()
             // Volver a leer incluso si el usuario reemplazó el GIF en la
             // misma ruta. No mantener un fotograma antiguo en caché.
             if (isImageLoaded(requestedUrl)) unloadImage(requestedUrl)
@@ -849,6 +861,7 @@ Window {
         onPaint: {
             if (!pending || !isImageLoaded(requestedUrl)) return
             pending = false
+            paletteImageLoadTimeout.stop()
             // No usar el resultado de una imagen que cambió durante el análisis.
             const activeUrl = settings.logoMode === "text"
                 ? (settings.soTextBackgroundImage.length > 0
