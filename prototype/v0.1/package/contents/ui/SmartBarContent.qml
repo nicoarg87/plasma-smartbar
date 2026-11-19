@@ -206,16 +206,16 @@ Item {
         // Al tocar SO o la isla 2 permitimos que ambos paneles puedan
         // coexistir, como en la prueba del mantenedor. El clic en el
         // escritorio vacío cierra los dos.
-        if (soButton.hovered || malvinaHotspotHover.hovered)
-            return
-        if (installedAppsPopup.visible)
-            installedAppsPopup.close()
-        if (malvinaSearch.expanded) {
-            malvinaSearch.closeSearch()
-            if (root.autoHideMalvina) {
-                malvinaRevealTimer.stop()
-                malvinaHideTimer.stop()
-                root.malvinaHoverRevealed = false
+        if (!soButton.hovered && !malvinaHotspotHover.hovered) {
+            if (installedAppsPopup.visible)
+                installedAppsPopup.close()
+            if (malvinaSearch.expanded) {
+                malvinaSearch.closeSearch()
+                if (root.autoHideMalvina) {
+                    malvinaRevealTimer.stop()
+                    malvinaHideTimer.stop()
+                    root.malvinaHoverRevealed = false
+                }
             }
         }
     }
