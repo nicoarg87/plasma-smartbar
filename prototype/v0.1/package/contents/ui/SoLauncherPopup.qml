@@ -14,6 +14,10 @@ QQC2.Popup {
     property string selectedCategory: ""
     property bool showMoreCategories: false
     property bool filesMode: false
+    // Después de abrir una categoría, conservar el ancho completo al
+    // pasar a Archivos. El panel de apps se retira, pero no salta el popup.
+    property bool expandedCanvas: false
+    property real heightOnFileSwitch: 0
     // Iconos de tema KDE (sin modo de solo iconos: el nombre siempre visible).
     property bool iconsWithNames: true
     property int primaryWidth: 285
@@ -69,10 +73,11 @@ QQC2.Popup {
     readonly property var currentApplications: catalogIsReal ? installedApplications : demoApplications
     readonly property bool showCategoryPanel: !filesMode && selectedCategory.length > 0
     // La posición y el orden del subpanel son configurables (A/B).
-    width: filesMode ? filesWidth :
+    width: filesMode ? (expandedCanvas ? primaryWidth + categoryWidth + 1 : filesWidth) :
         (showCategoryPanel ? primaryWidth + categoryWidth + 1 : primaryWidth)
     height: Math.min(Math.max(170, popupHeightLimit),
-        Math.max(filesMode ? 240 : 170, headerHeight + rowsToShow * rowHeight))
+        Math.max(filesMode ? Math.max(240, heightOnFileSwitch) : 170,
+                 headerHeight + rowsToShow * rowHeight))
     padding: 9
     modal: false
     focus: true
@@ -143,6 +148,8 @@ QQC2.Popup {
     function resetAndFocus() {
         filesMode = false
         selectedCategory = ""
+        expandedCanvas = false
+        heightOnFileSwitch = 0
         showMoreCategories = false
         searchInput.text = ""
         fileList.folder = homeFolder
@@ -222,9 +229,11 @@ QQC2.Popup {
             }
         }
         ColumnLayout {
-            Layout.preferredWidth: (launcher.filesMode ? launcher.filesWidth :
+            // En modo Archivos ocupa todo el recuadro que se abrió para
+            // la categoría, sin dejar un panel vacío y sin volver a estrecharse.
+            Layout.preferredWidth: (launcher.filesMode ? launcher.width :
                                     launcher.primaryWidth) - 18
-            Layout.minimumWidth: (launcher.filesMode ? launcher.filesWidth :
+            Layout.minimumWidth: (launcher.filesMode ? launcher.width :
                                   launcher.primaryWidth) - 18
             Layout.fillHeight: true
             spacing: 7
@@ -281,6 +290,13 @@ QQC2.Popup {
                         }
                     }
                     onToggled: {
+                        if (checked) {
+                            launcher.expandedCanvas = launcher.showCategoryPanel
+                            launcher.heightOnFileSwitch = launcher.height
+                        } else {
+                            launcher.expandedCanvas = false
+                            launcher.heightOnFileSwitch = 0
+                        }
                         launcher.filesMode = checked
                         launcher.selectedCategory = ""
                         searchInput.text = ""
@@ -393,8 +409,10 @@ QQC2.Popup {
                                 launcher.showMoreCategories = true
                             else if (searchInput.text.trim())
                                 launcher.appSelected(label, launcher.catalogIsReal)
-                            else
+                            else {
                                 launcher.selectedCategory = label
+                                launcher.expandedCanvas = true
+                            }
                         }
                     }
                 }
