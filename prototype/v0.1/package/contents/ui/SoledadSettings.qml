@@ -248,49 +248,125 @@ Window {
     property bool showOutlineWhenEmpty: true
     property bool showOutlineWhenOpen: false
     property bool simulateHasWindows: false
-    // Sugerencias del editor, nunca se aplican a la barra sin pulsar Aplicar.
-    property color suggestedIslandBase: "#e9c58b"
-    property color suggestedIslandEnd: "#ad623f"
+    // ERR-016: tres fuentes SEPARADAS. El GIF nunca toma el color del
+    // contorno; el contorno nunca cambia el fondo sin autorización explícita.
+    property color suggestedIslandBase: "#010111"
+    property color suggestedIslandEnd: "#101e31"
     property bool hasSuggestedPalette: false
     property string suggestedPaletteName: ""
-    property string paletteFeedback: "Elegí una paleta o analizá tu imagen; nada cambia en la barra hasta pulsar Aplicar."
+    property string suggestedPaletteOrigin: "" // "gif" o "outline"
+    property string suggestedPaletteImage: ""
+    property string paletteFeedback: "Elegí la fuente de los colores: GIF o contorno. Ninguna sugerencia cambia el fondo automáticamente."
+    function invalidateSuggestedPalette() {
+        hasSuggestedPalette = false
+        suggestedPaletteOrigin = ""
+        suggestedPaletteImage = ""
+        suggestedPaletteName = ""
+    }
+    onSelectedImageChanged: {
+        // Un GIF nuevo invalida sugerencias del anterior.
+        if (suggestedPaletteOrigin === "gif") {
+            invalidateSuggestedPalette()
+            paletteFeedback = "Cambió el GIF: analizá la imagen nueva antes de aplicar sus tonos."
+        }
+    }
+    onSoTextBackgroundImageChanged: {
+        if (suggestedPaletteOrigin === "gif") {
+            invalidateSuggestedPalette()
+            paletteFeedback = "Cambió la imagen: volvé a analizarla para obtener su nueva paleta."
+        }
+    }
     function chooseCoordinatedPalette(name, contour, outer, islandBase, islandEnd) {
+        // Compatibilidad con los botones existentes: sus argumentos 4 y 5
+        // NO se aplican como fondo ni crean sugerencias de isla.
         accentColor = contour
         glowColor = outer
         glowGradient = true
-        suggestedIslandBase = islandBase
-        suggestedIslandEnd = islandEnd
-        suggestedPaletteName = name
-        hasSuggestedPalette = true
-        paletteFeedback = "Sugerencia «" + name + "» lista. Contorno pendiente de Aplicar; " +
-                          "en Apariencia podés pasar estos tonos también al degradado de Soledad."
+        invalidateSuggestedPalette()
+        paletteFeedback = "«" + name + "» elegido para el CONTORNO. " +
+                          "No cambió el fondo de Soledad ni de Malvina. Pulsá Aplicar para guardar."
     }
     function suggestIslandFromCurrentOutline() {
-        // Derivar dos tonalidades del contorno que el usuario YA eligió,
-        // sin presumir que el GIF fue analizado satisfactoriamente.
-        const light = accentColor, dark = glowColor
+        // Operación EXPLÍCITA, diferente de muestrear la imagen.
+        // Reducir luminosidad evita que la línea celeste se vuelva un fondo
+        // enteramente celeste brillante.
+        const line = accentColor, outer = glowColor
         suggestedIslandBase = Qt.rgba(
-            light.r*0.70 + 0.30, light.g*0.70 + 0.30,
-            light.b*0.70 + 0.30, 1)
+            line.r * 0.38, line.g * 0.38, line.b * 0.38, 1)
         suggestedIslandEnd = Qt.rgba(
-            dark.r*0.65 + 0.12, dark.g*0.65 + 0.08,
-            dark.b*0.65 + 0.05, 1)
-        suggestedPaletteName = "colores actuales del contorno"
+            outer.r * 0.55, outer.g * 0.55, outer.b * 0.55, 1)
+        suggestedPaletteName = "derivada SOLO del contorno (no del GIF)"
+        suggestedPaletteOrigin = "outline"
+        suggestedPaletteImage = ""
         hasSuggestedPalette = true
-        paletteFeedback = "Se propuso un degradado derivado del contorno, sin modificar la isla todavía."
+        paletteFeedback = "Sugerencia basada en la línea y el brillo SO, NO en la imagen. " +
+                          "El fondo sigue intacto hasta elegir un botón de aplicación."
+    }
+    function paletteStillValid() {
+        if (!hasSuggestedPalette) return false
+        if (suggestedPaletteOrigin === "gif") {
+            const current = logoMode === "text"
+                ? (soTextBackgroundImage.length ? soTextBackgroundImage : defaultImage.toString())
+                : selectedImage.toString()
+            if (current !== suggestedPaletteImage) {
+                invalidateSuggestedPalette()
+                paletteFeedback = "La imagen cambió; obtené una paleta nueva antes de aplicarla."
+                return false
+            }
+        }
+        return true
     }
     function putSuggestedBaseOnSoledad() {
-        if (!hasSuggestedPalette) return
+        if (!paletteStillValid()) return
         soledadColor = suggestedIslandBase
-        paletteFeedback = "Primer color sugerido; pulsá Aplicar para confirmarlo."
+        paletteFeedback = "Color base " + toHex(soledadColor) +
+                          " elegido; pulsá Aplicar para guardarlo."
     }
     function putSuggestedPaletteOnSoledad() {
-        if (!hasSuggestedPalette) return
+        if (!paletteStillValid()) return
         soledadColor = suggestedIslandBase
         soledadGradientEnd = suggestedIslandEnd
         soledadGradientEnabled = true
-        // Conservar dirección elegida (por ejemplo, derecha a izquierda).
-        paletteFeedback = "Tonos propuestos para Soledad. Pulsá Aplicar para confirmarlos."
+        // La respiración usa estos dos colores; no añade tonos del contorno.
+        paletteFeedback = "Degradado " + toHex(soledadColor) + " → " +
+                          toHex(soledadGradientEnd) + " preparado para Soledad. " +
+                          "Pulsá Aplicar para confirmarlo."
+    }
+    function resetColorsForTarget(target) {
+        // Restablecimiento local, sin tocar el GIF ni los demás destinos.
+        // Evitar rescatar un naranja obsoleto al volver a activar degradado.
+        if (target === 0) {
+            soledadColor = "#010111"
+            soledadGradientEnd = "#010111"
+            soledadGradientEnabled = false
+            soledadGradientDirection = "topBottom"
+            soledadGradientSyncBreathing = false
+            soledadGradientBreathingIntensity = 0.6
+            soledadOpacity = 0.5
+            invalidateSuggestedPalette()
+            paletteFeedback = "Soledad volvió a tonos neutros. Para la playa nocturna, " +
+                              "elegí Sugerir desde GIF y aplicá sus dos colores."
+        } else if (target === 1) {
+            malvinaColor = "#101e31"
+            malvinaGradientEnd = "#101e31"
+            malvinaGradientEnabled = false
+            malvinaGradientDirection = "topBottom"
+            malvinaGradientSyncBreathing = false
+            malvinaGradientBreathingIntensity = 0.6
+            malvinaOpacity = 1
+        } else if (target === 2) {
+            backgroundColor = "#202333"
+            backgroundOpacity = 0.5
+            showBackground = false
+        } else if (target === 3) {
+            trayButtonColorOverride = false
+            trayButtonColor = soledadColor
+            trayButtonOpacity = soledadOpacity
+        } else if (target === 4) {
+            gripButtonColorOverride = false
+            gripButtonColor = soledadColor
+            gripButtonOpacity = soledadOpacity
+        }
     }
     // Copia de los valores realmente aplicados: nunca seguir ediciones pendientes.
     property var appliedOutlinePreview: ({})
