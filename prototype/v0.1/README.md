@@ -949,3 +949,27 @@ node prototype/v0.1/scripts/fijar_noche_fabrica.cjs ~/noche-actual.json
 El script valida campos obligatorios, exige el fichero original (no acepta URL remota), copia `assets/factory-night-logo.*` y posible fondo de texto, genera `assets/FactoryNightTheme.js` con preset y un manifiesto con SHA-256. Se niega a reescribir un original ya fijado; las rutas locales no se publican. Revisar licencia/procedencia de los recursos gráficos antes de distribución.
 
 **Verificar cuando los binarios estén incorporados:** abrir Temas, observar miniatura inequívoca del GIF real, restaurar Noche, cambiar colores/foto, restaurar de nuevo, comparar todos los valores y comprobar que los temas personales permanecen. Reiniciar visor y repetir. Sin incorporación de la captura y recursos, **no declarar Noche de fábrica acabada**. Pruebas estáticas V8/FS PASS (505 aserciones totales); falta Node/Qt/CachyOS real. PR #3 sigue en borrador; el panel instalado no se toca.
+
+
+## Atardecer de fábrica — protección, captura y futura versión Día (19/11/2026)
+
+**Atardecer** es ahora un segundo tema de fábrica **fijo como Noche**: una tarjeta «Atardecer de fábrica» con miniatura exclusivamente de su propio recurso y botón «Restaurar Atardecer de fábrica». Restaurar recupera el original empaquetado incluso después de alterar colores, GIF o respiración de la barra. El usuario puede personalizar y guardar **Personalizado**; no hay acción de reescritura de los temas de fábrica. Se retiraron «Fijar/Actualizar/Recuperar Atardecer» del editor; las antiguas copias `themeDayJson`/`themeDayPreviousJson` se mantienen localmente, sin borrarlas. **Día será un tema distinto más adelante.**
+
+**Estado de entrega:** el código del preset es `package/contents/ui/assets/FactorySunsetTheme.js`, **actualmente con `var preset = null`**, porque el asistente no puede acceder al aspecto Atardecer exacto guardado en CachyOS ni al GIF/imagen originales actualmente seleccionados. Por ello el botón Restaurar queda **deshabilitado hasta incorporar esos archivos**, sin utilizar otra imagen como sustituto ni asumir valores por defecto. Noche se encuentra en la misma etapa de captura.
+
+**Captura exacta desde el visor:** guardar primero con **Aplicar** la apariencia Atardecer que querés congelar; ir a **Temas → Copiar mi apariencia actual para fijar Atardecer… → Copiar JSON actual**, guardar ese contenido como `~/atardecer-actual.json` (JSON debe contener `version: 1`, `originalImageUrl` y preferencias visuales). Adjuntar además el **GIF/imagen exactos del botón SO** y, si corresponde, el gráfico del fondo de texto, para publicar con licencias correctas. La ruta local de archivo se elimina del preset público. También podés ejecutar en Fish:
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_factory_sunset.cjs
+node prototype/v0.1/tests/test_factory_night.cjs
+bash prototype/v0.1/probar_ancho.sh
+```
+Luego de guardar el JSON como archivo real:
+```fish
+node prototype/v0.1/scripts/fijar_atardecer_fabrica.cjs ~/atardecer-actual.json
+```
+El script copia una sola vez los recursos originales a `assets/factory-sunset-logo.*` y `assets/factory-sunset-text.*` si corresponde, genera `factory-sunset-manifest.json` con SHA-256 y el `FactorySunsetTheme.js` definitivo. No sobrescribe originales ya fijados. El resultado local debe revisarse, probarse y versionarse en Git antes de distribuirlo.
+
+**Prueba posterior:** modificar la barra activa, usar «Restaurar Atardecer de fábrica», comparar parámetros y miniatura con captura; repetir con Noche; cerrar/reabrir; verificar que la futura opción Día no reemplace a ninguna de ellas. **No declarar tema de fábrica distribuible hasta contar con el JSON real y los binarios.** En esta etapa se han ejecutado 562 aserciones sobre fuentes GitHub mediante V8/FS simulado; falta Node local y prueba visual Qt/CachyOS. Panel KDE instalado intacto.
