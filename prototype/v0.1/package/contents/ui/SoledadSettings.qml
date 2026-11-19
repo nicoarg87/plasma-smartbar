@@ -25,6 +25,49 @@ Window {
         ? Math.min(850, Math.max(560, Screen.desktopAvailableWidth - 48)) : 850
     minimumHeight: 510
 
+    // Copia de las preferencias de la sesión: «Cancelar» y la X revierten
+    // solo cambios sin aplicar. «Aplicar» actualiza el punto de recuperación.
+    readonly property var editableSettingsKeys: ["logoMode","themeDayJson","themeDayPreviousJson","themeNightJson","themeCustomJson","filePath","shape","cropFitMode","cropZoom","cropPanX","cropPanY","cropRotation","enableGif","clockFontFamily","clockFontSize","clockTextColor","panelHeight","soledadHeight","malvinaHeight","soledadRadius","malvinaRadius","soledadMinWidth","malvinaWidth","malvinaGoogleUrl","malvinaDuckUrl","malvinaYahooUrl","malvinaChatGptUrl","malvinaGeminiUrl","malvinaClaudeUrl","malvinaWebFirst","malvinaWebOrder","malvinaAiOrder","malvinaExtraWeb","malvinaExtraAi","malvinaHiddenWeb","malvinaHiddenAi","malvinaCompactAi","malvinaGoogleName","malvinaDuckName","malvinaYahooName","malvinaChatGptName","malvinaGeminiName","malvinaClaudeName","malvinaWebGoogleEnabled","malvinaWebDuckEnabled","malvinaWebYahooEnabled","malvinaAllowChatGpt","malvinaAllowGemini","malvinaAllowClaude","soledadShape","malvinaShape","malvinaGearButtonShape","malvinaSearchButtonShape","outlineConfig","taskActiveGlowEnabled","taskActiveDoubleBorderEnabled","taskDisplayMode","taskFrameShape","taskFrameColor","taskFrameOpacity","taskFrameWidth","gripShape","trayButtonShape","soButtonFrameShape","soButtonWidth","soTextLabel","soTextColor","soTextBackground","soTextBackgroundOpacity","soTextFontFamily","soTextFontSize","soTextBold","soTextBackgroundImage","soledadColor","malvinaColor","soledadGradientEnabled","soledadGradientEnd","soledadGradientThird","soledadGradientColorCount","soledadGradientDirection","soledadGradientSyncBreathing","soledadGradientSyncIntensity","soledadGradientBreathingEnabled","soledadGradientBreathingIntensity","soledadGradientBreathingSpeed","malvinaGradientSyncBreathing","malvinaGradientBreathingEnabled","malvinaGradientBreathingIntensity","malvinaGradientBreathingSpeed","malvinaGradientEnabled","malvinaGradientEnd","malvinaGradientThird","malvinaGradientColorCount","malvinaGradientDirection","backgroundColor","soledadOpacity","malvinaOpacity","backgroundOpacity","showBackground","trayButtonColorOverride","trayButtonColor","trayButtonOpacity","gripButtonColorOverride","gripButtonColor","gripButtonOpacity","effectStyle","accentColor","strokeSize","allowMotion","orbitSpeed","trailPercent","trailStyle","glowColor","glowIntensity","glowSpread","pulseSpeed","pulseDepth","glowGradient","showOutlineWhenEmpty","showOutlineWhenOpen","autoCollapseSO","soLeftClickOpensLauncher","launcherCategoryLayout","launcherSwitchShape","launcherSwitchColorOverride","launcherSwitchColor","launcherMaxSlots","launcherOpacityOverride","launcherOpacity","launcherIconsWithNames","malvinaOptionsOpacityOverride","malvinaOptionsOpacity","autoCollapseTray","autoReturnRight","launcherIslandVisible","autoHideMalvina","alignedRight","positionMode","alignmentEdited"]
+    readonly property var editableColorKeys: ["soTextColor","soTextBackground","clockTextColor","soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","backgroundColor","trayButtonColor","gripButtonColor","accentColor","glowColor","launcherSwitchColor","taskFrameColor"]
+    property var lastAppliedSettings: ({})
+    property var pendingThemeChanges: ({})
+    property bool baselineLoaded: false
+    function preferenceCopy(key, value) {
+        if (value === undefined || value === null) return value
+        if (editableColorKeys.indexOf(key) !== -1) return String(value)
+        if (typeof value === "object") return JSON.parse(JSON.stringify(value))
+        return value
+    }
+    function captureSettingsBaseline() {
+        const snapshot = {}
+        for (let i = 0; i < editableSettingsKeys.length; ++i) {
+            const key = editableSettingsKeys[i]
+            snapshot[key] = preferenceCopy(key, settings[key])
+        }
+        lastAppliedSettings = snapshot
+        baselineLoaded = true
+        pendingThemeChanges = ({})
+    }
+    function stageThemeSlot(slot, data) {
+        const next = JSON.parse(JSON.stringify(pendingThemeChanges))
+        next[slot] = data
+        pendingThemeChanges = next
+    }
+    function discardPendingEdits() {
+        if (!baselineLoaded) return
+        for (let i = 0; i < editableSettingsKeys.length; ++i) {
+            const key = editableSettingsKeys[i]
+            if (lastAppliedSettings[key] !== undefined)
+                settings[key] = preferenceCopy(key, lastAppliedSettings[key])
+        }
+        pendingThemeChanges = ({})
+        alignmentEdited = false
+        baselineLoaded = false
+        refreshOutlinePreview()
+        appliedLabel.text = ""
+    }
+    onClosing: function(event) { discardPendingEdits() }
+
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
     property int geometrySection: 0
     property int outlineSection: 2
@@ -321,21 +364,21 @@ Window {
         if (slot === "day") themeDayJson = data
         else if (slot === "night") themeNightJson = data
         else themeCustomJson = data
-        saveThemeSlotRequested(slot, data)
+        stageThemeSlot(slot, data)
         themeStatus = "Tema " + (slot === "day" ? "Atardecer" : slot === "night" ? "Noche" : "Personalizado") +
-                      " guardado con el logo y los colores actuales. No reemplaza otros temas."
+                      " preparado. Pulsá Aplicar para guardarlo sin reemplazar otros temas."
     }
     // Acción excepcional, solicitada por el mantenedor, con confirmación:
     // no reescribir Atardecer durante Aplicar, favoritos o autoguardado.
     function updateSunsetFromCurrent() {
         if (themeDayJson.length > 0) {
             themeDayPreviousJson = themeDayJson
-            saveThemeSlotRequested("dayPrevious", themeDayPreviousJson)
+            stageThemeSlot("dayPrevious", themeDayPreviousJson)
         }
         const data = themeSnapshot()
         themeDayJson = data
-        saveThemeSlotRequested("day", data)
-        themeStatus = "Atardecer actualizado. La versión anterior quedó recuperable."
+        stageThemeSlot("day", data)
+        themeStatus = "Atardecer preparado y respaldo recuperable. Pulsá Aplicar para guardar ambos."
     }
     function restorePreviousSunset() {
         if (!themeDayPreviousJson.length) return
@@ -343,9 +386,9 @@ Window {
         const current = themeDayJson
         themeDayPreviousJson = current
         themeDayJson = previous
-        saveThemeSlotRequested("dayPrevious", current)
-        saveThemeSlotRequested("day", previous)
-        themeStatus = "Atardecer anterior recuperado. Aplicalo para verlo."
+        stageThemeSlot("dayPrevious", current)
+        stageThemeSlot("day", previous)
+        themeStatus = "Atardecer anterior listo para recuperar. Pulsá Aplicar para guardar el intercambio."
     }
     function themeImageSource(jsonData) {
         try {
@@ -1038,11 +1081,38 @@ Window {
                     "Soledad", toHex(soledadColor), toHex(soledadGradientEnd),
                     "Malvina", toHex(malvinaColor), toHex(malvinaGradientEnd))
         alignmentEdited = false
+        // Confirmar los cambios de temas al pulsar Aplicar. Cancelar y la X
+        // jamás sobreescriben ranuras ni la estética favorita.
+        const themeSlots = ["dayPrevious", "day", "night", "custom"]
+        for (let i = 0; i < themeSlots.length; ++i) {
+            const slot = themeSlots[i]
+            if (pendingThemeChanges[slot] !== undefined)
+                saveThemeSlotRequested(slot, pendingThemeChanges[slot])
+        }
         settingsApplied()
+        const before = lastAppliedSettings
+        captureSettingsBaseline()
+        // Si URL o nombres no eran válidos, los valores previos siguen
+        // siendo el punto de restauración de esas claves, sin borrar el formulario.
+        const invalid = []
+        if (!validProviderUrls)
+            invalid.push("malvinaGoogleUrl","malvinaDuckUrl","malvinaYahooUrl",
+                         "malvinaChatGptUrl","malvinaGeminiUrl","malvinaClaudeUrl")
+        if (!validProviderNames)
+            invalid.push("malvinaGoogleName","malvinaDuckName","malvinaYahooName",
+                         "malvinaChatGptName","malvinaGeminiName","malvinaClaudeName")
+        if (invalid.length > 0 && before) {
+            const committed = JSON.parse(JSON.stringify(lastAppliedSettings))
+            for (let i = 0; i < invalid.length; ++i) {
+                const key = invalid[i]
+                if (before[key] !== undefined) committed[key] = before[key]
+            }
+            lastAppliedSettings = committed
+        }
         appliedLabel.text = validProviderUrls && validProviderNames
             ? "Cambios aplicados y guardados. Podés seguir configurando."
             : "Apariencia y opciones aplicadas y guardadas. Corregí las URL o nombres de proveedores para guardarlos."
-        // NO llamar settings.close(): Aplicar no debe cerrar la ventana.
+        // Aplicar deja la ventana abierta; Cancelar/X descarta lo no aplicado.
     }
 
     FileDialog {
@@ -1610,8 +1680,11 @@ Window {
                     }
                     QQC2.Button {
                         visible: settings.positionMode === "center"
-                        text: "Centrar isla 1 AHORA"
-                        onClicked: settings.alignCenterNowRequested()
+                        text: "Centrar isla 1 al aplicar"
+                        onClicked: {
+                            settings.positionMode = "center"
+                            settings.alignmentEdited = true
+                        }
                     }
                     QQC2.CheckBox {
                         visible: settings.positionMode === "right"
@@ -1635,15 +1708,15 @@ Window {
                     }
                     QQC2.Button {
                         visible: settings.positionMode === "right"
-                        text: "Mover isla 1 a la derecha AHORA"
+                        text: "Mover isla 1 a la derecha al aplicar"
                         onClicked: {
-                            settings.alignNowRequested()
+                            settings.positionMode = "right"
                             settings.alignedRight = true
-                            settings.alignmentEdited = false
+                            settings.alignmentEdited = true
                         }
                     }
                     QQC2.Label {
-                        text: "Mover ahora es una acción inmediata; no requiere Aplicar. La posición por aplicación sigue pendiente de desarrollo."
+                        text: "La nueva posición se confirma con Aplicar; Cancelar la descarta. La posición por aplicación sigue pendiente de desarrollo."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -4443,7 +4516,7 @@ Window {
             }
         }
 
-        // Pie fijo: ninguna pestaña puede ocultar Aplicar ni Cerrar.
+        // Pie fijo: Cancelar izquierda y Aplicar derecha, sin botón Cerrar.
         RowLayout {
             Layout.fillWidth: true
             QQC2.Label {
@@ -4454,13 +4527,15 @@ Window {
                 wrapMode: Text.WordWrap
             }
             QQC2.Button {
+                text: "Cancelar"
+                onClicked: settings.close()
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: "Descartar los cambios pendientes desde el último Aplicar"
+            }
+            QQC2.Button {
                 text: "Aplicar"
                 highlighted: true
                 onClicked: settings.applyChanges()
-            }
-            QQC2.Button {
-                text: "Cerrar"
-                onClicked: settings.close()
             }
         }
     }
