@@ -66,3 +66,17 @@ El mantenedor volvió a suministrar la **imagen tropical exacta** en la conversa
 **Separación legal:** los archivos de código y documentación propios del repositorio están actualmente bajo **MIT**; CC0 no altera su licencia. La declaración no concede derechos de marcas ni de terceros; las obras obtenidas con IA pueden no tener derechos de autor exclusivos en todas las jurisdicciones. Sin garantía jurídica de exclusividad, originalidad o ausencia de derechos ajenos.
 
 **Estado:** **licencia del recurso nocturno declarada y documentada por autorización del mantenedor; incorporación y verificación del binario pendientes**. No etiquetar una captura de pantalla de SmartBar ni un GIF nocturno diferente como si fuera el original.
+
+
+## Identificación del GIF nocturno original aportado — 19/11/2026
+
+Se recibió **el archivo exacto** `Playa tropical nocturna animada.gif` del mantenedor en la conversación del proyecto. **Verificado directamente a partir de sus bytes:**
+
+- Nombre definitivo para el prototipo: `prototype/v0.1/package/contents/ui/assets/so-night.gif`.
+- Formato GIF; resolución **439 × 217** píxeles; **16 fotogramas** de **140 ms** cada uno; duración por ciclo **2.240 ms**; repetición indefinida.
+- Tamaño exacto: **600.332 bytes**.
+- **SHA-256:** `aec76461b1765a838cb9dfd8cbb84e9509a6113b6ffedd66b6d9c06bd57d8ba6`.
+- **Origen declarado:** generado en ChatGPT/OpenAI por encargo del mantenedor y entregado directamente por él.
+- **Licencia/dedicación aprobada:** [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/), únicamente sobre los derechos que el mantenedor pueda dedicar; no modifica la licencia MIT del código ni afecta marcas/derechos ajenos.
+
+**Distribución:** se preservó el binario original intacto dentro de un **ZIP de instalación local entregado en la conversación**, pero todavía **no está confirmado el GIF binario en GitHub**. El código experimental apunta a `assets/so-night.gif` si existe, sin reemplazar una ruta local nocturna válida cuando no existe. No confundir el inventario/licencia ya publicados con la publicación efectiva de los bytes del GIF.
