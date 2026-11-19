@@ -132,6 +132,10 @@ Window {
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
     function showThemes() { navigationGroup = "themes"; currentTab = 4 }
+    function showSoledadWidth() {
+        navigationGroup = "soledad"; currentTab = 1
+        logoSubtabs.currentIndex = 0; logoSection = 4
+    }
     function showSoledadLogo() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
     function showSoledadEffects() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
     function showSoledadWindows() { navigationGroup = "soledad"; currentTab = 2; appearanceSubtabs.currentIndex = 1 }
@@ -167,8 +171,9 @@ Window {
         if (appearanceScroll.contentItem) appearanceScroll.contentItem.contentY = 0
     }
     function showSharedOutlines() { navigationGroup = "shared"; currentTab = 2; appearanceSubtabs.currentIndex = 2 }
-    function showSoledadGradient() { showSharedColors(0); appearanceSection = 1 }
-    function showMalvinaGradient() { showSharedColors(1); appearanceSection = 1 }
+    // Degradado y respiración viven dentro de Color y transparencia.
+    function showSoledadGradient() { showSharedColors(0) }
+    function showMalvinaGradient() { showSharedColors(1) }
     property int currentTab: 0
     // V1 de tema visual: foto/logo + colores de las dos islas, líneas y
     // contornos, sin alterar posición, controles de ventanas ni permisos IA.
@@ -1265,8 +1270,16 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
+                        text: "Anchura del botón SO"
+                        highlighted: settings.currentTab === 1 &&
+                                     logoSubtabs.currentIndex === 0 && settings.logoSection === 4
+                        onClicked: settings.showSoledadWidth()
+                    }
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
                         text: "Logo SO"
-                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0
+                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0 &&
+                                     settings.logoSection !== 4
                         onClicked: settings.showSoledadLogo()
                     }
                     SettingsMenuButton {
@@ -1274,6 +1287,21 @@ Window {
                         text: "Efectos luminosos"
                         highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadEffects()
+                    }
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
+                        text: "Color y transparencia"
+                        highlighted: settings.currentTab === 2 &&
+                                     appearanceSubtabs.currentIndex === 0 &&
+                                     settings.colorScope === "soledad"
+                        onClicked: settings.showSharedColors(0)
+                    }
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
+                        text: "Figura y tamaño"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
+                                     settings.geometryScope === "soledad"
+                        onClicked: settings.showSoledadShape()
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
@@ -1288,29 +1316,6 @@ Window {
                                      islandSubtabs.currentIndex === 1 &&
                                      settings.behaviorScope === "soledad"
                         onClicked: settings.showSoledadLauncher()
-                    }
-                    SettingsMenuButton {
-                        visible: settings.navigationGroup === "soledad"
-                        text: "Figura y tamaño"
-                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
-                                     settings.geometryScope === "soledad"
-                        onClicked: settings.showSoledadShape()
-                    }
-                    SettingsMenuButton {
-                        visible: settings.navigationGroup === "soledad"
-                        text: "Color y transparencia"
-                        highlighted: settings.currentTab === 2 &&
-                                     appearanceSubtabs.currentIndex === 0 &&
-                                     settings.colorScope === "soledad" && settings.appearanceSection !== 1
-                        onClicked: settings.showSharedColors(0)
-                    }
-                    SettingsMenuButton {
-                        visible: settings.navigationGroup === "soledad"
-                        text: "DEGRADADO SOLEDAD"
-                        highlighted: settings.currentTab === 2 &&
-                                     appearanceSubtabs.currentIndex === 0 &&
-                                     settings.colorScope === "soledad" && settings.appearanceSection === 1
-                        onClicked: settings.showSoledadGradient()
                     }
                     SettingsMenuButton {
                         sectionHeader: true
@@ -1337,16 +1342,8 @@ Window {
                         text: "Color y transparencia"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
-                                     settings.colorScope === "malvina" && settings.appearanceSection !== 1
+                                     settings.colorScope === "malvina"
                         onClicked: settings.showSharedColors(1)
-                    }
-                    SettingsMenuButton {
-                        visible: settings.navigationGroup === "malvina"
-                        text: "DEGRADADO MALVINA"
-                        highlighted: settings.currentTab === 2 &&
-                                     appearanceSubtabs.currentIndex === 0 &&
-                                     settings.colorScope === "malvina" && settings.appearanceSection === 1
-                        onClicked: settings.showMalvinaGradient()
                     }
                     SettingsMenuButton {
                         sectionHeader: true
@@ -2070,6 +2067,37 @@ Window {
                                 text: modelData
                                 highlighted: settings.logoSection === index
                                 onClicked: { settings.logoSection = index; logoScroll.contentItem.contentY = 0 }
+                            }
+                        }
+                    }
+                    ColumnLayout {
+                        visible: settings.logoSection === 4
+                        Layout.fillWidth: true
+                        spacing: 12
+                        QQC2.Label {
+                            text: "Anchura del botón SO"
+                            color: "white"; font.bold: true
+                        }
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            color: "#ddd6e8"
+                            text: "Ajusta el ancho de SO sin modificar el tamaño general de la barra. " +
+                                  "Los formatos cuadrados mantienen su anchura determinada por la altura."
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            enabled: settings.soButtonFrameShape !== "square"
+                            QQC2.Slider {
+                                Layout.fillWidth: true
+                                from: 44; to: 180; stepSize: 2
+                                value: settings.soButtonWidth
+                                onMoved: settings.soButtonWidth = value
+                            }
+                            QQC2.Label {
+                                color: "white"
+                                text: Math.round(settings.soButtonWidth) + " px"
+                                Layout.preferredWidth: 58
                             }
                         }
                     }
