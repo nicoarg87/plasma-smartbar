@@ -182,7 +182,7 @@ const interactiveState = {
     malvinaGradientBreathingEnabled: false, malvinaGradientBreathingSpeed: 0.7,
     effectStyle: "orbit", allowMotion: false, pulseSpeed: 0.2, pulseDepth: 0.7,
     previewRefreshes: 0,
-    refreshOutlinePreview: function() { previewRefreshes++ }
+    refreshOutlinePreview: function() { this.previewRefreshes++ }
 };
 vm.runInNewContext([
     qmlFunction("setIndependentGradientSpeed"),
