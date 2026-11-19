@@ -432,3 +432,8 @@ Se publicaron dos accesos dedicados en la barra lateral plegable del centro de c
 ## 59. Reset por isla sin tocar la otra — 18/11/2026
 
 Durante control de regresiones de la reorganización se detectó que el botón heredado «Restablecer islas y posición» podía borrar ambas geometrías desde Soledad o Malvina. Corregido en `SoledadSettings.qml` commit bc3ccb6: reset de forma/tamaño independiente SO y Malvina, y reset de posición/altura común exclusivo en General. Requiere prueba en CachyOS antes de considerarlo resuelto.
+
+
+## 59. GIF Playa Noche recibido y listo para prueba local — 19/11/2026
+
+El mantenedor finalmente aportó el GIF nocturno original `Playa tropical nocturna animada.gif`, 439×217 px, 16 cuadros a 140 ms, 600.332 bytes, SHA-256 `aec76461b1765a838cb9dfd8cbb84e9509a6113b6ffedd66b6d9c06bd57d8ba6`, generación mediante ChatGPT/OpenAI declarada por él, dedicado CC0 1.0 Universal en la medida de sus derechos. Se entregó por separado un ZIP de instalación local que incluye el **archivo íntegro** y un script de copia segura, no un sustituto. El código [10876bc](https://github.com/nicoarg87/plasma-smartbar/commit/10876bcee9636289fd5a2d1869ed3fd9d928ca71) utiliza `assets/so-night.gif` en el tema Noche **cuando está instalado**; si no, conserva la ruta del tema local. **Archivo binario no publicado aún en GitHub** y no probado en CachyOS. Tras instalar el ZIP, ejecutar `bash prototype/v0.1/probar_ancho.sh` desde Fish y comprobar los dos temas, sin sustituir configuración/favoritos ni panel KDE.
