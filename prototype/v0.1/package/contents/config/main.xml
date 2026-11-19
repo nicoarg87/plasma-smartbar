@@ -18,6 +18,7 @@
       <default>true</default>
     </entry>
     <entry name="themeDayJson" type="String"><default></default></entry>
+    <entry name="themeDayPreviousJson" type="String"><default></default></entry>
     <entry name="themeNightJson" type="String"><default></default></entry>
     <entry name="themeCustomJson" type="String"><default></default></entry>
     <entry name="launcherCategoryLayout" type="Int"><default>0</default></entry>
