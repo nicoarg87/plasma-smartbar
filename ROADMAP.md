@@ -692,7 +692,7 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Mantener visibles en la lista de opciones Atardecer/Noche de fábrica (deshabilitados mientras falta el recurso real), Día pendiente y los perfiles existentes: `themeCustomJson`, `themeDayJson`, `themeDayPreviousJson`, `themeNightJson`, predeterminada personal y favorita locales.
 - [x] Permitir sumar **nuevos temas con nombre** usando «Guardar tema» dentro de la lista; guardar de inmediato cada tema en una biblioteca nueva `themeLibraryJson` (sin reemplazar temas previos).
 - [x] Cablear biblioteca por configuración Soledad → SmartBarContent → QtCore.Settings del visor/KConfig del plasmoide: `preview_redimensionable.qml`, `main.qml`, `main.xml`. Proteger Cancelar (cambios posteriores), mantener el pie Cancelar/Aplicar y no tocar el panel del sistema.
-- [x] Test de regresión `test_theme_selector.cjs` junto con los anteriores: **628 aserciones de código PASS** en simulación V8/FS.
+- [x] Test de regresión `test_theme_selector.cjs` junto con los anteriores: **631 aserciones de código PASS** en simulación V8/FS.
 - [ ] **Prueba QML/CachyOS**: botón contraído por defecto, scroll vertical correcto en pantalla reducida, listado de predeterminada/favorita y temas históricos, guardar dos temas distintos, cerrar/reabrir el visor y restaurar cada uno.
 - [ ] Continúa pendiente recibir capturas exactas y archivos gráficos para habilitar Atardecer/Noche de fábrica, y crear Día definitivo cuando el mantenedor lo indique; no confundirlos con temas personales.
 - [ ] Mantener issue #15 y PR #3 borrador. Ningún reemplazo del panel KDE existente.
