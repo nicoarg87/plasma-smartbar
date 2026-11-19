@@ -60,15 +60,23 @@ function snapshot(json, label) {
     if (!value || Array.isArray(value) || value.version !== 1)
         die("Versión incompatible de " + label);
     // La maqueta guarda todas estas claves visuales en themeSnapshot().
+    // No sellar temas antiguos cuya instantánea omita valores visuales actuales.
     const required = [
-        "effectStyle","allowMotion","logoMode","filePath","shape","enableGif",
-        "soledadColor","soledadOpacity","soledadGradientEnabled",
-        "soledadGradientEnd","soledadGradientThird","soledadGradientDirection",
-        "malvinaColor","malvinaOpacity","malvinaGradientEnabled",
-        "malvinaGradientEnd","malvinaGradientThird","malvinaGradientDirection",
-        "accentColor","glowColor","glowIntensity","glowSpread","glowGradient",
-        "pulseSpeed","pulseDepth","outlineConfig","launcherOpacity",
-        "soButtonWidth","soButtonFrameShape"
+        "version", "effectStyle", "strokeSize", "trailPercent", "showOutlineWhenEmpty",
+        "showOutlineWhenOpen", "pulseSpeed", "logoMode", "cropFitMode", "cropPanX",
+        "cropRotation", "soledadColor", "soledadGradientEnabled", "soledadGradientEnd", "soledadGradientThird",
+        "soledadGradientColorCount", "soledadGradientDirection", "soledadGradientSyncBreathing", "soledadGradientSyncIntensity", "soledadGradientBreathingEnabled",
+        "soledadGradientBreathingSpeed", "soledadGradientBreathingIntensity", "malvinaColor", "malvinaGradientEnabled", "malvinaGradientEnd",
+        "malvinaGradientThird", "malvinaGradientColorCount", "malvinaGradientDirection", "malvinaGradientSyncBreathing", "malvinaGradientBreathingEnabled",
+        "malvinaGradientBreathingSpeed", "malvinaGradientBreathingIntensity", "accentColor", "glowGradient", "glowSpread",
+        "showBackground", "backgroundColor", "backgroundOpacity", "trayButtonColorOverride", "trayButtonColor",
+        "gripButtonColorOverride", "gripButtonColor", "soledadShape", "malvinaGearButtonShape", "malvinaSearchButtonShape",
+        "soButtonFrameShape", "soButtonWidth", "panelHeight", "soledadHeight", "soledadRadius",
+        "soledadMinWidth", "gripShape", "soTextLabel", "soTextBackground", "soTextBackgroundOpacity",
+        "soTextFontFamily", "soTextBold", "clockFontFamily", "clockTextColor", "taskDisplayMode",
+        "taskFrameShape", "taskFrameOpacity", "taskActiveGlowEnabled", "taskActiveDoubleBorderEnabled", "launcherSwitchShape",
+        "launcherSwitchColorOverride", "launcherSwitchColor", "launcherIconsWithNames", "outlineConfig", "launcherOpacityOverride",
+        "launcherOpacity", "malvinaOptionsOpacityOverride", "malvinaOptionsOpacity"
     ];
     const missing = required.filter(key=>!Object.hasOwn(value,key));
     if (missing.length) die(label + " tiene un perfil incompleto: " + missing.join(", "));
