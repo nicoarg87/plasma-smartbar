@@ -104,6 +104,25 @@ Window {
         if (kind === "personal") restorePersonalDefaultRequested()
         else if (kind === "favorite") restoreFavoriteAppearanceRequested()
     }
+    // La selección visual no modifica ninguna instantánea guardada.
+    property string previewFactorySlot: ""
+    property bool creatingNewTheme: false
+    function previewGradientColor(index) {
+        let data = null
+        try {
+            const json = previewFactorySlot === "sunset" ? factorySunsetJson :
+                         previewFactorySlot === "night" ? factoryNightJson : ""
+            if (json.length) data = JSON.parse(json)
+        } catch (error) { data = null }
+        const base = data || {
+            soledadColor: toHex(soledadColor),
+            soledadGradientEnd: toHex(soledadGradientEnd),
+            soledadGradientThird: toHex(soledadGradientThird)
+        }
+        return index === 0 ? (base.soledadColor || "#46516a") :
+               index === 1 ? (base.soledadGradientEnd || base.soledadColor || "#46516a") :
+               (base.soledadGradientThird || base.soledadGradientEnd || "#46516a")
+    }
     property bool themeChooserExpanded: false
     property bool factoryToolsExpanded: false
     property string newThemeName: ""
@@ -1396,7 +1415,7 @@ Window {
             if (pending && isImageLoaded(requestedUrl)) requestPaint()
         }
         function suggestFromImage(mode) {
-            requestMode = mode === "contour" ? "contour" : "island"
+            requestMode = mode === "contour" ? "contour" : (mode === "theme" ? "theme" : "island")
             requestTargetIsland = appearanceTarget.currentIndex
             requestedUrl = settings.logoMode === "text"
                 ? (settings.soTextBackgroundImage.length
@@ -1473,6 +1492,15 @@ Window {
                         settings.soledadGradientThird = third
                         settings.soledadGradientColorCount = 2
                         settings.soledadGradientEnabled = true
+                    }
+                    if (requestMode === "theme") {
+                        settings.malvinaColor = first
+                        settings.malvinaGradientEnd = second
+                        settings.malvinaGradientThird = third
+                        settings.malvinaGradientEnabled = true
+                        settings.malvinaGradientColorCount = 2
+                        settings.accentColor = first
+                        settings.glowColor = second
                     }
                     settings.paletteFeedback = "Paleta del GIF aplicada al editor: " +
                         first + " → " + second + ". Degradado de 2 colores activo. " +
@@ -4474,6 +4502,90 @@ Window {
                         color: "#ddd6e8"
                         text: "Elegí un tema de la lista desplegable. Podés guardar el diseño que estás usando ahora sin borrar los anteriores."
                     }
+                    // Vista previa principal del tema seleccionado, independiente de la lista.
+                    QQC2.Label {
+                        text: "Vista previa del tema"
+                        color: "white"
+                        font.bold: true
+                    }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 172
+                        radius: 10
+                        color: "#222938"
+                        border.color: "#54637a"
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            spacing: 18
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                spacing: 6
+                                QQC2.Label {
+                                    text: settings.previewFactorySlot === "sunset" ? "Atardecer" :
+                                          settings.previewFactorySlot === "night" ? "Noche" : "Tema actual"
+                                    color: "white"
+                                    font.bold: true
+                                }
+                                QQC2.Label {
+                                    text: "Motivo / GIF del botón SO"
+                                    color: "#b9cce2"
+                                }
+                                AnimatedImage {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    source: settings.previewFactorySlot === "sunset"
+                                        ? settings.factorySunsetImage
+                                        : settings.previewFactorySlot === "night"
+                                          ? settings.factoryNightImage : settings.selectedImage
+                                    fillMode: Image.PreserveAspectFit
+                                    playing: visible
+                                }
+                            }
+                            ColumnLayout {
+                                Layout.preferredWidth: 96
+                                Layout.fillHeight: true
+                                QQC2.Label {
+                                    text: "Botón SO"
+                                    color: "#b9cce2"
+                                }
+                                AnimatedImage {
+                                    Layout.preferredWidth: 72
+                                    Layout.preferredHeight: 48
+                                    source: settings.previewFactorySlot === "sunset"
+                                        ? settings.factorySunsetImage
+                                        : settings.previewFactorySlot === "night"
+                                          ? settings.factoryNightImage : settings.selectedImage
+                                    fillMode: Image.PreserveAspectFit
+                                    playing: visible
+                                }
+                                QQC2.Label {
+                                    text: "Degradado"
+                                    color: "#b9cce2"
+                                }
+                                Rectangle {
+                                    Layout.preferredWidth: 46
+                                    Layout.fillHeight: true
+                                    radius: 6
+                                    gradient: Gradient {
+                                        GradientStop {
+                                            position: 0
+                                            color: settings.previewGradientColor(0)
+                                        }
+                                        GradientStop {
+                                            position: 0.5
+                                            color: settings.previewGradientColor(1)
+                                        }
+                                        GradientStop {
+                                            position: 1
+                                            color: settings.previewGradientColor(2)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     QQC2.Button {
                         id: themesDropdownButton
                         Layout.fillWidth: true
@@ -4496,90 +4608,46 @@ Window {
                             width: Math.max(0, themeListScroll.availableWidth - 24)
                             spacing: 12
                             QQC2.Label {
-                                Layout.fillWidth: true
-                                text: "Guardar el tema que estás usando"
-                                font.bold: true
-                                color: "white"
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                QQC2.TextField {
-                                    Layout.fillWidth: true
-                                    placeholderText: "Nombre: Mi tema, Día, Atardecer..."
-                                    text: settings.newThemeName
-                                    onTextEdited: settings.newThemeName = text
-                                }
-                                QQC2.Button {
-                                    text: "Guardar tema"
-                                    onClicked: settings.saveNamedTheme()
-                                }
-                            }
-                            QQC2.Label {
-                                Layout.fillWidth: true
-                                text: "TEMAS DE FÁBRICA"
+                                text: "TEMAS GUARDADOS DE FÁBRICA"
                                 color: "#b9cce2"
                                 font.bold: true
                             }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                Image {
-                                    visible: settings.factorySunsetAvailable &&
-                                             settings.factorySunsetPreset.logoMode !== "text"
-                                    Layout.preferredWidth: 58
-                                    Layout.preferredHeight: 40
-                                    source: visible ? settings.factorySunsetImage : ""
-                                    fillMode: Image.PreserveAspectFit
-                                }
-                                QQC2.Label {
+                            // Lista sencilla: primero Atardecer, después Noche.
+                            // No inventar el contenido de los manifiestos que aún son null.
+                            Repeater {
+                                model: [
+                                    { name: "Atardecer", slot: "sunset" },
+                                    { name: "Noche", slot: "night" }
+                                ]
+                                delegate: QQC2.ItemDelegate {
+                                    required property var modelData
                                     Layout.fillWidth: true
-                                    text: "Atardecer" + (settings.factorySunsetAvailable
-                                        ? " · original protegido" : " · pendiente")
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Restaurar"
-                                    enabled: settings.factorySunsetAvailable
-                                    onClicked: settings.activateTheme("sunset")
-                                }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                Image {
-                                    visible: settings.factoryNightAvailable &&
-                                             settings.factoryNightPreset.logoMode !== "text"
-                                    Layout.preferredWidth: 58
-                                    Layout.preferredHeight: 40
-                                    source: visible ? settings.factoryNightImage : ""
-                                    fillMode: Image.PreserveAspectFit
-                                }
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Noche" + (settings.factoryNightAvailable
-                                        ? " · original protegido" : " · pendiente")
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Restaurar"
-                                    enabled: settings.factoryNightAvailable
-                                    onClicked: settings.activateTheme("night")
-                                }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Día · tema de fábrica todavía no definido"
-                                    color: "#bbc6db"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Restaurar"
-                                    enabled: false
+                                    implicitHeight: 66
+                                    enabled: modelData.slot === "sunset"
+                                        ? settings.factorySunsetAvailable : settings.factoryNightAvailable
+                                    onClicked: {
+                                        settings.previewFactorySlot = modelData.slot
+                                        settings.activateTheme(modelData.slot)
+                                        settings.themeChooserExpanded = false
+                                    }
+                                    contentItem: RowLayout {
+                                        spacing: 12
+                                        AnimatedImage {
+                                            Layout.preferredWidth: 76
+                                            Layout.preferredHeight: 48
+                                            source: modelData.slot === "sunset"
+                                                ? settings.factorySunsetImage : settings.factoryNightImage
+                                            playing: visible
+                                            fillMode: Image.PreserveAspectFit
+                                        }
+                                        QQC2.Label {
+                                            Layout.fillWidth: true
+                                            text: modelData.name + (modelData.slot === "sunset"
+                                                ? (settings.factorySunsetAvailable ? "" : " · original pendiente")
+                                                : (settings.factoryNightAvailable ? "" : " · original pendiente"))
+                                            color: "white"
+                                        }
+                                    }
                                 }
                             }
                             QQC2.Label {
@@ -4751,6 +4819,57 @@ Window {
                                 visible: settings.factoryToolsExpanded && !settings.factoryNightAvailable
                                 text: "Exportar aspecto actual para fijar Noche de fábrica…"
                                 onClicked: settings.showFactoryCapture("night")
+                            }
+                        }
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Crear tema nuevo"
+                        onClicked: {
+                            settings.previewFactorySlot = ""
+                            settings.creatingNewTheme = !settings.creatingNewTheme
+                            settings.themeChooserExpanded = false
+                        }
+                    }
+                    ColumnLayout {
+                        visible: settings.creatingNewTheme
+                        Layout.fillWidth: true
+                        spacing: 8
+                        QQC2.Button {
+                            Layout.fillWidth: true
+                            text: "Añadir una foto o GIF…"
+                            onClicked: chooseImage.open()
+                        }
+                        QQC2.CheckBox {
+                            id: useGifPaletteForTheme
+                            text: "Usar colores del GIF para todo el tema"
+                            checked: false
+                            onToggled: {
+                                if (checked && settings.logoMode === "custom")
+                                    paletteSampler.suggestFromImage("theme")
+                            }
+                        }
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            color: "#b9cce2"
+                            text: settings.paletteFeedback
+                        }
+                        QQC2.Button {
+                            text: "Aplicar sin guardar tema"
+                            onClicked: settings.applyChanges()
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            QQC2.TextField {
+                                Layout.fillWidth: true
+                                placeholderText: "Nombre del tema nuevo"
+                                text: settings.newThemeName
+                                onTextEdited: settings.newThemeName = text
+                            }
+                            QQC2.Button {
+                                text: "Guardar tema"
+                                onClicked: settings.saveNamedTheme()
                             }
                         }
                     }
