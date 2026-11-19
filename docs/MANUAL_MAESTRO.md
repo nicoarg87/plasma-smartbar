@@ -1155,3 +1155,16 @@ Se amplió el ancho inicial del centro de configuración hasta **1180 px cuando 
 **Licencia vigente del software y documentación propios: MIT**, incluido `KPlugin.License`. **Recursos GIF originales del botón SO creados por ChatGPT y aportados por el mantenedor: CC0 1.0 Universal**, respetando derechos y procedencia individuales, sin incluir recursos ajenos. Los binarios exactos de GIF siguen sujetos a verificación de inclusión en GitHub.
 
 **Código:** [0274f6d](https://github.com/nicoarg87/plasma-smartbar/commit/0274f6dcc6f70a274ff7f336f40f80adc036cc5c), [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384) y [test c9c59a9](https://github.com/nicoarg87/plasma-smartbar/commit/c9c59a957178226ac54d00aa8a2b6466a7a5e19f). **Implementado en rama experimental; prueba visual en CachyOS pendiente.**
+
+
+## Isla y launcher y línea SO con respiración independiente — 19/11/2026
+
+Por decisión posterior del mantenedor, el primer menú de Soledad se llama **«Isla y launcher»**. Desde ese menú se accede directamente a **Posición de la isla en la barra** (preferencias compartidas de colocación) y a **Figura y tamaño de Soledad**; conserva acciones SO, orden y opciones del launcher. **«Botón de inicio SO»** permanece como segundo menú y agrupa todas las opciones del logo y de sus efectos luminosos.
+
+En **Botón de inicio SO → Efectos luminosos**, el primer apartado visible es **«Brillo y respiración»**. La línea que rodea al logo dispone de su propia velocidad (0,1–3 ciclos/s y ms por ciclo), profundidad de pulso 0–100 %, brillo exterior y difusión. Para nuevas configuraciones, la respiración es el estilo inicial y comienza a **0,3 ciclos/s**, sin forzar cambios sobre preferencias locales guardadas.
+
+El degradado y paneles de Soledad/Malvina usan velocidades independientes **por defecto para configuraciones nuevas**. En la pantalla de la línea SO se ofrece un control para **sincronizar ritmo e intensidad del degradado Soledad con la línea** en un clic y otro para desvincularlo. En Color y transparencia, cada isla conserva la opción de compartir solo ritmo; Soledad tiene además opción de copiar profundidad de pulso (`soledadGradientSyncIntensity`) sin sobrescribir su intensidad guardada. La intensidad se obtiene de `soActivityPulseDepth` (profundidad de respiración) solo con opt-in; no se utiliza el brillo exterior de la línea como intensidad de fondo. Nada de esto cambia colores, opacidades, tamaño de barra ni GIF.
+
+La nueva preferencia está conectada en `SoledadSettings.qml`, `SmartBarContent.qml`, `preview_redimensionable.qml`, `main.qml` y `main.xml`. Las preferencias Qt Settings `appearanceV1`, `favoriteSoledadV1`, `personalDefaultV1` y los temas mantienen compatibilidad: si una instantánea anterior no tiene esta clave, se usa su valor existente/predeterminado, no se borran otras opciones. Los defaults antiguos guardados de sincronización se respetan.
+
+Código experimental, validación estática de navegación y persistencia positiva; pendiente verificación visual del contorno y gradientes en CachyOS, especialmente independencia de velocidades, interruptores de sincronización y reapertura.
