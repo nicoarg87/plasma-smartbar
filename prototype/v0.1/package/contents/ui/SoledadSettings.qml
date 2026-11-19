@@ -202,12 +202,16 @@ Window {
             soledadColor: toHex(soledadColor), soledadOpacity: soledadOpacity,
             soledadGradientEnabled: soledadGradientEnabled,
             soledadGradientEnd: toHex(soledadGradientEnd),
+            soledadGradientThird: toHex(soledadGradientThird),
+            soledadGradientColorCount: soledadGradientColorCount,
             soledadGradientDirection: soledadGradientDirection,
             soledadGradientSyncBreathing: soledadGradientSyncBreathing,
             soledadGradientBreathingIntensity: soledadGradientBreathingIntensity,
             malvinaColor: toHex(malvinaColor), malvinaOpacity: malvinaOpacity,
             malvinaGradientEnabled: malvinaGradientEnabled,
             malvinaGradientEnd: toHex(malvinaGradientEnd),
+            malvinaGradientThird: toHex(malvinaGradientThird),
+            malvinaGradientColorCount: malvinaGradientColorCount,
             malvinaGradientDirection: malvinaGradientDirection,
             malvinaGradientSyncBreathing: malvinaGradientSyncBreathing,
             malvinaGradientBreathingIntensity: malvinaGradientBreathingIntensity,
@@ -317,10 +321,12 @@ Window {
                 "logoMode","filePath","shape","cropFitMode","cropZoom",
                 "cropPanX","cropPanY","cropRotation","enableGif",
                 "soledadColor","soledadOpacity","soledadGradientEnabled",
-                "soledadGradientEnd","soledadGradientDirection",
+                "soledadGradientEnd","soledadGradientThird",
+                "soledadGradientColorCount","soledadGradientDirection",
                 "soledadGradientSyncBreathing","soledadGradientBreathingIntensity",
                 "malvinaColor","malvinaOpacity","malvinaGradientEnabled",
-                "malvinaGradientEnd","malvinaGradientDirection",
+                "malvinaGradientEnd","malvinaGradientThird",
+                "malvinaGradientColorCount","malvinaGradientDirection",
                 "malvinaGradientSyncBreathing","malvinaGradientBreathingIntensity",
                 "accentColor","glowColor","glowGradient","glowIntensity","glowSpread",
                 "showBackground","backgroundColor","backgroundOpacity",
@@ -459,6 +465,8 @@ Window {
     property color malvinaColor: "#101e31"
     property bool soledadGradientEnabled: false
     property color soledadGradientEnd: "#ee9852"
+    property color soledadGradientThird: "#ee9852"
+    property int soledadGradientColorCount: 2 // 2 por defecto, 3 opcional
     property string soledadGradientDirection: "topBottom"
     property bool soledadGradientSyncBreathing: false
     property real soledadGradientBreathingIntensity: 0.6
@@ -466,6 +474,8 @@ Window {
     property real malvinaGradientBreathingIntensity: 0.6
     property bool malvinaGradientEnabled: false
     property color malvinaGradientEnd: "#445577"
+    property color malvinaGradientThird: "#445577"
+    property int malvinaGradientColorCount: 2
     property string malvinaGradientDirection: "topBottom"
     property color backgroundColor: "#202333"
     property real soledadOpacity: 0.5
@@ -568,18 +578,39 @@ Window {
         const malvina = appearanceTarget.currentIndex === 1
         return slot === "base"
             ? (malvina ? malvinaColor : soledadColor)
-            : (malvina ? malvinaGradientEnd : soledadGradientEnd)
+            : slot === "third"
+                ? (malvina ? malvinaGradientThird : soledadGradientThird)
+                : (malvina ? malvinaGradientEnd : soledadGradientEnd)
+    }
+    readonly property int activeGradientColorCount: appearanceTarget.currentIndex === 1
+        ? malvinaGradientColorCount : soledadGradientColorCount
+    function setGradientColorCount(count) {
+        if (appearanceTarget.currentIndex === 1)
+            malvinaGradientColorCount = count === 3 ? 3 : 2
+        else if (appearanceTarget.currentIndex === 0)
+            soledadGradientColorCount = count === 3 ? 3 : 2
+    }
+    function selectedSampleIndex(slot) {
+        const targetHex = toHex(islandColor(slot)).toLowerCase()
+        for (let i = 0; i < sampledColors.length; ++i) {
+            if (sampleHex(i).toLowerCase() === targetHex)
+                return i + 1
+        }
+        return 0 // 0 significa color manual fuera de la paleta sugerida
     }
     function setIslandColor(slot, color) {
         // Nunca tocar el contorno ni el color de la otra isla.
         if (appearanceTarget.currentIndex === 1) {
             if (slot === "base") malvinaColor = color
+            else if (slot === "third") malvinaGradientThird = color
             else malvinaGradientEnd = color
         } else if (appearanceTarget.currentIndex === 0) {
             if (slot === "base") soledadColor = color
+            else if (slot === "third") soledadGradientThird = color
             else soledadGradientEnd = color
         } else return
-        paletteFeedback = "Seleccionado " + (slot === "base" ? "primer" : "segundo") +
+        paletteFeedback = "Seleccionado " +
+                          (slot === "base" ? "primer" : slot === "third" ? "tercer" : "segundo") +
                           " tono " + toHex(islandColor(slot)) +
                           " para " + (appearanceTarget.currentIndex === 1 ? "Malvina" : "Soledad") +
                           ". Aplicar guarda estos valores; no cambia la otra isla."
@@ -612,6 +643,8 @@ Window {
         if (target === 0) {
             soledadColor = "#010111"
             soledadGradientEnd = "#010111"
+            soledadGradientThird = "#010111"
+            soledadGradientColorCount = 2
             soledadGradientEnabled = false
             soledadGradientDirection = "topBottom"
             soledadGradientSyncBreathing = false
@@ -623,6 +656,8 @@ Window {
         } else if (target === 1) {
             malvinaColor = "#101e31"
             malvinaGradientEnd = "#101e31"
+            malvinaGradientThird = "#101e31"
+            malvinaGradientColorCount = 2
             malvinaGradientEnabled = false
             malvinaGradientDirection = "topBottom"
             malvinaGradientSyncBreathing = false
@@ -737,7 +772,8 @@ Window {
     signal saveGradientBreathingRequested(bool enabled, real intensity)
     signal saveMalvinaGradientBreathingRequested(bool enabled, real intensity)
     signal saveIslandGradientRequested(bool soEnabled, string soEnd, string soDirection,
-                                       bool malEnabled, string malEnd, string malDirection)
+                                       bool malEnabled, string malEnd, string malDirection,
+                                       int soCount, string soThird, int malCount, string malThird)
 
     signal saveClockAppearanceRequested(string family, int size,
                                         string textColor)
@@ -843,7 +879,9 @@ Window {
                                              malvinaGradientBreathingIntensity)
         saveIslandGradientRequested(soledadGradientEnabled, toHex(soledadGradientEnd),
                                    soledadGradientDirection, malvinaGradientEnabled,
-                                   toHex(malvinaGradientEnd), malvinaGradientDirection)
+                                   toHex(malvinaGradientEnd), malvinaGradientDirection,
+                                   soledadGradientColorCount, toHex(soledadGradientThird),
+                                   malvinaGradientColorCount, toHex(malvinaGradientThird))
         saveClockAppearanceRequested(clockFontFamily, clockFontSize,
                                      toHex(clockTextColor))
         saveSoTextRequested(soTextLabel, toHex(soTextColor), toHex(soTextBackground),
@@ -2938,6 +2976,8 @@ Window {
                             settings.malvinaOpacity = settings.soledadOpacity
                             settings.malvinaGradientEnabled = settings.soledadGradientEnabled
                             settings.malvinaGradientEnd = settings.soledadGradientEnd
+                            settings.malvinaGradientThird = settings.soledadGradientThird
+                            settings.malvinaGradientColorCount = settings.soledadGradientColorCount
                             settings.malvinaGradientDirection = settings.soledadGradientDirection
                         }
                         QQC2.ToolTip.visible: hovered
