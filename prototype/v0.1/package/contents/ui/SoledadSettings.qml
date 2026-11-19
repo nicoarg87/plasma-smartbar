@@ -1308,40 +1308,6 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
-                    QQC2.CheckBox {
-                        text: "Personalizar transparencia del launcher"
-                        checked: settings.launcherOpacityOverride
-                        onToggled: {
-                            if (checked && !settings.launcherOpacityOverride)
-                                settings.launcherOpacity = settings.soledadOpacity
-                            settings.launcherOpacityOverride = checked
-                        }
-                    }
-                    QQC2.Label {
-                        text: settings.launcherOpacityOverride
-                            ? "Opacidad propia del launcher (100 % = fondo opaco)"
-                            : "Opacidad heredada de Soledad: " +
-                              Math.round(settings.soledadOpacity * 100) + "%"
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0.1; to: 1; stepSize: 0.05
-                            enabled: settings.launcherOpacityOverride
-                            value: settings.launcherOpacityOverride
-                                ? settings.launcherOpacity : settings.soledadOpacity
-                            onMoved: settings.launcherOpacity = value
-                        }
-                        QQC2.Label {
-                            color: "white"
-                            text: Math.round((settings.launcherOpacityOverride
-                                ? settings.launcherOpacity : settings.soledadOpacity) * 100) + "%"
-                        }
-                    }
                     QQC2.Label {
                         text: "Íconos de sectores y aplicaciones"
                         color: "white"
@@ -2455,14 +2421,65 @@ Window {
                             }
                         }
                     }
+                    // Las dos islas ofrecen su panel flotante en el MISMO
+                    // apartado Color. El modo heredado sigue activo por defecto.
                     QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 1
+                        visible: appearanceTarget.currentIndex === 0 &&
+                                 settings.appearanceSection === 0
+                        text: "Launcher de aplicaciones · panel de Soledad"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex === 0 &&
+                                 settings.appearanceSection === 0
+                        text: "Personalizar transparencia del launcher"
+                        checked: settings.launcherOpacityOverride
+                        onToggled: {
+                            if (checked && !settings.launcherOpacityOverride)
+                                settings.launcherOpacity = settings.soledadOpacity
+                            settings.launcherOpacityOverride = checked
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 0 &&
+                                 settings.appearanceSection === 0
+                        text: settings.launcherOpacityOverride
+                            ? "Opacidad propia del launcher (100 % = fondo opaco)"
+                            : "Hereda la opacidad de Soledad: " +
+                              Math.round(settings.soledadOpacity * 100) + "%"
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex === 0 &&
+                                 settings.appearanceSection === 0
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.1; to: 1; stepSize: 0.05
+                            enabled: settings.launcherOpacityOverride
+                            value: settings.launcherOpacityOverride
+                                ? settings.launcherOpacity : settings.soledadOpacity
+                            onMoved: settings.launcherOpacity = value
+                        }
+                        QQC2.Label {
+                            color: "white"
+                            text: Math.round((settings.launcherOpacityOverride
+                                ? settings.launcherOpacity : settings.soledadOpacity) * 100) + "%"
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 1 &&
+                                 settings.appearanceSection === 0
                         text: "Panel de opciones Web / IA (Tab)"
                         color: "white"
                         font.bold: true
                     }
                     QQC2.CheckBox {
-                        visible: appearanceTarget.currentIndex === 1
+                        visible: appearanceTarget.currentIndex === 1 &&
+                                 settings.appearanceSection === 0
                         text: "Personalizar transparencia del panel Web / IA"
                         checked: settings.malvinaOptionsOpacityOverride
                         onToggled: {
@@ -2472,7 +2489,8 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: appearanceTarget.currentIndex === 1
+                        visible: appearanceTarget.currentIndex === 1 &&
+                                 settings.appearanceSection === 0
                         Layout.fillWidth: true
                         QQC2.Slider {
                             Layout.fillWidth: true
@@ -2489,7 +2507,8 @@ Window {
                         }
                     }
                     QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 1
+                        visible: appearanceTarget.currentIndex === 1 &&
+                                 settings.appearanceSection === 0
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
