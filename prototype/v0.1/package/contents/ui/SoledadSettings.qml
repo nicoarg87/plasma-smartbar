@@ -3098,14 +3098,28 @@ Window {
                         }
                         QQC2.Button {
                             visible: appearanceTarget.currentIndex === 0
-                            text: "Analizar GIF para el fondo…"
-                            onClicked: paletteSampler.suggestFromImage("island")
+                            text: "Abrir paleta del GIF…"
+                            onClicked: {
+                                settings.showSoledadGradient()
+                                paletteSampler.suggestFromImage("island")
+                            }
                             QQC2.ToolTip.visible: hovered
                             QQC2.ToolTip.text: "Calcula los tonos del fotograma sin copiar el celeste del contorno ni aplicarlos automáticamente"
                         }
-                        QQC2.Label {
+                        QQC2.TextField {
+                            id: currentColorCopyField
+                            Layout.preferredWidth: 105
+                            readOnly: true
+                            selectByMouse: true
                             text: settings.toHex(settings.activeColor)
-                            color: "#eeeaf7"
+                        }
+                        QQC2.Button {
+                            text: "Copiar HEX"
+                            onClicked: {
+                                currentColorCopyField.selectAll()
+                                currentColorCopyField.copy()
+                                currentColorCopyField.deselect()
+                            }
                         }
                     }
                     QQC2.Label {
