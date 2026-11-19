@@ -1341,7 +1341,6 @@ Window {
                         visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                         text: "MALVINA · Figura exterior y controles"
                         color: "#cde6f5"; font.bold: true
-                        visible: settings.launcherIslandVisible
                     }
                     QQC2.Label {
                         text: "Forma de Malvina";
