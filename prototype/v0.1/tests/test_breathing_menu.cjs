@@ -40,7 +40,7 @@ assert(ui.includes('function showSoledadGlowBreathing()'));
 assert(ui.includes('onClicked: settings.showSoledadGlowBreathing()'));
 assert(ui.includes('text: "Ir a Botón de inicio SO → Efectos luminosos → Brillo y respiración"'));
 assert(ui.includes('text: "Ir a Color y transparencia → Degradado y respiración de Soledad"'));
-assert(ui.includes('onClicked: settings.showSoledadGradient()'));
+assert(ui.includes('onClicked: settings.showSoledadGradientBreathing()'));
 assert(ui.includes('Math.min(1180, Math.max(560, Screen.desktopAvailableWidth - 48))'));
 assert.equal((ui.match(/contentWidth: Math.max\(0, availableWidth - 32\)/g) || []).length, 10,
              "Margen de seguridad ausente para el scrollbar");
