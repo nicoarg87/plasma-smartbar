@@ -382,8 +382,10 @@ Item {
         soledadGradientBreathingActive || malvinaGradientBreathingActive
     function breathingFactor(intensity, phase) {
         const wave = 0.5 - 0.5 * Math.cos(2 * Math.PI * phase)
-        const depth = Math.max(0, Math.min(1, soActivityPulseDepth))
-        return 1 - Math.max(0, Math.min(1, intensity)) * depth * (1 - wave)
+        // Intensidad PROPIA: no depende de pulseDepth del logo SO.
+        // Intensidad 0 = sin modulación; 100 % = hasta 65 % de amplitud.
+        const amplitude = Math.max(0, Math.min(1, intensity)) * 0.65
+        return 1 - amplitude * (1 - wave)
     }
     readonly property real gradientBreathingFactor:
         soledadGradientBreathingActive
