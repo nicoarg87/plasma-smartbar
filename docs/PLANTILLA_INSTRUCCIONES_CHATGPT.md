@@ -38,3 +38,13 @@ Si no podés consultar GitHub, decilo y usá los archivos del Proyecto aclarando
 ---
 
 **Última edición de esta plantilla:** 16 de noviembre de 2026 (MIT para software, CC0 para imagen tropical pendiente de archivo, Golden Dog excluido, SO con forma única y estiramiento + zoom; pendiente ensayo CachyOS).
+
+
+## Regla posterior ratificada 19/11/2026 — MIT, CC0 y centro SO
+
+
+**Prevalece sobre órdenes viejos:** software, código propio, documentación y `KPlugin.License` en **MIT**; GIF originales generados con ChatGPT y entregados por el mantenedor para los botones/temas SO bajo **CC0 1.0 Universal**, solo sobre derechos que pueda dedicar. Ver `docs/LICENCIAS_RECURSOS_GRAFICOS.md` y `LICENSE`. Menciones de GPL-3.0 son históricas y no constituyen licencia vigente.
+
+En el lateral Soledad el primero es **Launcher y botón SO**, el segundo **Botón de inicio SO** con subpestañas visibles **Logo, ancho y texto** y **Efectos luminosos SO**. Seguir con Color y transparencia, Figura y tamaño, Cajón y ventanas. Agregar navegación bidireccional entre la respiración del fondo/degradado y el brillo del contorno SO sin acoplar parámetros. Evitar que scrollbars tapen Editar, Copiar o HEX (ventana ancha en pantallas grandes, márgenes y controles en filas). No sobrescribir configuraciones locales ni interferir con panel KDE.
+
+**Estado:** implementación en rama v0.1 [0274f6d](https://github.com/nicoarg87/plasma-smartbar/commit/0274f6dcc6f70a274ff7f336f40f80adc036cc5c), licencia metadata [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384); ensayo QML/CachyOS pendiente.
