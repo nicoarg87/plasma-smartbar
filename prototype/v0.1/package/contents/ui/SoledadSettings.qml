@@ -932,6 +932,12 @@ Window {
         onAccepted: settings.launcherSwitchColor = selectedColor
     }
     ColorDialog {
+        id: samplePaletteColorDialog
+        title: "Editar tonalidad de la paleta"
+        property int sampleIndex: -1
+        onAccepted: settings.editSampleHex(sampleIndex, settings.toHex(selectedColor))
+    }
+    ColorDialog {
         id: islandGradientEndDialog
         title: "Segundo color del degradado"
         property int target: 0
@@ -3142,94 +3148,184 @@ Window {
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 0
+                        visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "El GIF, la luz del contorno y el degradado son independientes. " +
-                              "La respiración modifica la intensidad del fondo actual; " +
-                              "no recupera automáticamente tonos de la imagen."
+                        text: "El GIF propone colores; vos decidís cuáles usar. " +
+                              "La luz del botón SO no interviene. " +
+                              "Cada isla conserva su propia paleta."
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        color: "white"
+                        font.bold: true
+                        text: "COLORES ACTIVOS DE " +
+                              (appearanceTarget.currentIndex === 1 ? "MALVINA" : "SOLEDAD")
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#bbd8f2"
+                        text: "Estos son los colores que usa Aplicar. Si la isla tiene " +
+                              "transparencia, el fondo del escritorio también influye."
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        spacing: 6
+                        QQC2.Label { text: "Color 1"; color: "white" }
+                        Rectangle {
+                            width: 28; height: 25; radius: 4
+                            color: settings.islandColor("base")
+                        }
+                        QQC2.TextField {
+                            id: currentBaseHex
+                            Layout.fillWidth: true
+                            selectByMouse: true
+                            placeholderText: "#000000"
+                            text: settings.toHex(settings.islandColor("base"))
+                            onEditingFinished: settings.setIslandHex("base", text)
+                        }
+                        QQC2.Button {
+                            text: "Copiar"
+                            onClicked: {
+                                currentBaseHex.selectAll()
+                                currentBaseHex.copy()
+                                currentBaseHex.deselect()
+                            }
+                        }
+                        QQC2.Button {
+                            text: "Elegir…"
+                            onClicked: {
+                                islandColorDialog.editingTarget = appearanceTarget.currentIndex
+                                islandColorDialog.selectedColor = settings.islandColor("base")
+                                islandColorDialog.open()
+                            }
+                        }
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        spacing: 6
+                        QQC2.Label { text: "Color 2"; color: "white" }
+                        Rectangle {
+                            width: 28; height: 25; radius: 4
+                            color: settings.islandColor("end")
+                        }
+                        QQC2.TextField {
+                            id: currentEndHex
+                            Layout.fillWidth: true
+                            selectByMouse: true
+                            placeholderText: "#000000"
+                            text: settings.toHex(settings.islandColor("end"))
+                            onEditingFinished: settings.setIslandHex("end", text)
+                        }
+                        QQC2.Button {
+                            text: "Copiar"
+                            onClicked: {
+                                currentEndHex.selectAll()
+                                currentEndHex.copy()
+                                currentEndHex.deselect()
+                            }
+                        }
+                        QQC2.Button {
+                            text: "Elegir…"
+                            onClicked: {
+                                islandGradientEndDialog.target = appearanceTarget.currentIndex
+                                islandGradientEndDialog.selectedColor = settings.islandColor("end")
+                                islandGradientEndDialog.open()
+                            }
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        text: "PAL ETA DEL GIF".replace("PAL ETA", "PALETA")
+                        color: "white"
+                        font.bold: true
                     }
                     QQC2.Button {
-                        visible: appearanceTarget.currentIndex === 0
-                        text: "Analizar GIF actual para el fondo"
+                        visible: appearanceTarget.currentIndex <= 1
+                        text: "Analizar GIF y mostrar tres colores"
                         Layout.fillWidth: true
                         onClicked: paletteSampler.suggestFromImage("island")
                     }
                     QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 0
-                        text: "Colores sugeridos para el FONDO de Soledad"
-                        color: "white"
-                        font.bold: true
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 0
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#d1d8e5"
                         text: settings.paletteFeedback
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
                     }
-                    QQC2.Button {
-                        visible: appearanceTarget.currentIndex === 0
-                        text: "Derivar fondo del contorno luminoso (opcional)"
-                        onClicked: settings.suggestIslandFromCurrentOutline()
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.text: "Sólo si elegís esta opción el celeste del contorno podrá influir en el fondo. No usa el GIF."
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 0 && settings.hasSuggestedPalette
-                        text: "Sugerencia para Soledad: «" + settings.suggestedPaletteName + "». " +
-                              "Base " + settings.toHex(settings.suggestedIslandBase) +
-                              " y segundo color " + settings.toHex(settings.suggestedIslandEnd) + "."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    RowLayout {
-                        visible: appearanceTarget.currentIndex === 0 && settings.hasSuggestedPalette
-                        Layout.fillWidth: true
-                        Rectangle {
-                            width: 52; height: 28; radius: 6
-                            color: settings.suggestedIslandBase
-                        }
-                        Rectangle {
-                            width: 52; height: 28; radius: 6
-                            color: settings.suggestedIslandEnd
-                        }
-                        ColumnLayout {
+                    Repeater {
+                        model: settings.sampledColors.length
+                        delegate: ColumnLayout {
+                            required property int index
                             Layout.fillWidth: true
                             spacing: 4
-                            QQC2.Button {
-                                text: "Usar solo el primer color sugerido"
-                                onClicked: settings.putSuggestedBaseOnSoledad()
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+                                Rectangle {
+                                    width: 34; height: 27; radius: 5
+                                    color: settings.sampleHex(index)
+                                }
+                                QQC2.Label {
+                                    text: "Tono " + (index + 1)
+                                    color: "white"
+                                }
+                                QQC2.TextField {
+                                    id: sampleHexField
+                                    Layout.fillWidth: true
+                                    selectByMouse: true
+                                    text: settings.sampleHex(index)
+                                    placeholderText: "#000000"
+                                    onEditingFinished: settings.editSampleHex(index, text)
+                                }
+                                QQC2.Button {
+                                    text: "Copiar"
+                                    onClicked: {
+                                        sampleHexField.selectAll()
+                                        sampleHexField.copy()
+                                        sampleHexField.deselect()
+                                    }
+                                }
+                                QQC2.Button {
+                                    text: "Editar…"
+                                    onClicked: {
+                                        samplePaletteColorDialog.sampleIndex = index
+                                        samplePaletteColorDialog.selectedColor =
+                                            settings.sampleHex(index)
+                                        samplePaletteColorDialog.open()
+                                    }
+                                }
                             }
-                            QQC2.Button {
-                                text: "Usar ambos tonos en el degradado"
-                                onClicked: settings.putSuggestedPaletteOnSoledad()
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+                                QQC2.Button {
+                                    Layout.fillWidth: true
+                                    text: "Usar como color 1"
+                                    onClicked: settings.chooseSampledColor(index, "base")
+                                }
+                                QQC2.Button {
+                                    Layout.fillWidth: true
+                                    text: "Usar como color 2"
+                                    onClicked: settings.chooseSampledColor(index, "end")
+                                }
                             }
                         }
                     }
                     QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 0
+                        visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
-                        color: "#b9e5ff"
-                        font.bold: true
-                        text: "COLORES ACTIVOS DE SOLEDAD (estos se guardan con Aplicar): " +
-                              settings.toHex(settings.soledadColor) + " → " +
-                              settings.toHex(settings.soledadGradientEnd)
-                    }
-                    RowLayout {
-                        visible: appearanceTarget.currentIndex === 0
-                        spacing: 5
-                        Rectangle {
-                            width: 52; height: 22; radius: 5
-                            color: settings.soledadColor
-                        }
-                        Rectangle {
-                            width: 52; height: 22; radius: 5
-                            color: settings.soledadGradientEnd
-                        }
+                        color: "#bbd8f2"
+                        text: "Podés escribir o pegar cualquier código #RRGGBB, incluso negro. " +
+                              "Los tonos del GIF son sugerencias editables, no restricciones."
                     }
                     QQC2.CheckBox {
                         visible: appearanceTarget.currentIndex <= 1
@@ -3871,22 +3967,24 @@ Window {
                         }
                     }
                     QQC2.Label {
-                        text: "Crear tema personalizado automático"
+                        text: "Crear un tema desde los colores del GIF"
                         color: "white"; font.bold: true
                     }
                     QQC2.Label {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "Analiza los colores reales del GIF/logo SO elegido y propone " +
-                              "un fondo y degradado para Soledad y Malvina. " +
-                              "No altera el brillo que personalizaste en el contorno. " +
-                              "Podés editar cualquier tono después."
+                        text: "Analizá el GIF, elegí hasta tres tonos y asigná dos a cada isla. " +
+                              "Podés editar cualquier HEX y decidir después si usar degradado. " +
+                              "El contorno del botón SO no se modifica."
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
-                        text: "Crear automáticamente desde el logo SO"
-                        onClicked: paletteSampler.suggestFromImage("automatic")
+                        text: "Abrir paleta del GIF y elegir colores…"
+                        onClicked: {
+                            settings.showSoledadGradient()
+                            paletteSampler.suggestFromImage("island")
+                        }
                     }
                     RowLayout {
                         Layout.fillWidth: true
