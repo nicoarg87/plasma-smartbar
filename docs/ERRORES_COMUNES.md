@@ -147,3 +147,10 @@ Impacto en guardado / seguridad / panel existente:
 ## Historial de mantenimiento del registro
 
 - **18/11/2026:** creado por indicación del mantenedor, incorporando incidencias históricas de las pruebas v0.1 y la prioridad de detectar debilidades arquitectónicas por recurrencia. Pendiente de confirmar cada solución en CachyOS. No se ha activado telemetría ni capturado información del usuario automáticamente.
+
+
+## ERR-016 — flujo anterior de paleta desde GIF y contorno sustituido (19/11/2026)
+
+**Síntoma probado por el mantenedor en CachyOS:** tras «Analizar GIF» se veían tonos celestes sugeridos mientras la barra seguía marrón, aun habiendo pulsado «Aplicar»; alternar análisis y derivación del contorno producía confusión entre sugerencia y color real.
+
+**Resolución de diseño aprobada:** en la rama experimental se retiró la derivación de fondo a partir del contorno y la aplicación automática de tonos de GIF a ambas islas. Ahora «Analizar GIF» ofrece hasta tres tonos extraídos de un fotograma; cada tono tiene HEX editable, Copiar, selector visual y botones «Usar como color 1/2» para la isla actual. El editor separa los valores activos de los candidatos; «Aplicar» persiste solo los activos. El contorno SO y los degradados son independientes. La activación de degradado es opcional, incluso en presets con respiración configurada. Pruebas de extracción sintética y código estático realizadas; **NO PROBADO** el flujo visual y persistente con Qt/CachyOS. Ver [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15) para la prueba real.
