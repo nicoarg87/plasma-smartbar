@@ -59,7 +59,7 @@ assert(ui.includes('text: "RESPIRACIÓN DEL FONDO Y LOS MENÚS"'));
 assert(ui.includes('text: "Activar respiración del degradado"'));
 assert(ui.includes('text: "Sincronizar velocidad y ritmo con la línea SO"'));
 assert(ui.includes('text: "Intensidad"'));
-assert(ui.includes('text: "Velocidad"'));
+assert(ui.includes('text: "VELOCIDAD PROPIA DEL DEGRADADO"'));
 for (const island of ["soledad", "malvina"]) {
     const pre = island === "soledad" ? "Soledad" : "Malvina";
     for (const key of [
