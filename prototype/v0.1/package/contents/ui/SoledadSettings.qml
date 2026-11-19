@@ -37,6 +37,17 @@ Window {
     property string themeDayJson: ""
     property string themeNightJson: ""
     property string themeCustomJson: ""
+    // Recurso oficial opcional: se carga solo cuando el GIF exacto está instalado.
+    // La falta del binario NO invalida los temas locales existentes.
+    readonly property url officialNightImage: Qt.resolvedUrl("assets/so-night.gif")
+    readonly property bool officialNightAvailable: officialNightProbe.status === Image.Ready
+    Image {
+        id: officialNightProbe
+        visible: false
+        asynchronous: false
+        cache: true
+        source: settings.visible ? settings.officialNightImage : ""
+    }
     property string themeStatus: "Elegí un tema guardado o creá uno a partir del logo SO."
     signal saveThemeSlotRequested(string slot, string jsonData)
 
@@ -264,11 +275,22 @@ Window {
             // sin reescribir el snapshot ni modificar Playa Noche.
             if (slot === "day")
                 applyBeachDayPalette()
+            // Si el GIF nocturno verificado está instalado, usarlo como
+            // imagen oficial de Noche. El JSON mantiene sus colores propios
+            // y no se reescribe la ruta de la foto de ningún otro tema.
+            if (slot === "night" && officialNightAvailable) {
+                logoMode = "custom"
+                filePath = officialNightImage.toString()
+                enableGif = true
+            }
             // Reusar la ruta de guardado vigente, inclusive los favoritos que
             // son independientes de estos tres espacios de tema.
             applyChanges()
             themeStatus = "Tema " + (slot === "day" ? "Día" : slot === "night" ? "Noche" : "Personalizado") +
-                          " aplicado. Los controles siguen siendo editables por isla."
+                          " aplicado. Los controles siguen siendo editables por isla." +
+                          (slot === "night" && !officialNightAvailable
+                              ? " El recurso nocturno oficial no está instalado: se conservó la imagen local del tema."
+                              : "")
         } catch(e) {
             themeStatus = "No se pudo aplicar el tema guardado: " + e
             console.warn("SmartBar: tema local inválido", e)
@@ -3787,13 +3809,18 @@ Window {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 64
                                     fillMode: Image.PreserveAspectFit
-                                    source: settings.themeImageSource(settings.themeNightJson)
-                                    visible: settings.themeNightJson.length > 0
+                                    source: settings.officialNightAvailable
+                                        ? settings.officialNightImage
+                                        : settings.themeImageSource(settings.themeNightJson)
+                                    visible: settings.officialNightAvailable ||
+                                             settings.themeNightJson.length > 0
                                     cache: false
                                 }
                                 QQC2.Label {
                                     visible: !settings.themeNightJson.length
-                                    text: "Todavía sin guardar"
+                                    text: settings.officialNightAvailable
+                                        ? "Imagen oficial disponible · falta guardar colores de Noche"
+                                        : "Todavía sin guardar"
                                     color: "#bbc6db"
                                 }
                                 RowLayout {
