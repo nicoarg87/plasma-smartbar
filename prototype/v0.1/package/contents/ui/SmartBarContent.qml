@@ -91,6 +91,10 @@ Item {
     property string themeCustomJson: ""
     // Lista ampliable de temas personales guardados por el usuario.
     property string themeLibraryJson: "[]"
+    property bool personalDefaultAvailable: false
+    property bool favoriteAppearanceAvailable: false
+    signal requestRestorePersonalDefault()
+    signal requestRestoreFavoriteAppearance()
     signal requestThemeSlotChange(string slot, string jsonData)
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
@@ -871,6 +875,8 @@ Item {
             soledadSettings.themeNightJson = root.themeNightJson
             soledadSettings.themeCustomJson = root.themeCustomJson
             soledadSettings.themeLibraryJson = root.themeLibraryJson
+            soledadSettings.personalDefaultAvailable = root.personalDefaultAvailable
+            soledadSettings.favoriteAppearanceAvailable = root.favoriteAppearanceAvailable
             soledadSettings.filePath = root.soLogoPath
             soledadSettings.shape = root.soLogoShape
             soledadSettings.cropFitMode = root.soLogoFitMode
@@ -1027,6 +1033,8 @@ Item {
     SoledadSettings {
         id: soledadSettings
         onSettingsApplied: root.requestPersistCurrentSettings()
+        onRestorePersonalDefaultRequested: root.requestRestorePersonalDefault()
+        onRestoreFavoriteAppearanceRequested: root.requestRestoreFavoriteAppearance()
         onSaveThemeSlotRequested: function(slot, data) {
             root.requestThemeSlotChange(slot, data)
         }
