@@ -3531,6 +3531,125 @@ Window {
                             else settings.malvinaGradientDirection = d
                         }
                     }
+                    // La respiración es parte del degradado. Una casilla
+                    // habilita el efecto y otra controla si comparte la fase
+                    // de SO o usa su propia velocidad.
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        text: "RESPIRACIÓN DEL FONDO Y LOS MENÚS"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex <= 1
+                        text: "Activar respiración del degradado"
+                        checked: appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientBreathingEnabled
+                            : settings.malvinaGradientBreathingEnabled
+                        onToggled: {
+                            if (appearanceTarget.currentIndex === 0)
+                                settings.soledadGradientBreathingEnabled = checked
+                            else settings.malvinaGradientBreathingEnabled = checked
+                        }
+                    }
+                    QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex <= 1
+                        enabled: appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientBreathingEnabled
+                            : settings.malvinaGradientBreathingEnabled
+                        text: "Sincronizar velocidad y ritmo con el botón SO (predeterminado)"
+                        checked: appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientSyncBreathing
+                            : settings.malvinaGradientSyncBreathing
+                        onToggled: {
+                            if (appearanceTarget.currentIndex === 0)
+                                settings.soledadGradientSyncBreathing = checked
+                            else settings.malvinaGradientSyncBreathing = checked
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
+                        text: (appearanceTarget.currentIndex === 0
+                               ? settings.soledadGradientSyncBreathing
+                               : settings.malvinaGradientSyncBreathing)
+                            ? "Las islas pueden compartir la fase y la velocidad de la luz SO; " +
+                              "cada isla conserva su intensidad. Para ver pulsar el contorno, " +
+                              "seleccioná el efecto Respiración en Efectos luminosos."
+                            : "Respiración independiente: esta isla usa su propia velocidad " +
+                              "sin cambiar la luz del botón SO ni la otra isla."
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        enabled: appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientBreathingEnabled
+                            : settings.malvinaGradientBreathingEnabled
+                        QQC2.Label { text: "Intensidad"; color: "white" }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: appearanceTarget.currentIndex === 0
+                                ? settings.soledadGradientBreathingIntensity
+                                : settings.malvinaGradientBreathingIntensity
+                            onMoved: {
+                                if (appearanceTarget.currentIndex === 0)
+                                    settings.soledadGradientBreathingIntensity = value
+                                else settings.malvinaGradientBreathingIntensity = value
+                            }
+                        }
+                        QQC2.Label {
+                            text: Math.round((appearanceTarget.currentIndex === 0
+                                ? settings.soledadGradientBreathingIntensity
+                                : settings.malvinaGradientBreathingIntensity) * 100) + "%"
+                            color: "white"
+                            Layout.preferredWidth: 42
+                        }
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        readonly property bool syncToSO: appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientSyncBreathing
+                            : settings.malvinaGradientSyncBreathing
+                        enabled: (appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientBreathingEnabled
+                            : settings.malvinaGradientBreathingEnabled) && !syncToSO
+                        QQC2.Label { text: "Velocidad"; color: "white" }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.1; to: 3; stepSize: 0.1
+                            value: appearanceTarget.currentIndex === 0
+                                ? settings.soledadGradientBreathingSpeed
+                                : settings.malvinaGradientBreathingSpeed
+                            onMoved: {
+                                if (appearanceTarget.currentIndex === 0)
+                                    settings.soledadGradientBreathingSpeed = value
+                                else settings.malvinaGradientBreathingSpeed = value
+                            }
+                        }
+                        QQC2.Label {
+                            color: "white"
+                            text: (parent.syncToSO
+                                ? settings.pulseSpeed
+                                : (appearanceTarget.currentIndex === 0
+                                    ? settings.soledadGradientBreathingSpeed
+                                    : settings.malvinaGradientBreathingSpeed)).toFixed(1) + " ciclos/s"
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#bbd8f2"
+                        text: "La intensidad y la velocidad se ven en la isla y sus paneles " +
+                              "flotantes al activar el degradado. La opacidad configurada " +
+                              "sigue siendo independiente. Pulsá Aplicar para guardar."
+                    }
+
 
                     }
                     ColumnLayout {
@@ -3538,77 +3657,6 @@ Window {
                                  appearanceTarget.currentIndex === 2
                         Layout.fillWidth: true
                         spacing: 9
-                    QQC2.CheckBox {
-                        visible: appearanceTarget.currentIndex === 1 && settings.malvinaGradientEnabled
-                        text: "Sincronizar respiración del degradado de Malvina con SO"
-                        checked: settings.malvinaGradientSyncBreathing
-                        onToggled: settings.malvinaGradientSyncBreathing = checked
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 1 &&
-                                 settings.malvinaGradientEnabled &&
-                                 settings.malvinaGradientSyncBreathing
-                        text: "Usa la fase y velocidad de Respiración luminosa de SO, pero conserva intensidad propia. Requiere SO en modo respiración y se guarda con Aplicar."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    RowLayout {
-                        visible: appearanceTarget.currentIndex === 1 &&
-                                 settings.malvinaGradientEnabled &&
-                                 settings.malvinaGradientSyncBreathing
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Intensidad"; color: "white" }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0; to: 1; stepSize: 0.05
-                            value: settings.malvinaGradientBreathingIntensity
-                            onMoved: settings.malvinaGradientBreathingIntensity = value
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.malvinaGradientBreathingIntensity * 100) + "%"
-                            color: "white"
-                        }
-                    }
-                    QQC2.CheckBox {
-                        visible: appearanceTarget.currentIndex === 0 && settings.soledadGradientEnabled
-                        text: "Sincronizar respiración del degradado de Soledad con SO"
-                        enabled: settings.soledadGradientEnabled
-                        checked: settings.soledadGradientSyncBreathing
-                        onToggled: settings.soledadGradientSyncBreathing = checked
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 0 &&
-                                 settings.soledadGradientEnabled &&
-                                 settings.soledadGradientSyncBreathing
-                        text: "Requiere Respiración luminosa activa en el contorno SO. Ambas comparten velocidad y fase; se activa con Aplicar."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label {
-                        text: "Intensidad de respiración del degradado"
-                        color: "white"
-                        visible: appearanceTarget.currentIndex === 0 &&
-                                 settings.soledadGradientEnabled &&
-                                 settings.soledadGradientSyncBreathing
-                    }
-                    RowLayout {
-                        visible: appearanceTarget.currentIndex === 0 &&
-                                 settings.soledadGradientEnabled &&
-                                 settings.soledadGradientSyncBreathing
-                        Layout.fillWidth: true
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0; to: 1; stepSize: 0.05
-                            value: settings.soledadGradientBreathingIntensity
-                            onMoved: settings.soledadGradientBreathingIntensity = value
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.soledadGradientBreathingIntensity * 100) + "%"
-                            color: "white"
-                        }
-                    }
                     QQC2.CheckBox {
                         visible: appearanceTarget.currentIndex === 2
                         text: "Mostrar fondo continuo opcional"
