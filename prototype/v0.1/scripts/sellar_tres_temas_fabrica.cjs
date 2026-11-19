@@ -62,21 +62,26 @@ function snapshot(json, label) {
     // La maqueta guarda todas estas claves visuales en themeSnapshot().
     // No sellar temas antiguos cuya instantánea omita valores visuales actuales.
     const required = [
-        "version", "effectStyle", "strokeSize", "trailPercent", "showOutlineWhenEmpty",
-        "showOutlineWhenOpen", "pulseSpeed", "logoMode", "cropFitMode", "cropPanX",
-        "cropRotation", "soledadColor", "soledadGradientEnabled", "soledadGradientEnd", "soledadGradientThird",
+        "version", "effectStyle", "allowMotion", "strokeSize", "orbitSpeed",
+        "trailPercent", "trailStyle", "showOutlineWhenEmpty", "showOutlineWhenOpen", "pulseSpeed",
+        "pulseDepth", "logoMode", "filePath", "shape", "cropFitMode",
+        "cropZoom", "cropPanX", "cropPanY", "cropRotation", "enableGif",
+        "soledadColor", "soledadOpacity", "soledadGradientEnabled", "soledadGradientEnd", "soledadGradientThird",
         "soledadGradientColorCount", "soledadGradientDirection", "soledadGradientSyncBreathing", "soledadGradientSyncIntensity", "soledadGradientBreathingEnabled",
-        "soledadGradientBreathingSpeed", "soledadGradientBreathingIntensity", "malvinaColor", "malvinaGradientEnabled", "malvinaGradientEnd",
-        "malvinaGradientThird", "malvinaGradientColorCount", "malvinaGradientDirection", "malvinaGradientSyncBreathing", "malvinaGradientBreathingEnabled",
-        "malvinaGradientBreathingSpeed", "malvinaGradientBreathingIntensity", "accentColor", "glowGradient", "glowSpread",
-        "showBackground", "backgroundColor", "backgroundOpacity", "trayButtonColorOverride", "trayButtonColor",
-        "gripButtonColorOverride", "gripButtonColor", "soledadShape", "malvinaGearButtonShape", "malvinaSearchButtonShape",
-        "soButtonFrameShape", "soButtonWidth", "panelHeight", "soledadHeight", "soledadRadius",
-        "soledadMinWidth", "gripShape", "soTextLabel", "soTextBackground", "soTextBackgroundOpacity",
-        "soTextFontFamily", "soTextBold", "clockFontFamily", "clockTextColor", "taskDisplayMode",
-        "taskFrameShape", "taskFrameOpacity", "taskActiveGlowEnabled", "taskActiveDoubleBorderEnabled", "launcherSwitchShape",
-        "launcherSwitchColorOverride", "launcherSwitchColor", "launcherIconsWithNames", "outlineConfig", "launcherOpacityOverride",
-        "launcherOpacity", "malvinaOptionsOpacityOverride", "malvinaOptionsOpacity"
+        "soledadGradientBreathingSpeed", "soledadGradientBreathingIntensity", "malvinaColor", "malvinaOpacity", "malvinaGradientEnabled",
+        "malvinaGradientEnd", "malvinaGradientThird", "malvinaGradientColorCount", "malvinaGradientDirection", "malvinaGradientSyncBreathing",
+        "malvinaGradientBreathingEnabled", "malvinaGradientBreathingSpeed", "malvinaGradientBreathingIntensity", "accentColor", "glowColor",
+        "glowGradient", "glowIntensity", "glowSpread", "showBackground", "backgroundColor",
+        "backgroundOpacity", "trayButtonColorOverride", "trayButtonColor", "trayButtonOpacity", "gripButtonColorOverride",
+        "gripButtonColor", "gripButtonOpacity", "soledadShape", "malvinaShape", "malvinaGearButtonShape",
+        "malvinaSearchButtonShape", "soButtonFrameShape", "soButtonWidth", "panelHeight", "soledadHeight",
+        "malvinaHeight", "soledadRadius", "malvinaRadius", "soledadMinWidth", "malvinaWidth",
+        "gripShape", "trayButtonShape", "soTextLabel", "soTextColor", "soTextBackground",
+        "soTextBackgroundOpacity", "soTextFontFamily", "soTextFontSize", "soTextBold", "soTextBackgroundImage",
+        "clockFontFamily", "clockFontSize", "clockTextColor", "taskDisplayMode", "taskFrameShape",
+        "taskFrameColor", "taskFrameOpacity", "taskFrameWidth", "taskActiveGlowEnabled", "taskActiveDoubleBorderEnabled",
+        "launcherSwitchShape", "launcherSwitchColorOverride", "launcherSwitchColor", "launcherIconsWithNames", "outlineConfig",
+        "launcherOpacityOverride", "launcherOpacity", "malvinaOptionsOpacityOverride", "malvinaOptionsOpacity"
     ];
     const missing = required.filter(key=>!Object.hasOwn(value,key));
     if (missing.length) die(label + " tiene un perfil incompleto: " + missing.join(", "));
