@@ -14,7 +14,7 @@ const preview = file("preview_redimensionable.qml");
 const kconfig = file("package/contents/config/main.xml");
 const metadata = JSON.parse(file("package/metadata.json"));
 assert.equal(metadata.KPlugin.License, "MIT", "El metadato KDE debe coincidir con LICENSE");
-const launcher = ui.indexOf('text: "Launcher y botón SO"');
+const launcher = ui.indexOf('text: "Isla y launcher"');
 const menuStart = ui.indexOf('text: "Botón de inicio SO"', launcher);
 const colors = ui.indexOf('text: "Color y transparencia"', menuStart);
 const shape = ui.indexOf('text: "Figura y tamaño"', colors);
@@ -45,7 +45,7 @@ assert.equal((ui.match(/contentWidth: Math.max\(0, availableWidth - 32\)/g) || [
              "Margen de seguridad ausente para el scrollbar");
 assert(ui.includes('id: currentColorCopyField\n                            Layout.fillWidth: true'));
 assert(ui.includes('text: "Duración del ciclo"'));
-assert(ui.includes('text: "Intensidad del pulso de luz (0–100 %)"'));
+assert(ui.includes('text: "Intensidad del pulso de la línea SO (0–100 %)"'));
 assert(ui.includes('onValueModified: settings.pulseSpeed ='));
 assert(ui.includes('Math.round(1000 / Math.max(0.1, settings.pulseSpeed))'));
 assert(ui.includes('text: "Activar efecto Respiración luminosa en SO"'));
@@ -56,7 +56,7 @@ assert.equal((ui.match(/QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn/
 assert(!ui.includes('QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded'));
 assert(ui.includes('text: "RESPIRACIÓN DEL FONDO Y LOS MENÚS"'));
 assert(ui.includes('text: "Activar respiración del degradado"'));
-assert(ui.includes('text: "Sincronizar velocidad y ritmo con el botón SO (predeterminado)"'));
+assert(ui.includes('text: "Sincronizar velocidad y ritmo con la línea SO"'));
 assert(ui.includes('text: "Intensidad"'));
 assert(ui.includes('text: "Velocidad"'));
 for (const island of ["soledad", "malvina"]) {
@@ -75,9 +75,42 @@ for (const island of ["soledad", "malvina"]) {
                "No hay persistencia en visor: " + full);
     }
     assert(kconfig.includes('<entry name="' + island +
-                            'GradientSyncBreathing" type="Bool"><default>true</default>'),
-           "Sincronización predeterminada desactivada para " + island);
+                            'GradientSyncBreathing" type="Bool"><default>false</default>'),
+           "La sincronización debe requerir activación del usuario: " + island);
 }
+// La pulsación de SO es la vista principal; al abrir efectos entra en respiración.
+assert(ui.includes('property int outlineSection: 2'));
+assert(ui.includes('model: ["Brillo y respiración", "Estados y color", "Luz móvil"]'));
+assert(ui.includes('settings.outlineSection = [2,0,1][index]'));
+assert(ui.includes('text: "Velocidad de la línea luminosa SO"'));
+assert(ui.includes('text: "Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)"'));
+assert(ui.includes('text: "Desvincular degradado: usar velocidad e intensidad propias"'));
+assert(ui.includes('text: "Igualar intensidad a la línea luminosa SO (también sincroniza ritmo)"'));
+assert(ui.includes('text: "Posición de la isla en la barra…"'));
+assert(ui.includes('text: "Figura y tamaño de la isla Soledad…"'));
+for (const source of [ui, bar, main, kconfig]) {
+    assert(source.includes("soledadGradientSyncIntensity"), "Falta nueva preferencia");
+}
+assert(preview.includes("demoSoledadGradientSyncIntensity"));
+assert(preview.includes('"demoSoledadGradientSyncIntensity"'), "No participa en favoritos/temas del visor");
+assert(preview.includes("onDemoSoledadGradientSyncIntensityChanged"));
+assert(kconfig.includes('<entry name="soledadGradientSyncIntensity" type="Bool"><default>false</default>'));
+assert(ui.includes('soledadGradientSyncIntensity: soledadGradientSyncIntensity'),
+       "Tema no almacena la intensidad vinculada");
+assert(ui.includes('"soledadGradientSyncBreathing","soledadGradientSyncIntensity"'),
+       "Tema antiguo no puede restaurar opt-in de intensidad");
+assert(bar.includes('soledadGradientSyncIntensity ? soActivityPulseDepth : soledadGradientBreathingIntensity'),
+       "El renderer no conmuta intensidad según permiso");
+assert(bar.includes('breathingFactor(soledadEffectiveBreathingIntensity,'));
+assert(bar.includes('soledadEffectiveBreathingIntensity > 0'),
+       "Reloj no debe prenderse si la intensidad sincronizada es cero");
+assert(main.includes('Plasmoid.configuration.soledadGradientSyncIntensity = syncIntensity'));
+assert(preview.includes('previewWindow.demoSoledadGradientSyncIntensity = syncIntensity'));
+assert(ui.includes('property string effectStyle: "breathe"'));
+assert(bar.includes('property string soActivityStyle: "breathe"'));
+assert(preview.includes('property string demoSoActivityStyle: "breathe"'));
+assert(kconfig.includes('<entry name="soActivityStyle" type="String"><default>breathe</default>'));
+assert(kconfig.includes('<entry name="soActivityPulseSpeed" type="Double"><default>0.3</default>'));
 assert(bar.includes("root.anyGradientBreathingActive"));
 assert(bar.includes("root.soledadIndependentBreathingPhase"));
 assert(bar.includes("root.malvinaIndependentBreathingPhase"));
@@ -108,4 +141,4 @@ assert(kconfig.includes('<entry name="launcherOpacityOverride" type="Bool"><defa
        "El launcher debe poder heredar opacidad de Soledad");
 assert(kconfig.includes('<entry name="malvinaOptionsOpacityOverride" type="Bool"><default>false</default>'),
        "El panel Web/IA debe poder heredar opacidad de Malvina");
-console.log("OK: navegación integrada SO, launcher primero, scrollbar, MIT, respiración y 70 %.");
+console.log("OK: Isla y launcher, respiración SO primero, ritmo e intensidad optativos, MIT y persistencia.");
