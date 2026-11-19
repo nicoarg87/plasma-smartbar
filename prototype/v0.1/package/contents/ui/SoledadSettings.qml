@@ -187,38 +187,6 @@ Window {
         }
         return -1
     }
-    function saveCurrentDayTheme() {
-        const items = savedThemeLibrary.slice()
-        const existing = dayThemeIndex()
-        const snapshot = themeSnapshot()
-        if (existing >= 0) {
-            if (items.length >= 200) {
-                themeStatus = "No hay espacio para guardar la copia anterior de Día."
-                return
-            }
-            // El tema anterior sigue accesible en la biblioteca, como copia.
-            items.push({name: "Día · versión anterior", jsonData: items[existing].jsonData})
-            items[existing] = {name: "Día", jsonData: snapshot}
-        } else {
-            if (items.length >= 200) {
-                themeStatus = "Biblioteca llena; no se borró ningún tema."
-                return
-            }
-            items.push({name: "Día", jsonData: snapshot})
-        }
-        themeLibraryJson = JSON.stringify(items)
-        stageThemeSlot("library", themeLibraryJson)
-        applyChanges()
-        previewFactorySlot = ""
-        // Exportación local: solo se imprime en Konsole, nunca se envía a GitHub.
-        // Incluye la ruta del GIF real para poder empaquetar su archivo exacto.
-        const exportData = JSON.parse(snapshot)
-        exportData.originalImageUrl = logoMode === "text" ? "" : selectedImage.toString()
-        console.log("SMARTBAR_DIA_JSON=" + JSON.stringify(exportData))
-        themeStatus = existing >= 0
-            ? "Día actualizado y guardado en este equipo. La versión anterior sigue disponible."
-            : "Día guardado en este equipo con el GIF, los colores y los efectos actuales."
-    }
     // Perfil Noche original de fábrica: SOLO manifiesto distribuido con el
     // programa; el tema histórico guardado localmente no lo modifica.
     readonly property var factoryNightPreset: FactoryNightTheme.preset
@@ -4772,11 +4740,6 @@ Window {
                                 }
                             }
                         }
-                    }
-                    QQC2.Button {
-                        Layout.fillWidth: true
-                        text: "Guardar cambios actuales en Día"
-                        onClicked: settings.saveCurrentDayTheme()
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
