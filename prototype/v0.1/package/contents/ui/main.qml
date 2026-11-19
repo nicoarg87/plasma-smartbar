@@ -145,6 +145,7 @@ PlasmoidItem {
         themeDayPreviousJson: Plasmoid.configuration.themeDayPreviousJson
         themeNightJson: Plasmoid.configuration.themeNightJson
         themeCustomJson: Plasmoid.configuration.themeCustomJson
+        themeLibraryJson: Plasmoid.configuration.themeLibraryJson
         launcherCategoryLayout: Plasmoid.configuration.launcherCategoryLayout
         launcherSwitchShape: Plasmoid.configuration.launcherSwitchShape
         launcherSwitchColorOverride: Plasmoid.configuration.launcherSwitchColorOverride
@@ -350,6 +351,7 @@ PlasmoidItem {
             else if (slot === "dayPrevious") Plasmoid.configuration.themeDayPreviousJson = data
             else if (slot === "night") Plasmoid.configuration.themeNightJson = data
             else if (slot === "custom") Plasmoid.configuration.themeCustomJson = data
+            else if (slot === "library") Plasmoid.configuration.themeLibraryJson = data
         }
         onRequestLauncherStyleChange: function(layoutMode, shape, ownColor, color, slots) {
             Plasmoid.configuration.launcherCategoryLayout = layoutMode
