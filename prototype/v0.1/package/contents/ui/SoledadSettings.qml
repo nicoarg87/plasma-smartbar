@@ -2809,6 +2809,39 @@ Window {
                         Layout.fillWidth: true
                         spacing: 9
                     QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: "Brillo y respiración del botón SO"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
+                        text: "Configurá brillo exterior, fuerza del pulso y duración " +
+                              "de cada ciclo. Este brillo es independiente de los colores " +
+                              "del degradado de las islas."
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        visible: settings.effectStyle !== "breathe" || !settings.allowMotion
+                        text: "Activar efecto Respiración luminosa en SO"
+                        onClicked: {
+                            settings.effectStyle = "breathe"
+                            settings.allowMotion = true
+                        }
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        visible: settings.effectStyle !== "breathe" || !settings.allowMotion
+                        wrapMode: Text.WordWrap
+                        color: "#f0cf95"
+                        text: "La respiración luminosa de SO no está activa. " +
+                              "Usá el botón anterior para habilitarla; " +
+                              "las islas pueden respirar aunque el contorno esté apagado."
+                    }
+                    QQC2.Label {
                         visible: settings.outlineUsesGlow
                         text: "Iluminación exterior y degradado"
                         color: "white"
@@ -2930,8 +2963,35 @@ Window {
                         }
                         QQC2.Label { text: settings.pulseSpeed.toFixed(1) + " ciclos/s"; color: "white" }
                     }
+                    RowLayout {
+                        visible: settings.effectStyle === "breathe" && settings.allowMotion
+                        Layout.fillWidth: true
+                        spacing: 8
+                        QQC2.Label {
+                            text: "Duración del ciclo"
+                            color: "white"
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                        }
+                        QQC2.SpinBox {
+                            from: 333; to: 10000; stepSize: 100
+                            editable: true
+                            value: Math.round(1000 / Math.max(0.1, settings.pulseSpeed))
+                            onValueModified: settings.pulseSpeed =
+                                Math.max(0.1, Math.min(3, 1000 / value))
+                        }
+                        QQC2.Label { text: "ms"; color: "white" }
+                    }
                     QQC2.Label {
-                        text: "Profundidad de la respiración"
+                        visible: settings.effectStyle === "breathe" && settings.allowMotion
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#bbd8f2"
+                        text: "Ejemplo: 1000 ms = un pulso completo por segundo. " +
+                              "Menos milisegundos significa una respiración más rápida."
+                    }
+                    QQC2.Label {
+                        text: "Intensidad del pulso de luz (0–100 %)"
                         color: "white"
                         visible: settings.effectStyle === "breathe" && settings.allowMotion
                     }
@@ -3629,6 +3689,16 @@ Window {
                         text: "La intensidad y la velocidad se ven en la isla y sus paneles " +
                               "flotantes al activar el degradado. La opacidad configurada " +
                               "sigue siendo independiente. Pulsá Aplicar para guardar."
+                    }
+                    QQC2.Button {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        text: "Ir a Efectos luminosos → Brillo y respiración SO"
+                        onClicked: settings.showSoledadGlowBreathing()
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Ajusta el brillo del contorno SO, " +
+                            "la intensidad de su pulso y su duración en milisegundos. " +
+                            "Los colores de esta isla no se modifican."
                     }
 
 
