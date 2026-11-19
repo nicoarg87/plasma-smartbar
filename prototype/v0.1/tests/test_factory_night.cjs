@@ -21,7 +21,7 @@ assert(ui.includes('slot === "night" ? factoryNightJson'),
 assert(ui.includes('if (slot === "night") {\n            themeStatus = "Noche de fábrica está protegida; usá Personalizado."'));
 assert(!ui.includes('onClicked: settings.storeTheme("night")'));
 assert(!ui.includes('text: "Fijar tema Noche"'));
-assert(ui.includes('text: "Restaurar Noche de fábrica"'));
+assert(ui.includes('text: "Noche" + (settings.factoryNightAvailable'));
 assert(ui.includes('enabled: settings.factoryNightAvailable'));
 assert(ui.includes('onClicked: settings.activateTheme("night")'));
 assert(ui.includes('text: "Copiar mi apariencia actual para fijar Noche…"'));
@@ -34,14 +34,15 @@ assert(ui.includes("factorySunsetImage.toString() : factoryNightImage.toString()
        "Noche debe recuperar su propia imagen, separada de Atardecer");
 assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
 assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
-assert(!ui.includes("themeImageSource(settings.themeNightJson)"),
-       "La tarjeta de Noche muestra una miniatura distinta del perfil fijo");
-const nightCard = ui.substring(ui.indexOf('text: "Noche de fábrica"'),
-                               ui.indexOf('text: "Crear un tema desde los colores del GIF"'));
+const nightCardStart = ui.indexOf('text: "Noche" + (settings.factoryNightAvailable');
+const nightCardEnd = ui.indexOf('text: "Día · tema de fábrica todavía no definido"', nightCardStart);
+assert(nightCardStart > 0 && nightCardEnd > nightCardStart);
+const nightCard = ui.substring(nightCardStart, nightCardEnd);
+assert(nightCard.includes("settings.factoryNightImage"));
 assert(!nightCard.includes("settings.selectedImage"),
-       "La miniatura de Noche no debe mostrar la imagen actual");
+       "La miniatura original de Noche no debe mostrar el logo actual");
 assert(!nightCard.includes("settings.themeNightJson"),
-       "La miniatura de Noche no debe mostrar un tema histórico");
+       "La miniatura original de Noche no debe mostrar un tema histórico");
 assert(ui.includes('soButtonWidth: soButtonWidth'), "Fábrica omite ancho de botón");
 assert(ui.includes('panelHeight: panelHeight'), "Fábrica omite altura de barra");
 assert(ui.includes('"soButtonWidth","panelHeight"'), "Restauración no trae geometría visual");
