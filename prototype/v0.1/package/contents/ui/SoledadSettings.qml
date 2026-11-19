@@ -178,21 +178,9 @@ Window {
     // V1 de tema visual: foto/logo + colores de las dos islas, líneas y
     // contornos, sin alterar posición, controles de ventanas ni permisos IA.
     // Sólo snapshots explícitos; no se publican GIFs personales en GitHub.
-    // Presets Playa Dia/Noche: conservar tonos y fuerza guardados, pero
-    // asegurar que ambos degradados respiren sin depender del estado de ventanas.
-    function ensureBeachBreathing() {
-        // El efecto puede seguir habilitado con el degradado apagado.
-        // NUNCA volver a activarlo por seleccionar un tema: ahora cada
-        // usuario decide si usar un color uniforme o dos tonos.
-        soledadGradientSyncBreathing = true
-        malvinaGradientSyncBreathing = true
-        effectStyle = "breathe"
-        allowMotion = true
-        showOutlineWhenEmpty = true
-        showOutlineWhenOpen = true
-        if (pulseDepth <= 0) pulseDepth = 0.7
-        if (pulseSpeed <= 0) pulseSpeed = 0.6
-    }
+    // Atardecer/Noche conservan exactamente el efecto de respiración
+    // capturado en su instantánea: no forzar sincronización ni pulsación
+    // cuando el usuario guardó valores propios.
     function themeSnapshot() {
         return JSON.stringify({
             version: 1,
@@ -274,8 +262,6 @@ Window {
             themeStatus = "Este tema está protegido. Aplicalo para recuperar sus colores originales."
             return
         }
-        if (slot === "day" || slot === "night")
-            ensureBeachBreathing()
         const data = themeSnapshot()
         if (slot === "day") themeDayJson = data
         else if (slot === "night") themeNightJson = data
@@ -291,7 +277,6 @@ Window {
             themeDayPreviousJson = themeDayJson
             saveThemeSlotRequested("dayPrevious", themeDayPreviousJson)
         }
-        ensureBeachBreathing()
         const data = themeSnapshot()
         themeDayJson = data
         saveThemeSlotRequested("day", data)
@@ -364,11 +349,8 @@ Window {
             }
             if (info.outlineConfig && typeof info.outlineConfig === "object")
                 outlineConfig = JSON.parse(JSON.stringify(info.outlineConfig))
-            // Los presets de playa mantienen la respiracion aunque el JSON
-            // previo se hubiera grabado con interruptores apagados.
-            // No se aplica esta regla a los temas personalizados.
-            if (slot === "day" || slot === "night")
-                ensureBeachBreathing()
+            // Aplicar recupera el estado capturado, incluidos sync, velocidad
+            // e intensidad, sin reactivar interruptores apagados.
             // Respetar exactamente colores y orientaciones guardados,
             // sin copiar el degradado de una isla hacia la otra.
             // Si el GIF nocturno verificado está instalado, usarlo como
