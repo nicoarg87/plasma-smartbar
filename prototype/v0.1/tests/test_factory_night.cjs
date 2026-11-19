@@ -34,7 +34,7 @@ assert(ui.includes("factorySunsetImage.toString() : factoryNightImage.toString()
        "Noche debe recuperar su propia imagen, separada de Atardecer");
 assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
 assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
-const nightCardStart = ui.indexOf('text: "Noche" + (settings.factoryNightAvailable');
+const nightCardStart = ui.indexOf('Image {\n                                    visible: settings.factoryNightAvailable &&', ui.indexOf("id: themeListScroll"));
 const nightCardEnd = ui.indexOf('text: "Día · tema de fábrica todavía no definido"', nightCardStart);
 assert(nightCardStart > 0 && nightCardEnd > nightCardStart);
 const nightCard = ui.substring(nightCardStart, nightCardEnd);
