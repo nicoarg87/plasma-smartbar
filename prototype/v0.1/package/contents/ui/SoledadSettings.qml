@@ -132,12 +132,16 @@ Window {
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
     function showThemes() { navigationGroup = "themes"; currentTab = 4 }
-    function showSoledadWidth() {
-        navigationGroup = "soledad"; currentTab = 1
-        logoSubtabs.currentIndex = 0; logoSection = 4
-    }
     function showSoledadLogo() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
     function showSoledadEffects() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
+    function showSoledadGlowBreathing() {
+        navigationGroup = "soledad"
+        currentTab = 1
+        logoSubtabs.currentIndex = 1
+        outlineSection = 2
+        if (outlineScroll.contentItem)
+            outlineScroll.contentItem.contentY = 0
+    }
     function showSoledadWindows() { navigationGroup = "soledad"; currentTab = 2; appearanceSubtabs.currentIndex = 1 }
     function showSoledadLauncher() {
         navigationGroup = "soledad"; behaviorScope = "soledad"
@@ -1274,16 +1278,8 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
-                        text: "Anchura del botón SO"
-                        highlighted: settings.currentTab === 1 &&
-                                     logoSubtabs.currentIndex === 0 && settings.logoSection === 4
-                        onClicked: settings.showSoledadWidth()
-                    }
-                    SettingsMenuButton {
-                        visible: settings.navigationGroup === "soledad"
-                        text: "Logo SO"
-                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0 &&
-                                     settings.logoSection !== 4
+                        text: "Botón de inicio SO"
+                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0
                         onClicked: settings.showSoledadLogo()
                     }
                     SettingsMenuButton {
@@ -2075,11 +2071,14 @@ Window {
                         }
                     }
                     ColumnLayout {
-                        visible: settings.logoSection === 4
+                        visible: settings.logoSection === 0
                         Layout.fillWidth: true
-                        spacing: 12
+                        spacing: 9
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
                         QQC2.Label {
-                            text: "Anchura del botón SO"
+                            text: "Anchura del botón SO · logo e imagen"
                             color: "white"; font.bold: true
                         }
                         QQC2.Label {
@@ -2105,10 +2104,6 @@ Window {
                             }
                         }
                     }
-                    ColumnLayout {
-                        visible: settings.logoSection === 0
-                        Layout.fillWidth: true
-                        spacing: 9
                     QQC2.Label {
                         text: "Imagen del botón SO · vista previa"
                         color: "white"
