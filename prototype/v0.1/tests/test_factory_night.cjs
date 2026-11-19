@@ -24,7 +24,7 @@ assert(!ui.includes('text: "Fijar tema Noche"'));
 assert(ui.includes('text: "Noche" + (settings.factoryNightAvailable'));
 assert(ui.includes('enabled: settings.factoryNightAvailable'));
 assert(ui.includes('onClicked: settings.activateTheme("night")'));
-assert(ui.includes('text: "Copiar mi apariencia actual para fijar Noche…"'));
+assert(ui.includes('text: "Exportar aspecto actual para fijar Noche de fábrica…"'));
 assert(ui.includes('onClicked: settings.showFactoryCapture("night")'));
 assert(ui.includes('factoryNightExportDialog.open()'));
 assert(ui.includes("factoryNightExportText.copy()"));
