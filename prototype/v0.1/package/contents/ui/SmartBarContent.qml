@@ -1153,6 +1153,8 @@ Item {
         switchColor: root.launcherSwitchColor
         islandColor: root.soledadColor
         islandGradientEnd: root.soledadGradientEnd
+        islandGradientThird: root.soledadGradientThird
+        islandGradientColorCount: root.soledadGradientColorCount
         islandOpacity: root.launcherOpacityOverride
             ? root.launcherOpacity : root.soledadOpacity
         islandGradientEnabled: root.soledadGradientEnabled
@@ -1392,6 +1394,8 @@ Item {
                 optionsPanelBreathingFactor: root.malvinaGradientBreathingFactor
                 islandGradientEnabled: root.malvinaGradientEnabled
                 islandGradientEnd: root.malvinaGradientEnd
+                islandGradientThird: root.malvinaGradientThird
+                islandGradientColorCount: root.malvinaGradientColorCount
                 islandGradientDirection: root.malvinaGradientDirection
                 islandOutlineColor: root.outlineConfig.malvina.color
                 islandOutlineOpacity: root.outlineConfig.malvina.opacity
