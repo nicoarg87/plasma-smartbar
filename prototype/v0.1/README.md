@@ -863,3 +863,25 @@ bash prototype/v0.1/probar_ancho.sh
 **Licencia:** `LICENSE` y `KPlugin.License` contienen **MIT**. GIF propios de ChatGPT autorizados por el mantenedor para **CC0 1.0 Universal** conforme al inventario de gráficos; las licencias no se extienden a otros archivos aportados por usuarios o terceros. Los GIF originales de prueba se conservan localmente; actualizar Git no debe sustituirlos.
 
 **Estado:** modificaciones codificadas en rama experimental; no se ha ejecutado aquí una interfaz Qt/CachyOS. PR #3 continúa en borrador.
+
+
+## Comprobación de Isla y launcher y respiración SO — 19/11/2026
+
+**Navegación vigente:** menú Soledad → **Isla y launcher** primero, con accesos a posición y figura/tamaño de la isla, seguido por **Botón de inicio SO → Efectos luminosos SO**. Allí «Brillo y respiración» es el primer apartado. Para nuevas configuraciones se inicia en `breathe` y `0.3` ciclos/s (aprox. un ciclo cada 3,33 s); las preferencias locales anteriores conservan sus propios valores.
+
+**Independencia y sincronización:** la línea SO tiene velocidad y profundidad de pulso propias. Soledad y Malvina conservan ritmo propio por defecto en instalaciones nuevas. Desde Efectos luminosos SO se puede activar «Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)» y luego «Desvincular degradado». Desde Color y transparencia → Soledad se mantiene la opción de compartir solo fase/velocidad y se agrega la de igualar intensidad de pulso. La intensidad personal del degradado no se borra al sincronizar; se recupera al desvincular. Malvina no cambia automáticamente al activar la sincronización de Soledad.
+
+**Prueba en Fish**, sin instalar ni reemplazar el panel:
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_breathing_menu.cjs
+node prototype/v0.1/tests/test_theme_persistence.cjs
+node prototype/v0.1/tests/test_gradient_palette.cjs
+bash prototype/v0.1/probar_ancho.sh
+```
+
+**Ensayo visual:** comprobar «Isla y launcher» primero, que los accesos a posición y figura llevan a sus ajustes; entrar en Botón de inicio SO y Efectos luminosos y encontrar Brillo y respiración primero. Desactivar sincronización, mover el deslizador de velocidad de la línea SO y comprobar que el degradado mantiene su propio ritmo. Activar sincronización de ritmo e intensidad de Soledad, variar la velocidad y la intensidad de la línea SO y observar que el fondo acompaña el pulso. Desvincular, comprobar que se recuperan velocidad/intensidad propias. Ensayar Malvina independientemente, Aplicar, cerrar/reabrir y verificar los temas y favorita existentes. Preservar logs de Konsole y registrar en issue #15.
+
+**Estado:** test estático PASS en V8 (245 comprobaciones agrupadas); pendiente ejecución Node en el equipo y vista real Qt/KWin/Wayland. Metadatos KDE y código propio MIT; GIF originales de ChatGPT del botón SO dedicados CC0 1.0 según inventario de recursos.
