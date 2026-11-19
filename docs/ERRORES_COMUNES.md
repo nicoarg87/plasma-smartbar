@@ -38,6 +38,7 @@ Las decisiones funcionales siguen perteneciendo al mantenedor. Este archivo regi
 | ERR-013 | `preview_redimensionable.qml`, ventana de pruebas | Superposición de launcher y controles inferiores; tamaño inicial insuficiente para popup ancho/alto. | P2 | Visor ampliado; bordes y pantallas pequeñas pendientes |
 | ERR-014 | `SmartBarContent.qml`, `MalvinaSearch.qml` | Combinaciones de atajos (Super sola, Super+Espacio) y foco todavía no garantizadas globalmente en Wayland. | P2 | **Pendiente** de solución segura KWin y ensayo local |
 | ERR-015 | Soledad/Malvina: gobernanza de preferencias | Configuración compartida en pestaña de isla incorrecta; color/gradiente o controles de panel imposibles de encontrar. | P2 | Menús reordenados; comprobar navegación y persistencia |
+| ERR-016 | `SoledadSettings.qml`, muestreo GIF y colores de contorno | Al usar GIF nocturno se sugieren fondos celestes claros; al derivar tonos del contorno celeste pueden pasar al degradado; reset restaura tonos fijos de ambas islas. | P2 | **Mecanismo localizado en código; resultado visual exacto sin reproducir** |
 
 **Nota sobre frecuencia:** «recurrente» significa al menos dos observaciones o regresiones inequívocas en el historial del mantenedor, **no** un conteo automático de ejecuciones. No hay instrumentación de telemetría ni deben enviarse preferencias personales fuera del equipo.
 
@@ -78,6 +79,19 @@ Las decisiones funcionales siguen perteneciendo al mantenedor. Este archivo regi
 - **Regla:** no sobrescribir configuraciones personales; asegurar `Aplicar`, `appearanceV1`, `favoriteSoledadV1`, `personalDefaultV1`, KConfig, cambio y cierre; revisar cada nueva propiedad en todos los enlaces de guardado.
 - **Prueba:** cambiar un ajuste por apartado, Aplicar, cerrar visor, reiniciar, restaurar favorita, restaurar personal. No introducir defaults en el repositorio como si fueran los valores particulares del mantenedor.
 
+### ERR-016 — Colores de GIF, contorno y degradado mezclados en el editor
+
+- **Reportado por el mantenedor (18/11/2026, CachyOS):** tras elegir un GIF de playa nocturna azulada, la respiración siguió mostrando tonos dorados; al sincronizar/usar sugerencias apareció un celeste claro que el mantenedor identifica como posible color de la línea luminosa de Soledad. «Restablecer colores» y Aplicar no produjeron la estética esperada. No se dispone del archivo GIF local que finalmente eligió el usuario ni de su configuración KConfig actual, por lo que **no se confirmó el valor RGB exacto en ejecución**.
+- **Mecanismo demostrado en `SoledadSettings.qml`:**
+  1. `suggestIslandFromCurrentOutline()` toma `accentColor` y `glowColor` (contorno y brillo), les aplica fórmulas de luminosidad y genera `suggestedIslandBase/End`. Si se pulsa «Usar ambos tonos en el degradado», `putSuggestedPaletteOnSoledad()` copia esos tonos al fondo y activa el degradado. **Camino real para que un contorno celeste influya en el fondo**.
+  2. `paletteSampler` usa un `Canvas` de **32 × 32**, analiza una muestra de la imagen o GIF y selecciona un grupo tonal (`hue`). En modo isla, genera `base = Qt.hsva(hue, 0.32, 0.93, 1)` y `end = Qt.hsva((hue + 0.035)%1, 0.62, 0.60, 1)`. Los valores fijos de brillo/saturación **no conservan la oscuridad del GIF nocturno**; el primer tono resulta claro. No se extrae una paleta fiel de todos los cuadros de la animación.
+  3. «Copiar colores y degradado de Soledad a Malvina» **no copia `accentColor` directamente**: copia `soledadColor`, `soledadOpacity`, `soledadGradientEnabled/End/Direction`. Si el azul claro ya está aplicado como fondo de Soledad, sí se propaga.
+  4. `SmartBarContent.qml`: la respiración del gradiente multiplica la **opacidad** de los dos colores configurados mediante un factor dependiente de la fase de SO; no muestrea ni actualiza colores desde el GIF. Si permanece el degradado naranja anterior (`soledadGradientEnd: "#ee9852"`), seguirá viéndose al respirar hasta que se cambie ese campo.
+  5. «Restablecer colores» asigna **valores fijos a Soledad y Malvina simultáneamente**, incluidos degradados iniciales, por ejemplo `#ee9852` y `#445577`; **no restaura colores derivados de la imagen seleccionada**. No afirmar que restablece el tema nocturno.
+- **Estado:** causa técnica de los caminos de color **confirmada por lectura del código**, pero combinación exacta de acciones y el tono final **no verificada en CachyOS**. No sobrescribir la estética local ni cambiar defaults.
+- **Regresión propuesta (requiere prueba):** guardar estética actual/favorita; establecer contorno celeste, usar «Sugerir degradado según contorno» y observar valores propuestos; analizar GIF nocturno y anotar `suggestedIslandBase/End`; activar degradado SO y respiración; copiar a Malvina; comprobar que solo se copian cinco campos de fondo; restablecer por separado en entorno de prueba y verificar ambos valores, Aplicar/cerrar/reabrir. Adjuntar salida de Konsole y capturas. No hacer la prueba destructiva en la configuración personal.
+- **Propuesta funcional aún no aprobada:** separar claramente «Paleta del GIF» de «Paleta derivada del contorno», ofrecer extracción que preserve oscuridad de imágenes nocturnas, y definir si «Restablecer colores» actúa sobre la isla elegida o sobre las dos; el cambio tocaría requisitos de personalización y debe ser aprobado antes de modificar el comportamiento.
+
 ## Zonas de fragilidad (diagnóstico preliminar, no estadística)
 
 | Área | Señal de fragilidad | Recomendación técnica condicionada |
@@ -86,7 +100,7 @@ Las decisiones funcionales siguen perteneciendo al mantenedor. Este archivo regi
 | **Preferencias y persistencia** | ERR-008, ERR-015; varias rutas del dato | Centralizar contratos de ajustes y pruebas de guardado, sin perder valores existentes |
 | **Geometría y layouts** | ERR-005, ERR-007, ERR-011, ERR-013 | Pruebas en varios tamaños y escalas de fuente, sin scroll horizontal ni cambios al panel KDE |
 | **Compatibilidad KDE/Qt** | ERR-004, ERR-006, ERR-014 | Validar módulos, propiedades reservadas, Wayland y atajos globales en CachyOS antes de declararlos compatibles |
-| **Legibilidad/estilo** | ERR-009, ERR-012 | Probar fondos opacos, respiración, íconos locales y fallback accesible |
+| **Legibilidad/estilo** | ERR-009, ERR-012, ERR-016 | Probar fondos opacos, respiración, íconos locales y fallback accesible |
 
 Los grupos son una **priorización provisional** basada en las observaciones documentadas, no cifras automáticas ni una declaración de que el problema está resuelto.
 
