@@ -215,10 +215,10 @@ Window {
     property color demoLauncherSwitchColor: "#010111"
     property int demoLauncherMaxSlots: 20
     property bool demoLauncherOpacityOverride: false
-    property real demoLauncherOpacity: 1
+    property real demoLauncherOpacity: 0.7
     property bool demoLauncherIconsWithNames: true
     property bool demoMalvinaOptionsOpacityOverride: false
-    property real demoMalvinaOptionsOpacity: 1
+    property real demoMalvinaOptionsOpacity: 0.7
     property bool demoAutoCollapseTray: false
     // Estados de sesión de la maqueta (el panel KDE no se instala).
     property string demoSoLogoMode: "default"
@@ -278,9 +278,9 @@ Window {
     property int demoMalvinaGradientColorCount: 2
     property string demoMalvinaGradientDirection: "topBottom"
     property color demoBackgroundColor: "#202333"
-    property real demoSoledadOpacity: 0.5
-    property real demoMalvinaOpacity: 1
-    property real demoBackgroundOpacity: 0.5
+    property real demoSoledadOpacity: 0.7
+    property real demoMalvinaOpacity: 0.7
+    property real demoBackgroundOpacity: 0.7
     property bool demoShowBackground: false
     property bool demoTrayButtonColorOverride: false
     property color demoTrayButtonColor: "#010111"
