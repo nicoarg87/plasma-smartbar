@@ -83,7 +83,14 @@ QQC2.Popup {
     modal: false
     focus: true
     // Qt distingue clic dentro del launcher de clic fuera, incluso con panel lateral.
-    closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+    // Si el cursor está sobre el botón que abrió el launcher, NO usar
+    // autocierre por clic exterior: Qt podía cerrarlo en mouse-press
+    // y el onClicked de SO lo volvía a abrir en el mismo gesto.
+    // Fuera del botón se conserva clic exterior y Escape.
+    property bool triggerButtonHovered: false
+    closePolicy: QQC2.Popup.CloseOnEscape |
+        (triggerButtonHovered ? QQC2.Popup.NoAutoClose :
+                                QQC2.Popup.CloseOnPressOutside)
     signal requestShowMalvina()
     signal appSelected(string name, bool realCatalog)
     function categoryOptions() {
