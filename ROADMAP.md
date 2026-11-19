@@ -499,3 +499,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Diferenciar campo de Malvina de popup hermano de proveedores; el campo desactiva cierre exterior cuando Web/IA está visible, y recupera cierre exterior cuando solo está abierto el campo.
 - [ ] Reprobar en CachyOS/Wayland el clic dentro de ambos popups, alternancia, selección Web/IA, Escape individual, clic exterior, foco de escritura, dos paneles simultáneos; registrar fallos si persisten.
 - [ ] Ejecutar test funcional con Qt gráfico y comprobar que `closePolicy` de dos popups hermanos no afecta el flujo; no declarar corrección comprobada antes de ensayo.
+
+## Registro de defectos y dos temas de Soledad — 18/11/2026
+
+- [x] Crear `docs/ERRORES_COMUNES.md` para **todos** los errores, con recurrencia, origen, pasos, enlaces y pruebas, incluyendo ERR-001 (clic SO reabre popup), ERR-002 (clic interior cierra popups), ERR-003 (Web/IA flechas) y 12 incidencias adicionales.
+- [ ] Reprobar en CachyOS los errores recurrentes con el visor aislado y documentar resultados verificables; priorizar controlador de gestos y foco si vuelven a aparecer.
+- [x] Documentar en `docs/TEMAS.md` dos motivos de tema: atardecer tropical actual y GIF de playa nocturna todavía pendiente de recibir.
+- [ ] Obtener el **GIF nocturno correcto**, no una captura del visor; verificar origen/licencia/hash y guardar en assets sin reemplazar el GIF actual.
+- [ ] Implementar `Temas` en opciones con dos entradas, previsualización y paleta base del arte nocturno, personalizable en Soledad y Malvina, sin sobrescribir presets/favoritos.
+- [ ] Probar rendimiento/animación, gradientes, opacidad, contorno y restauración de temas en CachyOS antes de integrar en panel real.
