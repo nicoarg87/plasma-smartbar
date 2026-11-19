@@ -15,13 +15,14 @@ Window {
     title: "Configuraciones"
     color: "#242236"
 
-    // Tamaño de referencia: el editor de logo es la pestaña más alta.
+    // Más ancho para que los botones HEX y el scroll nunca se superpongan.
     // Si la pantalla es pequeña, las pestañas permiten desplazamiento.
     width: Screen.desktopAvailableWidth > 0
-        ? Math.min(940, Math.max(560, Screen.desktopAvailableWidth - 64)) : 940
+        ? Math.min(1180, Math.max(560, Screen.desktopAvailableWidth - 48)) : 1100
     height: Screen.desktopAvailableHeight > 0
         ? Math.min(850, Math.max(510, Screen.desktopAvailableHeight - 64)) : 850
-    minimumWidth: 560
+    minimumWidth: Screen.desktopAvailableWidth > 0
+        ? Math.min(850, Math.max(560, Screen.desktopAvailableWidth - 48)) : 850
     minimumHeight: 510
 
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
@@ -1252,11 +1253,11 @@ Window {
                     anchors.fill: parent
                     anchors.margins: 7
                     clip: true
-                    contentWidth: Math.max(0, availableWidth - 12)
+                    contentWidth: Math.max(0, availableWidth - 32)
                     QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                     QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                     ColumnLayout {
-                        width: Math.max(0, navigationScroll.availableWidth - 12)
+                        width: Math.max(0, navigationScroll.availableWidth - 32)
                         spacing: 5
                     SettingsMenuButton {
                         sectionHeader: true
@@ -1280,15 +1281,17 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
-                        text: "Botón de inicio SO"
-                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0
-                        onClicked: settings.showSoledadLogo()
+                        text: "Launcher y botón SO"
+                        highlighted: settings.currentTab === 0 &&
+                                     islandSubtabs.currentIndex === 1 &&
+                                     settings.behaviorScope === "soledad"
+                        onClicked: settings.showSoledadLauncher()
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
-                        text: "Efectos luminosos"
-                        highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 1
-                        onClicked: settings.showSoledadEffects()
+                        text: "Botón de inicio SO"
+                        highlighted: settings.currentTab === 1
+                        onClicked: settings.showSoledadLogo()
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
@@ -1310,14 +1313,6 @@ Window {
                         text: "Cajón y ventanas"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadWindows()
-                    }
-                    SettingsMenuButton {
-                        visible: settings.navigationGroup === "soledad"
-                        text: "Launcher y botón SO"
-                        highlighted: settings.currentTab === 0 &&
-                                     islandSubtabs.currentIndex === 1 &&
-                                     settings.behaviorScope === "soledad"
-                        onClicked: settings.showSoledadLauncher()
                     }
                     SettingsMenuButton {
                         sectionHeader: true
@@ -1427,11 +1422,11 @@ Window {
             QQC2.ScrollView {
                 id: positionScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, positionScroll.availableWidth - 12)
+                    width: Math.max(0, positionScroll.availableWidth - 32)
                     spacing: 16
                     RowLayout {
                         Layout.fillWidth: true
@@ -1856,11 +1851,11 @@ Window {
             QQC2.ScrollView {
                 id: collapseScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, collapseScroll.availableWidth - 12)
+                    width: Math.max(0, collapseScroll.availableWidth - 32)
                     spacing: 16
                     ColumnLayout {
                         visible: settings.behaviorScope === "soledad"
@@ -2036,12 +2031,13 @@ Window {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 spacing: 6
+                // Una sola entrada lateral; las dos subpestañas pertenecen al botón SO.
                 QQC2.TabBar {
                     id: logoSubtabs
-                    visible: false
+                    visible: true
                     Layout.fillWidth: true
-                    SettingsPageTab { text: "Imagen y texto"; width: logoSubtabs.width / 2 }
-                    SettingsPageTab { text: "Contorno e iluminación"; width: logoSubtabs.width / 2 }
+                    SettingsPageTab { text: "Logo, ancho y texto"; width: logoSubtabs.width / 2 }
+                    SettingsPageTab { text: "Efectos luminosos SO"; width: logoSubtabs.width / 2 }
                 }
                 StackLayout {
                     currentIndex: logoSubtabs.currentIndex
@@ -2051,11 +2047,11 @@ Window {
             QQC2.ScrollView {
                 id: logoScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, logoScroll.availableWidth - 12)
+                    width: Math.max(0, logoScroll.availableWidth - 32)
                     spacing: 10
                     RowLayout {
                         Layout.fillWidth: true
@@ -2601,11 +2597,11 @@ Window {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
-                    contentWidth: Math.max(0, availableWidth - 12)
+                    contentWidth: Math.max(0, availableWidth - 32)
                     QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                     QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                     ColumnLayout {
-                        width: Math.max(0, outlineScroll.availableWidth - 12)
+                        width: Math.max(0, outlineScroll.availableWidth - 32)
                         spacing: 13
                     RowLayout {
                         Layout.fillWidth: true
@@ -2946,6 +2942,16 @@ Window {
                         }
                         QQC2.Label { text: settings.glowSpread.toFixed(1) + " px"; color: "white" }
                     }
+                    // El usuario no necesita volver atrás para configurar el
+                    // degradado del fondo: esa velocidad vive en Color y transparencia.
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        visible: settings.outlineSection === 2
+                        text: "Ir a Color y transparencia → Degradado y respiración de Soledad"
+                        onClicked: settings.showSoledadGradient()
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Abrir los colores, el degradado y su velocidad en Soledad. La iluminación del botón SO es independiente."
+                    }
                     QQC2.Label {
                         text: "Velocidad de respiración"
                         color: "white"
@@ -3058,11 +3064,11 @@ Window {
             QQC2.ScrollView {
                 id: appearanceScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, appearanceScroll.availableWidth - 12)
+                    width: Math.max(0, appearanceScroll.availableWidth - 32)
                     spacing: 14
                     QQC2.Label {
                         text: settings.colorScope === "soledad"
@@ -3236,6 +3242,7 @@ Window {
                         color: "#ddd6e8"
                         wrapMode: Text.WordWrap
                     }
+                    // Filas independientes: aun con DPI alto, ningún botón tapa al scrollbar.
                     RowLayout {
                         visible: settings.appearanceCanEdit
                         Layout.fillWidth: true
@@ -3256,19 +3263,25 @@ Window {
                                 islandColorDialog.open()
                             }
                         }
-                        QQC2.Button {
-                            visible: appearanceTarget.currentIndex === 0
-                            text: "Abrir paleta del GIF…"
-                            onClicked: {
-                                settings.showSoledadGradient()
-                                paletteSampler.suggestFromImage("island")
-                            }
-                            QQC2.ToolTip.visible: hovered
-                            QQC2.ToolTip.text: "Detecta tonos del GIF, selecciona los dos principales en esta isla y activa su degradado. No cambia la luz SO ni otra isla."
+                    }
+                    QQC2.Button {
+                        visible: appearanceTarget.currentIndex === 0
+                        Layout.fillWidth: true
+                        text: "Abrir paleta del GIF…"
+                        onClicked: {
+                            settings.showSoledadGradient()
+                            paletteSampler.suggestFromImage("island")
                         }
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Detecta tonos del GIF, selecciona los dos principales en esta isla y activa su degradado. No cambia la luz SO ni otra isla."
+                    }
+                    RowLayout {
+                        visible: settings.appearanceCanEdit
+                        Layout.fillWidth: true
                         QQC2.TextField {
                             id: currentColorCopyField
-                            Layout.preferredWidth: 105
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             readOnly: true
                             selectByMouse: true
                             text: settings.toHex(settings.activeColor)
@@ -3619,7 +3632,7 @@ Window {
                                : settings.malvinaGradientSyncBreathing)
                             ? "Las islas pueden compartir la fase y la velocidad de la luz SO; " +
                               "cada isla conserva su intensidad. Para ver pulsar el contorno, " +
-                              "seleccioná el efecto Respiración en Efectos luminosos."
+                              "seleccioná Efectos luminosos dentro de Botón de inicio SO."
                             : "Respiración independiente: esta isla usa su propia velocidad " +
                               "sin cambiar la luz del botón SO ni la otra isla."
                     }
@@ -3693,7 +3706,7 @@ Window {
                     QQC2.Button {
                         visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
-                        text: "Ir a Efectos luminosos → Brillo y respiración SO"
+                        text: "Ir a Botón de inicio SO → Efectos luminosos → Brillo y respiración"
                         onClicked: settings.showSoledadGlowBreathing()
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ajusta el brillo del contorno SO, " +
@@ -3737,11 +3750,11 @@ Window {
             QQC2.ScrollView {
                 id: taskStylesScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, taskStylesScroll.availableWidth - 12)
+                    width: Math.max(0, taskStylesScroll.availableWidth - 32)
                     spacing: 14
                     QQC2.Label {
                         text: "Presentación de aplicaciones y líneas"
@@ -3878,11 +3891,11 @@ Window {
             QQC2.ScrollView {
                 id: sharedOutlineScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, sharedOutlineScroll.availableWidth - 12)
+                    width: Math.max(0, sharedOutlineScroll.availableWidth - 32)
                     spacing: 14
                     QQC2.Label {
                         text: "Editá el contorno de cada superficie por separado.\n" +
@@ -3969,11 +3982,11 @@ Window {
             QQC2.ScrollView {
                 id: aboutScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, aboutScroll.availableWidth - 12)
+                    width: Math.max(0, aboutScroll.availableWidth - 32)
                     spacing: 16
                     QQC2.Label {
                         text: "Ayuda rápida"
@@ -4057,11 +4070,11 @@ Window {
             QQC2.ScrollView {
                 id: themesScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 12)
+                contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, themesScroll.availableWidth - 12)
+                    width: Math.max(0, themesScroll.availableWidth - 32)
                     spacing: 12
                     QQC2.Label {
                         text: "Temas visuales"
