@@ -4437,8 +4437,8 @@ Window {
                 }
             }
 
-            // Página PRINCIPAL Temas (índice 4), independiente de las
-            // subpestañas antiguas de islas. Nunca aplica otro GIF sola.
+            // Temas: selector único, contraído inicialmente. La lista se
+            // despliega con scroll; no usar mosaico de tarjetas/cuadritos.
             QQC2.ScrollView {
                 id: themesScroll
                 clip: true
@@ -4449,215 +4449,234 @@ Window {
                     width: Math.max(0, themesScroll.availableWidth - 32)
                     spacing: 12
                     QQC2.Label {
-                        text: "Temas visuales"
+                        text: "Temas"
                         font.pixelSize: 19
                         font.bold: true
                         color: "white"
                     }
                     QQC2.Label {
-                        text: "Atardecer y Noche son temas de fábrica protegidos: restaurarlos " +
-                              "no cambia el original. Podés editar los colores, logos y efectos " +
-                              "de la barra y guardarlos en Personalizado. Día se definirá aparte."
-                        color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
+                        text: "Elegí un tema de la lista desplegable. Podés guardar el diseño que estás usando ahora sin borrar los anteriores."
                     }
-                    Rectangle {
+                    QQC2.Button {
+                        id: themesDropdownButton
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 114
-                        radius: 12
-                        color: "#262e44"
-                        border.color: "#506985"
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 10
+                        highlighted: settings.themeChooserExpanded
+                        text: settings.themeChooserExpanded
+                            ? "Temas guardados y de fábrica  ▴"
+                            : "Seleccionar tema  ▾"
+                        onClicked: settings.themeChooserExpanded = !settings.themeChooserExpanded
+                    }
+                    QQC2.ScrollView {
+                        id: themeListScroll
+                        visible: settings.themeChooserExpanded
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 360
+                        clip: true
+                        contentWidth: Math.max(0, availableWidth - 24)
+                        QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                        QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
+                        ColumnLayout {
+                            width: Math.max(0, themeListScroll.availableWidth - 24)
                             spacing: 12
-                            Image {
-                                Layout.preferredWidth: 135
-                                Layout.preferredHeight: 90
-                                source: settings.selectedImage
-                                fillMode: Image.PreserveAspectFit
-                                smooth: true
-                                cache: false
-                            }
-                            ColumnLayout {
+                            QQC2.Label {
                                 Layout.fillWidth: true
-                                QQC2.Label {
-                                    text: "Logo SO actual"
-                                    color: "white"
-                                    font.bold: true
-                                }
-                                QQC2.Label {
-                                    text: settings.logoMode === "custom"
-                                        ? "Imagen personalizada" : "Imagen predeterminada"
-                                    color: "#d0ddeb"
+                                text: "Guardar el tema que estás usando"
+                                font.bold: true
+                                color: "white"
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+                                QQC2.TextField {
+                                    Layout.fillWidth: true
+                                    placeholderText: "Nombre: Mi tema, Día, Atardecer..."
+                                    text: settings.newThemeName
+                                    onTextEdited: settings.newThemeName = text
                                 }
                                 QQC2.Button {
-                                    text: "Personalizar logo SO"
-                                    onClicked: settings.showSoledadLogo()
+                                    text: "Guardar tema"
+                                    onClicked: settings.saveNamedTheme()
                                 }
                             }
-                        }
-                    }
-                    QQC2.Label {
-                        text: "Temas disponibles"
-                        color: "white"; font.bold: true
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 9
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 270
-                            radius: 9
-                            color: "#2b2d42"
-                            border.color: "#4d607b"
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 8
-                                spacing: 5
-                                QQC2.Label { text: "Atardecer de fábrica"; color: "white"; font.bold: true }
+                            QQC2.Label {
+                                Layout.fillWidth: true
+                                text: "TEMAS DE FÁBRICA"
+                                color: "#b9cce2"
+                                font.bold: true
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
                                 Image {
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 64
-                                    fillMode: Image.PreserveAspectFit
-                                    source: settings.factorySunsetAvailable &&
-                                            settings.factorySunsetPreset.logoMode !== "text"
-                                        ? settings.factorySunsetImage : ""
                                     visible: settings.factorySunsetAvailable &&
                                              settings.factorySunsetPreset.logoMode !== "text"
-                                    cache: false
-                                }
-                                QQC2.Label {
-                                    visible: settings.factorySunsetAvailable &&
-                                             settings.factorySunsetPreset.logoMode === "text"
-                                    text: settings.factorySunsetAvailable
-                                        ? settings.factorySunsetPreset.soTextLabel : ""
-                                    color: "white"
-                                    font.bold: true
+                                    Layout.preferredWidth: 58
+                                    Layout.preferredHeight: 40
+                                    source: visible ? settings.factorySunsetImage : ""
+                                    fillMode: Image.PreserveAspectFit
                                 }
                                 QQC2.Label {
                                     Layout.fillWidth: true
+                                    text: "Atardecer" + (settings.factorySunsetAvailable
+                                        ? " · original protegido" : " · pendiente")
+                                    color: "white"
                                     wrapMode: Text.WordWrap
-                                    text: settings.factorySunsetAvailable
-                                        ? "Tema de fábrica protegido. Restaurarlo no impide cambiar colores y efectos."
-                                        : "Pendiente: incorporar la captura exacta y su imagen; no se usará otra paleta."
-                                    color: settings.factorySunsetAvailable ? "#b6ebdf" : "#ffd6aa"
                                 }
                                 QQC2.Button {
-                                    Layout.fillWidth: true
-                                    text: "Restaurar Atardecer de fábrica"
+                                    text: "Restaurar"
                                     enabled: settings.factorySunsetAvailable
                                     onClicked: settings.activateTheme("sunset")
                                 }
-                                QQC2.Button {
-                                    Layout.fillWidth: true
-                                    visible: !settings.factorySunsetAvailable
-                                    text: "Copiar mi apariencia actual para fijar Atardecer…"
-                                    onClicked: settings.showFactoryCapture("sunset")
-                                }
                             }
-                        }
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 275
-                            radius: 9
-                            color: "#202a3e"
-                            border.color: "#4d607b"
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 8
-                                spacing: 5
-                                QQC2.Label { text: "Noche de fábrica"; color: "white"; font.bold: true }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
                                 Image {
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 64
-                                    fillMode: Image.PreserveAspectFit
-                                    source: settings.factoryNightAvailable &&
-                                            settings.factoryNightPreset.logoMode !== "text"
-                                        ? settings.factoryNightImage : ""
                                     visible: settings.factoryNightAvailable &&
                                              settings.factoryNightPreset.logoMode !== "text"
-                                    cache: false
-                                }
-                                QQC2.Label {
-                                    visible: settings.factoryNightAvailable &&
-                                             settings.factoryNightPreset.logoMode === "text"
-                                    text: settings.factoryNightAvailable
-                                        ? settings.factoryNightPreset.soTextLabel : ""
-                                    color: "white"
-                                    font.bold: true
+                                    Layout.preferredWidth: 58
+                                    Layout.preferredHeight: 40
+                                    source: visible ? settings.factoryNightImage : ""
+                                    fillMode: Image.PreserveAspectFit
                                 }
                                 QQC2.Label {
                                     Layout.fillWidth: true
+                                    text: "Noche" + (settings.factoryNightAvailable
+                                        ? " · original protegido" : " · pendiente")
+                                    color: "white"
                                     wrapMode: Text.WordWrap
-                                    text: settings.factoryNightAvailable
-                                        ? "Tema del sistema · original protegido. Podés personalizar la barra tras restaurarlo."
-                                        : "Pendiente: incorporar la captura exacta y su imagen; no se usará otro tema."
-                                    color: settings.factoryNightAvailable ? "#b6ebdf" : "#ffd6aa"
                                 }
                                 QQC2.Button {
-                                    Layout.fillWidth: true
-                                    text: "Restaurar Noche de fábrica"
+                                    text: "Restaurar"
                                     enabled: settings.factoryNightAvailable
                                     onClicked: settings.activateTheme("night")
                                 }
-                                QQC2.Button {
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                QQC2.Label {
                                     Layout.fillWidth: true
-                                    visible: !settings.factoryNightAvailable
-                                    text: "Copiar mi apariencia actual para fijar Noche…"
-                                    onClicked: settings.showFactoryCapture("night")
+                                    text: "Día · tema de fábrica todavía no definido"
+                                    color: "#bbc6db"
+                                    wrapMode: Text.WordWrap
                                 }
+                                QQC2.Button {
+                                    text: "Restaurar"
+                                    enabled: false
+                                }
+                            }
+                            QQC2.Label {
+                                Layout.fillWidth: true
+                                text: "TUS TEMAS GUARDADOS"
+                                font.bold: true
+                                color: "#b9cce2"
+                            }
+                            RowLayout {
+                                visible: settings.themeDayJson.length > 0
+                                Layout.fillWidth: true
+                                Image {
+                                    Layout.preferredWidth: 58
+                                    Layout.preferredHeight: 40
+                                    source: settings.themeImageSource(settings.themeDayJson)
+                                    visible: source.toString().length > 0
+                                    fillMode: Image.PreserveAspectFit
+                                }
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    text: "Atardecer guardado anteriormente"
+                                    color: "white"
+                                    wrapMode: Text.WordWrap
+                                }
+                                QQC2.Button {
+                                    text: "Usar"
+                                    onClicked: settings.activateTheme("day")
+                                }
+                            }
+                            RowLayout {
+                                visible: settings.themeCustomJson.length > 0
+                                Layout.fillWidth: true
+                                Image {
+                                    Layout.preferredWidth: 58
+                                    Layout.preferredHeight: 40
+                                    source: settings.themeImageSource(settings.themeCustomJson)
+                                    visible: source.toString().length > 0
+                                    fillMode: Image.PreserveAspectFit
+                                }
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    text: "Personalizado guardado"
+                                    color: "white"
+                                    wrapMode: Text.WordWrap
+                                }
+                                QQC2.Button {
+                                    text: "Usar"
+                                    onClicked: settings.activateTheme("custom")
+                                }
+                            }
+                            Repeater {
+                                model: settings.savedThemeLibrary
+                                delegate: RowLayout {
+                                    required property int index
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    spacing: 8
+                                    Image {
+                                        Layout.preferredWidth: 58
+                                        Layout.preferredHeight: 40
+                                        source: settings.themeImageSource(modelData.jsonData)
+                                        visible: source.toString().length > 0
+                                        fillMode: Image.PreserveAspectFit
+                                    }
+                                    QQC2.Label {
+                                        Layout.fillWidth: true
+                                        text: modelData.name
+                                        color: "white"
+                                        wrapMode: Text.WordWrap
+                                    }
+                                    QQC2.Button {
+                                        text: "Usar"
+                                        onClicked: settings.restoreNamedTheme(index)
+                                    }
+                                }
+                            }
+                            QQC2.Label {
+                                Layout.fillWidth: true
+                                visible: settings.savedThemeLibrary.length === 0 &&
+                                         settings.themeCustomJson.length === 0 &&
+                                         settings.themeDayJson.length === 0
+                                text: "Todavía no hay temas personales guardados. Poné un nombre arriba y elegí Guardar tema."
+                                color: "#b9cce2"
+                                wrapMode: Text.WordWrap
+                            }
+                            QQC2.Label {
+                                Layout.fillWidth: true
+                                text: "INCORPORAR ORIGINALES DE FÁBRICA"
+                                color: "#b9cce2"
+                                font.bold: true
+                                visible: !settings.factorySunsetAvailable || !settings.factoryNightAvailable
+                            }
+                            QQC2.Button {
+                                Layout.fillWidth: true
+                                visible: !settings.factorySunsetAvailable
+                                text: "Exportar aspecto actual para fijar Atardecer de fábrica…"
+                                onClicked: settings.showFactoryCapture("sunset")
+                            }
+                            QQC2.Button {
+                                Layout.fillWidth: true
+                                visible: !settings.factoryNightAvailable
+                                text: "Exportar aspecto actual para fijar Noche de fábrica…"
+                                onClicked: settings.showFactoryCapture("night")
                             }
                         }
                     }
                     QQC2.Label {
-                        text: "Crear un tema desde los colores del GIF"
-                        color: "white"; font.bold: true
-                    }
-                    QQC2.Label {
                         Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: "#ddd6e8"
-                        text: "Analizá el GIF, elegí hasta tres tonos y asigná dos a cada isla. " +
-                              "Podés editar cualquier HEX y decidir después si usar degradado. " +
-                              "El contorno del botón SO no se modifica."
-                    }
-                    QQC2.Button {
-                        Layout.fillWidth: true
-                        text: "Abrir paleta del GIF y elegir colores…"
-                        onClicked: {
-                            settings.showSoledadGradient()
-                            paletteSampler.suggestFromImage("island")
-                        }
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Button {
-                            Layout.fillWidth: true
-                            text: "Guardar como Personalizado"
-                            onClicked: settings.storeTheme("custom")
-                        }
-                        QQC2.Button {
-                            Layout.fillWidth: true
-                            enabled: settings.themeCustomJson.length > 0
-                            text: "Aplicar Personalizado"
-                            onClicked: settings.activateTheme("custom")
-                        }
-                    }
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: "#b9e5ff"
                         text: settings.themeStatus
-                    }
-                    QQC2.Label {
-                        Layout.fillWidth: true
+                        color: "#b9e5ff"
                         wrapMode: Text.WordWrap
-                        color: "#ddd6e8"
-                        text: "Atardecer y Noche no se sobrescriben al guardar una estética favorita. " +
-                              "Para actualizar Atardecer, usá su botón de actualización y confirmá. " +
-                              "Los GIF personalizados permanecen en tu equipo."
                     }
                 }
             }
