@@ -152,14 +152,6 @@ Window {
     // Paleta diurna: las dos islas comparten los tonos del tema Dia,
     // sin alterar el preset Noche ni los ajustes personalizados.
     // Cada isla conserva su propia direccion de degradado.
-    // Política visual compartida para TODOS los temas: el primer y segundo
-    // color proceden de Soledad; Malvina conserva dirección propia.
-    function synchronizeIslandPalette() {
-        malvinaColor = soledadColor
-        malvinaGradientEnd = soledadGradientEnd
-        malvinaGradientEnabled = soledadGradientEnabled
-        malvinaGradientSyncBreathing = soledadGradientSyncBreathing
-    }
     function applyBeachDayPalette() {
         soledadGradientDirection = "leftRight"
         malvinaColor = soledadColor
@@ -168,7 +160,6 @@ Window {
         malvinaGradientDirection = "rightLeft"
     }
     function themeSnapshot() {
-        synchronizeIslandPalette()
         return JSON.stringify({
             version: 1,
             effectStyle: effectStyle, allowMotion: allowMotion,
@@ -273,9 +264,6 @@ Window {
             // sin reescribir el snapshot ni modificar Playa Noche.
             if (slot === "day")
                 applyBeachDayPalette()
-            // Todos los temas, incluidos Noche y futuros personalizados,
-            // usan la misma pareja de colores en ambas islas.
-            synchronizeIslandPalette()
             // Reusar la ruta de guardado vigente, inclusive los favoritos que
             // son independientes de estos tres espacios de tema.
             applyChanges()
@@ -717,7 +705,6 @@ Window {
             gripButtonOpacity = value
     }
     function applyChanges() {
-        synchronizeIslandPalette()
         // Ajustar la altura general solo al aplicar cambios de geometría.
         panelHeight = Math.min(120, Math.max(panelHeight, soledadHeight + 4, malvinaHeight + 4))
         soledadHeight = Math.min(soledadHeight, panelHeight - 4)
