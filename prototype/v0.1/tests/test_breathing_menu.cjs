@@ -236,7 +236,7 @@ const footer = ui.substring(ui.lastIndexOf("// Pie fijo"));
 assert(footer.indexOf('text: "Cancelar"') < footer.indexOf('text: "Aplicar"'));
 assert(footer.includes("onClicked: settings.close()"));
 assert(footer.includes("onClicked: settings.applyChanges()"));
-assert(ui.includes("onClosing: function(event) { themeChooserExpanded = false; discardPendingEdits() }"));
+assert(ui.includes("onClosing: function(event) { themeChooserExpanded = false; factoryToolsExpanded = false; discardPendingEdits() }"));
 assert(ui.includes("function captureSettingsBaseline()"));
 assert(ui.includes("function discardPendingEdits()"));
 assert(ui.includes("function stageThemeSlot(slot, data)"));
