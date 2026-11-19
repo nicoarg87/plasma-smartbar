@@ -203,6 +203,11 @@ Item {
     // cerramos ambos paneles en un mismo clic, sin interceptar sus controles.
     // Escape sigue cerrando individualmente el panel con foco.
     QQC2.Overlay.onPressed: {
+        // Al tocar SO o la isla 2 permitimos que ambos paneles puedan
+        // coexistir, como en la prueba del mantenedor. El clic en el
+        // escritorio vacío cierra los dos.
+        if (soButton.hovered || malvinaHotspotHover.hovered)
+            return
         if (installedAppsPopup.visible)
             installedAppsPopup.close()
         if (malvinaSearch.expanded) {
