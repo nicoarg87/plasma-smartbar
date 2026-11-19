@@ -211,6 +211,8 @@ Window {
             soledadGradientColorCount: soledadGradientColorCount,
             soledadGradientDirection: soledadGradientDirection,
             soledadGradientSyncBreathing: soledadGradientSyncBreathing,
+            soledadGradientBreathingEnabled: soledadGradientBreathingEnabled,
+            soledadGradientBreathingSpeed: soledadGradientBreathingSpeed,
             soledadGradientBreathingIntensity: soledadGradientBreathingIntensity,
             malvinaColor: toHex(malvinaColor), malvinaOpacity: malvinaOpacity,
             malvinaGradientEnabled: malvinaGradientEnabled,
@@ -219,6 +221,8 @@ Window {
             malvinaGradientColorCount: malvinaGradientColorCount,
             malvinaGradientDirection: malvinaGradientDirection,
             malvinaGradientSyncBreathing: malvinaGradientSyncBreathing,
+            malvinaGradientBreathingEnabled: malvinaGradientBreathingEnabled,
+            malvinaGradientBreathingSpeed: malvinaGradientBreathingSpeed,
             malvinaGradientBreathingIntensity: malvinaGradientBreathingIntensity,
             accentColor: toHex(accentColor), glowColor: toHex(glowColor),
             glowGradient: glowGradient, glowIntensity: glowIntensity,
@@ -328,11 +332,13 @@ Window {
                 "soledadColor","soledadOpacity","soledadGradientEnabled",
                 "soledadGradientEnd","soledadGradientThird",
                 "soledadGradientColorCount","soledadGradientDirection",
-                "soledadGradientSyncBreathing","soledadGradientBreathingIntensity",
+                "soledadGradientSyncBreathing","soledadGradientBreathingEnabled",
+                "soledadGradientBreathingSpeed","soledadGradientBreathingIntensity",
                 "malvinaColor","malvinaOpacity","malvinaGradientEnabled",
                 "malvinaGradientEnd","malvinaGradientThird",
                 "malvinaGradientColorCount","malvinaGradientDirection",
-                "malvinaGradientSyncBreathing","malvinaGradientBreathingIntensity",
+                "malvinaGradientSyncBreathing","malvinaGradientBreathingEnabled",
+                "malvinaGradientBreathingSpeed","malvinaGradientBreathingIntensity",
                 "accentColor","glowColor","glowGradient","glowIntensity","glowSpread",
                 "showBackground","backgroundColor","backgroundOpacity",
                 "trayButtonColorOverride","trayButtonColor","trayButtonOpacity",
@@ -473,10 +479,16 @@ Window {
     property color soledadGradientThird: "#ee9852"
     property int soledadGradientColorCount: 2 // 2 por defecto, 3 opcional
     property string soledadGradientDirection: "topBottom"
-    property bool soledadGradientSyncBreathing: false
+    // Ajustes de respiración propios de cada isla. La sincronización toma
+    // velocidad y fase de SO; fuera de ella cada isla usa su velocidad local.
+    property bool soledadGradientBreathingEnabled: true
+    property bool soledadGradientSyncBreathing: true
     property real soledadGradientBreathingIntensity: 0.6
-    property bool malvinaGradientSyncBreathing: false
+    property real soledadGradientBreathingSpeed: 0.6
+    property bool malvinaGradientBreathingEnabled: true
+    property bool malvinaGradientSyncBreathing: true
     property real malvinaGradientBreathingIntensity: 0.6
+    property real malvinaGradientBreathingSpeed: 0.6
     property bool malvinaGradientEnabled: false
     property color malvinaGradientEnd: "#445577"
     property color malvinaGradientThird: "#445577"
@@ -678,8 +690,10 @@ Window {
             soledadGradientColorCount = 2
             soledadGradientEnabled = false
             soledadGradientDirection = "topBottom"
-            soledadGradientSyncBreathing = false
+            soledadGradientBreathingEnabled = true
+            soledadGradientSyncBreathing = true
             soledadGradientBreathingIntensity = 0.6
+            soledadGradientBreathingSpeed = 0.6
             soledadOpacity = 0.5
             resetSampledColors()
             paletteFeedback = "Soledad volvió a tonos neutros. Para la playa nocturna, " +
@@ -691,8 +705,10 @@ Window {
             malvinaGradientColorCount = 2
             malvinaGradientEnabled = false
             malvinaGradientDirection = "topBottom"
-            malvinaGradientSyncBreathing = false
+            malvinaGradientBreathingEnabled = true
+            malvinaGradientSyncBreathing = true
             malvinaGradientBreathingIntensity = 0.6
+            malvinaGradientBreathingSpeed = 0.6
             malvinaOpacity = 1
         } else if (target === 2) {
             backgroundColor = "#202333"
@@ -800,8 +816,10 @@ Window {
         outlineConfig = next
     }
     signal saveOutlineRequested(var updated)
-    signal saveGradientBreathingRequested(bool enabled, real intensity)
-    signal saveMalvinaGradientBreathingRequested(bool enabled, real intensity)
+    signal saveGradientBreathingRequested(bool synchronizedWithSO, real intensity,
+                                         bool breathingEnabled, real speed)
+    signal saveMalvinaGradientBreathingRequested(bool synchronizedWithSO, real intensity,
+                                                bool breathingEnabled, real speed)
     signal saveIslandGradientRequested(bool soEnabled, string soEnd, string soDirection,
                                        bool malEnabled, string malEnd, string malDirection,
                                        int soCount, string soThird, int malCount, string malThird)
@@ -905,9 +923,13 @@ Window {
                                taskFrameOpacity, taskFrameWidth)
         refreshOutlinePreview()
         saveGradientBreathingRequested(soledadGradientSyncBreathing,
-                                     soledadGradientBreathingIntensity)
+                                      soledadGradientBreathingIntensity,
+                                      soledadGradientBreathingEnabled,
+                                      soledadGradientBreathingSpeed)
         saveMalvinaGradientBreathingRequested(malvinaGradientSyncBreathing,
-                                             malvinaGradientBreathingIntensity)
+                                              malvinaGradientBreathingIntensity,
+                                              malvinaGradientBreathingEnabled,
+                                              malvinaGradientBreathingSpeed)
         saveIslandGradientRequested(soledadGradientEnabled, toHex(soledadGradientEnd),
                                    soledadGradientDirection, malvinaGradientEnabled,
                                    toHex(malvinaGradientEnd), malvinaGradientDirection,
@@ -3079,23 +3101,8 @@ Window {
                         QQC2.ToolTip.text: "Copia una vez los tonos del fondo. No enlaza las islas " +
                                           "ni copia el contorno o la respiración. Pulsá Aplicar para guardar."
                     }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-                        Repeater {
-                            model: ["Color y opacidad", "DEGRADADO", "Respiración y fondo"]
-                            delegate: QQC2.Button {
-                                required property int index
-                                required property string modelData
-                                Layout.fillWidth: true
-                                visible: settings.colorScope !== "shared" ||
-                                         index === 0 || (index === 2 && appearanceTarget.currentIndex === 2)
-                                text: modelData
-                                highlighted: settings.appearanceSection === index
-                                onClicked: { settings.appearanceSection = index; appearanceScroll.contentItem.contentY = 0 }
-                            }
-                        }
-                    }
+                    // Color, degradado y respiración comparten una misma
+                    // página para evitar navegar entre submenús redundantes.
                     // Las dos islas ofrecen su panel flotante en el MISMO
                     // apartado Color. El modo heredado sigue activo por defecto.
                     QQC2.Label {
@@ -3281,7 +3288,8 @@ Window {
                     }
                     }
                     ColumnLayout {
-                        visible: settings.appearanceSection === 1
+                        visible: settings.appearanceSection === 0 &&
+                                 appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
                         spacing: 9
                     QQC2.Label {
@@ -3526,7 +3534,8 @@ Window {
 
                     }
                     ColumnLayout {
-                        visible: settings.appearanceSection === 2
+                        visible: settings.appearanceSection === 0 &&
+                                 appearanceTarget.currentIndex === 2
                         Layout.fillWidth: true
                         spacing: 9
                     QQC2.CheckBox {
