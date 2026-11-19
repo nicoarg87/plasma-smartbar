@@ -2753,6 +2753,21 @@ Window {
                             settings.appearanceSection = 0
                         }
                     }
+                    QQC2.Button {
+                        visible: settings.colorScope === "shared"
+                        Layout.fillWidth: true
+                        text: "Copiar colores y degradado Soledad → Malvina (una vez)"
+                        onClicked: {
+                            settings.malvinaColor = settings.soledadColor
+                            settings.malvinaOpacity = settings.soledadOpacity
+                            settings.malvinaGradientEnabled = settings.soledadGradientEnabled
+                            settings.malvinaGradientEnd = settings.soledadGradientEnd
+                            settings.malvinaGradientDirection = settings.soledadGradientDirection
+                        }
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Copia una vez los tonos del fondo. No enlaza las islas " +
+                                          "ni copia el contorno o la respiración. Pulsá Aplicar para guardar."
+                    }
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 6
@@ -3077,19 +3092,7 @@ Window {
                             else settings.malvinaGradientDirection = d
                         }
                     }
-                    QQC2.Button {
-                        visible: appearanceTarget.currentIndex === 1
-                        Layout.fillWidth: true
-                        text: "Copiar colores y degradado de Soledad a Malvina"
-                        onClicked: {
-                            settings.malvinaColor = settings.soledadColor
-                            settings.malvinaOpacity = settings.soledadOpacity
-                            settings.malvinaGradientEnabled = settings.soledadGradientEnabled
-                            settings.malvinaGradientEnd = settings.soledadGradientEnd
-                            settings.malvinaGradientDirection = settings.soledadGradientDirection
-                            // Sólo copiamos tonos; sincronización sigue siendo independiente.
-                        }
-                    }
+
                     }
                     ColumnLayout {
                         visible: settings.appearanceSection === 2
