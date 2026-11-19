@@ -629,3 +629,16 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Comprobar intensidad 0 %, estilos, animación, visibilidad, consumo y persistencia tras Aplicar/reabrir, junto a temas Atardecer/Noche y predeterminada personal.
 - [ ] Mantener [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15) y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) abiertos hasta validación. No modificar el panel KDE instalado.
 
+
+
+## Incidencia de prueba 19/11/2026 — velocidades bloqueadas en interfaz
+
+- [x] Identificar bloqueo real en `SoledadSettings.qml`: la fila de velocidad del degradado estaba deshabilitada si un tema/restauración mantenía `GradientSyncBreathing=true`, aunque «Igualar intensidad» estuviera apagado.
+- [x] Permitir editar **siempre** la velocidad propia de Soledad/Malvina con slider y botones ±; modificarla desacopla ritmo de SO en esa isla (y también el vínculo de intensidad de Soledad), sin alterar línea SO.
+- [x] Reordenar el primer apartado de Efectos luminosos del botón SO para situar velocidad, duración de ciclo e intensidad del pulso arriba, con ± accesibles y activación del efecto al modificar dichos controles.
+- [x] Ofrecer actualización inmediata de vista previa del pulso SO sin comprometer el guardado vía Aplicar.
+- [x] Explicar cuándo la línea SO está oculta con ventanas abiertas y facilitar casilla de prueba, conservando el valor guardado.
+- [x] Corregir botón «Ir a Color y transparencia → Degradado y respiración» para que salte al apartado de velocidad del degradado, no al principio de la página larga.
+- [x] Regresión de lógica JS QML y presencia de controles sobre fuentes GitHub, 275 PASS distribuidos en tres tests ([UI 7ac071b](https://github.com/nicoarg87/plasma-smartbar/commit/7ac071bf32ad60d94cf9e7c4a091384b64d14394)).
+- [ ] **Prueba visual del mantenedor en CachyOS**: confirmar edición de velocidad con sincronización heredada activa, persistencia, cambios en preview, controles ±, scroll de navegación y pulsación visible en SO con/sin ventanas. Registrar captura/log de error en [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
+- [ ] Mantener panel KDE actual intacto y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) borrador hasta validación.
