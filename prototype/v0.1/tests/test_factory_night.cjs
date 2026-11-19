@@ -34,8 +34,12 @@ assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
 assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
 assert(!ui.includes("themeImageSource(settings.themeNightJson)"),
        "La tarjeta de Noche muestra una miniatura distinta del perfil fijo");
-assert(!ui.includes('source: settings.selectedImage\n'),
-       "No utilizar el logo actualmente seleccionado como miniatura de Noche");
+const nightCard = ui.substring(ui.indexOf('text: "Noche de fábrica"'),
+                               ui.indexOf('text: "Crear un tema desde los colores del GIF"'));
+assert(!nightCard.includes("settings.selectedImage"),
+       "La miniatura de Noche no debe mostrar la imagen actual");
+assert(!nightCard.includes("settings.themeNightJson"),
+       "La miniatura de Noche no debe mostrar un tema histórico");
 assert(ui.includes('soButtonWidth: soButtonWidth'), "Fábrica omite ancho de botón");
 assert(ui.includes('panelHeight: panelHeight'), "Fábrica omite altura de barra");
 assert(ui.includes('"soButtonWidth","panelHeight"'), "Restauración no trae geometría visual");
