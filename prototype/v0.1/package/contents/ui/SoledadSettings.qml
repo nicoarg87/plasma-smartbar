@@ -210,6 +210,11 @@ Window {
         stageThemeSlot("library", themeLibraryJson)
         applyChanges()
         previewFactorySlot = ""
+        // Exportación local: solo se imprime en Konsole, nunca se envía a GitHub.
+        // Incluye la ruta del GIF real para poder empaquetar su archivo exacto.
+        const exportData = JSON.parse(snapshot)
+        exportData.originalImageUrl = logoMode === "text" ? "" : selectedImage.toString()
+        console.log("SMARTBAR_DIA_JSON=" + JSON.stringify(exportData))
         themeStatus = existing >= 0
             ? "Día actualizado y guardado en este equipo. La versión anterior sigue disponible."
             : "Día guardado en este equipo con el GIF, los colores y los efectos actuales."
