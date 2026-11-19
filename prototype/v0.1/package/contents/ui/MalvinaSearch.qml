@@ -382,11 +382,16 @@ Item {
         padding: 0
         modal: false
         focus: false
-        // El campo y los proveedores son dos Popup hermanos. El panel Web/IA
-        // queda FUERA del rectángulo de este campo; con CloseOnPressOutside,
-        // seleccionar Google/ChatGPT cerraba la búsqueda antes del onClicked.
-        // Las opciones gestionan el clic exterior para ambos.
-        closePolicy: QQC2.Popup.NoAutoClose
+        // Dos Popup hermanos: al abrir Web/IA, el campo no puede usar
+        // cierre exterior porque Google/ChatGPT están fuera de su rectángulo.
+        // Cuando el menú Web/IA NO está abierto, sí permitimos que un clic
+        // exterior cierre el campo y la búsqueda, como pidió el mantenedor.
+        closePolicy: options.visible ? QQC2.Popup.NoAutoClose
+                                     : QQC2.Popup.CloseOnPressOutside
+        onClosed: {
+            if (search.expanded && !options.visible)
+                search.closeSearch()
+        }
         background: Rectangle {
             radius: search.islandShape === "square" ? 0 :
                     search.islandShape === "capsule" ? height / 2 :
