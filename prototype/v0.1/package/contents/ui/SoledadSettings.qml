@@ -4620,8 +4620,7 @@ Window {
                         padding: 4
                         modal: false
                         focus: true
-                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
-                        background: Rectangle {
+                        // Clic repetido en botón padre NO debe cerrar popup antes de onClicked.\n                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent\n                        background: Rectangle {
                             color: "#252b38"
                             border.color: "#63778e"
                             radius: 5
