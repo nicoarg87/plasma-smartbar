@@ -34,11 +34,11 @@ const qml = fs.readFileSync(path.join(root, "package/contents/ui/SoledadSettings
 assert(qml.includes("PaletteExtractor.extractDominantColors(raw, 3)"));
 assert(qml.includes("function chooseSampledColor(index, slot)"));
 assert(qml.includes("function setIslandHex(slot, raw)"));
-assert(qml.includes("currentBaseHex.copy()"));
-assert(qml.includes("currentEndHex.copy()"));
+assert(qml.includes("activeHexField.copy()"));
 assert(qml.includes("sampleHexField.copy()"));
-assert(qml.includes('text: "Usar como color 1"'));
-assert(qml.includes('text: "Usar como color 2"'));
+assert(qml.includes('model: ["2 colores (predeterminado)", "3 colores"]'));
+assert(qml.includes('settings.chooseSampledColor(i - 1, slotName)'));
+assert(qml.includes('index === 0 ? "base" : index === 1 ? "end" : "third"'));
 assert(qml.includes('text: "Dirección del degradado"'));
 assert(qml.includes('text: "Activar degradado de la isla seleccionada"'));
 for (const old of ["putSuggestedPaletteOnSoledad", "suggestedIslandBase",
