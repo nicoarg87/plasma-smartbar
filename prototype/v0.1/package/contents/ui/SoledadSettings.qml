@@ -2757,7 +2757,7 @@ Window {
                     QQC2.Button {
                         visible: settings.outlineUsesGlow && settings.logoMode !== "text"
                         text: "Analizar GIF actual para el contorno (sin tocar fondo)"
-                        onClicked: paletteSampler.suggestFromImage()
+                        onClicked: paletteSampler.suggestFromImage("contour")
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Sólo prepara los colores luminosos del contorno; el degradado del fondo sigue independiente."
                     }
