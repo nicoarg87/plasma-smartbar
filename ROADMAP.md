@@ -538,3 +538,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Guardar tres temas en KConfig/Qt Settings sin afectar las otras ranuras ni favoritos personales.
 - [ ] PROBAR EN CACHYOS: carga QML, desplegables de menú, color/degradado, saltos entre páginas, miniatura GIF, Día/Noche/Personalizado, creación automática, Aplicar/reapertura y persistencia de favoritos.
 - [ ] Posterior: incorporar GIF nocturno con derechos y SHA si se autoriza distribuirlo; las ranuras hoy usan ruta local del archivo elegido por el mantenedor.
+
+## Menús exclusivos y compatibilidad de muestreo — 18/11/2026
+
+- [x] SO recibe menú propio «Launcher y botón SO» y autocontracción SO; bandeja y opciones comunes quedan en General con reset individual.
+- [x] Permitir editar figura y tamaño de Malvina aunque la isla esté desactivada.
+- [x] Sustituir manejador no compatible `Canvas.onImageLoadingFailed` por `isImageError()` y Timer, según Qt 6.
+- [ ] Probar en CachyOS menús plegables, SO y Malvina sin cruces, nuevo Temas, tres espacios guardados y error/timeout de archivo GIF ausente.
+- [ ] Asegurar accesibilidad por teclado a encabezados y controles con escalado de fuentes KDE.
