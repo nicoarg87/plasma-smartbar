@@ -579,3 +579,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Superficies de Soledad, Malvina, launcher y subpaneles Web/IA dibujan dos o tres paradas.
 - [x] Crear prueba de regresión estática `prototype/v0.1/tests/test_gradient_palette.cjs`.
 - [ ] **Probar en CachyOS** extracción de colores con GIF real, selección 1+2/1+3, modo 3, 4 direcciones, pulsación de Aplicar, guardado y reapertura, luz independiente y consumo CPU/GPU. Issue #15.
+
+
+## Menú y respiración por isla integrados — 19/11/2026
+- [x] Ordenar accesos de Soledad: Anchura primero; Logo SO; Efectos; Color y transparencia; Figura/tamaño; Cajón/ventanas; Launcher.
+- [x] Eliminar accesos redundantes «Degradado Soledad» y «Degradado Malvina»; mostrar opacidad, 2/3 colores, dirección y respiración juntos bajo Color.
+- [x] Activar sincronización con SO por defecto en configuraciones nuevas y respetar valores locales previos.
+- [x] Respiración habilitada separadamente, intensidad independiente por isla y velocidad local cuando se desconecta sincronización; reloj único condicional.
+- [x] Los temas guardados recuperan su respiración real sin forzar sincronización.
+- [x] Añadir prueba estática `prototype/v0.1/tests/test_breathing_menu.cjs` (PASS en V8).
+- [ ] Ejecutar tests Node y ensayo Qt/CachyOS de la nueva pantalla y respiración; comprobar efectos en SO y Malvina, paneles flotantes, opacidad, preferencias, rendimiento y compatibilidad. [Issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
