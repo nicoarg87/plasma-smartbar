@@ -21,6 +21,7 @@ Item {
     property real islandOpacity: 1
     // Solo el panel de opciones Web/IA: sigue a la isla salvo anulación.
     property real optionsPanelOpacity: islandOpacity
+    property real optionsPanelBreathingFactor: 1
     property bool islandGradientEnabled: false
     property color islandGradientEnd: "#445577"
     property string islandGradientDirection: "topBottom"
@@ -530,8 +531,9 @@ Item {
             gradientEnabled: search.islandGradientEnabled
             gradientDirection: search.islandGradientDirection
             baseOpacity: search.optionsPanelOpacity
-            // Opacidad efectiva incluye respiración; no multiplicarla dos veces.
-            breathingFactor: 1
+            breathingFactor: search.optionsPanelBreathingFactor
+            opaqueAtMaximum: true
+            // Al 100 %, respirar cambia luminosidad, no transparencia.
             outlineColor: search.islandOutlineColor
             outlineOpacity: search.islandOutlineOpacity
             outlineWidth: search.islandOutlineWidth
