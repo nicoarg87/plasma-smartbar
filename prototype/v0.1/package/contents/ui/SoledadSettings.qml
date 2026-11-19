@@ -1150,18 +1150,20 @@ Window {
                         QQC2.Button {
                             Layout.fillWidth: true
                             text: "Ubicación"
+                            visible: settings.geometryScope === "shared"
                             highlighted: settings.geometrySection === 0
                             onClicked: { settings.geometrySection = 0; positionScroll.contentItem.contentY = 0 }
                         }
                         QQC2.Button {
                             Layout.fillWidth: true
-                            text: "Figuras"
+                            text: settings.geometryScope === "shared" ? "Botones comunes" : "Figuras"
                             highlighted: settings.geometrySection === 1
                             onClicked: { settings.geometrySection = 1; positionScroll.contentItem.contentY = 0 }
                         }
                         QQC2.Button {
                             Layout.fillWidth: true
                             text: "Tamaños"
+                            visible: settings.geometryScope !== "shared"
                             highlighted: settings.geometrySection === 2
                             onClicked: { settings.geometrySection = 2; positionScroll.contentItem.contentY = 0 }
                         }
@@ -1171,12 +1173,12 @@ Window {
                         Layout.fillWidth: true
                         spacing: 10
                     QQC2.Label {
-                        text: "Soledad y Malvina · ajustá cada isla por separado"
+                        text: "Ubicación, visibilidad y altura general de la barra"
                         color: "#ddd6e8"; Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
-                        text: "Geometría compartida · Soledad y Malvina"
+                        text: "Posición general de las islas"
                         font.bold: true
                         color: "white"
                     }
@@ -1215,6 +1217,25 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
+                    QQC2.Label {
+                        text: "Altura general compartida"
+                        font.bold: true
+                        color: "white"
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label { text: "Altura general"; color: "white"; Layout.preferredWidth: 170 }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 40; to: 120; stepSize: 2
+                            value: settings.panelHeight
+                            onMoved: settings.panelHeight = Math.round(value)
+                        }
+                        QQC2.Label {
+                            text: Math.round(settings.panelHeight) + " px"
+                            color: "white"; Layout.preferredWidth: 64
+                        }
                     }
                     QQC2.Label {
                         text: "Alineación predeterminada de Soledad"
@@ -1288,16 +1309,22 @@ Window {
                         color: "white"; font.bold: true
                     }
                     QQC2.Label {
+                        visible: settings.geometryScope === "soledad"
                         text: "Soledad: el modelo inicial conserva la izquierda redondeada y termina recto a la derecha."
                         color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
+                        visible: settings.geometryScope === "soledad"
                         text: "SOLEDAD · Figura exterior"
                         color: "#cde6f5"; font.bold: true
                     }
-                    QQC2.Label { text: "Forma de Soledad"; color: "white" }
+                    QQC2.Label {
+                        visible: settings.geometryScope === "soledad"
+                        text: "Forma de Soledad"; color: "white"
+                    }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
+                        visible: settings.geometryScope === "soledad"
                         model: ["Izquierda redondeada / derecha recta (inicial)",
                                 "Toda redondeada", "Toda cuadrada",
                                 "Izquierda recta / derecha redondeada",
@@ -1311,6 +1338,7 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                         text: "MALVINA · Figura exterior y controles"
                         color: "#cde6f5"; font.bold: true
                         visible: settings.launcherIslandVisible
@@ -1318,10 +1346,10 @@ Window {
                     QQC2.Label {
                         text: "Forma de Malvina";
                         color: "white"
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                     }
                     QQC2.ComboBox {
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                         Layout.fillWidth: true
                         model: ["Redondeada (inicial)", "Cuadrada",
                                 "Izquierda redondeada / derecha recta",
@@ -1339,10 +1367,10 @@ Window {
                     QQC2.Label {
                         text: "Botón engranaje de Malvina"
                         color: "white"
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                     }
                     QQC2.ComboBox {
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                         Layout.fillWidth: true
                         model: ["Cuadrado (inicial)", "Cuadrado con esquinas redondeadas", "Circular", "Cápsula"]
                         currentIndex: Math.max(0,["square","rounded","circle","capsule"].indexOf(settings.malvinaGearButtonShape))
@@ -1353,10 +1381,10 @@ Window {
                     QQC2.Label {
                         text: "Botón lupa de Malvina"
                         color: "white"
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                     }
                     QQC2.ComboBox {
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                         Layout.fillWidth: true
                         model: ["Cuadrado (inicial)", "Cuadrado con esquinas redondeadas", "Circular", "Cápsula"]
                         currentIndex: Math.max(0,["square","rounded","circle","capsule"].indexOf(settings.malvinaSearchButtonShape))
@@ -1365,21 +1393,30 @@ Window {
                         }
                     }
                     QQC2.Label {
+                        visible: settings.geometryScope === "shared"
                         text: "COMPARTIDAS · Controles del panel"
                         color: "#cde6f5"; font.bold: true
                     }
-                    QQC2.Label { text: "Agarre de seis puntos"; color: "white" }
+                    QQC2.Label {
+                        visible: settings.geometryScope === "shared"
+                        text: "Agarre de seis puntos"; color: "white"
+                    }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
+                        visible: settings.geometryScope === "shared"
                         model: ["Cuadrado", "Cuadrado con bordes redondeados (inicial)"]
                         currentIndex: settings.gripShape === "rounded" ? 1 : 0
                         onActivated: function(i) {
                             settings.gripShape = i === 1 ? "rounded" : "square"
                         }
                     }
-                    QQC2.Label { text: "Botón de bandeja simulada"; color: "white" }
+                    QQC2.Label {
+                        visible: settings.geometryScope === "shared"
+                        text: "Botón de bandeja simulada"; color: "white"
+                    }
                     QQC2.ComboBox {
                         Layout.fillWidth: true
+                        visible: settings.geometryScope === "shared"
                         model: ["Redondeado (inicial)", "Cuadrado"]
                         currentIndex: settings.trayButtonShape === "square" ? 1 : 0
                         onActivated: function(i) {
@@ -1391,26 +1428,14 @@ Window {
                         visible: settings.geometrySection === 2
                         Layout.fillWidth: true
                         spacing: 10
-                    QQC2.Label { text: "Geometría de las islas"; color: "white"; font.bold: true }
+                    QQC2.Label { text: settings.geometryScope === "soledad" ? "Tamaño de Soledad" : "Tamaño de Malvina"; color: "white"; font.bold: true }
                     QQC2.Label {
                         text: "La altura elegida es constante durante el uso. Al aumentar una isla, Aplicar también aumenta la altura general si hace falta (máximo 120 px, con 4 px de margen)."
                         color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                     }
+
                     RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Label { text: "Altura general"; color: "white"; Layout.preferredWidth: 170 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 40; to: 120; stepSize: 2
-                            value: settings.panelHeight
-                            onMoved: settings.panelHeight = Math.round(value)
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.panelHeight) + " px"
-                            color: "white"; Layout.preferredWidth: 64
-                        }
-                    }
-                    RowLayout {
+                        visible: settings.geometryScope === "soledad"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Altura Soledad"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1425,7 +1450,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                         Layout.fillWidth: true
                         QQC2.Label { text: "Altura Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1440,7 +1465,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.soledadShape !== "square" && settings.soledadShape !== "leftTip"
+                        visible: settings.geometryScope === "soledad" && settings.soledadShape !== "square" && settings.soledadShape !== "leftTip"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Esquinas Soledad"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1455,7 +1480,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.launcherIslandVisible && settings.malvinaShape !== "square" && settings.malvinaShape !== "leftTip" && settings.malvinaShape !== "capsule"
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible && settings.malvinaShape !== "square" && settings.malvinaShape !== "leftTip" && settings.malvinaShape !== "capsule"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Esquinas Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1470,6 +1495,7 @@ Window {
                         }
                     }
                     RowLayout {
+                        visible: settings.geometryScope === "soledad"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Ancho mínimo Soledad"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1484,7 +1510,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
                         Layout.fillWidth: true
                         QQC2.Label { text: "Ancho Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
