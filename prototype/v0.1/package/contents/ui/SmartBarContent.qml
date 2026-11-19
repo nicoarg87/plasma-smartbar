@@ -1150,18 +1150,20 @@ Item {
         // El paso efectivo de clics a ventanas ajenas requiere validar KWin.
         Item {
             id: malvinaHotspot
-            // Hotspot pasivo y algo mayor que la isla escondida para
-            // que el usuario encuentre Malvina en la esquina izquierda.
-            // No contiene MouseArea: no captura clics del escritorio.
-            width: Math.max(120, malvinaSearch.implicitWidth +
+            // Geometría visual original intacta. Solo ampliamos el margen
+            // sensible del HoverHandler, no el ancho de Malvina.
+            width: Math.max(malvinaSearch.implicitWidth +
                             (root.malvinaShape === "leftTip" ? 34 : 10),
                             root.malvinaWidth)
-            height: root.fixedHeight
+            height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
 
             HoverHandler {
                 id: malvinaHotspotHover
+                // Margen pasivo: más fácil encontrar la isla escondida,
+                // sin hacer más gruesa la barra ni ensanchar Malvina.
+                margin: 18
                 enabled: !root.autoRevealBlocked &&
                          root.launcherIslandVisible && root.autoHideMalvina
                 onHoveredChanged: {
