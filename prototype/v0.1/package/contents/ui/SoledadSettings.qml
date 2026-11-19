@@ -590,6 +590,19 @@ Window {
         else if (appearanceTarget.currentIndex === 0)
             soledadGradientColorCount = count === 3 ? 3 : 2
     }
+    readonly property string activeGradientDirection:
+        appearanceTarget.currentIndex === 1
+        ? malvinaGradientDirection : soledadGradientDirection
+    function gradientPreviewStop(index) {
+        const reversed = activeGradientDirection === "rightLeft" ||
+                         activeGradientDirection === "bottomTop"
+        const three = activeGradientColorCount === 3
+        if (index === 0)
+            return islandColor(reversed ? (three ? "third" : "end") : "base")
+        if (index === 1)
+            return islandColor(three ? "end" : (reversed ? "base" : "end"))
+        return islandColor(reversed ? "base" : (three ? "third" : "end"))
+    }
     function selectedSampleIndex(slot) {
         const targetHex = toHex(islandColor(slot)).toLowerCase()
         for (let i = 0; i < sampledColors.length; ++i) {
@@ -969,6 +982,23 @@ Window {
         id: launcherSwitchColorDialog
         title: "Color propio del interruptor Aplicaciones / Archivos"
         onAccepted: settings.launcherSwitchColor = selectedColor
+    }
+    ColorDialog {
+        id: activeGradientColorDialog
+        title: "Editar color del degradado"
+        property int targetIsland: 0
+        property string slotName: "base"
+        onAccepted: {
+            if (targetIsland === 0) {
+                if (slotName === "base") settings.soledadColor = selectedColor
+                else if (slotName === "third") settings.soledadGradientThird = selectedColor
+                else settings.soledadGradientEnd = selectedColor
+            } else {
+                if (slotName === "base") settings.malvinaColor = selectedColor
+                else if (slotName === "third") settings.malvinaGradientThird = selectedColor
+                else settings.malvinaGradientEnd = selectedColor
+            }
+        }
     }
     ColorDialog {
         id: samplePaletteColorDialog
@@ -3235,166 +3265,177 @@ Window {
                               "La luz del botón SO no interviene. " +
                               "Cada isla conserva su propia paleta."
                     }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex <= 1
-                        Layout.fillWidth: true
-                        color: "white"
-                        font.bold: true
-                        text: "COLORES ACTIVOS DE " +
-                              (appearanceTarget.currentIndex === 1 ? "MALVINA" : "SOLEDAD")
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex <= 1
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: "#bbd8f2"
-                        text: "Estos son los colores que usa Aplicar. Si la isla tiene " +
-                              "transparencia, el fondo del escritorio también influye."
-                    }
-                    RowLayout {
-                        visible: appearanceTarget.currentIndex <= 1
-                        Layout.fillWidth: true
-                        spacing: 6
-                        QQC2.Label { text: "Color 1"; color: "white" }
-                        Rectangle {
-                            width: 28; height: 25; radius: 4
-                            color: settings.islandColor("base")
-                        }
-                        QQC2.TextField {
-                            id: currentBaseHex
-                            Layout.fillWidth: true
-                            selectByMouse: true
-                            placeholderText: "#000000"
-                            text: settings.toHex(settings.islandColor("base"))
-                            onEditingFinished: settings.setIslandHex("base", text)
-                        }
-                        QQC2.Button {
-                            text: "Copiar"
-                            onClicked: {
-                                currentBaseHex.selectAll()
-                                currentBaseHex.copy()
-                                currentBaseHex.deselect()
-                            }
-                        }
-                        QQC2.Button {
-                            text: "Elegir…"
-                            onClicked: {
-                                islandColorDialog.editingTarget = appearanceTarget.currentIndex
-                                islandColorDialog.selectedColor = settings.islandColor("base")
-                                islandColorDialog.open()
-                            }
-                        }
-                    }
-                    RowLayout {
-                        visible: appearanceTarget.currentIndex <= 1
-                        Layout.fillWidth: true
-                        spacing: 6
-                        QQC2.Label { text: "Color 2"; color: "white" }
-                        Rectangle {
-                            width: 28; height: 25; radius: 4
-                            color: settings.islandColor("end")
-                        }
-                        QQC2.TextField {
-                            id: currentEndHex
-                            Layout.fillWidth: true
-                            selectByMouse: true
-                            placeholderText: "#000000"
-                            text: settings.toHex(settings.islandColor("end"))
-                            onEditingFinished: settings.setIslandHex("end", text)
-                        }
-                        QQC2.Button {
-                            text: "Copiar"
-                            onClicked: {
-                                currentEndHex.selectAll()
-                                currentEndHex.copy()
-                                currentEndHex.deselect()
-                            }
-                        }
-                        QQC2.Button {
-                            text: "Elegir…"
-                            onClicked: {
-                                islandGradientEndDialog.target = appearanceTarget.currentIndex
-                                islandGradientEndDialog.selectedColor = settings.islandColor("end")
-                                islandGradientEndDialog.open()
-                            }
-                        }
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex <= 1
-                        Layout.fillWidth: true
-                        text: "PALETA DEL GIF"
-                        color: "white"
-                        font.bold: true
-                    }
                     QQC2.Button {
                         visible: appearanceTarget.currentIndex <= 1
-                        text: "Analizar GIF y mostrar tres colores"
                         Layout.fillWidth: true
+                        text: "Analizar GIF y elegir colores"
                         onClicked: paletteSampler.suggestFromImage("island")
                     }
                     QQC2.Label {
                         visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
-                        color: "#d1d8e5"
+                        color: "#cdd9e8"
                         text: settings.paletteFeedback
                     }
-                    Repeater {
-                        model: settings.sampledColors.length
-                        delegate: ColumnLayout {
-                            required property int index
-                            Layout.fillWidth: true
-                            spacing: 4
-                            RowLayout {
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        text: "Tres tonos del GIF (editables)"
+                        font.bold: true
+                        color: "white"
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex <= 1 &&
+                                 settings.sampledColors.length > 0
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Repeater {
+                            model: settings.sampledColors.length
+                            delegate: ColumnLayout {
+                                required property int index
                                 Layout.fillWidth: true
-                                spacing: 6
-                                Rectangle {
-                                    width: 34; height: 27; radius: 5
-                                    color: settings.sampleHex(index)
-                                }
-                                QQC2.Label {
-                                    text: "Tono " + (index + 1)
-                                    color: "white"
+                                spacing: 4
+                                RowLayout {
+                                    spacing: 5
+                                    Rectangle {
+                                        width: 32; height: 24; radius: 5
+                                        color: settings.sampleHex(index)
+                                    }
+                                    QQC2.Label {
+                                        text: "Tono " + (index + 1)
+                                        color: "white"
+                                    }
                                 }
                                 QQC2.TextField {
                                     id: sampleHexField
                                     Layout.fillWidth: true
                                     selectByMouse: true
                                     text: settings.sampleHex(index)
-                                    placeholderText: "#000000"
                                     onEditingFinished: settings.editSampleHex(index, text)
                                 }
-                                QQC2.Button {
-                                    text: "Copiar"
-                                    onClicked: {
-                                        sampleHexField.selectAll()
-                                        sampleHexField.copy()
-                                        sampleHexField.deselect()
+                                RowLayout {
+                                    spacing: 3
+                                    QQC2.Button {
+                                        text: "Copiar"
+                                        onClicked: {
+                                            sampleHexField.selectAll()
+                                            sampleHexField.copy()
+                                            sampleHexField.deselect()
+                                        }
                                     }
-                                }
-                                QQC2.Button {
-                                    text: "Editar…"
-                                    onClicked: {
-                                        samplePaletteColorDialog.sampleIndex = index
-                                        samplePaletteColorDialog.selectedColor =
-                                            settings.sampleHex(index)
-                                        samplePaletteColorDialog.open()
+                                    QQC2.Button {
+                                        text: "Editar"
+                                        onClicked: {
+                                            samplePaletteColorDialog.sampleIndex = index
+                                            samplePaletteColorDialog.selectedColor =
+                                                settings.sampleHex(index)
+                                            samplePaletteColorDialog.open()
+                                        }
                                     }
                                 }
                             }
-                            RowLayout {
+                        }
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        spacing: 8
+                        QQC2.Label {
+                            text: "Colores del degradado"
+                            color: "white"
+                            font.bold: true
+                        }
+                        QQC2.ComboBox {
+                            id: gradientColorCountSelector
+                            Layout.fillWidth: true
+                            model: ["2 colores (predeterminado)", "3 colores"]
+                            currentIndex: Math.max(0, settings.activeGradientColorCount - 2)
+                            onActivated: function(i) { settings.setGradientColorCount(i + 2) }
+                        }
+                    }
+                    Repeater {
+                        model: settings.activeGradientColorCount
+                        delegate: RowLayout {
+                            required property int index
+                            readonly property string slotName:
+                                index === 0 ? "base" : index === 1 ? "end" : "third"
+                            visible: appearanceTarget.currentIndex <= 1
+                            Layout.fillWidth: true
+                            spacing: 6
+                            QQC2.Label {
+                                text: "Color " + (index + 1)
+                                color: "white"
+                                Layout.preferredWidth: 55
+                            }
+                            QQC2.ComboBox {
+                                Layout.preferredWidth: 133
+                                model: ["Manual"].concat(settings.sampledColors.map(
+                                    function(x, i) { return "Tono " + (i + 1) }))
+                                currentIndex: settings.selectedSampleIndex(slotName)
+                                onActivated: function(i) {
+                                    if (i > 0) settings.chooseSampledColor(i - 1, slotName)
+                                }
+                            }
+                            Rectangle {
+                                width: 25; height: 25; radius: 4
+                                color: settings.islandColor(slotName)
+                            }
+                            QQC2.TextField {
+                                id: activeHexField
                                 Layout.fillWidth: true
-                                spacing: 6
-                                QQC2.Button {
-                                    Layout.fillWidth: true
-                                    text: "Usar como color 1"
-                                    onClicked: settings.chooseSampledColor(index, "base")
+                                selectByMouse: true
+                                placeholderText: "#000000"
+                                text: settings.toHex(settings.islandColor(slotName))
+                                onEditingFinished: settings.setIslandHex(slotName, text)
+                            }
+                            QQC2.Button {
+                                text: "Copiar"
+                                onClicked: {
+                                    activeHexField.selectAll()
+                                    activeHexField.copy()
+                                    activeHexField.deselect()
                                 }
-                                QQC2.Button {
-                                    Layout.fillWidth: true
-                                    text: "Usar como color 2"
-                                    onClicked: settings.chooseSampledColor(index, "end")
+                            }
+                            QQC2.Button {
+                                text: "Editar"
+                                onClicked: {
+                                    activeGradientColorDialog.targetIsland =
+                                        appearanceTarget.currentIndex
+                                    activeGradientColorDialog.slotName = slotName
+                                    activeGradientColorDialog.selectedColor =
+                                        settings.islandColor(slotName)
+                                    activeGradientColorDialog.open()
                                 }
+                            }
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        text: "Vista previa del degradado (100 % de color)"
+                        color: "white"
+                        font.bold: true
+                    }
+                    Rectangle {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 36
+                        radius: 8
+                        color: settings.islandColor("base")
+                        gradient: Gradient {
+                            orientation: settings.activeGradientDirection === "leftRight" ||
+                                         settings.activeGradientDirection === "rightLeft"
+                                ? Gradient.Horizontal : Gradient.Vertical
+                            GradientStop {
+                                position: 0
+                                color: settings.gradientPreviewStop(0)
+                            }
+                            GradientStop {
+                                position: settings.activeGradientColorCount === 3 ? 0.5 : 1
+                                color: settings.gradientPreviewStop(1)
+                            }
+                            GradientStop {
+                                position: 1
+                                color: settings.gradientPreviewStop(2)
                             }
                         }
                     }
@@ -3403,8 +3444,10 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#bbd8f2"
-                        text: "Podés escribir o pegar cualquier código #RRGGBB, incluso negro. " +
-                              "Los tonos del GIF son sugerencias editables, no restricciones."
+                        text: "Al analizar: colores 1+2 y degradado activo por defecto. " +
+                              "Podés elegir 1+3, 2+3, agregar el tercer color o escribir " +
+                              "cualquier HEX. Aplicar guarda el resultado. " +
+                              "La opacidad real de la isla puede reducir el contraste."
                     }
                     QQC2.CheckBox {
                         visible: appearanceTarget.currentIndex <= 1
