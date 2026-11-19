@@ -2677,31 +2677,53 @@ Window {
                     width: Math.max(0, appearanceScroll.availableWidth - 8)
                     spacing: 14
                     QQC2.Label {
-                        text: "Colores y transparencia"
+                        text: settings.colorScope === "soledad"
+                            ? "SOLEDAD · Color, degradado y respiración"
+                            : settings.colorScope === "malvina"
+                            ? "MALVINA · Color, degradado y respiración"
+                            : "GENERAL · Fondo y colores compartidos"
                         font.bold: true
                         color: "white"
                     }
                     QQC2.Label {
-                        text: "Elegí primero qué superficie modificar. Soledad y Malvina tienen colores y degradados independientes; bandeja y agarre pueden heredar los de Soledad."
+                        text: settings.colorScope === "shared"
+                            ? "Solo fondo opcional, bandeja y agarre. Las islas se editan en sus propias secciones."
+                            : "Estos colores modifican únicamente " +
+                              (settings.colorScope === "soledad" ? "Soledad (isla 1)." : "Malvina (isla 2).") +
+                              " La otra isla conserva su estética."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    // Selector técnico oculto; solo el menú lateral define la
+                    // isla. En General se ofrece únicamente su lista de fondos.
                     QQC2.ComboBox {
                         id: appearanceTarget
-                        Layout.fillWidth: true
+                        visible: false
                         model: ["Soledad (isla 1)", "Malvina (isla 2)", "Fondo opcional",
                                 "Botones de bandeja", "Botón de seis puntos (agarre)"]
+                    }
+                    QQC2.ComboBox {
+                        visible: settings.colorScope === "shared"
+                        Layout.fillWidth: true
+                        model: ["Fondo opcional", "Cajón de sistema (bandeja)", "Agarre de seis puntos"]
+                        currentIndex: Math.max(0, appearanceTarget.currentIndex - 2)
+                        onActivated: function(index) {
+                            appearanceTarget.currentIndex = index + 2
+                            settings.appearanceSection = 0
+                        }
                     }
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 6
                         Repeater {
-                            model: ["Color", "Degradado", "Respiración y fondo"]
+                            model: ["Color y opacidad", "DEGRADADO", "Respiración y fondo"]
                             delegate: QQC2.Button {
                                 required property int index
                                 required property string modelData
                                 Layout.fillWidth: true
+                                visible: settings.colorScope !== "shared" ||
+                                         index === 0 || (index === 2 && appearanceTarget.currentIndex === 2)
                                 text: modelData
                                 highlighted: settings.appearanceSection === index
                                 onClicked: { settings.appearanceSection = index; appearanceScroll.contentItem.contentY = 0 }
