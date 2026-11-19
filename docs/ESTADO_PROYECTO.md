@@ -1369,3 +1369,25 @@ El mantenedor pidió guardar **toda la configuración actual que tiene en su Cac
 **VALIDADO ESTÁTICAMENTE:** PASS de `test_breathing_menu.cjs`, `test_gradient_palette.cjs`, `test_theme_persistence.cjs`, `test_palette_extractor.cjs` con fuentes del HEAD experimental y runner V8 con `require` de archivos simulado; ocho QML revisados con balance de llaves positivo. **PENDIENTE VALIDACIÓN VISUAL** de QML/Qt en CachyOS: apertura del diálogo de colores, scrollbar y anchura mínima, experiencia de navegación, valor ms editable, vista previa, persistencia de los 70 %, intensidad de respiración y conservación de color/grado al guardar. No instalar ni sustituir el panel real.
 
 **IMPORTANTE:** GitHub no expone la configuración ya editada en el CachyOS del mantenedor; solo se pueden establecer valores iniciales generales de 70 % desde aquí. Para guardar *toda su estética actual* como predeterminada personal debe utilizar el botón **«Fijar actual como predeterminada»** del visor que persiste `personalDefaultV1` localmente. No inventar los otros valores ni modificar su estética sin prueba.
+
+
+## Seguimiento del 19/11/2026 — botón SO integrado y licencia uniforme
+
+
+**REQUISITOS CONFIRMADOS POR EL MANTENEDOR:** código y documentación propios enteramente **MIT**; GIF animados originales aportados por él y generados en ChatGPT bajo **CC0 1.0 Universal** en la medida de sus derechos; «Launcher y botón SO» primero, «Botón de inicio SO» segundo con sus efectos luminosos dentro en una subpestaña, enlaces a degradado y brillo SO, ventana de configuración más ancha y controles HEX/Editar/Copiar sin oclusión por scrollbar.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL:**
+- [0274f6d](https://github.com/nicoarg87/plasma-smartbar/commit/0274f6dcc6f70a274ff7f336f40f80adc036cc5c): elimina acceso lateral separado de Efectos; subpestañas visibles del botón SO; orden de launcher primero; enlace de efectos a colores/degradado Soledad; enlace inverso renombrado; ancho inicial hasta 1180 px según pantalla, mínimo flexible, margen de ScrollView 32 px en diez vistas; filas de color/HEX/Copiar separadas.
+- [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384): **corrige defecto real** del metadata KDE `KPlugin.License` de `GPL-3.0-only` a `MIT` para concordar con `LICENSE`, que ya contenía MIT.
+- [c9c59a9](https://github.com/nicoarg87/plasma-smartbar/commit/c9c59a957178226ac54d00aa8a2b6466a7a5e19f): actualiza test de regresión `test_breathing_menu.cjs` con nuevo orden, subpestaña, enlaces, márgenes y metadatos MIT.
+- [e1fec16](https://github.com/nicoarg87/plasma-smartbar/commit/e1fec16bfd9247fcb6d1038b0c1763d6d73b426b), [99f9432](https://github.com/nicoarg87/plasma-smartbar/commit/99f9432c66263a143b8c9d72c5cf5e179c11c711): README e inventario de licencias actualizados para MIT del software y CC0 de los GIF originales.
+
+**REVISADO POR CÓDIGO:** estructura y presencia de las opciones; no se modificaron claves Qt Settings/KConfig, temas, GIF locales ni el panel real. **NO PROBADO EN CACHYOS TRAS ESTOS CAMBIOS:** carga de configuración, navegación real entre páginas, superposición de scrollbars a distintas escalas, poder hacer clic en Editar/Copiar, velocidad sincronizada/desincronizada, persistencia tras Aplicar y reinicio. Ejecutar:
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_breathing_menu.cjs
+bash prototype/v0.1/probar_ancho.sh
+```
+**Próximo paso:** informar resultados y eventuales logs en [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15). PR #3 sigue en borrador y no se autoriza modificar el panel instalado ni fusionar a main sin validación.
