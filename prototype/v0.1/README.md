@@ -908,3 +908,25 @@ bash prototype/v0.1/probar_ancho.sh
 En la ventana de configuración: 1) Color y transparencia → Respiración del fondo: pulsar + o mover deslizador aun si la antigua sincronización estaba activa; comprobar que el valor cambia y su estado pasa a propio. 2) Ir a botón SO → Efectos luminosos → primera sección Brillo y respiración: tocar ± de velocidad e intensidad, ver inmediatamente la vista previa y probar la casilla de ventanas abiertas si no aparece la línea. 3) Pulsar Aplicar, cerrar, reabrir, volver a comprobar velocidad de cada superficie y temas. Si no responde, copiar mensajes de Konsole y registrar en issue #15.
 
 **Verificación:** regresión V8 con JS extraído del QML y FS simulado PASS: 169 controles + 62 temas + 44 degradados = 275. **No se probó aún Qt/CachyOS en el entorno de desarrollo del asistente.** No tocar panel real ni fusionar PR #3.
+
+
+## Menú SO único y Cancelar/Aplicar — ensayo 19/11/2026
+
+**Cambios de interfaz confirmados por el mantenedor:** dentro de «Botón de inicio SO» solo hay **una página vertical**, primero **Logo, ancho y texto** con selector Predeterminada tropical / Imagen propia / Texto SO. Seleccionar «Texto SO» hace aparecer los controles de fuente, contenido, tamaño, negrita, colores/opacidad e imagen/GIF de fondo en el mismo bloque; no hay subpestaña de Texto. La acción «Restablecer logo y formato» se encuentra con el bloque de logo, luego ajustes de encuadre y reloj, y **al final** «Efectos luminosos del botón SO» con vista previa, respiración, estados y luz móvil. Se retira la antigua subpestaña Efectos SO. La velocidad e intensidad independientes de la línea SO se mantienen.
+
+**Acciones de pie en todos los menús:** **Cancelar** izquierda, **Aplicar** derecha, sin botón Cerrar. Cancelar y la X descartan cambios no aplicados desde el último Aplicar; Aplicar persiste y conserva el diálogo abierto. Los checkpoints incluyen 139 valores editables que se reciben del modelo, con copia de colores y objetos. Cambios de temas Guardar/Actualizar/Recuperar quedan preparados en memoria hasta Aplicar. Los comandos de centrar/mover a derecha tampoco se ejecutan hasta Aplicar. Nada de esto modifica el panel real instalado.
+
+**Fish:**
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_breathing_menu.cjs
+node prototype/v0.1/tests/test_theme_persistence.cjs
+node prototype/v0.1/tests/test_gradient_palette.cjs
+bash prototype/v0.1/probar_ancho.sh
+```
+
+**Verificación manual:** al abrir SO, no aparecen subpestañas de efectos o texto; elegir «Texto SO» muestra inmediatamente edición contextual. Desplazarse hasta el final para comprobar que Efectos está bajo encuadre y reloj y sus controles funcionan; probar velocidad e intensidad y retorno desde Color y transparencia. Modificar varios parámetros de Soledad y Malvina, pulsar Cancelar y confirmar que no persisten. Repetir con X; después pulsar Aplicar y comprobar que Cancelar revierte solo ediciones posteriores. Preparar un tema nuevo y Cancelar (no debe guardarse); preparar de nuevo y Aplicar (debe guardarse). Confirmar que el botón Cerrar fue eliminado. Observar que centrar/mover derecha ejecuta solo al Aplicar. Registrar captura y salida de Konsole si falla, en [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
+
+**Estado:** implementación experimental [12983ef](https://github.com/nicoarg87/plasma-smartbar/commit/12983eff1634240ff49276c33a61d35f5a2f7a95) y [5eca518](https://github.com/nicoarg87/plasma-smartbar/commit/5eca51815222368930b18ae4e8637f6a2feeb4d8); 470 aserciones de regresión PASS en V8 con fuentes GitHub, **no sustituyen prueba QML/CachyOS**. Software MIT, gráficos GIF originales CC0 según inventario, licencias individuales vigentes.
