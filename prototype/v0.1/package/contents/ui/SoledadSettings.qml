@@ -1222,7 +1222,7 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "themes"
-                        text: "Temas · Día, Noche y personalizado"
+                        text: "Temas · Atardecer, Noche y personalizado"
                         highlighted: settings.currentTab === 4
                         onClicked: settings.showThemes()
                     }
@@ -3782,7 +3782,7 @@ Window {
                         color: "white"
                     }
                     QQC2.Label {
-                        text: "Guardá un aspecto como Día, Noche o Personalizado. " +
+                        text: "Elegí Atardecer, Noche o Personalizado. " +
                               "Cada tema conserva la imagen SO, los colores, los degradados " +
                               "y los contornos; Malvina conserva ajustes independientes " +
                               "después de aplicar un tema."
@@ -3972,7 +3972,7 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "Día y Noche son espacios para tus estilos; no vienen con " +
+                        text: "Atardecer y Noche conservan sus estilos y no se actualizan al guardar favorita. " +
                               "un GIF nocturno inventado. Los archivos personalizados " +
                               "permanecen en tu equipo. Aplicar guarda cambios pendientes."
                     }
