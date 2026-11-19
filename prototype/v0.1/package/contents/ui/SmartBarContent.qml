@@ -1113,10 +1113,13 @@ Item {
         id: installedAppsPopup
         parent: root
         x: {
-            const center = root.installedLauncherSource === "malvina" &&
-                root.launcherIslandVisible
-                ? launcherIsland.x + launcherIsland.width / 2
-                : systemIsland.x + systemIsland.width / 2
+            // Desde Soledad, pegar el borde derecho del launcher al borde
+            // derecho de la isla, sin salirse del visor ni mover la barra.
+            // Los paneles secundarios de A/B quedan dentro del mismo ancho.
+            if (root.installedLauncherSource === "so" || !root.launcherIslandVisible)
+                return Math.max(0, Math.min(Math.max(0, root.width - width),
+                    systemIsland.x + systemIsland.width - width))
+            const center = launcherIsland.x + launcherIsland.width / 2
             if (categoryLayout === 1 && (showCategoryPanel || (filesMode && expandedCanvas))) {
                 // B: conservar el borde derecho del cuadro principal en
                 // su sitio; el segundo cuadro ocupa espacio a la izquierda.
