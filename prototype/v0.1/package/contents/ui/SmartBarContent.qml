@@ -233,6 +233,11 @@ Item {
     property bool launcherSwitchColorOverride: false
     property color launcherSwitchColor: "#010111"
     property int launcherMaxSlots: 20
+    property bool launcherOpacityOverride: false
+    property real launcherOpacity: 1
+    property bool launcherIconsWithNames: true
+    property bool malvinaOptionsOpacityOverride: false
+    property real malvinaOptionsOpacity: 1
     property real launcherAvailableHeight: 450
     property var localAppCatalog: []
     property bool localCatalogReady: false
@@ -465,6 +470,9 @@ Item {
     signal requestLauncherStyleChange(int layoutMode, string switchShape,
                                      bool switchCustomColor, string switchColor,
                                      int maxVisibleSlots)
+    signal requestLauncherOpacityChange(bool overrideOpacity, real opacityValue)
+    signal requestLauncherIconDisplayChange(bool iconsWithNames)
+    signal requestMalvinaOptionsOpacityChange(bool overrideOpacity, real opacityValue)
     signal requestAutoCollapseTrayChange(bool newValue)
     onWidthChanged: console.log("SmartBar v0.1: ancho útil de las islas =", width)
 
@@ -910,6 +918,11 @@ Item {
             soledadSettings.launcherSwitchColorOverride = root.launcherSwitchColorOverride
             soledadSettings.launcherSwitchColor = root.launcherSwitchColor
             soledadSettings.launcherMaxSlots = root.launcherMaxSlots
+            soledadSettings.launcherOpacityOverride = root.launcherOpacityOverride
+            soledadSettings.launcherOpacity = root.launcherOpacity
+            soledadSettings.launcherIconsWithNames = root.launcherIconsWithNames
+            soledadSettings.malvinaOptionsOpacityOverride = root.malvinaOptionsOpacityOverride
+            soledadSettings.malvinaOptionsOpacity = root.malvinaOptionsOpacity
             soledadSettings.autoCollapseTray = root.autoCollapseTray
             soledadSettings.autoReturnRight = root.autoReturnRight
             soledadSettings.launcherIslandVisible = root.launcherIslandVisible
@@ -1028,6 +1041,15 @@ Item {
             root.requestLauncherStyleChange(layoutMode, switchShape, customColor,
                                             switchColor, maxVisibleSlots)
         }
+        onSaveLauncherOpacityRequested: function(customOpacity, opacityValue) {
+            root.requestLauncherOpacityChange(customOpacity, opacityValue)
+        }
+        onSaveLauncherIconDisplayRequested: function(iconsWithNames) {
+            root.requestLauncherIconDisplayChange(iconsWithNames)
+        }
+        onSaveMalvinaOptionsOpacityRequested: function(customOpacity, opacityValue) {
+            root.requestMalvinaOptionsOpacityChange(customOpacity, opacityValue)
+        }
         onSaveBehaviorRequested: function(collapseSO, collapseTray,
                                           returnRight, showMalvina, alignRight,
                                           alignmentEdited) {
@@ -1082,12 +1104,14 @@ Item {
         popupHeightLimit: root.launcherAvailableHeight
         categoryLayout: root.launcherCategoryLayout
         maxVisibleSlots: root.launcherMaxSlots
+        iconsWithNames: root.launcherIconsWithNames
         switchShape: root.launcherSwitchShape
         switchCustomColor: root.launcherSwitchColorOverride
         switchColor: root.launcherSwitchColor
         islandColor: root.soledadColor
         islandGradientEnd: root.soledadGradientEnd
-        islandOpacity: root.soledadOpacity
+        islandOpacity: root.launcherOpacityOverride
+            ? root.launcherOpacity : root.soledadOpacity
         islandGradientEnabled: root.soledadGradientEnabled
         islandGradientDirection: root.soledadGradientDirection
         islandBreathingFactor: root.gradientBreathingFactor
@@ -1284,6 +1308,9 @@ Item {
                 islandRadius: root.malvinaRadius
                 islandColor: root.malvinaColor
                 islandOpacity: root.malvinaOpacity * root.malvinaGradientBreathingFactor
+                optionsPanelOpacity: (root.malvinaOptionsOpacityOverride
+                    ? root.malvinaOptionsOpacity : root.malvinaOpacity) *
+                    root.malvinaGradientBreathingFactor
                 islandGradientEnabled: root.malvinaGradientEnabled
                 islandGradientEnd: root.malvinaGradientEnd
                 islandGradientDirection: root.malvinaGradientDirection
