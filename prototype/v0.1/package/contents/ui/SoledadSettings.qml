@@ -1048,11 +1048,13 @@ Window {
         property string requestedUrl: ""
         property bool pending: false
         property string requestMode: "island"
+        property int requestTargetIsland: 0
         onImageLoaded: {
             if (pending && isImageLoaded(requestedUrl)) requestPaint()
         }
         function suggestFromImage(mode) {
             requestMode = mode === "contour" ? "contour" : "island"
+            requestTargetIsland = appearanceTarget.currentIndex
             requestedUrl = settings.logoMode === "text"
                 ? (settings.soTextBackgroundImage.length
                     ? settings.soTextBackgroundImage
@@ -1109,10 +1111,32 @@ Window {
                 } else {
                     settings.sampledColors = colors.map(function(x) { return x.hex })
                     settings.sampledSource = requestedUrl
-                    settings.paletteFeedback = "Se encontraron " + colors.length +
-                        " tonos representativos de un fotograma. " +
-                        "Elegí primer y segundo tono para cada isla; " +
-                        "el análisis no cambia nada automáticamente."
+                    const first = colors[0].hex
+                    const second = colors.length > 1 ? colors[1].hex : first
+                    const third = colors.length > 2 ? colors[2].hex : second
+                    // Selección inicial automática: dos colores y degradado
+                    // activado SOLO en la isla desde la que se inició el análisis.
+                    // No modificar el brillo SO ni la otra isla. No guardar
+                    // los presets hasta que el usuario lo solicite.
+                    if (requestTargetIsland === 1) {
+                        settings.malvinaColor = first
+                        settings.malvinaGradientEnd = second
+                        settings.malvinaGradientThird = third
+                        settings.malvinaGradientColorCount = 2
+                        settings.malvinaGradientEnabled = true
+                    } else {
+                        settings.soledadColor = first
+                        settings.soledadGradientEnd = second
+                        settings.soledadGradientThird = third
+                        settings.soledadGradientColorCount = 2
+                        settings.soledadGradientEnabled = true
+                    }
+                    settings.paletteFeedback = "Paleta del GIF aplicada al editor: " +
+                        first + " → " + second + ". Degradado de 2 colores activo. " +
+                        (colors.length > 2
+                            ? "El tono 3 está disponible si elegís 3 colores. "
+                            : "") +
+                        "Podés cambiar cada tono y pulsar Aplicar para guardarlo."
                 }
             } catch (e) {
                 settings.paletteFeedback = "No se pudo analizar el GIF: " + e
