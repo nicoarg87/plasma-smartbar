@@ -153,6 +153,12 @@ Window {
                slot === "night" ? themeNightJson : themeCustomJson
     }
     function storeTheme(slot) {
+        // Día y Noche se fijan una sola vez: evitar sobrescrituras
+        // accidentales desde el editor de temas.
+        if ((slot === "day" || slot === "night") && slotJson(slot).length > 0) {
+            themeStatus = "Este tema está protegido. Aplicalo para recuperar sus colores originales."
+            return
+        }
         const data = themeSnapshot()
         if (slot === "day") themeDayJson = data
         else if (slot === "night") themeNightJson = data
@@ -3689,7 +3695,8 @@ Window {
                                     Layout.fillWidth: true
                                     QQC2.Button {
                                         Layout.fillWidth: true
-                                        text: "Guardar actual"
+                                        visible: settings.themeDayJson.length === 0
+                                        text: "Fijar tema Día"
                                         onClicked: settings.storeTheme("day")
                                     }
                                     QQC2.Button {
@@ -3729,7 +3736,8 @@ Window {
                                     Layout.fillWidth: true
                                     QQC2.Button {
                                         Layout.fillWidth: true
-                                        text: "Guardar actual"
+                                        visible: settings.themeNightJson.length === 0
+                                        text: "Fijar tema Noche"
                                         onClicked: settings.storeTheme("night")
                                     }
                                     QQC2.Button {
