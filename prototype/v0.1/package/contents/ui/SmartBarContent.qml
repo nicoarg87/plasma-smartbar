@@ -1290,6 +1290,8 @@ Item {
                     function onMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaGradientEnabledChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaGradientEndChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaGradientThirdChanged() { malvinaTipSurface.requestPaint() }
+                    function onMalvinaGradientColorCountChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaGradientDirectionChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaOpacityChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaShapeChanged() { malvinaTipSurface.requestPaint() }
@@ -1464,6 +1466,8 @@ Item {
                     function onSoledadColorChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientEnabledChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientEndChanged() { islandSurface.requestPaint() }
+                    function onSoledadGradientThirdChanged() { islandSurface.requestPaint() }
+                    function onSoledadGradientColorCountChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientDirectionChanged() { islandSurface.requestPaint() }
                     function onGradientBreathingFactorChanged() {
                         if (root.soledadGradientEnabled) islandSurface.requestPaint()
@@ -1510,10 +1514,18 @@ Item {
                             dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
                         g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
                                                    root.soledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
-                        g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r,
-                                                   root.soledadGradientEnd.g,
-                                                   root.soledadGradientEnd.b,
-                                                   root.soledadOpacity * root.gradientBreathingFactor))
+                        if (root.soledadGradientColorCount === 3) {
+                            g.addColorStop(0.5, Qt.rgba(root.soledadGradientEnd.r,
+                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                                root.soledadOpacity * root.gradientBreathingFactor))
+                            g.addColorStop(1, Qt.rgba(root.soledadGradientThird.r,
+                                root.soledadGradientThird.g, root.soledadGradientThird.b,
+                                root.soledadOpacity * root.gradientBreathingFactor))
+                        } else {
+                            g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r,
+                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                                root.soledadOpacity * root.gradientBreathingFactor))
+                        }
                         ctx.fillStyle = g
                     } else {
                         ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
@@ -1598,6 +1610,8 @@ Item {
                     function onSoledadColorChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientEnabledChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientEndChanged() { soTipBackground.requestPaint() }
+                    function onSoledadGradientThirdChanged() { soTipBackground.requestPaint() }
+                    function onSoledadGradientColorCountChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientDirectionChanged() { soTipBackground.requestPaint() }
                     function onGradientBreathingFactorChanged() {
                         if (root.soledadGradientEnabled) soTipBackground.requestPaint()
@@ -1624,8 +1638,18 @@ Item {
                             dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
                         g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
                                                   root.soledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
-                        g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r, root.soledadGradientEnd.g,
-                                                  root.soledadGradientEnd.b, root.soledadOpacity * root.gradientBreathingFactor))
+                        if (root.soledadGradientColorCount === 3) {
+                            g.addColorStop(0.5, Qt.rgba(root.soledadGradientEnd.r,
+                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                                root.soledadOpacity * root.gradientBreathingFactor))
+                            g.addColorStop(1, Qt.rgba(root.soledadGradientThird.r,
+                                root.soledadGradientThird.g, root.soledadGradientThird.b,
+                                root.soledadOpacity * root.gradientBreathingFactor))
+                        } else {
+                            g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r,
+                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                                root.soledadOpacity * root.gradientBreathingFactor))
+                        }
                         ctx.fillStyle = g
                     } else {
                         ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
