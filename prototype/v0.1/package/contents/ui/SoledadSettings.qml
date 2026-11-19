@@ -1101,11 +1101,19 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
-                        text: "Color y DEGRADADO"
+                        text: "Color y transparencia"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
-                                     settings.colorScope === "soledad"
+                                     settings.colorScope === "soledad" && settings.appearanceSection !== 1
                         onClicked: settings.showSharedColors(0)
+                    }
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
+                        text: "DEGRADADO SOLEDAD"
+                        highlighted: settings.currentTab === 2 &&
+                                     appearanceSubtabs.currentIndex === 0 &&
+                                     settings.colorScope === "soledad" && settings.appearanceSection === 1
+                        onClicked: settings.showSoledadGradient()
                     }
                     SettingsMenuButton {
                         text: (settings.navigationGroup === "malvina" ? "▾ " : "▸ ") + "MALVINA · Isla 2"
@@ -1128,11 +1136,19 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "malvina"
-                        text: "Color y DEGRADADO"
+                        text: "Color y transparencia"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
-                                     settings.colorScope === "malvina"
+                                     settings.colorScope === "malvina" && settings.appearanceSection !== 1
                         onClicked: settings.showSharedColors(1)
+                    }
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "malvina"
+                        text: "DEGRADADO MALVINA"
+                        highlighted: settings.currentTab === 2 &&
+                                     appearanceSubtabs.currentIndex === 0 &&
+                                     settings.colorScope === "malvina" && settings.appearanceSection === 1
+                        onClicked: settings.showMalvinaGradient()
                     }
                     SettingsMenuButton {
                         text: (settings.navigationGroup === "shared" ? "▾ " : "▸ ") + "GENERAL Y COMPARTIDAS"
