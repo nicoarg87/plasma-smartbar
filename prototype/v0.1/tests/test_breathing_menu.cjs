@@ -23,26 +23,47 @@ const windows = ui.indexOf('text: "Cajón y ventanas"', shape);
 assert(launcher > 0 && launcher < menuStart && menuStart < colors &&
        colors < shape && shape < windows, "Orden de navegación Soledad");
 assert(!ui.includes('text: "Efectos luminosos"'), "Los efectos no son otra entrada lateral");
-assert(ui.includes('id: logoSubtabs\n                    visible: true'));
-assert(ui.includes('text: "Efectos luminosos SO"'));
+assert(!ui.includes('id: logoSubtabs'), "Efectos no deben ser otra pestaña");
+assert(!ui.includes('id: outlineScroll'), "No usar scroll secundario para luz");
+assert(ui.includes('id: logoScroll'), "Debe haber una sola página de logo");
+assert(ui.includes('id: soLightSectionTitle'), "Falta encabezado de Efectos bajo el logo");
+assert(ui.includes('text: "Efectos luminosos del botón SO"'));
 assert.equal((ui.match(/text: "Botón de inicio SO"/g) || []).length, 1);
 assert(!ui.includes('text: "Anchura del botón SO"'));
 assert(!ui.includes('text: "Logo SO"'));
 assert(ui.includes('text: "Anchura del botón SO · logo e imagen"'));
-assert(ui.includes('model: ["Logo y ancho", "Texto", "Encuadre", "Reloj"]'));
+assert(!ui.includes('model: ["Logo y ancho", "Texto", "Encuadre", "Reloj"]'),
+       "Se conservaron las pestañas redundantes");
+assert(!ui.includes('visible: settings.logoSection === 1'),
+       "El editor de texto sigue confinado a una pestaña");
+assert(ui.includes('model: ["Predeterminada tropical", "Imagen propia", "Texto SO"]'));
+const logoStart = ui.indexOf('text: "Logo, ancho y texto"');
+const textChoice = ui.indexOf('model: ["Predeterminada tropical", "Imagen propia", "Texto SO"]', logoStart);
+const textEditing = ui.indexOf('text: "Texto personalizado del botón SO"', textChoice);
+const resetLogo = ui.indexOf('text: "Restablecer logo y formato"', textEditing);
+const imageFit = ui.indexOf('text: "Ajuste de la imagen"', resetLogo);
+const clockSection = ui.indexOf('text: "Hora y fecha en SO"', imageFit);
+const effectsSection = ui.indexOf('text: "Efectos luminosos del botón SO"', clockSection);
+assert(logoStart >= 0 && logoStart < textChoice &&
+       textChoice < textEditing && textEditing < resetLogo &&
+       resetLogo < imageFit && imageFit < clockSection &&
+       clockSection < effectsSection,
+       "Logo, editor de texto contextual, encuadre, reloj y efectos no mantienen el orden");
+assert(ui.includes('visible: settings.logoMode === "text"'),
+       "El editor contextual debe aparecer solo si se elige Texto SO");
 assert(!ui.includes('text: "DEGRADADO SOLEDAD"'));
 assert(!ui.includes('text: "DEGRADADO MALVINA"'));
 assert(!ui.includes('model: ["Color y opacidad", "DEGRADADO", "Respiración y fondo"]'));
 assert(ui.includes("function showSoledadGradient() { showSharedColors(0) }"));
 assert(ui.includes("function showMalvinaGradient() { showSharedColors(1) }"));
-assert(!ui.includes('visible: settings.logoSection === 4'));
+assert(!ui.includes("logoSection"), "Las pestañas de texto/imagen se eliminaron");
 assert(ui.includes('function showSoledadGlowBreathing()'));
 assert(ui.includes('onClicked: settings.showSoledadGlowBreathing()'));
 assert(ui.includes('text: "Ir a Botón de inicio SO → Efectos luminosos → Brillo y respiración"'));
 assert(ui.includes('text: "Ir a Color y transparencia → Degradado y respiración de Soledad"'));
 assert(ui.includes('onClicked: settings.showSoledadGradientBreathing()'));
 assert(ui.includes('Math.min(1180, Math.max(560, Screen.desktopAvailableWidth - 48))'));
-assert.equal((ui.match(/contentWidth: Math.max\(0, availableWidth - 32\)/g) || []).length, 10,
+assert.equal((ui.match(/contentWidth: Math.max\(0, availableWidth - 32\)/g) || []).length, 9,
              "Margen de seguridad ausente para el scrollbar");
 assert(ui.includes('id: currentColorCopyField\n                            Layout.fillWidth: true'));
 assert(ui.includes('text: "Duración de cada ciclo"'));
@@ -53,7 +74,7 @@ assert(ui.includes('text: "Activar efecto Respiración luminosa en SO"'));
 assert(ui.includes('GridLayout {'));
 assert(ui.includes('columns: appearanceScroll.availableWidth >= 740 ? 3'));
 assert(ui.includes('Layout.minimumWidth: 0'));
-assert.equal((ui.match(/QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn/g) || []).length, 10);
+assert.equal((ui.match(/QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn/g) || []).length, 9);
 assert(!ui.includes('QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded'));
 assert(ui.includes('text: "RESPIRACIÓN DEL FONDO Y LOS MENÚS"'));
 assert(ui.includes('text: "Activar respiración del degradado"'));
@@ -205,4 +226,75 @@ assert.equal(interactiveState.allowMotion, true);
 assert.equal(interactiveState.pulseSpeed, 0.4);
 assert.equal(interactiveState.pulseDepth, 0.35);
 assert.equal(interactiveState.previewRefreshes, 2);
-console.log("OK: velocidad de los degradados editable aun con sincronización previa; controles SO visibles y estados independientes.");
+// El pie fijo es el mismo en TODAS las secciones. Cancelar y la X
+// revierten las preferencias editadas desde el último Aplicar.
+assert(ui.includes('text: "Cancelar"'));
+assert(ui.includes('text: "Aplicar"'));
+assert(!ui.includes('text: "Cerrar"'));
+const footer = ui.substring(ui.lastIndexOf("// Pie fijo"));
+assert(footer.indexOf('text: "Cancelar"') < footer.indexOf('text: "Aplicar"'));
+assert(footer.includes("onClicked: settings.close()"));
+assert(footer.includes("onClicked: settings.applyChanges()"));
+assert(ui.includes("onClosing: function(event) { discardPendingEdits() }"));
+assert(ui.includes("function captureSettingsBaseline()"));
+assert(ui.includes("function discardPendingEdits()"));
+assert(ui.includes("function stageThemeSlot(slot, data)"));
+assert(bar.includes("soledadSettings.captureSettingsBaseline()"));
+assert(ui.includes('pendingAlignAction = "center"'));
+assert(ui.includes('pendingAlignAction = "right"'));
+assert(ui.includes('if (pendingAlignAction === "center") alignCenterNowRequested()'));
+assert(ui.includes('else if (pendingAlignAction === "right") alignNowRequested()'));
+assert(!ui.includes('text: "Mover isla 1 a la derecha AHORA"'));
+const allKeysMatch = ui.match(/readonly property var editableSettingsKeys: (\[[^\n]+\])/);
+assert(allKeysMatch, "No existe lista de opciones para Cancelar");
+const transactionKeys = JSON.parse(allKeysMatch[1]);
+const loaded = bar.substring(bar.indexOf("function openSoledadSettings("),
+                             bar.indexOf("    SoledadSettings {"));
+const required = [...loaded.matchAll(/soledadSettings\.([A-Za-z_][\w]*)\s*=/g)]
+    .map(x => x[1]).filter(x => x !== "currentTab");
+for (const name of required)
+    assert(transactionKeys.includes(name), "Cancelar omite el ajuste " + name);
+assert(transactionKeys.length >= 130, "Snapshot incompleto");
+
+const state = {
+    editableSettingsKeys: ["pulseSpeed", "soledadColor", "outlineConfig", "themeDayJson"],
+    editableColorKeys: ["soledadColor"],
+    lastAppliedSettings: {}, pendingThemeChanges: {}, baselineLoaded: false,
+    pendingAlignAction: "", alignmentEdited: false,
+    pulseSpeed: 0.2, soledadColor: "#112233",
+    outlineConfig: {soledad:{width:1}}, themeDayJson: "tema anterior",
+    appliedLabel: {text:""}, previewRefreshes:0,
+    refreshOutlinePreview: function(){this.previewRefreshes++}
+};
+state.settings = state;
+vm.runInNewContext([
+    qmlFunction("preferenceCopy"),
+    qmlFunction("captureSettingsBaseline"),
+    qmlFunction("stageThemeSlot"),
+    qmlFunction("discardPendingEdits"),
+    "captureSettingsBaseline()",
+    "pulseSpeed = 2.5",
+    'soledadColor = "#abcdef"',
+    "outlineConfig.soledad.width = 7",
+    'themeDayJson = "borrador nuevo"',
+    'stageThemeSlot("day", "borrador nuevo")',
+    'pendingAlignAction = "right"',
+    "discardPendingEdits()"
+].join("\n"), state);
+assert.equal(state.pulseSpeed, 0.2);
+assert.equal(state.soledadColor, "#112233");
+assert.equal(state.outlineConfig.soledad.width, 1);
+assert.equal(state.themeDayJson, "tema anterior");
+assert.equal(Object.keys(state.pendingThemeChanges).length, 0);
+assert.equal(state.pendingAlignAction, "");
+assert.equal(state.baselineLoaded, false);
+assert.equal(state.previewRefreshes, 1);
+// Luego de un «Aplicar» se captura un nuevo checkpoint, no el original.
+vm.runInNewContext([
+    qmlFunction("preferenceCopy"), qmlFunction("captureSettingsBaseline"),
+    qmlFunction("discardPendingEdits"),
+    "pulseSpeed = 0.6", "captureSettingsBaseline()",
+    "pulseSpeed = 2.1", "discardPendingEdits()"
+].join("\n"), state);
+assert.equal(state.pulseSpeed, 0.6);
+console.log("OK: logo/texto/luz juntos, Cancelar/Aplicar, 139 ajustes reversibles y respiración independiente.");
