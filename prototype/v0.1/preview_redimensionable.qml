@@ -21,6 +21,8 @@ Window {
     // Persistencia local SOLO del visor Qt: no modifica ningún panel KDE.
     // Se guardan los valores elegidos, no una estética inventada en GitHub.
     property bool appearanceRestored: false
+    // Inhibe autoguardados de estados parciales al restaurar muchos campos.
+    property bool appearanceWriteSuspended: false
     // Temas son ranuras aparte del último aspecto, favorito y default personal:
     // restaurar favoritos NO destruye los temas Día/Noche guardados.
     property string demoThemeDayJson: String(localPreviewSettings.value("themeDayJson", ""))
@@ -50,7 +52,8 @@ Window {
         return JSON.stringify(values)
     }
     function saveAppearancePreset() {
-        if (!appearanceRestored) return
+        if (!appearanceRestored || appearanceWriteSuspended) return
+        saveAppearanceTimer.stop()
         localPreviewSettings.setValue("appearanceV1", collectAppearancePreset())
         localPreviewSettings.sync()
     }
@@ -59,7 +62,6 @@ Window {
         saveAppearanceTimer.stop()
         const current = collectAppearancePreset()
         localPreviewSettings.setValue("favoriteSoledadV1", current)
-        localPreviewSettings.setValue("appearanceV1", current)
         localPreviewSettings.sync()
         console.log("SmartBar: estética favorita guardada localmente")
     }
@@ -70,47 +72,47 @@ Window {
         saveAppearanceTimer.stop()
         const current = collectAppearancePreset()
         localPreviewSettings.setValue("personalDefaultV1", current)
-        localPreviewSettings.setValue("appearanceV1", current)
         localPreviewSettings.sync()
         console.log("SmartBar: configuración completa fijada como predeterminada personal local")
     }
-    function restorePersonalDefault() {
+    // Los tres espacios son independientes. Restaurar copia a la apariencia
+    // activa al final, no a otros perfiles, y solo hace una escritura completa.
+    function restoreSavedAppearance(key, label) {
         if (!appearanceRestored) return
-        const raw = localPreviewSettings.value("personalDefaultV1", "")
+        const raw = localPreviewSettings.value(key, "")
         if (typeof raw !== "string" || !raw.length) {
-            console.warn("SmartBar: todavía no hay una predeterminada personal guardada")
+            console.warn("SmartBar: todavía no hay " + label + " guardada")
             return
         }
+        let values
         try {
-            const values = JSON.parse(raw)
-            for (const key of appearanceKeys)
-                if (Object.prototype.hasOwnProperty.call(values,key))
-                    previewWindow[key] = values[key]
-            saveAppearanceTimer.stop()
-            saveAppearancePreset()
-            console.log("SmartBar: predeterminada personal restaurada")
+            values = JSON.parse(raw)
+            if (!values || typeof values !== "object" || Array.isArray(values))
+                throw new Error("Instantánea inválida")
         } catch(e) {
-            console.warn("SmartBar: no se pudo restaurar predeterminada personal:",e)
+            console.warn("SmartBar: no se pudo leer " + label + ":", e)
+            return
         }
+        saveAppearanceTimer.stop()
+        appearanceWriteSuspended = true
+        try {
+            for (const field of appearanceKeys) {
+                if (Object.prototype.hasOwnProperty.call(values, field))
+                    previewWindow[field] = values[field]
+            }
+        } catch(e) {
+            console.warn("SmartBar: error al restaurar " + label + ":", e)
+        } finally {
+            appearanceWriteSuspended = false
+        }
+        saveAppearancePreset()
+        console.log("SmartBar: " + label + " restaurada a apariencia activa")
+    }
+    function restorePersonalDefault() {
+        restoreSavedAppearance("personalDefaultV1", "predeterminada personal")
     }
     function restoreFavoriteAppearance() {
-        if (!appearanceRestored) return
-        const raw = localPreviewSettings.value("favoriteSoledadV1", "")
-        if (typeof raw !== "string" || raw.length === 0) {
-            console.warn("SmartBar: todavía no hay estética favorita guardada")
-            return
-        }
-        try {
-            const values = JSON.parse(raw)
-            for (const key of appearanceKeys) {
-                if (Object.prototype.hasOwnProperty.call(values, key))
-                    previewWindow[key] = values[key]
-            }
-            saveAppearancePreset()
-            console.log("SmartBar: estética favorita restaurada")
-        } catch (e) {
-            console.warn("SmartBar: no se pudo recuperar la estética favorita:", e)
-        }
+        restoreSavedAppearance("favoriteSoledadV1", "estética favorita")
     }
     function restoreAppearancePreset() {
         const raw = localPreviewSettings.value("appearanceV1", "")
@@ -747,333 +749,333 @@ Window {
     }
 
     onDemoPositionModeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
-    onDemoTaskActiveGlowEnabledChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoTaskActiveDoubleBorderEnabledChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaGoogleUrlChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaDuckUrlChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaYahooUrlChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaChatGptUrlChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaGeminiUrlChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaClaudeUrlChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoTaskDisplayModeChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoTaskFrameShapeChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoTaskFrameColorChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoTaskFrameOpacityChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoTaskFrameWidthChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoTaskActiveGlowEnabledChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoTaskActiveDoubleBorderEnabledChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaGoogleUrlChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaDuckUrlChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaYahooUrlChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaChatGptUrlChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaGeminiUrlChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaClaudeUrlChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoTaskDisplayModeChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoTaskFrameShapeChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoTaskFrameColorChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoTaskFrameOpacityChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoTaskFrameWidthChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
     onDemoAutoReturnRightChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoLauncherIslandVisibleChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoAutoHideMalvinaChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoAutoCollapseSOChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLeftClickOpensLauncherChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
-    onDemoLauncherCategoryLayoutChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoLauncherSwitchShapeChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoLauncherSwitchColorOverrideChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoLauncherSwitchColorChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoLauncherMaxSlotsChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoLauncherOpacityOverrideChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoLauncherOpacityChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoLauncherIconsWithNamesChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaOptionsOpacityOverrideChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
-    onDemoMalvinaOptionsOpacityChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoLauncherCategoryLayoutChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoLauncherSwitchShapeChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoLauncherSwitchColorOverrideChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoLauncherSwitchColorChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoLauncherMaxSlotsChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoLauncherOpacityOverrideChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoLauncherOpacityChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoLauncherIconsWithNamesChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaOptionsOpacityOverrideChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
+    onDemoMalvinaOptionsOpacityChanged: { if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart() }
     onDemoAutoCollapseTrayChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextLabelChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextBackgroundChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextBackgroundOpacityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextFontFamilyChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextFontSizeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextBackgroundImageChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoTextBoldChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoModeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoPathChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoFitModeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoZoomChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoPanXChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoPanYChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoRotationChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoLogoAnimateChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoClockFontFamilyChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoClockFontSizeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoClockTextColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoOutlineConfigChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoPanelHeightChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadHeightChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaHeightChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadRadiusChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaRadiusChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadMinWidthChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaWidthChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoGripShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoTrayButtonShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoButtonFrameShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoButtonWidthChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoBackgroundColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadOpacityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaOpacityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoBackgroundOpacityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoShowBackgroundChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoTrayButtonColorOverrideChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoTrayButtonColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoTrayButtonOpacityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoGripButtonColorOverrideChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoGripButtonColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoGripButtonOpacityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityStyleChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityStrokeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityMotionChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityOrbitSpeedChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityTrailPercentChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityTrailStyleChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityShowWhenEmptyChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityShowWhenOpenChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
 
     onDemoSoActivityGlowColorChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityGlowIntensityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityGlowSpreadChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityPulseSpeedChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityGlowGradientChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
 
     onDemoSoledadGradientEnabledChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadGradientEndChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadGradientDirectionChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGradientEnabledChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGradientEndChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGradientDirectionChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoActivityPulseDepthChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadGradientSyncBreathingChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoSoledadGradientBreathingIntensityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     // Evitar pérdida de cambios de preferencias incorporadas en nuevas revisiones.
     onDemoMalvinaWebFirstChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaWebOrderChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaAiOrderChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaExtraWebChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaExtraAiChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaHiddenWebChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaHiddenAiChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaCompactAiChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGoogleNameChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaDuckNameChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaYahooNameChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaChatGptNameChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGeminiNameChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaClaudeNameChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaWebGoogleEnabledChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaWebDuckEnabledChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaWebYahooEnabledChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaAllowChatGptChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaAllowGeminiChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaAllowClaudeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGearButtonShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaSearchButtonShapeChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGradientSyncBreathingChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGradientBreathingIntensityChanged: {
-        if (appearanceRestored) saveAppearanceTimer.restart()
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onWidthChanged: console.log("SmartBar ventana independiente: ancho =", width)
 }
