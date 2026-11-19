@@ -670,3 +670,17 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **Bloqueante:** recibir de CachyOS el JSON exportado desde la apariencia que el mantenedor usa **ahora mismo** y el archivo GIF/imagen correspondiente (o identificar inequívocamente su SHA). Todavía `FactoryNightTheme.js` contiene `preset=null`: **NO es un tema de fábrica completo ni restaurable**.
 - [ ] Incorporar perfil exacto + binarios al paquete, verificar licencia/origen de las imágenes, actualizar manifest con hash, ejecutar pruebas reales Node/Qt/CachyOS, validar miniatura, restauración después de cambios y recuperación tras reinstalación.
 - [ ] Mantener issue #15 y PR #3 en borrador, sin modificar panel KDE del usuario ni fusionar a main.
+
+
+## Segundo tema de fábrica: Atardecer original; Día se agregará después (19/11/2026)
+
+- [x] **Decisión:** Atardecer, como Noche, es un tema de fábrica **original, inmutable desde la UI y siempre restaurable**. Los usuarios podrán personalizar la barra activa pero no sobrescribir el preset. **Día será un tema futuro separado**; no reutilizar `themeDayJson` histórico que pertenecía a Atardecer.
+- [x] Crear `assets/FactorySunsetTheme.js` con `preset=null` hasta importar datos auténticos, y carga en QML desde ruta distinta a Noche.
+- [x] Añadir tarjeta «Atardecer de fábrica»: miniatura del GIF/imagen propia, «Restaurar Atardecer de fábrica», exportación de apariencia activa y aviso claro cuando falte imagen o preset. No mostrar paletas inventadas ni miniaturas del tema en uso.
+- [x] Eliminar UI anterior «Fijar Atardecer», «Actualizar Atardecer con estética actual», «Recuperar Atardecer anterior» y diálogos de reescritura; guardar preferencias históricas en disco sin borrarlas ni modificarlas. No mezclar personal/favorita/Noche.
+- [x] Crear `scripts/fijar_atardecer_fabrica.cjs` para empaquetar una única vez la captura actual real, imagen/GIF y posible fondo de texto con hash SHA-256, sin publicar rutas locales.
+- [x] Actualizar regresiones de configuración, temas históricos y fábricas: **562 comprobaciones de fuentes PASS** en V8/FS simulado, pero no valida Qt/CachyOS.
+- [ ] **Bloqueante:** recibir `~/atardecer-actual.json` exportado desde el visor en el estado visual Atardecer exacto, y el GIF/imagen real. El original **no está fijado todavía**: `preset = null`, «Restaurar» deshabilitado.
+- [ ] Verificar licencia del gráfico, empaquetar binarios, probar miniatura/recuperación tras cambios y nuevas instalaciones; probar Noche por separado; registrar hashes y capturas reales en issue #15.
+- [ ] **Posteriormente**, cuando el mantenedor establezca Día, crear su propio original/preferencias sin reemplazar Atardecer ni Noche, preservando los históricos.
+- [ ] No instalar sobre el panel KDE ni fusionar PR #3 sin prueba y aprobación.
