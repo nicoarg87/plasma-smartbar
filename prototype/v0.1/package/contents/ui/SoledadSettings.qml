@@ -611,7 +611,8 @@ Window {
                               autoReturnRight, launcherIslandVisible,
                               alignedRight, alignmentEdited)
         if (hasSuggestedPalette)
-            paletteFeedback = "Paleta elegida aplicada. Los colores de Soledad se mantienen si no pulsaste «Usar tonos sugeridos en Soledad»."
+            paletteFeedback = "Cambios guardados. La sugerencia no modifica la isla hasta " +
+                              "elegir «Usar solo el primer color» o «Usar ambos tonos»."
         alignmentEdited = false
         settingsApplied()
         appliedLabel.text = validProviderUrls && validProviderNames
@@ -2374,10 +2375,10 @@ Window {
                     }
                     QQC2.Button {
                         visible: settings.outlineUsesGlow && settings.logoMode !== "text"
-                        text: "Sugerir tonos de la imagen (experimental)"
+                        text: "Analizar GIF actual para el contorno (sin tocar fondo)"
                         onClicked: paletteSampler.suggestFromImage()
                         QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.text: "Muestreo local de colores de la imagen; no modifica la imagen ni aplica sin confirmar"
+                        QQC2.ToolTip.text: "Sólo prepara los colores luminosos del contorno; el degradado del fondo sigue independiente."
                     }
                     QQC2.Label {
                         visible: settings.outlineUsesGlow
@@ -2678,10 +2679,10 @@ Window {
                         }
                         QQC2.Button {
                             visible: appearanceTarget.currentIndex === 0
-                            text: "Sugerir desde GIF…"
+                            text: "Analizar GIF para el fondo…"
                             onClicked: paletteSampler.suggestFromImage("island")
                             QQC2.ToolTip.visible: hovered
-                            QQC2.ToolTip.text: "Propone colores del GIF sin aplicarlos automáticamente"
+                            QQC2.ToolTip.text: "Calcula los tonos del fotograma sin copiar el celeste del contorno ni aplicarlos automáticamente"
                         }
                         QQC2.Label {
                             text: settings.toHex(settings.activeColor)
@@ -2729,7 +2730,22 @@ Window {
                     }
                     QQC2.Label {
                         visible: appearanceTarget.currentIndex === 0
-                        text: "Sugerencias de color para Soledad"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
+                        text: "El GIF, la luz del contorno y el degradado son independientes. " +
+                              "La respiración modifica la intensidad del fondo actual; " +
+                              "no recupera automáticamente tonos de la imagen."
+                    }
+                    QQC2.Button {
+                        visible: appearanceTarget.currentIndex === 0
+                        text: "Analizar GIF actual para el fondo"
+                        Layout.fillWidth: true
+                        onClicked: paletteSampler.suggestFromImage("island")
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 0
+                        text: "Colores sugeridos para el FONDO de Soledad"
                         color: "white"
                         font.bold: true
                     }
@@ -2742,10 +2758,10 @@ Window {
                     }
                     QQC2.Button {
                         visible: appearanceTarget.currentIndex === 0
-                        text: "Sugerir degradado según el contorno actual"
+                        text: "Derivar fondo del contorno luminoso (opcional)"
                         onClicked: settings.suggestIslandFromCurrentOutline()
                         QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.text: "Propone tonos más claros y oscuros del contorno; no aplica cambios automáticamente"
+                        QQC2.ToolTip.text: "Sólo si elegís esta opción el celeste del contorno podrá influir en el fondo. No usa el GIF."
                     }
                     QQC2.Label {
                         visible: appearanceTarget.currentIndex === 0 && settings.hasSuggestedPalette
@@ -2936,32 +2952,13 @@ Window {
                     }
                     }
                     QQC2.Button {
-                        text: "Restablecer colores"
-                        onClicked: {
-                            settings.soledadColor = "#010111"
-                            settings.malvinaColor = "#101e31"
-                            settings.soledadGradientEnabled = false
-                            settings.soledadGradientSyncBreathing = false
-                            settings.soledadGradientBreathingIntensity = 0.6
-                            settings.malvinaGradientSyncBreathing = false
-                            settings.malvinaGradientBreathingIntensity = 0.6
-                            settings.soledadGradientEnd = "#ee9852"
-                            settings.soledadGradientDirection = "topBottom"
-                            settings.malvinaGradientEnabled = false
-                            settings.malvinaGradientEnd = "#445577"
-                            settings.malvinaGradientDirection = "topBottom"
-                            settings.backgroundColor = "#202333"
-                            settings.soledadOpacity = 0.5
-                            settings.malvinaOpacity = 1
-                            settings.backgroundOpacity = 0.5
-                            settings.showBackground = false
-                            settings.trayButtonColorOverride = false
-                            settings.trayButtonColor = "#010111"
-                            settings.trayButtonOpacity = 0.5
-                            settings.gripButtonColorOverride = false
-                            settings.gripButtonColor = "#010111"
-                            settings.gripButtonOpacity = 0.5
-                        }
+                        text: "Restablecer colores de esta superficie"
+                        Layout.fillWidth: true
+                        onClicked: settings.resetColorsForTarget(appearanceTarget.currentIndex)
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Restablece sólo la isla o botón seleccionado. " +
+                                          "No cambia el GIF, el contorno luminoso ni otras islas. " +
+                                          "Después de restablecer podés analizar el GIF de nuevo."
                     }
                 }
             }
