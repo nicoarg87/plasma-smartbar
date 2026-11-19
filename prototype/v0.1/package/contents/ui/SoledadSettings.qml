@@ -872,7 +872,8 @@ Window {
             Layout.fillWidth: true
         }
         QQC2.Label {
-            text: "Soledad: logo, ventanas y estética · Malvina: buscador y estética · General: posición y comportamiento"
+            text: "Elegí el área del menú lateral. Cada isla tiene sus propios ajustes; " +
+                  "los comunes están en General. Temas guarda estilos sin cambiar el panel KDE."
             color: "#d8d9e5"
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
@@ -899,33 +900,44 @@ Window {
                         width: Math.max(0, parent.width - 16)
                         spacing: 5
                     QQC2.Label {
+                        text: "TEMAS"
+                        color: "#b9e5ff"; font.bold: true
+                    }
+                    SettingsMenuButton {
+                        text: "Temas · Día, Noche y personalizado"
+                        highlighted: settings.currentTab === 4
+                        onClicked: settings.showThemes()
+                    }
+                    QQC2.Label {
                         text: "SOLEDAD · Isla 1"
                         color: "#d7e5f4"; font.bold: true
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Logo e imagen SO"
+                        text: "Logo SO"
                         highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0
                         onClicked: settings.showSoledadLogo()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Efectos luminosos SO"
+                        text: "Efectos luminosos"
                         highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadEffects()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Fichas de ventanas"
+                        text: "Cajón y ventanas"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadWindows()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Colores y degradados Soledad"
+                        text: "Figura y tamaño"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
+                                     settings.geometryScope === "soledad"
+                        onClicked: settings.showSoledadShape()
+                    }
+                    SettingsMenuButton {
+                        text: "Color y DEGRADADO"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
-                                     appearanceTarget.currentIndex === 0
+                                     settings.colorScope === "soledad"
                         onClicked: settings.showSharedColors(0)
                     }
                     QQC2.Label {
@@ -933,23 +945,21 @@ Window {
                         color: "#d7e5f4"; font.bold: true
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Buscadores Web e IA"
+                        text: "Buscador Web e IA"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 2
                         onClicked: settings.showMalvinaProviders()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Figura y tamaño Malvina"
-                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 && settings.geometrySection === 1
+                        text: "Figura y tamaño"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
+                                     settings.geometryScope === "malvina"
                         onClicked: settings.showMalvinaShape()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Color, degradado y respiración"
+                        text: "Color y DEGRADADO"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
-                                     appearanceTarget.currentIndex === 1
+                                     settings.colorScope === "malvina"
                         onClicked: settings.showSharedColors(1)
                     }
                     QQC2.Label {
@@ -957,25 +967,34 @@ Window {
                         color: "#d7e5f4"; font.bold: true
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Posición y geometría"
-                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0
+                        text: "Posición y barra"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
+                                     settings.geometryScope === "shared" && settings.geometrySection === 0
                         onClicked: settings.showSharedLayout()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
                         text: "Comportamiento"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1
                         onClicked: settings.showSharedBehavior()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
-                        text: "Contornos de islas y botones"
+                        text: "Botones compartidos"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
+                                     settings.geometryScope === "shared" && settings.geometrySection === 1
+                        onClicked: settings.showSharedButtons()
+                    }
+                    SettingsMenuButton {
+                        text: "Fondo y colores comunes"
+                        highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 0 &&
+                                     settings.colorScope === "shared"
+                        onClicked: settings.showSharedColors(2)
+                    }
+                    SettingsMenuButton {
+                        text: "Contornos y trazados"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 2
                         onClicked: settings.showSharedOutlines()
                     }
                     SettingsMenuButton {
-                        Layout.fillWidth: true
                         text: "Ayuda"
                         highlighted: settings.currentTab === 3
                         onClicked: settings.currentTab = 3
@@ -996,6 +1015,7 @@ Window {
                 spacing: 6
                 QQC2.TabBar {
                     id: islandSubtabs
+                    visible: false
                     Layout.fillWidth: true
                     SettingsPageTab { text: "Posición y figuras"; width: islandSubtabs.width / 3 }
                     SettingsPageTab { text: "Autocontracción"; width: islandSubtabs.width / 3 }
@@ -1564,6 +1584,7 @@ Window {
                 spacing: 6
                 QQC2.TabBar {
                     id: logoSubtabs
+                    visible: false
                     Layout.fillWidth: true
                     SettingsPageTab { text: "Imagen y texto"; width: logoSubtabs.width / 2 }
                     SettingsPageTab { text: "Contorno e iluminación"; width: logoSubtabs.width / 2 }
@@ -2501,6 +2522,7 @@ Window {
                 spacing: 6
                 QQC2.TabBar {
                     id: appearanceSubtabs
+                    visible: false
                     Layout.fillWidth: true
                     SettingsPageTab { text: "Color por isla"; width: appearanceSubtabs.width / 3 }
                     SettingsPageTab { text: "Fichas SO"; width: appearanceSubtabs.width / 3 }
