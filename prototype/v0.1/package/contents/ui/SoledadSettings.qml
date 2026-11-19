@@ -176,8 +176,9 @@ Window {
     // Presets Playa Dia/Noche: conservar tonos y fuerza guardados, pero
     // asegurar que ambos degradados respiren sin depender del estado de ventanas.
     function ensureBeachBreathing() {
-        soledadGradientEnabled = true
-        malvinaGradientEnabled = true
+        // El efecto puede seguir habilitado con el degradado apagado.
+        // NUNCA volver a activarlo por seleccionar un tema: ahora cada
+        // usuario decide si usar un color uniforme o dos tonos.
         soledadGradientSyncBreathing = true
         malvinaGradientSyncBreathing = true
         effectStyle = "breathe"
