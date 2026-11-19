@@ -165,6 +165,7 @@ QQC2.Popup {
         gradientDirection: launcher.islandGradientDirection
         baseOpacity: launcher.islandOpacity
         breathingFactor: launcher.islandBreathingFactor
+        opaqueAtMaximum: true
         outlineColor: launcher.outlineColor
         outlineOpacity: launcher.outlineOpacity
         outlineWidth: launcher.outlineWidth
@@ -185,6 +186,7 @@ QQC2.Popup {
             gradientDirection: launcher.islandGradientDirection
             baseOpacity: launcher.islandOpacity
             breathingFactor: launcher.islandBreathingFactor
+            opaqueAtMaximum: true
             outlineColor: launcher.outlineColor
             outlineOpacity: launcher.outlineOpacity
             outlineWidth: launcher.outlineWidth
