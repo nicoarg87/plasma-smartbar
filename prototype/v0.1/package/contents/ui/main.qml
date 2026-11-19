@@ -142,6 +142,7 @@ PlasmoidItem {
         autoCollapseSO: Plasmoid.configuration.autoCollapseSO
         soLeftClickOpensLauncher: Plasmoid.configuration.soLeftClickOpensLauncher
         themeDayJson: Plasmoid.configuration.themeDayJson
+        themeDayPreviousJson: Plasmoid.configuration.themeDayPreviousJson
         themeNightJson: Plasmoid.configuration.themeNightJson
         themeCustomJson: Plasmoid.configuration.themeCustomJson
         launcherCategoryLayout: Plasmoid.configuration.launcherCategoryLayout
@@ -328,6 +329,7 @@ PlasmoidItem {
         }
         onRequestThemeSlotChange: function(slot, data) {
             if (slot === "day") Plasmoid.configuration.themeDayJson = data
+            else if (slot === "dayPrevious") Plasmoid.configuration.themeDayPreviousJson = data
             else if (slot === "night") Plasmoid.configuration.themeNightJson = data
             else if (slot === "custom") Plasmoid.configuration.themeCustomJson = data
         }
