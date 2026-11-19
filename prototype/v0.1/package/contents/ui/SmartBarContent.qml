@@ -1257,21 +1257,40 @@ Item {
                         ? Gradient.Horizontal : Gradient.Vertical
                     GradientStop {
                         position: 0
-                        color: root.malvinaGradientDirection === "bottomTop" ||
-                               root.malvinaGradientDirection === "rightLeft"
-                            ? Qt.rgba(root.malvinaGradientEnd.r, root.malvinaGradientEnd.g,
-                                      root.malvinaGradientEnd.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
-                            : Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                                      root.malvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
+                        color: {
+                            const reversed = root.malvinaGradientDirection === "rightLeft" ||
+                                             root.malvinaGradientDirection === "bottomTop"
+                            const value = reversed
+                                ? (root.malvinaGradientColorCount === 3
+                                   ? root.malvinaGradientThird : root.malvinaGradientEnd)
+                                : root.malvinaColor
+                            return Qt.rgba(value.r, value.g, value.b,
+                                root.malvinaOpacity * root.malvinaGradientBreathingFactor)
+                        }
+                    }
+                    GradientStop {
+                        position: root.malvinaGradientColorCount === 3 ? 0.5 : 1
+                        color: {
+                            const reversed = root.malvinaGradientDirection === "rightLeft" ||
+                                             root.malvinaGradientDirection === "bottomTop"
+                            const value = root.malvinaGradientColorCount === 3
+                                ? root.malvinaGradientEnd
+                                : (reversed ? root.malvinaColor : root.malvinaGradientEnd)
+                            return Qt.rgba(value.r, value.g, value.b,
+                                root.malvinaOpacity * root.malvinaGradientBreathingFactor)
+                        }
                     }
                     GradientStop {
                         position: 1
-                        color: root.malvinaGradientDirection === "bottomTop" ||
-                               root.malvinaGradientDirection === "rightLeft"
-                            ? Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                                      root.malvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
-                            : Qt.rgba(root.malvinaGradientEnd.r, root.malvinaGradientEnd.g,
-                                      root.malvinaGradientEnd.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
+                        color: {
+                            const reversed = root.malvinaGradientDirection === "rightLeft" ||
+                                             root.malvinaGradientDirection === "bottomTop"
+                            const value = reversed ? root.malvinaColor
+                                : (root.malvinaGradientColorCount === 3
+                                   ? root.malvinaGradientThird : root.malvinaGradientEnd)
+                            return Qt.rgba(value.r, value.g, value.b,
+                                root.malvinaOpacity * root.malvinaGradientBreathingFactor)
+                        }
                     }
                 }
             }
@@ -1317,12 +1336,20 @@ Item {
                             dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
                             dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
                             dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
-                        const first = dir === "rightLeft" || dir === "bottomTop"
-                            ? root.malvinaGradientEnd : root.malvinaColor
-                        const last = dir === "rightLeft" || dir === "bottomTop"
-                            ? root.malvinaColor : root.malvinaGradientEnd
-                        g.addColorStop(0, Qt.rgba(first.r, first.g, first.b, alpha))
-                        g.addColorStop(1, Qt.rgba(last.r, last.g, last.b, alpha))
+                        // La dirección ya está dada por las coordenadas.
+                        // No invertir además los colores: invertir dos veces
+                        // anulaba el efecto de derecha→izquierda.
+                        g.addColorStop(0, Qt.rgba(root.malvinaColor.r,
+                            root.malvinaColor.g, root.malvinaColor.b, alpha))
+                        if (root.malvinaGradientColorCount === 3) {
+                            g.addColorStop(0.5, Qt.rgba(root.malvinaGradientEnd.r,
+                                root.malvinaGradientEnd.g, root.malvinaGradientEnd.b, alpha))
+                            g.addColorStop(1, Qt.rgba(root.malvinaGradientThird.r,
+                                root.malvinaGradientThird.g, root.malvinaGradientThird.b, alpha))
+                        } else {
+                            g.addColorStop(1, Qt.rgba(root.malvinaGradientEnd.r,
+                                root.malvinaGradientEnd.g, root.malvinaGradientEnd.b, alpha))
+                        }
                         ctx.fillStyle = g
                     } else {
                         ctx.fillStyle = Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
