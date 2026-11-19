@@ -1005,7 +1005,7 @@ Window {
         id: paletteSampler
         width: 64
         height: 64
-        visible: false
+        opacity: 0
         property string requestedUrl: ""
         property bool pending: false
         property string requestMode: "island"
@@ -3243,7 +3243,7 @@ Window {
                     QQC2.Label {
                         visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
-                        text: "PAL ETA DEL GIF".replace("PAL ETA", "PALETA")
+                        text: "PALETA DEL GIF"
                         color: "white"
                         font.bold: true
                     }
@@ -3336,25 +3336,6 @@ Window {
                             if (appearanceTarget.currentIndex === 0)
                                 settings.soledadGradientEnabled = checked
                             else settings.malvinaGradientEnabled = checked
-                        }
-                    }
-                    RowLayout {
-                        visible: appearanceTarget.currentIndex <= 1 && (appearanceTarget.currentIndex === 0 ? settings.soledadGradientEnabled : settings.malvinaGradientEnabled)
-                        Layout.fillWidth: true
-                        QQC2.Button {
-                            text: "Segundo color…"
-                            onClicked: {
-                                islandGradientEndDialog.target = appearanceTarget.currentIndex
-                                islandGradientEndDialog.selectedColor =
-                                    appearanceTarget.currentIndex === 0
-                                    ? settings.soledadGradientEnd : settings.malvinaGradientEnd
-                                islandGradientEndDialog.open()
-                            }
-                        }
-                        Rectangle {
-                            width: 36; height: 24; radius: 5
-                            color: appearanceTarget.currentIndex === 0
-                                ? settings.soledadGradientEnd : settings.malvinaGradientEnd
                         }
                     }
                     QQC2.Label {
