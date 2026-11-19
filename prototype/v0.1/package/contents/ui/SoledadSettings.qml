@@ -4506,7 +4506,7 @@ Window {
                         }
                         Rectangle {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 182
+                            Layout.preferredHeight: 275
                             radius: 9
                             color: "#202a3e"
                             border.color: "#4d607b"
