@@ -146,6 +146,11 @@ PlasmoidItem {
         launcherSwitchColorOverride: Plasmoid.configuration.launcherSwitchColorOverride
         launcherSwitchColor: Plasmoid.configuration.launcherSwitchColor
         launcherMaxSlots: Plasmoid.configuration.launcherMaxSlots
+        launcherOpacityOverride: Plasmoid.configuration.launcherOpacityOverride
+        launcherOpacity: Plasmoid.configuration.launcherOpacity
+        launcherIconsWithNames: Plasmoid.configuration.launcherIconsWithNames
+        malvinaOptionsOpacityOverride: Plasmoid.configuration.malvinaOptionsOpacityOverride
+        malvinaOptionsOpacity: Plasmoid.configuration.malvinaOptionsOpacity
         autoCollapseTray: Plasmoid.configuration.autoCollapseTray
         soLogoMode: Plasmoid.configuration.soLogoMode
         soTextLabel: Plasmoid.configuration.soTextLabel
@@ -324,6 +329,17 @@ PlasmoidItem {
             Plasmoid.configuration.launcherSwitchColorOverride = ownColor
             Plasmoid.configuration.launcherSwitchColor = color
             Plasmoid.configuration.launcherMaxSlots = slots
+        }
+        onRequestLauncherOpacityChange: function(customOpacity, opacityValue) {
+            Plasmoid.configuration.launcherOpacityOverride = customOpacity
+            Plasmoid.configuration.launcherOpacity = opacityValue
+        }
+        onRequestLauncherIconDisplayChange: function(iconsWithNames) {
+            Plasmoid.configuration.launcherIconsWithNames = iconsWithNames
+        }
+        onRequestMalvinaOptionsOpacityChange: function(customOpacity, opacityValue) {
+            Plasmoid.configuration.malvinaOptionsOpacityOverride = customOpacity
+            Plasmoid.configuration.malvinaOptionsOpacity = opacityValue
         }
         onRequestAutoCollapseTrayChange: function(newValue) {
             Plasmoid.configuration.autoCollapseTray = newValue
