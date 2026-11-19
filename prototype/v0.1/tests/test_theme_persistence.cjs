@@ -52,10 +52,14 @@ for (const field of [
 }
 assert.doesNotMatch(activate, /applyBeachDayPalette|synchronizeIslandPalette/);
 assert.match(activate, /applyChanges\(\)/);
-assert.match(block(settings, "updateSunsetFromCurrent"),
-             /stageThemeSlot\("dayPrevious"/);
-assert.match(block(settings, "restorePreviousSunset"),
-             /stageThemeSlot\("day"/);
+assert(!settings.includes('id: updateSunsetConfirmation'),
+       "Atardecer de fábrica no admite sobrescritura con el editor");
+assert(!settings.includes('id: restoreSunsetConfirmation'),
+       "No deben mezclarse respaldos históricos con tema original");
+assert(!settings.includes('function updateSunsetFromCurrent()'),
+       "La operación anterior de reescritura debe quedar inaccesible");
+assert(!settings.includes('function restorePreviousSunset()'),
+       "La rotación de respaldos no puede modificar Atardecer original");
 assert.match(block(settings, "storeTheme"), /stageThemeSlot\(slot, data\)/);
 assert.doesNotMatch(block(settings, "storeTheme"), /saveThemeSlotRequested/);
 assert.match(block(settings, "applyChanges"),
@@ -64,8 +68,11 @@ assert.match(block(settings, "discardPendingEdits"),
              /pendingThemeChanges = \(\{\}\)/);
 assert.match(block(settings, "captureSettingsBaseline"),
              /pendingThemeChanges = \(\{\}\)/);
-assert.match(settings, /text: "Aplicar Atardecer"/);
-assert.match(settings, /updateSunsetConfirmation\.open\(\)/);
+assert.match(settings, /text: "Restaurar Atardecer de fábrica"/);
+assert.match(settings, /onClicked: settings.activateTheme\("sunset"\)/);
+assert(!settings.includes('text: "Fijar Atardecer"'));
+assert(!settings.includes('text: "Actualizar Atardecer con estética actual…"'));
+assert(settings.includes("themeDayJson"), "Conservar legado sin borrar preferencias");
 for (const s of [settings, preview, root, plasmoid, kcfg]) {
     assert(s.includes("themeDayPreviousJson"), "Falta conexión de respaldo");
 }
