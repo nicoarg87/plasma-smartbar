@@ -4612,9 +4612,27 @@ Window {
                             required property int index
                             width: themeSelector.width
                             implicitHeight: 48
-                            text: index === 0 ? "Atardecer" :
-                                  index === 1 ? "Noche" :
-                                  settings.savedThemeLibrary[index - 2].name
+                            contentItem: RowLayout {
+                                spacing: 10
+                                AnimatedImage {
+                                    Layout.preferredWidth: 54
+                                    Layout.preferredHeight: 36
+                                    fillMode: Image.PreserveAspectFit
+                                    playing: visible
+                                    source: index === 0
+                                        ? (settings.themeDayJson.length ? settings.themeImageSource(settings.themeDayJson) : settings.factorySunsetImage)
+                                        : index === 1
+                                          ? (settings.themeNightJson.length ? settings.themeImageSource(settings.themeNightJson) : settings.factoryNightImage)
+                                          : settings.themeImageSource(settings.savedThemeLibrary[index - 2].jsonData)
+                                }
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    color: "white"
+                                    text: index === 0 ? "Atardecer" :
+                                          index === 1 ? "Noche" :
+                                          settings.savedThemeLibrary[index - 2].name
+                                }
+                            }
                             onClicked: {
                                 themeSelector.popup.close()
                                 themeSelector.currentIndex = -1
