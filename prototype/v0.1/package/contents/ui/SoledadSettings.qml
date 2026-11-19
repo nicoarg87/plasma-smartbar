@@ -32,6 +32,7 @@ Window {
     // existe selector para saltar a controles de la otra isla.
     property string geometryScope: "shared"
     property string colorScope: "soledad"
+    property string navigationGroup: "themes"
     property string themeDayJson: ""
     property string themeNightJson: ""
     property string themeCustomJson: ""
@@ -75,13 +76,14 @@ Window {
 
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
-    function showThemes() { currentTab = 4 }
-    function showSoledadLogo() { currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
-    function showSoledadEffects() { currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
-    function showSoledadWindows() { currentTab = 2; appearanceSubtabs.currentIndex = 1 }
-    function showMalvinaProviders() { currentTab = 0; islandSubtabs.currentIndex = 2 }
+    function showThemes() { navigationGroup = "themes"; currentTab = 4 }
+    function showSoledadLogo() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
+    function showSoledadEffects() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
+    function showSoledadWindows() { navigationGroup = "soledad"; currentTab = 2; appearanceSubtabs.currentIndex = 1 }
+    function showMalvinaProviders() { navigationGroup = "malvina"; currentTab = 0; islandSubtabs.currentIndex = 2 }
     function showGeometry(scope, section) {
         geometryScope = scope
+        navigationGroup = scope === "shared" ? "shared" : scope
         geometrySection = section
         currentTab = 0
         islandSubtabs.currentIndex = 0
@@ -92,16 +94,17 @@ Window {
     function showSharedLayout() { showGeometry("shared", 0) }
     function showSharedButtons() { showGeometry("shared", 1) }
     function showSharedSizes() { showGeometry("shared", 2) }
-    function showSharedBehavior() { currentTab = 0; islandSubtabs.currentIndex = 1 }
+    function showSharedBehavior() { navigationGroup = "shared"; currentTab = 0; islandSubtabs.currentIndex = 1 }
     function showSharedColors(target) {
         colorScope = target === 0 ? "soledad" : target === 1 ? "malvina" : "shared"
+        navigationGroup = colorScope
         currentTab = 2
         appearanceSubtabs.currentIndex = 0
         appearanceSection = 0
         appearanceTarget.currentIndex = target
         if (appearanceScroll.contentItem) appearanceScroll.contentItem.contentY = 0
     }
-    function showSharedOutlines() { currentTab = 2; appearanceSubtabs.currentIndex = 2 }
+    function showSharedOutlines() { navigationGroup = "shared"; currentTab = 2; appearanceSubtabs.currentIndex = 2 }
     function showSoledadGradient() { showSharedColors(0); appearanceSection = 1 }
     function showMalvinaGradient() { showSharedColors(1); appearanceSection = 1 }
     property int currentTab: 0
@@ -1008,105 +1011,130 @@ Window {
                     ColumnLayout {
                         width: Math.max(0, parent.width - 16)
                         spacing: 5
-                    QQC2.Label {
-                        text: "TEMAS"
-                        color: "#b9e5ff"; font.bold: true
+                    SettingsMenuButton {
+                        text: (settings.navigationGroup === "themes" ? "▾ " : "▸ ") + "TEMAS"
+                        highlighted: settings.navigationGroup === "themes"
+                        onClicked: settings.navigationGroup = "themes"
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "themes"
                         text: "Temas · Día, Noche y personalizado"
                         highlighted: settings.currentTab === 4
                         onClicked: settings.showThemes()
                     }
-                    QQC2.Label {
-                        text: "SOLEDAD · Isla 1"
-                        color: "#d7e5f4"; font.bold: true
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "themes"
+                        text: (settings.navigationGroup === "soledad" ? "▾ " : "▸ ") + "SOLEDAD · Isla 1"
+                        highlighted: settings.navigationGroup === "soledad"
+                        onClicked: settings.navigationGroup = "soledad"
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
                         text: "Logo SO"
                         highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 0
                         onClicked: settings.showSoledadLogo()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
                         text: "Efectos luminosos"
                         highlighted: settings.currentTab === 1 && logoSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadEffects()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
                         text: "Cajón y ventanas"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 1
                         onClicked: settings.showSoledadWindows()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
                         text: "Figura y tamaño"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
                                      settings.geometryScope === "soledad"
                         onClicked: settings.showSoledadShape()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
                         text: "Color y DEGRADADO"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
                                      settings.colorScope === "soledad"
                         onClicked: settings.showSharedColors(0)
                     }
-                    QQC2.Label {
-                        text: "MALVINA · Isla 2"
-                        color: "#d7e5f4"; font.bold: true
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
+                        text: (settings.navigationGroup === "malvina" ? "▾ " : "▸ ") + "MALVINA · Isla 2"
+                        highlighted: settings.navigationGroup === "malvina"
+                        onClicked: settings.navigationGroup = "malvina"
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "malvina"
                         text: "Buscador Web e IA"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 2
                         onClicked: settings.showMalvinaProviders()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "malvina"
                         text: "Figura y tamaño"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
                                      settings.geometryScope === "malvina"
                         onClicked: settings.showMalvinaShape()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "malvina"
                         text: "Color y DEGRADADO"
                         highlighted: settings.currentTab === 2 &&
                                      appearanceSubtabs.currentIndex === 0 &&
                                      settings.colorScope === "malvina"
                         onClicked: settings.showSharedColors(1)
                     }
-                    QQC2.Label {
-                        text: "GENERAL Y COMPARTIDAS"
-                        color: "#d7e5f4"; font.bold: true
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "malvina"
+                        text: (settings.navigationGroup === "shared" ? "▾ " : "▸ ") + "GENERAL Y COMPARTIDAS"
+                        highlighted: settings.navigationGroup === "shared"
+                        onClicked: settings.navigationGroup = "shared"
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "shared"
                         text: "Posición y barra"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
                                      settings.geometryScope === "shared" && settings.geometrySection === 0
                         onClicked: settings.showSharedLayout()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "shared"
                         text: "Comportamiento"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1
                         onClicked: settings.showSharedBehavior()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "shared"
                         text: "Botones compartidos"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
                                      settings.geometryScope === "shared" && settings.geometrySection === 1
                         onClicked: settings.showSharedButtons()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "shared"
                         text: "Fondo y colores comunes"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 0 &&
                                      settings.colorScope === "shared"
                         onClicked: settings.showSharedColors(2)
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "shared"
                         text: "Contornos y trazados"
                         highlighted: settings.currentTab === 2 && appearanceSubtabs.currentIndex === 2
                         onClicked: settings.showSharedOutlines()
                     }
                     SettingsMenuButton {
+                        visible: settings.navigationGroup === "shared"
                         text: "Ayuda"
                         highlighted: settings.currentTab === 3
-                        onClicked: settings.currentTab = 3
+                        onClicked: {
+                            settings.navigationGroup = "shared"
+                            settings.currentTab = 3
+                        }
                     }
                     Item { Layout.preferredHeight: 8 }
                     }
