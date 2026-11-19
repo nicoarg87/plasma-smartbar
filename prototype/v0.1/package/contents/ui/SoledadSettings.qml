@@ -2443,28 +2443,6 @@ Window {
                         }
                     }
                     QQC2.Label {
-                        text: "Ancho de los formatos horizontales";
-                        color: "white";
-                        font.bold: true
-                        visible: settings.soButtonFrameShape !== "square"
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        visible: settings.soButtonFrameShape !== "square"
-                        QQC2.Label { text: "Ancho SO"; color: "white"; Layout.preferredWidth: 90 }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 44; to: 180; stepSize: 2
-                            value: settings.soButtonWidth
-                            onMoved: settings.soButtonWidth = value
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.soButtonWidth) + " px"
-                            color: "white"
-                            Layout.preferredWidth: 56
-                        }
-                    }
-                    QQC2.Label {
                         visible: settings.logoMode !== "text"
                         text: "Elegí todas las formas desde el mismo desplegable. Estirar mantiene la deformación al aumentar el zoom. El archivo original no se modifica; una imagen pequeña no gana detalle al ampliarse."
                         color: "#ddd6e8"
@@ -3247,7 +3225,7 @@ Window {
                                 paletteSampler.suggestFromImage("island")
                             }
                             QQC2.ToolTip.visible: hovered
-                            QQC2.ToolTip.text: "Calcula los tonos del fotograma sin copiar el celeste del contorno ni aplicarlos automáticamente"
+                            QQC2.ToolTip.text: "Detecta tonos del GIF, selecciona los dos principales en esta isla y activa su degradado. No cambia la luz SO ni otra isla."
                         }
                         QQC2.TextField {
                             id: currentColorCopyField
