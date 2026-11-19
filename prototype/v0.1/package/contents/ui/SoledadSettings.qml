@@ -3405,6 +3405,202 @@ Window {
 
                 }
             }
+
+            // Página PRINCIPAL Temas (índice 4), independiente de las
+            // subpestañas antiguas de islas. Nunca aplica otro GIF sola.
+            QQC2.ScrollView {
+                id: themesScroll
+                clip: true
+                contentWidth: Math.max(0, availableWidth - 8)
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                ColumnLayout {
+                    width: Math.max(0, themesScroll.availableWidth - 10)
+                    spacing: 12
+                    QQC2.Label {
+                        text: "Temas visuales"
+                        font.pixelSize: 19
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.Label {
+                        text: "Guardá un aspecto como Día, Noche o Personalizado. " +
+                              "Cada tema conserva la imagen SO, los colores, los degradados " +
+                              "y los contornos; Malvina conserva ajustes independientes " +
+                              "después de aplicar un tema."
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 114
+                        radius: 12
+                        color: "#262e44"
+                        border.color: "#506985"
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 12
+                            Image {
+                                Layout.preferredWidth: 135
+                                Layout.preferredHeight: 90
+                                source: settings.selectedImage
+                                fillMode: Image.PreserveAspectFit
+                                smooth: true
+                                cache: false
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                QQC2.Label {
+                                    text: "Logo SO actual"
+                                    color: "white"
+                                    font.bold: true
+                                }
+                                QQC2.Label {
+                                    text: settings.logoMode === "custom"
+                                        ? "Imagen personalizada" : "Imagen predeterminada"
+                                    color: "#d0ddeb"
+                                }
+                                QQC2.Button {
+                                    text: "Personalizar logo SO"
+                                    onClicked: settings.showSoledadLogo()
+                                }
+                            }
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Mis temas guardados"
+                        color: "white"; font.bold: true
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 9
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 182
+                            radius: 9
+                            color: "#2b2d42"
+                            border.color: "#4d607b"
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                spacing: 5
+                                QQC2.Label { text: "Día"; color: "white"; font.bold: true }
+                                Image {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 64
+                                    fillMode: Image.PreserveAspectFit
+                                    source: settings.themeDayJson.length
+                                        ? settings.themeImageSource(settings.themeDayJson)
+                                        : settings.defaultImage
+                                    cache: false
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    QQC2.Button {
+                                        Layout.fillWidth: true
+                                        text: "Guardar actual"
+                                        onClicked: settings.storeTheme("day")
+                                    }
+                                    QQC2.Button {
+                                        Layout.fillWidth: true
+                                        enabled: settings.themeDayJson.length > 0
+                                        text: "Aplicar Día"
+                                        onClicked: settings.activateTheme("day")
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 182
+                            radius: 9
+                            color: "#202a3e"
+                            border.color: "#4d607b"
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                spacing: 5
+                                QQC2.Label { text: "Noche"; color: "white"; font.bold: true }
+                                Image {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 64
+                                    fillMode: Image.PreserveAspectFit
+                                    source: settings.themeImageSource(settings.themeNightJson)
+                                    visible: settings.themeNightJson.length > 0
+                                    cache: false
+                                }
+                                QQC2.Label {
+                                    visible: !settings.themeNightJson.length
+                                    text: "Todavía sin guardar"
+                                    color: "#bbc6db"
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    QQC2.Button {
+                                        Layout.fillWidth: true
+                                        text: "Guardar actual"
+                                        onClicked: settings.storeTheme("night")
+                                    }
+                                    QQC2.Button {
+                                        Layout.fillWidth: true
+                                        enabled: settings.themeNightJson.length > 0
+                                        text: "Aplicar Noche"
+                                        onClicked: settings.activateTheme("night")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Crear tema personalizado automático"
+                        color: "white"; font.bold: true
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
+                        text: "Analiza los colores reales del GIF/logo SO elegido y propone " +
+                              "un fondo y degradado para Soledad y Malvina. " +
+                              "No altera el brillo que personalizaste en el contorno. " +
+                              "Podés editar cualquier tono después."
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Crear automáticamente desde el logo SO"
+                        onClicked: paletteSampler.suggestFromImage("automatic")
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            Layout.fillWidth: true
+                            text: "Guardar como Personalizado"
+                            onClicked: settings.storeTheme("custom")
+                        }
+                        QQC2.Button {
+                            Layout.fillWidth: true
+                            enabled: settings.themeCustomJson.length > 0
+                            text: "Aplicar Personalizado"
+                            onClicked: settings.activateTheme("custom")
+                        }
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#b9e5ff"
+                        text: settings.themeStatus
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
+                        text: "Día y Noche son espacios para tus estilos; no vienen con " +
+                              "un GIF nocturno inventado. Los archivos personalizados " +
+                              "permanecen en tu equipo. Aplicar guarda cambios pendientes."
+                    }
+                }
+            }
             }
         }
 
