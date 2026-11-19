@@ -118,6 +118,8 @@
     <entry name="malvinaColor" type="String"><default>#101e31</default></entry>
     <entry name="soledadGradientEnabled" type="Bool"><default>false</default></entry>
     <entry name="soledadGradientEnd" type="String"><default>#ee9852</default></entry>
+    <entry name="soledadGradientThird" type="String"><default>#ee9852</default></entry>
+    <entry name="soledadGradientColorCount" type="Int"><default>2</default></entry>
     <entry name="soledadGradientDirection" type="String"><default>topBottom</default></entry>
     <entry name="soledadGradientSyncBreathing" type="Bool"><default>false</default></entry>
     <entry name="soledadGradientBreathingIntensity" type="Double"><default>0.6</default></entry>
@@ -125,6 +127,8 @@
     <entry name="malvinaGradientBreathingIntensity" type="Double"><default>0.6</default></entry>
     <entry name="malvinaGradientEnabled" type="Bool"><default>false</default></entry>
     <entry name="malvinaGradientEnd" type="String"><default>#445577</default></entry>
+    <entry name="malvinaGradientThird" type="String"><default>#445577</default></entry>
+    <entry name="malvinaGradientColorCount" type="Int"><default>2</default></entry>
     <entry name="malvinaGradientDirection" type="String"><default>topBottom</default></entry>
     <entry name="backgroundColor" type="String"><default>#202333</default></entry>
     <entry name="soledadOpacity" type="Double"><default>0.5</default></entry>
