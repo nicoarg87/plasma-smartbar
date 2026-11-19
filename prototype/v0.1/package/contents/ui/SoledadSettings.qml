@@ -703,12 +703,11 @@ Window {
     // Sólo analiza la imagen cuando se pulsa el botón correspondiente.
     Canvas {
         id: paletteSampler
-        width: 32
-        height: 32
+        width: 64
+        height: 64
         opacity: 0
         property string requestedUrl: ""
         property bool pending: false
-        property string previousUrl: ""
         property string requestMode: "contour"
         onImageLoaded: if (pending) requestPaint()
         function suggestFromImage(mode) {
@@ -723,68 +722,112 @@ Window {
             }
             settings.paletteFeedback = "Analizando una muestra local de la imagen…"
             pending = true
-            if (isImageLoaded(requestedUrl)) requestPaint()
-            else loadImage(requestedUrl)
+            // Volver a leer incluso si el usuario reemplazó el GIF en la
+            // misma ruta. No mantener un fotograma antiguo en caché.
+            if (isImageLoaded(requestedUrl)) unloadImage(requestedUrl)
+            loadImage(requestedUrl)
         }
         onPaint: {
             if (!pending || !isImageLoaded(requestedUrl)) return
             pending = false
+            // No usar el resultado de una imagen que cambió durante el análisis.
+            const activeUrl = settings.logoMode === "text"
+                ? (settings.soTextBackgroundImage.length > 0
+                    ? settings.soTextBackgroundImage : settings.defaultImage.toString())
+                : settings.selectedImage.toString()
+            if (activeUrl !== requestedUrl) {
+                settings.invalidateSuggestedPalette()
+                settings.paletteFeedback = "La imagen cambió durante el análisis. Volvé a sugerir."
+                return
+            }
             try {
                 const ctx = getContext("2d")
                 ctx.reset()
                 ctx.clearRect(0, 0, width, height)
+                // GIF: Qt Canvas ofrece un fotograma representativo, no
+                // todos los fotogramas ni un promedio temporal.
                 ctx.drawImage(requestedUrl, 0, 0, width, height)
                 const rgba = ctx.getImageData(0, 0, width, height).data
-                const bins = Array(12).fill(0)
-                const hues = Array(12).fill(0)
-                let count = 0
+                const binWeights = Array(18).fill(0)
+                const samples = []
+                for (let n = 0; n < 18; ++n) samples.push([])
                 for (let i = 0; i < rgba.length; i += 4) {
                     if (rgba[i + 3] < 128) continue
-                    const rr = rgba[i]/255, gg = rgba[i+1]/255, bb = rgba[i+2]/255
-                    const high = Math.max(rr,gg,bb), low = Math.min(rr,gg,bb)
+                    const r = rgba[i] / 255, g = rgba[i + 1] / 255,
+                          b = rgba[i + 2] / 255
+                    const high = Math.max(r, g, b), low = Math.min(r, g, b)
                     const chroma = high - low
-                    if (chroma < 0.16 || high < 0.18) continue
-                    let h = high === rr ? ((gg-bb)/chroma) :
-                            high === gg ? (2+(bb-rr)/chroma) :
-                                          (4+(rr-gg)/chroma)
-                    h = ((h/6)%1+1)%1
-                    const bin = Math.min(11,Math.floor(h*12))
-                    const weight = chroma * (0.5+high*0.5)
-                    bins[bin] += weight
-                    hues[bin] += h*weight
-                    count++
+                    // Descartar negros sin información tonal y luces casi
+                    // blancas como la luna. NO descartar azules oscuros.
+                    if (high < 0.055 || chroma < 0.035) continue
+                    const saturation = chroma / Math.max(0.001, high)
+                    if (saturation < 0.12) continue
+                    let hue = high === r ? (g - b) / chroma
+                            : high === g ? 2 + (b - r) / chroma
+                            : 4 + (r - g) / chroma
+                    hue = ((hue / 6) % 1 + 1) % 1
+                    const bin = Math.min(17, Math.floor(hue * 18))
+                    // Favorecer presencia y saturación, no brillo: el mar y
+                    // el cielo nocturnos no deben perder ante reflejos claros.
+                    binWeights[bin] += 0.5 + Math.min(1, saturation)
+                    samples[bin].push([r, g, b, high])
                 }
                 let winner = 0
-                for (let n = 1; n < bins.length; ++n) {
-                    if (bins[n] > bins[winner]) winner = n
-                }
-                if (count > 0 && bins[winner] > 0) {
-                    const hue = hues[winner]/bins[winner]
-                    // Tres variantes relacionadas por luminosidad/saturación,
-                    // sin asumir que la imagen completa tiene un único tono.
-                    const base = Qt.hsva(hue, 0.32, 0.93, 1)
-                    const end = Qt.hsva((hue + 0.035) % 1, 0.62, 0.60, 1)
+                for (let n = 1; n < 18; ++n)
+                    if (binWeights[n] > binWeights[winner]) winner = n
+                const chosen = samples[winner]
+                if (chosen.length > 0) {
+                    // Trabajar con los RGB realmente observados en la imagen:
+                    // jamás generar un V=0.93 fijo que aclare artificialmente.
+                    chosen.sort(function(a, b) { return a[3] - b[3] })
+                    function meanRange(from, to) {
+                        const first = Math.min(chosen.length - 1,
+                            Math.floor(chosen.length * from))
+                        const last = Math.max(first + 1,
+                            Math.ceil(chosen.length * to))
+                        let rr = 0, gg = 0, bb = 0, n = 0
+                        for (let j = first; j < Math.min(chosen.length, last); ++j) {
+                            rr += chosen[j][0]
+                            gg += chosen[j][1]
+                            bb += chosen[j][2]
+                            n++
+                        }
+                        return Qt.rgba(rr / n, gg / n, bb / n, 1)
+                    }
+                    const base = meanRange(0.12, 0.52)
+                    const endColor = meanRange(0.53, 0.88)
                     if (requestMode === "island") {
                         settings.suggestedIslandBase = base
-                        settings.suggestedIslandEnd = end
-                        settings.suggestedPaletteName = "imagen/GIF local (aproximación)"
+                        settings.suggestedIslandEnd = endColor
+                        settings.suggestedPaletteName =
+                            "GIF/imagen actual, tonos oscuros respetados (aproximación)"
+                        settings.suggestedPaletteOrigin = "gif"
+                        settings.suggestedPaletteImage = requestedUrl
                         settings.hasSuggestedPalette = true
-                        settings.paletteFeedback = "Muestra analizada localmente. Elegí el primer color o ambos tonos y después pulsá Aplicar."
+                        settings.paletteFeedback = "Se analizaron tonos reales de un fotograma: " +
+                            "base " + settings.toHex(base) + " y segundo " +
+                            settings.toHex(endColor) + ". No se cambió el contorno " +
+                            "ni la respiración. Elegí qué aplicar al fondo."
                     } else {
-                        settings.chooseCoordinatedPalette("imagen seleccionada (aproximación)",
-                            Qt.hsva(hue,0.60,1.0,1),
-                            Qt.hsva((hue+0.045)%1,0.85,0.92,1),
-                            base, end)
-                        settings.paletteFeedback = "Se analizó la imagen. Revisá la sugerencia en Apariencia; no se aplicó todavía."
+                        // El pedido fue CONTORNO: editar solo luz y brillo,
+                        // sin crear una sugerencia aplicable al fondo.
+                        settings.chooseCoordinatedPalette(
+                            "fotograma del GIF para contorno",
+                            Qt.lighter(endColor, 1.40),
+                            Qt.lighter(base, 1.25),
+                            base, endColor)
                     }
-                    console.log("SmartBar: paleta local estimada; confirmar con Aplicar")
+                    console.log("SmartBar: tonos RGB muestreados del GIF local; pendientes de Aplicar")
                 } else {
-                    settings.paletteFeedback = "No se detectaron colores dominantes suficientes. Probá una paleta manual."
-                    console.warn("SmartBar: imagen sin colores dominantes detectables")
+                    settings.invalidateSuggestedPalette()
+                    settings.paletteFeedback = "No se detectaron tonos cromáticos suficientes " +
+                        "en este fotograma. Elegí colores manuales o un GIF con más detalle."
+                    console.warn("SmartBar: fotograma sin tonos suficientes")
                 }
             } catch (e) {
-                settings.paletteFeedback = "No fue posible analizar este archivo. Elegí una paleta manual."
-                console.warn("SmartBar: muestreo no disponible; usar paleta manual:",e)
+                settings.paletteFeedback = "No fue posible analizar esta imagen. " +
+                    "Podés elegir colores manualmente sin perder los actuales."
+                console.warn("SmartBar: error muestreando paleta:", e)
             }
         }
     }
