@@ -38,7 +38,7 @@ Las decisiones funcionales siguen perteneciendo al mantenedor. Este archivo regi
 | ERR-013 | `preview_redimensionable.qml`, ventana de pruebas | Superposición de launcher y controles inferiores; tamaño inicial insuficiente para popup ancho/alto. | P2 | Visor ampliado; bordes y pantallas pequeñas pendientes |
 | ERR-014 | `SmartBarContent.qml`, `MalvinaSearch.qml` | Combinaciones de atajos (Super sola, Super+Espacio) y foco todavía no garantizadas globalmente en Wayland. | P2 | **Pendiente** de solución segura KWin y ensayo local |
 | ERR-015 | Soledad/Malvina: gobernanza de preferencias | Configuración compartida en pestaña de isla incorrecta; color/gradiente o controles de panel imposibles de encontrar. | P2 | Menús reordenados; comprobar navegación y persistencia |
-| ERR-016 | `SoledadSettings.qml`, muestreo GIF y colores de contorno | Al usar GIF nocturno se sugieren fondos celestes claros; al derivar tonos del contorno celeste pueden pasar al degradado; reset restaura tonos fijos de ambas islas. | P2 | **Mecanismo localizado en código; resultado visual exacto sin reproducir** |
+| ERR-016 | `SoledadSettings.qml`, muestreo GIF y colores de contorno | GIF nocturno producía tonos demasiado claros, contorno celeste podía contaminar fondo y reset afectaba ambas islas. | P2 | **Corregido en código, prueba CachyOS pendiente** |
 
 **Nota sobre frecuencia:** «recurrente» significa al menos dos observaciones o regresiones inequívocas en el historial del mantenedor, **no** un conteo automático de ejecuciones. No hay instrumentación de telemetría ni deben enviarse preferencias personales fuera del equipo.
 
@@ -79,6 +79,8 @@ Las decisiones funcionales siguen perteneciendo al mantenedor. Este archivo regi
 - **Regla:** no sobrescribir configuraciones personales; asegurar `Aplicar`, `appearanceV1`, `favoriteSoledadV1`, `personalDefaultV1`, KConfig, cambio y cierre; revisar cada nueva propiedad en todos los enlaces de guardado.
 - **Prueba:** cambiar un ajuste por apartado, Aplicar, cerrar visor, reiniciar, restaurar favorita, restaurar personal. No introducir defaults en el repositorio como si fueran los valores particulares del mantenedor.
 
+### ERR-016 — Colores de GIF, contorno y degradado mezclados en el editor
+
 **ACTUALIZACIÓN 18/11/2026 — Autorización funcional y corrección implementada, SIN PRUEBA EN CACHYOS:**
 
 El mantenedor autorizó modificar la lógica de paletas y los estilos necesarios, incluso si deben volver a configurarse colores personales. Se corrigió `SoledadSettings.qml` en commits [be80ad7](https://github.com/nicoarg87/plasma-smartbar/commit/be80ad76b91eb4b8d4b391948ccd7f68058cceac), [f2a1fcc](https://github.com/nicoarg87/plasma-smartbar/commit/f2a1fcc8c5a7a7a97ceeca19b00c655da9b3d322) y [790beda](https://github.com/nicoarg87/plasma-smartbar/commit/790beda105dd466502a8d84aaf571e5eb7974160):
@@ -91,8 +93,6 @@ El mantenedor autorizó modificar la lógica de paletas y los estilos necesarios
 
 **Revisión estática:** balance QML y referencias correctas en `SoledadSettings.qml`, `SmartBarContent.qml` y visor; API de `Canvas.unloadImage/loadImage` comprobada en documentación de Qt 6. **PENDIENTE:** probar con el GIF nocturno real en CachyOS: azul oscuro vs antiguo dorado, cambio de GIF mismo nombre, copiado a Malvina, respiración, restablecimiento de una isla sin tocar otra y persistencia al reiniciar. El recurso gráfico no se subió al repositorio; solo se corrige la lógica. **Estado: CORREGIDO EN CÓDIGO, NO PROBADO.**
 
-### ERR-016 — Colores de GIF, contorno y degradado mezclados en el editor
-
 - **Reportado por el mantenedor (18/11/2026, CachyOS):** tras elegir un GIF de playa nocturna azulada, la respiración siguió mostrando tonos dorados; al sincronizar/usar sugerencias apareció un celeste claro que el mantenedor identifica como posible color de la línea luminosa de Soledad. «Restablecer colores» y Aplicar no produjeron la estética esperada. No se dispone del archivo GIF local que finalmente eligió el usuario ni de su configuración KConfig actual, por lo que **no se confirmó el valor RGB exacto en ejecución**.
 - **Mecanismo demostrado en `SoledadSettings.qml`:**
   1. `suggestIslandFromCurrentOutline()` toma `accentColor` y `glowColor` (contorno y brillo), les aplica fórmulas de luminosidad y genera `suggestedIslandBase/End`. Si se pulsa «Usar ambos tonos en el degradado», `putSuggestedPaletteOnSoledad()` copia esos tonos al fondo y activa el degradado. **Camino real para que un contorno celeste influya en el fondo**.
@@ -100,9 +100,9 @@ El mantenedor autorizó modificar la lógica de paletas y los estilos necesarios
   3. «Copiar colores y degradado de Soledad a Malvina» **no copia `accentColor` directamente**: copia `soledadColor`, `soledadOpacity`, `soledadGradientEnabled/End/Direction`. Si el azul claro ya está aplicado como fondo de Soledad, sí se propaga.
   4. `SmartBarContent.qml`: la respiración del gradiente multiplica la **opacidad** de los dos colores configurados mediante un factor dependiente de la fase de SO; no muestrea ni actualiza colores desde el GIF. Si permanece el degradado naranja anterior (`soledadGradientEnd: "#ee9852"`), seguirá viéndose al respirar hasta que se cambie ese campo.
   5. «Restablecer colores» asigna **valores fijos a Soledad y Malvina simultáneamente**, incluidos degradados iniciales, por ejemplo `#ee9852` y `#445577`; **no restaura colores derivados de la imagen seleccionada**. No afirmar que restablece el tema nocturno.
-- **Estado:** causa técnica de los caminos de color **confirmada por lectura del código**, pero combinación exacta de acciones y el tono final **no verificada en CachyOS**. No sobrescribir la estética local ni cambiar defaults.
+- **Estado original del diagnóstico:** mecanismos previos confirmados por lectura del código. **Estado vigente:** parches aplicados en rama, aún no evaluados con el GIF nocturno local en CachyOS. Se conservaron configuraciones existentes hasta que el usuario elija modificar o restablecer una superficie.
 - **Regresión propuesta (requiere prueba):** guardar estética actual/favorita; establecer contorno celeste, usar «Sugerir degradado según contorno» y observar valores propuestos; analizar GIF nocturno y anotar `suggestedIslandBase/End`; activar degradado SO y respiración; copiar a Malvina; comprobar que solo se copian cinco campos de fondo; restablecer por separado en entorno de prueba y verificar ambos valores, Aplicar/cerrar/reabrir. Adjuntar salida de Konsole y capturas. No hacer la prueba destructiva en la configuración personal.
-- **Propuesta funcional aún no aprobada:** separar claramente «Paleta del GIF» de «Paleta derivada del contorno», ofrecer extracción que preserve oscuridad de imágenes nocturnas, y definir si «Restablecer colores» actúa sobre la isla elegida o sobre las dos; el cambio tocaría requisitos de personalización y debe ser aprobado antes de modificar el comportamiento.
+- **Decisión funcional aprobada e implementada posteriormente:** separación entre paleta de GIF y derivación opcional desde contorno, conservación aproximada de los tonos oscuros y restauración por superficie elegida. Las reglas antiguas descriptas arriba corresponden al código previo al parche; la situación vigente está en la actualización de esta ficha. **Pendiente de ensayo en CachyOS.**
 
 ## Zonas de fragilidad (diagnóstico preliminar, no estadística)
 
