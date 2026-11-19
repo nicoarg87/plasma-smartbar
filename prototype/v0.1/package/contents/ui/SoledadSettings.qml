@@ -3972,9 +3972,9 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "Atardecer y Noche conservan sus estilos y no se actualizan al guardar favorita. " +
-                              "un GIF nocturno inventado. Los archivos personalizados " +
-                              "permanecen en tu equipo. Aplicar guarda cambios pendientes."
+                        text: "Atardecer y Noche no se sobrescriben al guardar una estética favorita. " +
+                              "Para actualizar Atardecer, usá su botón de actualización y confirmá. " +
+                              "Los GIF personalizados permanecen en tu equipo."
                     }
                 }
             }
