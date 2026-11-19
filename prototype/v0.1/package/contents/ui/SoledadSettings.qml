@@ -178,7 +178,47 @@ Window {
     function showSharedOutlines() { navigationGroup = "shared"; currentTab = 2; appearanceSubtabs.currentIndex = 2 }
     // Degradado y respiración viven dentro de Color y transparencia.
     function showSoledadGradient() { showSharedColors(0) }
+    function showSoledadGradientBreathing() {
+        showSharedColors(0)
+        Qt.callLater(function() {
+            if (appearanceScroll.contentItem && gradientBreathingTitle.visible) {
+                const scroll = appearanceScroll.contentItem
+                const y = gradientBreathingTitle.mapToItem(scroll.contentItem, 0, 0).y
+                scroll.contentY = Math.max(0, Math.min(scroll.contentHeight - scroll.height, y - 12))
+            }
+        })
+    }
     function showMalvinaGradient() { showSharedColors(1) }
+    // Siempre se puede ajustar la velocidad propia: al moverla se desactiva
+    // solamente el enlace con SO, sin borrar las preferencias personales.
+    function setIndependentGradientSpeed(target, speed) {
+        if (!isFinite(speed)) return
+        const next = Math.round(Math.max(0.1, Math.min(3, speed)) * 10) / 10
+        if (target === 0) {
+            soledadGradientSyncBreathing = false
+            soledadGradientSyncIntensity = false
+            soledadGradientBreathingEnabled = true
+            soledadGradientBreathingSpeed = next
+        } else if (target === 1) {
+            malvinaGradientSyncBreathing = false
+            malvinaGradientBreathingEnabled = true
+            malvinaGradientBreathingSpeed = next
+        }
+    }
+    function setSoLineBreathingSpeed(speed) {
+        if (!isFinite(speed)) return
+        pulseSpeed = Math.round(Math.max(0.1, Math.min(3, speed)) * 10) / 10
+        effectStyle = "breathe"
+        allowMotion = true
+        refreshOutlinePreview()
+    }
+    function setSoLineBreathingDepth(depth) {
+        if (!isFinite(depth)) return
+        pulseDepth = Math.round(Math.max(0, Math.min(1, depth)) * 20) / 20
+        effectStyle = "breathe"
+        allowMotion = true
+        refreshOutlinePreview()
+    }
     property int currentTab: 0
     // V1 de tema visual: foto/logo + colores de las dos islas, líneas y
     // contornos, sin alterar posición, controles de ventanas ni permisos IA.
@@ -716,7 +756,7 @@ Window {
             gripButtonOpacity = soledadOpacity
         }
     }
-    // Copia de los valores realmente aplicados: nunca seguir ediciones pendientes.
+    // Muestra de edición de SO; la barra real solo cambia al pulsar Aplicar.
     property var appliedOutlinePreview: ({})
     function refreshOutlinePreview() {
         appliedOutlinePreview = {
@@ -750,6 +790,16 @@ Window {
             activityShowWhenOpen: showOutlineWhenOpen
         }
     }
+    // Mantener la muestra sincronizada con el control actual sin guardar en disco.
+    onPulseSpeedChanged: if (visible) refreshOutlinePreview()
+    onPulseDepthChanged: if (visible) refreshOutlinePreview()
+    onEffectStyleChanged: if (visible) refreshOutlinePreview()
+    onAllowMotionChanged: if (visible) refreshOutlinePreview()
+    onSimulateHasWindowsChanged: if (visible) refreshOutlinePreview()
+    onShowOutlineWhenEmptyChanged: if (visible) refreshOutlinePreview()
+    onShowOutlineWhenOpenChanged: if (visible) refreshOutlinePreview()
+    onGlowIntensityChanged: if (visible) refreshOutlinePreview()
+    onGlowSpreadChanged: if (visible) refreshOutlinePreview()
     readonly property bool outlineIsOrbit: effectStyle === "orbit" || effectStyle === "orbitGlow"
     readonly property bool outlineUsesGlow: effectStyle === "glow" || effectStyle === "breathe" || effectStyle === "orbitGlow"
     readonly property bool outlineCanMove: outlineIsOrbit || effectStyle === "breathe"
@@ -2610,7 +2660,7 @@ Window {
                     }
 
                 QQC2.Label {
-                    text: "Muestra de los últimos ajustes aplicados. Pulsá Aplicar para ver los cambios."
+                    text: "Vista previa: la velocidad y el pulso cambian aquí al instante. Pulsá Aplicar para guardar en la barra."
                     color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                 }
                 QQC2.ScrollView {
@@ -2840,6 +2890,98 @@ Window {
                               "Los degradados de Soledad y Malvina mantienen su ritmo salvo que " +
                               "elijas sincronizarlos expresamente."
                     }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        text: "VELOCIDAD DE LA RESPIRACIÓN · LÍNEA SO"
+                        color: "white"
+                        font.bold: true
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "−"
+                            onClicked: settings.setSoLineBreathingSpeed(settings.pulseSpeed - 0.1)
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "Respiración de la línea SO más lenta"
+                        }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.1; to: 3; stepSize: 0.1
+                            value: settings.pulseSpeed
+                            onMoved: settings.setSoLineBreathingSpeed(value)
+                        }
+                        QQC2.Button {
+                            text: "+"
+                            onClicked: settings.setSoLineBreathingSpeed(settings.pulseSpeed + 0.1)
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "Respiración de la línea SO más rápida"
+                        }
+                        QQC2.Label {
+                            color: "white"
+                            Layout.preferredWidth: 104
+                            text: settings.pulseSpeed.toFixed(1) + " ciclos/s"
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        QQC2.Label {
+                            text: "Duración de cada ciclo"
+                            color: "white"
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                        }
+                        QQC2.SpinBox {
+                            from: 333; to: 10000; stepSize: 100
+                            editable: true
+                            value: Math.round(1000 / Math.max(0.1, settings.pulseSpeed))
+                            onValueModified: settings.setSoLineBreathingSpeed(1000 / value)
+                        }
+                        QQC2.Label { text: "ms"; color: "white" }
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#bbd8f2"
+                        text: "La línea SO usa su propia velocidad. Menos ciclos/s significa " +
+                              "más lento. Ajustar un control activa la respiración de la línea; " +
+                              "no modifica la velocidad del degradado salvo sincronización elegida."
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        text: "INTENSIDAD DEL PULSO · LÍNEA SO"
+                        color: "white"
+                        font.bold: true
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "−"
+                            onClicked: settings.setSoLineBreathingDepth(settings.pulseDepth - 0.05)
+                        }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0; to: 1; stepSize: 0.05
+                            value: settings.pulseDepth
+                            onMoved: settings.setSoLineBreathingDepth(value)
+                        }
+                        QQC2.Button {
+                            text: "+"
+                            onClicked: settings.setSoLineBreathingDepth(settings.pulseDepth + 0.05)
+                        }
+                        QQC2.Label {
+                            color: "white"
+                            Layout.preferredWidth: 62
+                            text: Math.round(settings.pulseDepth * 100) + "%"
+                        }
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
+                        text: "La intensidad del pulso es cuánto varía el brillo de la línea. " +
+                              "No es la opacidad de la isla ni el color del degradado."
+                    }
                     QQC2.CheckBox {
                         Layout.fillWidth: true
                         text: "Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)"
@@ -2867,8 +3009,23 @@ Window {
                         text: settings.soledadGradientSyncBreathing
                             ? (settings.soledadGradientSyncIntensity
                                ? "Soledad sigue el ritmo y la intensidad del contorno SO."
-                               : "Soledad comparte el ritmo (ajuste anterior); su intensidad sigue siendo independiente.")
-                            : "El ritmo del degradado Soledad es independiente. Mover la velocidad de la línea SO no lo cambia."
+                               : "Soledad comparte solo el ritmo; su intensidad es independiente.")
+                            : "El degradado tiene velocidad propia. Mover la velocidad de la línea SO no lo cambia."
+                    }
+                    QQC2.CheckBox {
+                        Layout.fillWidth: true
+                        text: "Mostrar la línea SO cuando hay ventanas abiertas"
+                        checked: settings.showOutlineWhenOpen
+                        onToggled: settings.showOutlineWhenOpen = checked
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#d1c8dd"
+                        text: !settings.showOutlineWhenOpen
+                            ? "Con ventanas abiertas, la línea se oculta según la configuración actual. " +
+                              "Activá la casilla anterior si querés verla mientras probás."
+                            : "La línea puede mostrarse también con ventanas abiertas."
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
@@ -2999,73 +3156,9 @@ Window {
                         Layout.fillWidth: true
                         visible: settings.outlineSection === 2
                         text: "Ir a Color y transparencia → Degradado y respiración de Soledad"
-                        onClicked: settings.showSoledadGradient()
+                        onClicked: settings.showSoledadGradientBreathing()
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Abrir los colores, el degradado y su velocidad en Soledad. La iluminación del botón SO es independiente."
-                    }
-                    QQC2.Label {
-                        text: "Velocidad de la línea luminosa SO"
-                        color: "white"
-                        visible: settings.effectStyle === "breathe" && settings.allowMotion
-                    }
-                    RowLayout {
-                        visible: settings.effectStyle === "breathe" && settings.allowMotion
-                        Layout.fillWidth: true
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0.1; to: 3; stepSize: 0.1
-                            enabled: settings.effectStyle === "breathe" && settings.allowMotion
-                            value: settings.pulseSpeed
-                            onMoved: settings.pulseSpeed = value
-                        }
-                        QQC2.Label { text: settings.pulseSpeed.toFixed(1) + " ciclos/s"; color: "white" }
-                    }
-                    RowLayout {
-                        visible: settings.effectStyle === "breathe" && settings.allowMotion
-                        Layout.fillWidth: true
-                        spacing: 8
-                        QQC2.Label {
-                            text: "Duración del ciclo"
-                            color: "white"
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                        }
-                        QQC2.SpinBox {
-                            from: 333; to: 10000; stepSize: 100
-                            editable: true
-                            value: Math.round(1000 / Math.max(0.1, settings.pulseSpeed))
-                            onValueModified: settings.pulseSpeed =
-                                Math.max(0.1, Math.min(3, 1000 / value))
-                        }
-                        QQC2.Label { text: "ms"; color: "white" }
-                    }
-                    QQC2.Label {
-                        visible: settings.effectStyle === "breathe" && settings.allowMotion
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: "#bbd8f2"
-                        text: "Ejemplo: 1000 ms = un pulso completo por segundo. " +
-                              "Menos milisegundos significa una respiración más rápida."
-                    }
-                    QQC2.Label {
-                        text: "Intensidad del pulso de la línea SO (0–100 %)"
-                        color: "white"
-                        visible: settings.effectStyle === "breathe" && settings.allowMotion
-                    }
-                    RowLayout {
-                        visible: settings.effectStyle === "breathe" && settings.allowMotion
-                        Layout.fillWidth: true
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0; to: 1; stepSize: 0.05
-                            enabled: settings.effectStyle === "breathe"
-                            value: settings.pulseDepth
-                            onMoved: settings.pulseDepth = value
-                        }
-                        QQC2.Label {
-                            text: Math.round(settings.pulseDepth * 100) + "%"
-                            color: "white"
-                        }
                     }
                     }
                     QQC2.Button {
@@ -3640,6 +3733,7 @@ Window {
                     // habilita el efecto y otra controla si comparte la fase
                     // de SO o usa su propia velocidad.
                     QQC2.Label {
+                        id: gradientBreathingTitle
                         visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
                         text: "RESPIRACIÓN DEL FONDO Y LOS MENÚS"
@@ -3668,9 +3762,12 @@ Window {
                             ? settings.soledadGradientSyncBreathing
                             : settings.malvinaGradientSyncBreathing
                         onToggled: {
-                            if (appearanceTarget.currentIndex === 0)
+                            if (appearanceTarget.currentIndex === 0) {
                                 settings.soledadGradientSyncBreathing = checked
-                            else settings.malvinaGradientSyncBreathing = checked
+                                if (!checked) settings.soledadGradientSyncIntensity = false
+                            } else {
+                                settings.malvinaGradientSyncBreathing = checked
+                            }
                         }
                     }
                     QQC2.Label {
@@ -3727,35 +3824,61 @@ Window {
                             Layout.preferredWidth: 42
                         }
                     }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        text: "VELOCIDAD PROPIA DEL DEGRADADO"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex <= 1
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#bbd8f2"
+                        text: (appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientSyncBreathing
+                            : settings.malvinaGradientSyncBreathing)
+                            ? "Ahora está sincronizada con la línea SO (" +
+                              settings.pulseSpeed.toFixed(1) + " ciclos/s). " +
+                              "Mové la velocidad de abajo para usar la velocidad propia."
+                            : "Velocidad propia habilitada. Los botones − y + cambian el ritmo " +
+                              "de esta isla sin modificar la línea SO."
+                    }
                     RowLayout {
                         visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
-                        readonly property bool syncToSO: appearanceTarget.currentIndex === 0
-                            ? settings.soledadGradientSyncBreathing
-                            : settings.malvinaGradientSyncBreathing
-                        enabled: (appearanceTarget.currentIndex === 0
-                            ? settings.soledadGradientBreathingEnabled
-                            : settings.malvinaGradientBreathingEnabled) && !syncToSO
-                        QQC2.Label { text: "Velocidad"; color: "white" }
+                        QQC2.Button {
+                            text: "−"
+                            onClicked: settings.setIndependentGradientSpeed(
+                                appearanceTarget.currentIndex,
+                                (appearanceTarget.currentIndex === 0
+                                    ? settings.soledadGradientBreathingSpeed
+                                    : settings.malvinaGradientBreathingSpeed) - 0.1)
+                        }
                         QQC2.Slider {
                             Layout.fillWidth: true
                             from: 0.1; to: 3; stepSize: 0.1
                             value: appearanceTarget.currentIndex === 0
                                 ? settings.soledadGradientBreathingSpeed
                                 : settings.malvinaGradientBreathingSpeed
-                            onMoved: {
-                                if (appearanceTarget.currentIndex === 0)
-                                    settings.soledadGradientBreathingSpeed = value
-                                else settings.malvinaGradientBreathingSpeed = value
-                            }
+                            onMoved: settings.setIndependentGradientSpeed(
+                                appearanceTarget.currentIndex, value)
+                        }
+                        QQC2.Button {
+                            text: "+"
+                            onClicked: settings.setIndependentGradientSpeed(
+                                appearanceTarget.currentIndex,
+                                (appearanceTarget.currentIndex === 0
+                                    ? settings.soledadGradientBreathingSpeed
+                                    : settings.malvinaGradientBreathingSpeed) + 0.1)
                         }
                         QQC2.Label {
                             color: "white"
-                            text: (parent.syncToSO
-                                ? settings.pulseSpeed
-                                : (appearanceTarget.currentIndex === 0
-                                    ? settings.soledadGradientBreathingSpeed
-                                    : settings.malvinaGradientBreathingSpeed)).toFixed(1) + " ciclos/s"
+                            Layout.preferredWidth: 105
+                            text: (appearanceTarget.currentIndex === 0
+                                ? settings.soledadGradientBreathingSpeed
+                                : settings.malvinaGradientBreathingSpeed).toFixed(1) + " ciclos/s"
                         }
                     }
                     QQC2.Label {
