@@ -973,3 +973,27 @@ node prototype/v0.1/scripts/fijar_atardecer_fabrica.cjs ~/atardecer-actual.json
 El script copia una sola vez los recursos originales a `assets/factory-sunset-logo.*` y `assets/factory-sunset-text.*` si corresponde, genera `factory-sunset-manifest.json` con SHA-256 y el `FactorySunsetTheme.js` definitivo. No sobrescribe originales ya fijados. El resultado local debe revisarse, probarse y versionarse en Git antes de distribuirlo.
 
 **Prueba posterior:** modificar la barra activa, usar «Restaurar Atardecer de fábrica», comparar parámetros y miniatura con captura; repetir con Noche; cerrar/reabrir; verificar que la futura opción Día no reemplace a ninguna de ellas. **No declarar tema de fábrica distribuible hasta contar con el JSON real y los binarios.** En esta etapa se han ejecutado 562 aserciones sobre fuentes GitHub mediante V8/FS simulado; falta Node local y prueba visual Qt/CachyOS. Panel KDE instalado intacto.
+
+
+## Selector único desplegable de temas y guardado múltiple — 19/11/2026
+
+En Configuraciones → Temas ahora hay **un solo botón «Seleccionar tema ▾»**, **cerrado por defecto**. Al abrir muestra una **lista vertical con scroll**. Ya no se ven tarjetas/cuadrados en mosaico. El selector contiene:
+- **De fábrica:** Atardecer, Noche, Día (pendiente). Solo se habilita restauración cuando existe el perfil original y su recurso gráfico auténtico; no sustituir por otro GIF.
+- **Guardados anteriormente:** Atardecer histórico, respaldo histórico, Noche histórica, Personalizado; si el visor los tiene guardados, también **Mi predeterminada personal** y **Mi estética favorita**.
+- **Nuevos temas:** escribir un nombre y pulsar **Guardar tema**, que crea otra entrada propia en `themeLibraryJson` con su logo/color/gradiente/respiración/contorno/tamaños y **confirma la escritura inmediatamente**, sin esperar Aplicar. Los nombres nuevos no sobrescriben anteriores. Desde la misma lista pulsar Usar para recuperar uno.
+
+El JSON de biblioteca se almacena por separado de `appearanceV1`, `personalDefaultV1`, `favoriteSoledadV1`, `themeDayJson`, `themeNightJson` y `themeCustomJson`: **no borra perfiles anteriores ni cambia de fábrica lo que era personal**. Está conectado a QtCore.Settings del visor y KConfig cuando corresponda. El selector vuelve a estar contraído al entrar/reabrir. El pie Cancelar/Aplicar se conserva para ajustes pendientes; «Guardar tema» es una acción confirmada, por lo que no se deshace con Cancelar.
+
+**Prueba en CachyOS (Fish):**
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_theme_selector.cjs
+node prototype/v0.1/tests/test_factory_sunset.cjs
+node prototype/v0.1/tests/test_factory_night.cjs
+bash prototype/v0.1/probar_ancho.sh
+```
+Comprobar inicialmente solo «Seleccionar tema ▾», abrir la lista desplazable, verificar perfiles anteriores, crear dos temas nuevos diferentes, cerrar/reabrir visor, pulsar Usar en cada uno y comparar con la imagen y valores guardados. Reportar errores/capturas a [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
+
+**Estado:** implementación [2f77b88](https://github.com/nicoarg87/plasma-smartbar/commit/2f77b88e343b38e7ed39c5bcff96a41ebb82ec0a), biblioteca [eb90097](https://github.com/nicoarg87/plasma-smartbar/commit/eb900979b96e33c76b5bb0694a386eb745991d04), prueba [c9ccd0c](https://github.com/nicoarg87/plasma-smartbar/commit/c9ccd0cb5d30ecfa635be25715b8c324dd21524e); **628 comprobaciones estáticas/JS aislado positivas**, Qt/CachyOS aún no confirmado. Panel KDE instalado intacto, PR #3 borrador.
