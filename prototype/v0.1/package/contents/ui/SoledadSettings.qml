@@ -4489,39 +4489,45 @@ Window {
                                 anchors.fill: parent
                                 anchors.margins: 8
                                 spacing: 5
-                                QQC2.Label { text: "Noche"; color: "white"; font.bold: true }
+                                QQC2.Label { text: "Noche de fábrica"; color: "white"; font.bold: true }
                                 Image {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 64
                                     fillMode: Image.PreserveAspectFit
-                                    source: settings.officialNightAvailable
-                                        ? settings.officialNightImage
-                                        : settings.themeImageSource(settings.themeNightJson)
-                                    visible: settings.officialNightAvailable ||
-                                             settings.themeNightJson.length > 0
+                                    source: settings.factoryNightAvailable &&
+                                            settings.factoryNightPreset.logoMode !== "text"
+                                        ? settings.factoryNightImage : ""
+                                    visible: settings.factoryNightAvailable &&
+                                             settings.factoryNightPreset.logoMode !== "text"
                                     cache: false
                                 }
                                 QQC2.Label {
-                                    visible: !settings.themeNightJson.length
-                                    text: settings.officialNightAvailable
-                                        ? "Imagen oficial disponible · falta guardar colores de Noche"
-                                        : "Todavía sin guardar"
-                                    color: "#bbc6db"
+                                    visible: settings.factoryNightAvailable &&
+                                             settings.factoryNightPreset.logoMode === "text"
+                                    text: settings.factoryNightAvailable
+                                        ? settings.factoryNightPreset.soTextLabel : ""
+                                    color: "white"
+                                    font.bold: true
                                 }
-                                RowLayout {
+                                QQC2.Label {
                                     Layout.fillWidth: true
-                                    QQC2.Button {
-                                        Layout.fillWidth: true
-                                        visible: settings.themeNightJson.length === 0
-                                        text: "Fijar tema Noche"
-                                        onClicked: settings.storeTheme("night")
-                                    }
-                                    QQC2.Button {
-                                        Layout.fillWidth: true
-                                        enabled: settings.themeNightJson.length > 0
-                                        text: "Aplicar Noche"
-                                        onClicked: settings.activateTheme("night")
-                                    }
+                                    wrapMode: Text.WordWrap
+                                    text: settings.factoryNightAvailable
+                                        ? "Tema del sistema · original protegido. Podés personalizar la barra tras restaurarlo."
+                                        : "Pendiente: incorporar la captura exacta y su imagen; no se usará otro tema."
+                                    color: settings.factoryNightAvailable ? "#b6ebdf" : "#ffd6aa"
+                                }
+                                QQC2.Button {
+                                    Layout.fillWidth: true
+                                    text: "Restaurar Noche de fábrica"
+                                    enabled: settings.factoryNightAvailable
+                                    onClicked: settings.activateTheme("night")
+                                }
+                                QQC2.Button {
+                                    Layout.fillWidth: true
+                                    visible: !settings.factoryNightAvailable
+                                    text: "Copiar mi apariencia actual para fijar Noche…"
+                                    onClicked: factoryNightExportDialog.open()
                                 }
                             }
                         }
