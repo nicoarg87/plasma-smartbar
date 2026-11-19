@@ -3793,7 +3793,7 @@ Window {
                         spacing: 9
                         Rectangle {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 182
+                            Layout.preferredHeight: 270
                             radius: 9
                             color: "#2b2d42"
                             border.color: "#4d607b"
