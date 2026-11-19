@@ -31,6 +31,7 @@ Window {
     // El menú lateral decide el destino. Dentro de Soledad o Malvina no
     // existe selector para saltar a controles de la otra isla.
     property string geometryScope: "shared"
+    property string behaviorScope: "shared"
     property string colorScope: "soledad"
     property string navigationGroup: "themes"
     property string themeDayJson: ""
@@ -80,6 +81,10 @@ Window {
     function showSoledadLogo() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
     function showSoledadEffects() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
     function showSoledadWindows() { navigationGroup = "soledad"; currentTab = 2; appearanceSubtabs.currentIndex = 1 }
+    function showSoledadLauncher() {
+        navigationGroup = "soledad"; behaviorScope = "soledad"
+        currentTab = 0; islandSubtabs.currentIndex = 1
+    }
     function showMalvinaProviders() { navigationGroup = "malvina"; currentTab = 0; islandSubtabs.currentIndex = 2 }
     function showGeometry(scope, section) {
         geometryScope = scope
@@ -94,7 +99,10 @@ Window {
     function showSharedLayout() { showGeometry("shared", 0) }
     function showSharedButtons() { showGeometry("shared", 1) }
     function showSharedSizes() { showGeometry("shared", 2) }
-    function showSharedBehavior() { navigationGroup = "shared"; currentTab = 0; islandSubtabs.currentIndex = 1 }
+    function showSharedBehavior() {
+        navigationGroup = "shared"; behaviorScope = "shared"
+        currentTab = 0; islandSubtabs.currentIndex = 1
+    }
     function showSharedColors(target) {
         colorScope = target === 0 ? "soledad" : target === 1 ? "malvina" : "shared"
         navigationGroup = colorScope
@@ -1076,6 +1084,14 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
+                        text: "Launcher y botón SO"
+                        highlighted: settings.currentTab === 0 &&
+                                     islandSubtabs.currentIndex === 1 &&
+                                     settings.behaviorScope === "soledad"
+                        onClicked: settings.showSoledadLauncher()
+                    }
+                    SettingsMenuButton {
+                        visible: settings.navigationGroup === "soledad"
                         text: "Figura y tamaño"
                         highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 0 &&
                                      settings.geometryScope === "soledad"
@@ -1129,8 +1145,9 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "shared"
-                        text: "Comportamiento"
-                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1
+                        text: "Cajón de sistema y opciones comunes"
+                        highlighted: settings.currentTab === 0 && islandSubtabs.currentIndex === 1 &&
+                                     settings.behaviorScope === "shared"
                         onClicked: settings.showSharedBehavior()
                     }
                     SettingsMenuButton {
@@ -1616,6 +1633,10 @@ Window {
                 ColumnLayout {
                     width: Math.max(0, collapseScroll.availableWidth - 8)
                     spacing: 16
+                    ColumnLayout {
+                        visible: settings.behaviorScope === "soledad"
+                        Layout.fillWidth: true
+                        spacing: 12
                     QQC2.Label {
                         text: "Acciones del botón SO"
                         font.bold: true
@@ -1718,45 +1739,61 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    }
                     QQC2.Label {
-                        text: "Autocontracción"
+                        visible: settings.behaviorScope === "soledad"
+                        text: "Autocontracción del cajón de aplicaciones"
                         font.bold: true
                         color: "white"
                     }
                     QQC2.CheckBox {
+                        visible: settings.behaviorScope === "soledad"
                         text: "SO: contraer después de elegir una ventana"
                         checked: settings.autoCollapseSO
                         onToggled: settings.autoCollapseSO = checked
                     }
                     QQC2.Label {
+                        visible: settings.behaviorScope === "soledad"
                         text: "Activado por defecto. Podés dejar SO abierto desmarcando esta opción."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    QQC2.Label {
+                        visible: settings.behaviorScope === "shared"
+                        text: "Cajón de sistema (bandeja)"
+                        font.bold: true
+                        color: "white"
+                    }
                     QQC2.CheckBox {
+                        visible: settings.behaviorScope === "shared"
                         text: "Bandeja: contraer después de utilizar un icono"
                         checked: settings.autoCollapseTray
                         onToggled: settings.autoCollapseTray = checked
                     }
                     QQC2.Label {
+                        visible: settings.behaviorScope === "shared"
                         text: "Desactivado por defecto. La apertura del lanzador no contrae ninguna sección."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Label {
+                        visible: settings.behaviorScope === "shared"
                         text: "Sin temporizador de inactividad: el cierre solo se dispara por la acción aprobada o por falta de espacio."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
                     QQC2.Button {
-                        text: "Restablecer autocontracción"
-                        onClicked: {
-                            settings.autoCollapseSO = true
-                            settings.autoCollapseTray = false
-                        }
+                        visible: settings.behaviorScope === "soledad"
+                        text: "Restablecer autocontracción SO"
+                        onClicked: settings.autoCollapseSO = true
+                    }
+                    QQC2.Button {
+                        visible: settings.behaviorScope === "shared"
+                        text: "Restablecer autocontracción de bandeja"
+                        onClicked: settings.autoCollapseTray = false
                     }
                 }
             }
