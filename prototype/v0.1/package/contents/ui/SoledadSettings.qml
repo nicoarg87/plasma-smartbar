@@ -6,6 +6,7 @@ import QtQuick.Window
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import QtQuick.Dialogs
+import "PaletteExtractor.js" as PaletteExtractor
 
 Window {
     id: settings
@@ -527,95 +528,82 @@ Window {
     property bool showOutlineWhenEmpty: true
     property bool showOutlineWhenOpen: false
     property bool simulateHasWindows: false
-    // ERR-016: tres fuentes SEPARADAS. El GIF nunca toma el color del
-    // contorno; el contorno nunca cambia el fondo sin autorización explícita.
-    property color suggestedIslandBase: "#010111"
-    property color suggestedIslandEnd: "#101e31"
-    property bool hasSuggestedPalette: false
-    property string suggestedPaletteName: ""
-    property string suggestedPaletteOrigin: "" // "gif" o "outline"
-    // Distinguir paleta sugerida de valores realmente preparados.
-    property string suggestedPaletteAppliedMode: "" // "", "base" o "both"
-    property string suggestedPaletteImage: ""
-    property string paletteFeedback: "Elegí la fuente de los colores: GIF o contorno. Ninguna sugerencia cambia el fondo automáticamente."
-    function invalidateSuggestedPalette() {
-        suggestedPaletteAppliedMode = ""
-        hasSuggestedPalette = false
-        suggestedPaletteOrigin = ""
-        suggestedPaletteImage = ""
-        suggestedPaletteName = ""
+    // Nueva lógica cromática: una sola fuente real de color por isla.
+    // El GIF solo ofrece candidatos y nunca modifica el brillo/contorno SO.
+    // Cada tono es un HEX independiente y editable, aun sin imagen.
+    property var sampledColors: []   // hasta tres HEX reales de la imagen
+    property string sampledSource: ""
+    property string paletteFeedback: "Analizá el GIF para obtener hasta tres tonos. Elegí cuáles usar o escribí tus propios colores."
+    function resetSampledColors() {
+        sampledColors = []
+        sampledSource = ""
     }
-    onSelectedImageChanged: {
-        // Un GIF nuevo invalida sugerencias del anterior.
-        if (suggestedPaletteOrigin === "gif") {
-            invalidateSuggestedPalette()
-            paletteFeedback = "Cambió el GIF: analizá la imagen nueva antes de aplicar sus tonos."
-        }
+    onSelectedImageChanged: resetSampledColors()
+    onSoTextBackgroundImageChanged: resetSampledColors()
+    function normalizeColorHex(raw) {
+        const value = String(raw).trim()
+        const normalized = value.charAt(0) === "#" ? value : "#" + value
+        return /^#[0-9a-fA-F]{6}$/.test(normalized)
+            ? normalized.toLowerCase() : ""
     }
-    onSoTextBackgroundImageChanged: {
-        if (suggestedPaletteOrigin === "gif") {
-            invalidateSuggestedPalette()
-            paletteFeedback = "Cambió la imagen: volvé a analizarla para obtener su nueva paleta."
+    function sampleHex(index) {
+        return index >= 0 && index < sampledColors.length
+            ? String(sampledColors[index]) : ""
+    }
+    function editSampleHex(index, raw) {
+        const hex = normalizeColorHex(raw)
+        if (!hex || index < 0 || index >= sampledColors.length) {
+            paletteFeedback = "Código no válido: escribí seis caracteres hexadecimales (ejemplo #004b87)."
+            return false
         }
+        const next = sampledColors.slice()
+        next[index] = hex
+        sampledColors = next
+        paletteFeedback = "Tono " + (index + 1) + " ajustado a " + hex +
+                          ". Elegí el destino antes de pulsar Aplicar."
+        return true
+    }
+    function islandColor(slot) {
+        const malvina = appearanceTarget.currentIndex === 1
+        return slot === "base"
+            ? (malvina ? malvinaColor : soledadColor)
+            : (malvina ? malvinaGradientEnd : soledadGradientEnd)
+    }
+    function setIslandColor(slot, color) {
+        // Nunca tocar el contorno ni el color de la otra isla.
+        if (appearanceTarget.currentIndex === 1) {
+            if (slot === "base") malvinaColor = color
+            else malvinaGradientEnd = color
+        } else if (appearanceTarget.currentIndex === 0) {
+            if (slot === "base") soledadColor = color
+            else soledadGradientEnd = color
+        } else return
+        paletteFeedback = "Seleccionado " + (slot === "base" ? "primer" : "segundo") +
+                          " tono " + toHex(islandColor(slot)) +
+                          " para " + (appearanceTarget.currentIndex === 1 ? "Malvina" : "Soledad") +
+                          ". Aplicar guarda estos valores; no cambia la otra isla."
+    }
+    function setIslandHex(slot, raw) {
+        const hex = normalizeColorHex(raw)
+        if (!hex) {
+            paletteFeedback = "HEX no válido; usá seis dígitos como #000000."
+            return false
+        }
+        setIslandColor(slot, hex)
+        return true
+    }
+    function chooseSampledColor(index, slot) {
+        if (index < 0 || index >= sampledColors.length) return
+        setIslandColor(slot, sampledColors[index])
     }
     function chooseCoordinatedPalette(name, contour, outer, islandBase, islandEnd) {
-        // Compatibilidad con los botones existentes: sus argumentos 4 y 5
-        // NO se aplican como fondo ni crean sugerencias de isla.
+        // Retrocompatibilidad para presets de CONTORNO: solo luz, sin
+        // propuestas ocultas de fondo ni aplicación automática de degradado.
         accentColor = contour
         glowColor = outer
         glowGradient = true
-        invalidateSuggestedPalette()
-        paletteFeedback = "«" + name + "» elegido para el CONTORNO. " +
-                          "No cambió el fondo de Soledad ni de Malvina. Pulsá Aplicar para guardar."
-    }
-    function suggestIslandFromCurrentOutline() {
-        suggestedPaletteAppliedMode = ""
-        // Operación EXPLÍCITA, diferente de muestrear la imagen.
-        // Reducir luminosidad evita que la línea celeste se vuelva un fondo
-        // enteramente celeste brillante.
-        const line = accentColor, outer = glowColor
-        suggestedIslandBase = Qt.rgba(
-            line.r * 0.38, line.g * 0.38, line.b * 0.38, 1)
-        suggestedIslandEnd = Qt.rgba(
-            outer.r * 0.55, outer.g * 0.55, outer.b * 0.55, 1)
-        suggestedPaletteName = "derivada SOLO del contorno (no del GIF)"
-        suggestedPaletteOrigin = "outline"
-        suggestedPaletteImage = ""
-        hasSuggestedPalette = true
-        paletteFeedback = "Sugerencia basada en la línea y el brillo SO, NO en la imagen. " +
-                          "El fondo sigue intacto hasta elegir un botón de aplicación."
-    }
-    function paletteStillValid() {
-        if (!hasSuggestedPalette) return false
-        if (suggestedPaletteOrigin === "gif") {
-            const current = logoMode === "text"
-                ? (soTextBackgroundImage.length ? soTextBackgroundImage : defaultImage.toString())
-                : selectedImage.toString()
-            if (current !== suggestedPaletteImage) {
-                invalidateSuggestedPalette()
-                paletteFeedback = "La imagen cambió; obtené una paleta nueva antes de aplicarla."
-                return false
-            }
-        }
-        return true
-    }
-    function putSuggestedBaseOnSoledad() {
-        if (!paletteStillValid()) return
-        soledadColor = suggestedIslandBase
-        suggestedPaletteAppliedMode = "base"
-        paletteFeedback = "Color base " + toHex(soledadColor) +
-                          " elegido; pulsá Aplicar para guardarlo."
-    }
-    function putSuggestedPaletteOnSoledad() {
-        if (!paletteStillValid()) return
-        soledadColor = suggestedIslandBase
-        soledadGradientEnd = suggestedIslandEnd
-        soledadGradientEnabled = true
-        suggestedPaletteAppliedMode = "both"
-        // La respiración usa estos dos colores; no añade tonos del contorno.
-        paletteFeedback = "Degradado " + toHex(soledadColor) + " → " +
-                          toHex(soledadGradientEnd) + " preparado para Soledad. " +
-                          "Pulsá Aplicar para confirmarlo."
+        paletteFeedback = "Contorno «" + name +
+                          "» actualizado independientemente del fondo. Pulsá Aplicar."
     }
     function resetColorsForTarget(target) {
         // Restablecimiento local, sin tocar el GIF ni los demás destinos.
