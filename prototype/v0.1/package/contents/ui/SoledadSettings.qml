@@ -534,9 +534,12 @@ Window {
     property bool hasSuggestedPalette: false
     property string suggestedPaletteName: ""
     property string suggestedPaletteOrigin: "" // "gif" o "outline"
+    // Distinguir paleta sugerida de valores realmente preparados.
+    property string suggestedPaletteAppliedMode: "" // "", "base" o "both"
     property string suggestedPaletteImage: ""
     property string paletteFeedback: "Elegí la fuente de los colores: GIF o contorno. Ninguna sugerencia cambia el fondo automáticamente."
     function invalidateSuggestedPalette() {
+        suggestedPaletteAppliedMode = ""
         hasSuggestedPalette = false
         suggestedPaletteOrigin = ""
         suggestedPaletteImage = ""
@@ -566,6 +569,7 @@ Window {
                           "No cambió el fondo de Soledad ni de Malvina. Pulsá Aplicar para guardar."
     }
     function suggestIslandFromCurrentOutline() {
+        suggestedPaletteAppliedMode = ""
         // Operación EXPLÍCITA, diferente de muestrear la imagen.
         // Reducir luminosidad evita que la línea celeste se vuelva un fondo
         // enteramente celeste brillante.
@@ -598,6 +602,7 @@ Window {
     function putSuggestedBaseOnSoledad() {
         if (!paletteStillValid()) return
         soledadColor = suggestedIslandBase
+        suggestedPaletteAppliedMode = "base"
         paletteFeedback = "Color base " + toHex(soledadColor) +
                           " elegido; pulsá Aplicar para guardarlo."
     }
@@ -606,6 +611,7 @@ Window {
         soledadColor = suggestedIslandBase
         soledadGradientEnd = suggestedIslandEnd
         soledadGradientEnabled = true
+        suggestedPaletteAppliedMode = "both"
         // La respiración usa estos dos colores; no añade tonos del contorno.
         paletteFeedback = "Degradado " + toHex(soledadColor) + " → " +
                           toHex(soledadGradientEnd) + " preparado para Soledad. " +
@@ -889,9 +895,23 @@ Window {
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
                               alignedRight, alignmentEdited)
-        if (hasSuggestedPalette)
-            paletteFeedback = "Cambios guardados. La sugerencia no modifica la isla hasta " +
-                              "elegir «Usar solo el primer color» o «Usar ambos tonos»."
+        if (hasSuggestedPalette) {
+            const realBase = toHex(soledadColor)
+            const realEnd = toHex(soledadGradientEnd)
+            const wantedBase = toHex(suggestedIslandBase)
+            const wantedEnd = toHex(suggestedIslandEnd)
+            const copied = suggestedPaletteAppliedMode === "both" &&
+                realBase === wantedBase && realEnd === wantedEnd
+            paletteFeedback = "Aplicar guardó los valores actuales de Soledad: " +
+                realBase + " → " + realEnd + ". " +
+                (copied
+                    ? "Coinciden con los dos tonos sugeridos."
+                    : "Los tonos sugeridos (" + wantedBase + " → " + wantedEnd +
+                      ") son diferentes. Elegí «Usar ambos tonos» para copiarlos.")
+            console.log("SmartBar: Aplicar Soledad: real", realBase, realEnd,
+                        "sugerido", wantedBase, wantedEnd,
+                        "sugerencia copiada", suggestedPaletteAppliedMode)
+        }
         alignmentEdited = false
         settingsApplied()
         appliedLabel.text = validProviderUrls && validProviderNames
@@ -1119,6 +1139,7 @@ Window {
                             ". Revisá Soledad y Malvina y pulsá Aplicar para verlos " +
                             "en la barra. El contorno y su luz no se modificaron."
                     } else if (requestMode === "island") {
+                        settings.suggestedPaletteAppliedMode = ""
                         settings.suggestedIslandBase = base
                         settings.suggestedIslandEnd = endColor
                         settings.suggestedPaletteName =
@@ -3289,6 +3310,28 @@ Window {
                                 text: "Usar ambos tonos en el degradado"
                                 onClicked: settings.putSuggestedPaletteOnSoledad()
                             }
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 0
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#b9e5ff"
+                        font.bold: true
+                        text: "COLORES ACTIVOS DE SOLEDAD (estos se guardan con Aplicar): " +
+                              settings.toHex(settings.soledadColor) + " → " +
+                              settings.toHex(settings.soledadGradientEnd)
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex === 0
+                        spacing: 5
+                        Rectangle {
+                            width: 52; height: 22; radius: 5
+                            color: settings.soledadColor
+                        }
+                        Rectangle {
+                            width: 52; height: 22; radius: 5
+                            color: settings.soledadGradientEnd
                         }
                     }
                     QQC2.CheckBox {
