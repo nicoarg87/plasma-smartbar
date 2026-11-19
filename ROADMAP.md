@@ -589,3 +589,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Los temas guardados recuperan su respiración real sin forzar sincronización.
 - [x] Añadir prueba estática `prototype/v0.1/tests/test_breathing_menu.cjs` (PASS en V8).
 - [ ] Ejecutar tests Node y ensayo Qt/CachyOS de la nueva pantalla y respiración; comprobar efectos en SO y Malvina, paneles flotantes, opacidad, preferencias, rendimiento y compatibilidad. [Issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
+
+
+## Afinado de UI y opacidad inicial 70 % — 19/11/2026
+
+- [x] Fusionar navegación «Anchura del botón SO» y «Logo SO» en «Botón de inicio SO», editor de anchura junto con imagen y recorte.
+- [x] Scrollbars verticales visibles y ancho reservado; evitar colisión entre HEX/copiar/editar y scroll con rejilla responsive y edición de colores activos en dos renglones.
+- [x] Desde Color y transparencia incluir enlace directo a Efectos luminosos → Brillo y respiración SO, con opción de activar efecto Respiración y ajustar duración de ciclo en ms.
+- [x] Valores iniciales/fallback del 70 % de opacidad para Soledad, Malvina, launcher, panel Web/IA y fondo continuo opcional, sin tocar preferencias personales ya guardadas ni activar el fondo.
+- [x] Actualizar test `test_breathing_menu.cjs`: PASS estático junto a otros tres tests.
+- [ ] Probar en CachyOS barra lateral, scrollbar y Editar con ventana reducida, 70 % en nuevas configuraciones, duración ms/ciclo e intensidad del brillo. Mantener el panel KDE existente sin cambios. [Issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
+- [ ] Para consolidar todos los demás valores estéticos locales actuales como predeterminados personales, pulsar **«Fijar actual como predeterminada»** en el visor, confirmar restauración tras reinicio y no copiar datos privados a GitHub sin permiso.
