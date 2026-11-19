@@ -840,3 +840,26 @@ bash prototype/v0.1/probar_ancho.sh
 Con el GIF tropical presente en `prototype/v0.1/package/contents/ui/assets/so-tropical.gif`, colocá el cursor quieto sobre los **seis puntos** unos 180 ms: fecha y hora aparecen por **3 segundos superpuestas al GIF**. Observá que la animación del atardecer sigue avanzando durante el reloj y no vuelve a comenzar cuando se ocultan los números. Probá cambiar fuente, tamaño y color y pulsá **Aplicar**. Si el GIF falta, `probar_ancho.sh` lo anuncia en Konsole y SO muestra el fallback de texto; para comprobar continuidad del GIF debe estar copiado el recurso original del ZIP.
 
 **Estado:** publicado y revisado en código; falta el retest visual del mantenedor. El panel KDE habitual no cambia y las acciones de ventanas reales continúan en modo solo lectura experimental.
+
+
+## Revisión 19/11/2026 — probar menú SO unificado y metadatos MIT
+
+
+El mantenedor confirmó que el menú lateral Soledad debe comenzar por **«Launcher y botón SO»**, seguido de **«Botón de inicio SO»**. Este último contiene **dos subpestañas visibles**: «Logo, ancho y texto» y «Efectos luminosos SO». El brillo, contorno, fases y duración del pulso se editan dentro del botón SO. Hay un botón para saltar desde **Efectos luminosos → Brillo y respiración** a **Color y transparencia → Degradado y respiración de Soledad**, y otro para volver al brillo SO desde Color. Los controles del fondo siguen independientes de los del contorno.
+
+En el prototipo se amplió la ventana hasta 1180 px si la pantalla lo permite y se dejaron 32 px de margen para que la barra vertical no tape controles. Color/HEX/Copiar/Editar se distribuyen en filas más pequeñas, conservando los tres tonos del GIF y sus cuatro direcciones.
+
+**Prueba segura desde Fish** (sin instalar nada en el panel):
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_breathing_menu.cjs
+bash prototype/v0.1/probar_ancho.sh
+```
+
+**Verificar:** primero Launcher, segundo Botón SO; abrir ambas subpestañas y volver; entrar en Brillo y respiración y pulsar acceso a Degradado; comprobar que aparece la edición cromática y su velocidad, y volver al brillo con el enlace inverso. Reducir y ampliar ventana y, si es posible, probar escalado KDE mayor: ningún HEX, Copiar, Editar o selector debajo del scrollbar. Aplicar, cerrar y volver a abrir para verificar persistencia de Soledad/Malvina y temas. Si falla, conservar salida de Konsole.
+
+**Licencia:** `LICENSE` y `KPlugin.License` contienen **MIT**. GIF propios de ChatGPT autorizados por el mantenedor para **CC0 1.0 Universal** conforme al inventario de gráficos; las licencias no se extienden a otros archivos aportados por usuarios o terceros. Los GIF originales de prueba se conservan localmente; actualizar Git no debe sustituirlos.
+
+**Estado:** modificaciones codificadas en rama experimental; no se ha ejecutado aquí una interfaz Qt/CachyOS. PR #3 continúa en borrador.
