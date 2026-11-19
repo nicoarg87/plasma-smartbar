@@ -141,6 +141,9 @@ PlasmoidItem {
         windowStateKnown: false
         autoCollapseSO: Plasmoid.configuration.autoCollapseSO
         soLeftClickOpensLauncher: Plasmoid.configuration.soLeftClickOpensLauncher
+        themeDayJson: Plasmoid.configuration.themeDayJson
+        themeNightJson: Plasmoid.configuration.themeNightJson
+        themeCustomJson: Plasmoid.configuration.themeCustomJson
         launcherCategoryLayout: Plasmoid.configuration.launcherCategoryLayout
         launcherSwitchShape: Plasmoid.configuration.launcherSwitchShape
         launcherSwitchColorOverride: Plasmoid.configuration.launcherSwitchColorOverride
@@ -322,6 +325,11 @@ PlasmoidItem {
         }
         onRequestSoClickMappingChange: function(leftOpensLauncher) {
             Plasmoid.configuration.soLeftClickOpensLauncher = leftOpensLauncher
+        }
+        onRequestThemeSlotChange: function(slot, data) {
+            if (slot === "day") Plasmoid.configuration.themeDayJson = data
+            else if (slot === "night") Plasmoid.configuration.themeNightJson = data
+            else if (slot === "custom") Plasmoid.configuration.themeCustomJson = data
         }
         onRequestLauncherStyleChange: function(layoutMode, shape, ownColor, color, slots) {
             Plasmoid.configuration.launcherCategoryLayout = layoutMode
