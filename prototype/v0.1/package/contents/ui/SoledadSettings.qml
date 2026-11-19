@@ -58,17 +58,33 @@ Window {
 
     component SettingsMenuButton: QQC2.Button {
         id: navigationButton
+        // Dos niveles visuales sin alterar los destinos ni el funcionamiento.
+        property bool sectionHeader: false
         Layout.fillWidth: true
-        Layout.minimumHeight: 44
-        Layout.preferredHeight: Math.max(44,
+        Layout.leftMargin: sectionHeader ? 0 : 16
+        Layout.minimumHeight: sectionHeader ? 50 : 38
+        Layout.preferredHeight: Math.max(sectionHeader ? 50 : 38,
             menuText.contentHeight + navigationButton.topPadding + navigationButton.bottomPadding)
-        padding: 8
+        topPadding: sectionHeader ? 11 : 8
+        bottomPadding: sectionHeader ? 11 : 8
+        leftPadding: sectionHeader ? 12 : 11
+        rightPadding: 8
+        background: Rectangle {
+            radius: navigationButton.sectionHeader ? 9 : 6
+            color: navigationButton.highlighted
+                ? (navigationButton.sectionHeader ? "#425c7b" : "#374962")
+                : (navigationButton.sectionHeader ? "#343c53" : "#292f41")
+            border.width: navigationButton.sectionHeader ? 1 : 0
+            border.color: navigationButton.sectionHeader ? "#62738f" : "transparent"
+        }
         contentItem: Text {
             id: menuText
             text: navigationButton.text
-            font: navigationButton.font
+            font.family: navigationButton.font.family
+            font.pixelSize: navigationButton.sectionHeader ? 15 : 12
+            font.bold: navigationButton.sectionHeader
             color: navigationButton.enabled ? "#ffffff" : "#999999"
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             elide: Text.ElideNone
@@ -1055,6 +1071,7 @@ Window {
                         width: Math.max(0, parent.width - 16)
                         spacing: 5
                     SettingsMenuButton {
+                        sectionHeader: true
                         text: (settings.navigationGroup === "themes" ? "▾ " : "▸ ") + "TEMAS"
                         highlighted: settings.navigationGroup === "themes"
                         onClicked: settings.navigationGroup =
@@ -1067,6 +1084,7 @@ Window {
                         onClicked: settings.showThemes()
                     }
                     SettingsMenuButton {
+                        sectionHeader: true
                         text: (settings.navigationGroup === "soledad" ? "▾ " : "▸ ") + "SOLEDAD · Isla 1"
                         highlighted: settings.navigationGroup === "soledad"
                         onClicked: settings.navigationGroup =
@@ -1122,6 +1140,7 @@ Window {
                         onClicked: settings.showSoledadGradient()
                     }
                     SettingsMenuButton {
+                        sectionHeader: true
                         text: (settings.navigationGroup === "malvina" ? "▾ " : "▸ ") + "MALVINA · Isla 2"
                         highlighted: settings.navigationGroup === "malvina"
                         onClicked: settings.navigationGroup =
@@ -1157,6 +1176,7 @@ Window {
                         onClicked: settings.showMalvinaGradient()
                     }
                     SettingsMenuButton {
+                        sectionHeader: true
                         text: (settings.navigationGroup === "shared" ? "▾ " : "▸ ") + "GENERAL Y COMPARTIDAS"
                         highlighted: settings.navigationGroup === "shared"
                         onClicked: settings.navigationGroup =
