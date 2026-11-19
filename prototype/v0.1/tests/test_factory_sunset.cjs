@@ -38,7 +38,7 @@ const cardStart = ui.indexOf('Image {\n                                    visib
 const nightCardStart = ui.indexOf('Image {\n                                    visible: settings.factoryNightAvailable &&', cardStart);
 assert(cardStart >= 0 && nightCardStart > cardStart);
 const sunsetRowEnd = nightCardStart;
-assert(sunsetRowEnd > cardStart && nightCardStart > sunsetRowEnd);
+assert(sunsetRowEnd > cardStart && nightCardStart === sunsetRowEnd);
 const sunsetCard = ui.substring(cardStart, sunsetRowEnd);
 assert(sunsetCard.includes("settings.factorySunsetImage"));
 assert(!sunsetCard.includes("settings.factoryNightImage"));
