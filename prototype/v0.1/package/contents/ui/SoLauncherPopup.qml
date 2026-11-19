@@ -34,6 +34,8 @@ QQC2.Popup {
     // Valores heredados de Soledad: ninguna copia de colores de Malvina.
     property color islandColor: "#010111"
     property color islandGradientEnd: "#ee9852"
+    property color islandGradientThird: "#ee9852"
+    property int islandGradientColorCount: 2
     property real islandOpacity: 1
     property bool islandGradientEnabled: false
     property string islandGradientDirection: "topBottom"
@@ -135,6 +137,8 @@ QQC2.Popup {
         background: IslandPopupSurface {
             baseColor: launcher.islandColor
             endColor: launcher.islandGradientEnd
+            thirdColor: launcher.islandGradientThird
+            gradientColorCount: launcher.islandGradientColorCount
             gradientEnabled: launcher.islandGradientEnabled
             gradientDirection: launcher.islandGradientDirection
             baseOpacity: Math.max(0.32, Math.min(1, launcher.islandOpacity *
@@ -180,6 +184,8 @@ QQC2.Popup {
     background: IslandPopupSurface {
         baseColor: launcher.islandColor
         endColor: launcher.islandGradientEnd
+            thirdColor: launcher.islandGradientThird
+            gradientColorCount: launcher.islandGradientColorCount
         gradientEnabled: launcher.islandGradientEnabled
         gradientDirection: launcher.islandGradientDirection
         baseOpacity: launcher.islandOpacity
@@ -201,6 +207,8 @@ QQC2.Popup {
             cornerRadius: 9
             baseColor: launcher.islandColor
             endColor: launcher.islandGradientEnd
+            thirdColor: launcher.islandGradientThird
+            gradientColorCount: launcher.islandGradientColorCount
             gradientEnabled: launcher.islandGradientEnabled
             gradientDirection: launcher.islandGradientDirection
             baseOpacity: launcher.islandOpacity
@@ -288,6 +296,8 @@ QQC2.Popup {
                             anchors.fill: parent
                             baseColor: launcher.effectiveSwitchColor
                             endColor: launcher.switchCustomColor ? launcher.switchColor : launcher.islandGradientEnd
+                             thirdColor: launcher.islandGradientThird
+                             gradientColorCount: launcher.islandGradientColorCount
                             gradientEnabled: launcher.islandGradientEnabled && !launcher.switchCustomColor
                             gradientDirection: launcher.islandGradientDirection
                             baseOpacity: Math.max(0.35, launcher.islandOpacity)
@@ -345,6 +355,8 @@ QQC2.Popup {
                     cornerRadius: 8
                     baseColor: launcher.islandColor
                     endColor: launcher.islandGradientEnd
+            thirdColor: launcher.islandGradientThird
+            gradientColorCount: launcher.islandGradientColorCount
                     gradientEnabled: launcher.islandGradientEnabled
                     gradientDirection: launcher.islandGradientDirection
                     baseOpacity: Math.max(0.45, launcher.islandOpacity)
