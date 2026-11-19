@@ -569,3 +569,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Quitar del flujo de creación de tema la aplicación automática de colores a ambas islas; analizar, elegir y Aplicar es explícito.
 - [x] Agregar prueba estática `prototype/v0.1/tests/test_palette_extractor.cjs`.
 - [ ] Ejecutar test Node y QML en CachyOS, comprobar RGB de GIF real, copiar/pegar HEX, selección, ColorDialog, transparencia y respiración, 4 orientaciones, persistencia y no alterar Atardecer/Noche/Favorita. Ver [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
+
+
+## Gradiente configurable de 2/3 colores — 19/11/2026
+- [x] La lectura de GIF asigna automáticamente los dos tonos dominantes al degradado de la isla actual; mantiene un tercero disponible.
+- [x] Modo **2 colores predeterminado** y **3 colores opcional**, por isla (0 %, 50 %, 100 %), con selectores compactos y copia/edición HEX.
+- [x] Vista previa opaca y controles para cuatro direcciones; brillo SO independiente.
+- [x] Persistir cuarto conjunto de campos `GradientColorCount` y `GradientThird` en KConfig, Qt Settings y snapshots sin sobrescribir temas anteriores.
+- [x] Superficies de Soledad, Malvina, launcher y subpaneles Web/IA dibujan dos o tres paradas.
+- [x] Crear prueba de regresión estática `prototype/v0.1/tests/test_gradient_palette.cjs`.
+- [ ] **Probar en CachyOS** extracción de colores con GIF real, selección 1+2/1+3, modo 3, 4 direcciones, pulsación de Aplicar, guardado y reapertura, luz independiente y consumo CPU/GPU. Issue #15.
