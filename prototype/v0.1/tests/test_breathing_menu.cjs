@@ -5,6 +5,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const vm = require("node:vm");
 const root = path.join(__dirname, "..");
 const file = p => fs.readFileSync(path.join(root, p), "utf8");
 const ui = file("package/contents/ui/SoledadSettings.qml");
@@ -44,9 +45,9 @@ assert(ui.includes('Math.min(1180, Math.max(560, Screen.desktopAvailableWidth - 
 assert.equal((ui.match(/contentWidth: Math.max\(0, availableWidth - 32\)/g) || []).length, 10,
              "Margen de seguridad ausente para el scrollbar");
 assert(ui.includes('id: currentColorCopyField\n                            Layout.fillWidth: true'));
-assert(ui.includes('text: "Duración del ciclo"'));
-assert(ui.includes('text: "Intensidad del pulso de la línea SO (0–100 %)"'));
-assert(ui.includes('onValueModified: settings.pulseSpeed ='));
+assert(ui.includes('text: "Duración de cada ciclo"'));
+assert(ui.includes('text: "INTENSIDAD DEL PULSO · LÍNEA SO"'));
+assert(ui.includes('onValueModified: settings.setSoLineBreathingSpeed(1000 / value)'));
 assert(ui.includes('Math.round(1000 / Math.max(0.1, settings.pulseSpeed))'));
 assert(ui.includes('text: "Activar efecto Respiración luminosa en SO"'));
 assert(ui.includes('GridLayout {'));
@@ -141,4 +142,67 @@ assert(kconfig.includes('<entry name="launcherOpacityOverride" type="Bool"><defa
        "El launcher debe poder heredar opacidad de Soledad");
 assert(kconfig.includes('<entry name="malvinaOptionsOpacityOverride" type="Bool"><default>false</default>'),
        "El panel Web/IA debe poder heredar opacidad de Malvina");
-console.log("OK: Isla y launcher, respiración SO primero, ritmo e intensidad optativos, MIT y persistencia.");
+// Regresión funcional de la causa reportada: antes el RowLayout quedaba
+// disabled cuando el ritmo estaba sincronizado (aunque la intensidad no lo estuviera).
+assert(!ui.includes("&& !syncToSO"), "La velocidad del degradado sigue bloqueada");
+assert(ui.includes('text: "VELOCIDAD PROPIA DEL DEGRADADO"'));
+assert(ui.includes('text: "VELOCIDAD DE LA RESPIRACIÓN · LÍNEA SO"'));
+assert(ui.indexOf("VELOCIDAD DE LA RESPIRACIÓN · LÍNEA SO") <
+       ui.indexOf("Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)"),
+       "La velocidad de la línea vuelve a estar oculta debajo del resto del menú");
+assert(ui.includes("function showSoledadGradientBreathing()"));
+assert(ui.includes("gradientBreathingTitle.mapToItem(scroll.contentItem"));
+assert(ui.includes('onClicked: settings.showSoledadGradientBreathing()'));
+assert(ui.includes('onMoved: settings.setIndependentGradientSpeed('));
+assert(ui.includes('onMoved: settings.setSoLineBreathingSpeed(value)'));
+assert(ui.includes('onMoved: settings.setSoLineBreathingDepth(value)'));
+assert(ui.includes('text: "Mostrar la línea SO cuando hay ventanas abiertas"'));
+assert(ui.includes("onPulseSpeedChanged: if (visible) refreshOutlinePreview()"));
+assert(ui.includes("onPulseDepthChanged: if (visible) refreshOutlinePreview()"));
+assert(ui.includes('settings.soledadGradientSyncIntensity = false'));
+assert(ui.includes('settings.soledadGradientSyncBreathing = checked'));
+
+// Ejecutar las funciones JavaScript del QML en un entorno aislado sin Qt:
+// comprueba realmente el cambio de estado y que las velocidades no se mezclen.
+function qmlFunction(name) {
+    const start = ui.indexOf("    function " + name + "(");
+    assert(start >= 0, "No existe helper " + name);
+    const open = ui.indexOf("{", start);
+    let depth = 0;
+    for (let i = open; i < ui.length; i++) {
+        if (ui[i] === "{") ++depth;
+        else if (ui[i] === "}" && --depth === 0) return ui.slice(start, i + 1);
+    }
+    throw new Error("Bloque incompleto: " + name);
+}
+const interactiveState = {
+    soledadGradientSyncBreathing: true, soledadGradientSyncIntensity: true,
+    soledadGradientBreathingEnabled: false, soledadGradientBreathingSpeed: 0.2,
+    malvinaGradientSyncBreathing: true,
+    malvinaGradientBreathingEnabled: false, malvinaGradientBreathingSpeed: 0.7,
+    effectStyle: "orbit", allowMotion: false, pulseSpeed: 0.2, pulseDepth: 0.7,
+    previewRefreshes: 0,
+    refreshOutlinePreview: function() { previewRefreshes++ }
+};
+vm.runInNewContext([
+    qmlFunction("setIndependentGradientSpeed"),
+    qmlFunction("setSoLineBreathingSpeed"),
+    qmlFunction("setSoLineBreathingDepth"),
+    "setIndependentGradientSpeed(0, 1.2)",
+    "setIndependentGradientSpeed(1, 0.5)",
+    "setSoLineBreathingSpeed(0.4)",
+    "setSoLineBreathingDepth(0.35)"
+].join("\n"), interactiveState);
+assert.equal(interactiveState.soledadGradientBreathingSpeed, 1.2);
+assert.equal(interactiveState.soledadGradientSyncBreathing, false);
+assert.equal(interactiveState.soledadGradientSyncIntensity, false);
+assert.equal(interactiveState.soledadGradientBreathingEnabled, true);
+assert.equal(interactiveState.malvinaGradientBreathingSpeed, 0.5);
+assert.equal(interactiveState.malvinaGradientSyncBreathing, false);
+assert.equal(interactiveState.malvinaGradientBreathingEnabled, true);
+assert.equal(interactiveState.effectStyle, "breathe");
+assert.equal(interactiveState.allowMotion, true);
+assert.equal(interactiveState.pulseSpeed, 0.4);
+assert.equal(interactiveState.pulseDepth, 0.35);
+assert.equal(interactiveState.previewRefreshes, 2);
+console.log("OK: velocidad de los degradados editable aun con sincronización previa; controles SO visibles y estados independientes.");
