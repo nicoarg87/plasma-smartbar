@@ -567,11 +567,24 @@ Window {
             paletteFeedback = "Código no válido: escribí seis caracteres hexadecimales (ejemplo #004b87)."
             return false
         }
+        const previous = sampleHex(index).toLowerCase()
+        // Si el usuario ya estaba usando este tono, editarlo actualiza el
+        // color activo de ESTA isla. No se cambian los colores de la otra.
+        const slots = ["base", "end", "third"]
+        const assigned = []
+        for (let i = 0; i < slots.length; ++i)
+            if (toHex(islandColor(slots[i])).toLowerCase() === previous)
+                assigned.push(slots[i])
         const next = sampledColors.slice()
         next[index] = hex
         sampledColors = next
-        paletteFeedback = "Tono " + (index + 1) + " ajustado a " + hex +
-                          ". Elegí el destino antes de pulsar Aplicar."
+        for (let i = 0; i < assigned.length; ++i)
+            setIslandColor(assigned[i], hex)
+        paletteFeedback = "Tono " + (index + 1) + " editado a " + hex +
+            (assigned.length
+                ? ". Actualizado también en el degradado activo de esta isla."
+                : ". Elegí qué color del degradado debe utilizarlo.") +
+            " Pulsá Aplicar para guardarlo."
         return true
     }
     function islandColor(slot) {
