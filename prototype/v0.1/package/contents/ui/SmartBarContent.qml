@@ -117,7 +117,7 @@ Item {
                                        bool malEnabled, string malEnd, string malDirection,
                                        int soCount, string soThird, int malCount, string malThird)
     signal requestGradientBreathingChange(bool synchronizedWithSO, real intensity,
-                                         bool breathingEnabled, real speed)
+                                         bool breathingEnabled, real speed, bool syncIntensity)
     signal requestMalvinaGradientBreathingChange(bool synchronizedWithSO, real intensity,
                                                 bool breathingEnabled, real speed)
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
@@ -360,19 +360,22 @@ Item {
     // Cada isla puede respirar junto a SO o con fase/velocidad propias.
     // No se modifica el color luminoso ni la paleta al cambiar el ritmo.
     property bool soledadGradientBreathingEnabled: true
-    property bool soledadGradientSyncBreathing: true
+    property bool soledadGradientSyncBreathing: false
+    property bool soledadGradientSyncIntensity: false
     property real soledadGradientBreathingIntensity: 0.6
     property real soledadGradientBreathingSpeed: 0.6
     property bool malvinaGradientBreathingEnabled: true
-    property bool malvinaGradientSyncBreathing: true
+    property bool malvinaGradientSyncBreathing: false
     property real malvinaGradientBreathingIntensity: 0.6
     property real malvinaGradientBreathingSpeed: 0.6
     property real sharedBreathingPhase: 0
     property real soledadIndependentBreathingPhase: 0
     property real malvinaIndependentBreathingPhase: 0
+    readonly property real soledadEffectiveBreathingIntensity:
+        soledadGradientSyncIntensity ? soActivityPulseDepth : soledadGradientBreathingIntensity
     readonly property bool soledadGradientBreathingActive:
         root.visible && soledadGradientEnabled &&
-        soledadGradientBreathingEnabled && soledadGradientBreathingIntensity > 0
+        soledadGradientBreathingEnabled && soledadEffectiveBreathingIntensity > 0
     readonly property bool malvinaGradientBreathingActive:
         root.visible && malvinaActuallyVisible && malvinaGradientEnabled &&
         malvinaGradientBreathingEnabled && malvinaGradientBreathingIntensity > 0
@@ -383,14 +386,14 @@ Item {
         soledadGradientBreathingActive || malvinaGradientBreathingActive
     function breathingFactor(intensity, phase) {
         const wave = 0.5 - 0.5 * Math.cos(2 * Math.PI * phase)
-        // Intensidad PROPIA: no depende de pulseDepth del logo SO.
+        // Intensidad por isla; solo si el usuario lo pide sigue al pulso SO.
         // Intensidad 0 = sin modulación; 100 % = hasta 65 % de amplitud.
         const amplitude = Math.max(0, Math.min(1, intensity)) * 0.65
         return 1 - amplitude * (1 - wave)
     }
     readonly property real gradientBreathingFactor:
         soledadGradientBreathingActive
-            ? breathingFactor(soledadGradientBreathingIntensity,
+            ? breathingFactor(soledadEffectiveBreathingIntensity,
                 soledadGradientSyncBreathing
                     ? sharedBreathingPhase : soledadIndependentBreathingPhase)
             : 1
@@ -459,7 +462,7 @@ Item {
         : (demoHasRunningWindows ? demoApps.length : 0)
     // Con cero ventanas, el brillo atrae la atención hacia el lanzador.
     // Con ventanas abiertas, permanece apagado por defecto.
-    property string soActivityStyle: "orbit"  // off, steady, orbit
+    property string soActivityStyle: "breathe"  // off, steady, orbit
     property bool soActivityShowWhenEmpty: true
     property bool soActivityShowWhenOpen: false
     property color soActivityColor: "#35d7ff"
@@ -472,7 +475,7 @@ Item {
     property color soActivityGlowColor: "#ffab52"
     property real soActivityGlowIntensity: 0.7
     property real soActivityGlowSpread: 5
-    property real soActivityPulseSpeed: 0.6
+    property real soActivityPulseSpeed: 0.3
     property real soActivityPulseDepth: 0.7
     property bool soActivityGlowGradient: true
     onSoWindowCountChanged: {
@@ -941,6 +944,7 @@ Item {
             soledadSettings.soledadGradientColorCount = root.soledadGradientColorCount
             soledadSettings.soledadGradientDirection = root.soledadGradientDirection
             soledadSettings.soledadGradientSyncBreathing = root.soledadGradientSyncBreathing
+            soledadSettings.soledadGradientSyncIntensity = root.soledadGradientSyncIntensity
             soledadSettings.soledadGradientBreathingEnabled = root.soledadGradientBreathingEnabled
             soledadSettings.soledadGradientBreathingIntensity = root.soledadGradientBreathingIntensity
             soledadSettings.soledadGradientBreathingSpeed = root.soledadGradientBreathingSpeed
@@ -1062,8 +1066,8 @@ Item {
                                        buttonShape, buttonWidth,
                                        soShape, malShape, gripButtonShape, trayShape)
         }
-        onSaveGradientBreathingRequested: function(syncToSO, intensity, active, speed) {
-            root.requestGradientBreathingChange(syncToSO, intensity, active, speed)
+        onSaveGradientBreathingRequested: function(syncToSO, intensity, active, speed, syncIntensity) {
+            root.requestGradientBreathingChange(syncToSO, intensity, active, speed, syncIntensity)
         }
         onSaveMalvinaGradientBreathingRequested: function(syncToSO, intensity, active, speed) {
             root.requestMalvinaGradientBreathingChange(syncToSO, intensity, active, speed)
