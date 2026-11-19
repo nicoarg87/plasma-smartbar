@@ -185,6 +185,8 @@ PlasmoidItem {
         malvinaColor: Plasmoid.configuration.malvinaColor
         soledadGradientEnabled: Plasmoid.configuration.soledadGradientEnabled
         soledadGradientEnd: Plasmoid.configuration.soledadGradientEnd
+        soledadGradientThird: Plasmoid.configuration.soledadGradientThird
+        soledadGradientColorCount: Plasmoid.configuration.soledadGradientColorCount
         soledadGradientDirection: Plasmoid.configuration.soledadGradientDirection
         soledadGradientSyncBreathing: Plasmoid.configuration.soledadGradientSyncBreathing
         soledadGradientBreathingIntensity: Plasmoid.configuration.soledadGradientBreathingIntensity
@@ -192,6 +194,8 @@ PlasmoidItem {
         malvinaGradientBreathingIntensity: Plasmoid.configuration.malvinaGradientBreathingIntensity
         malvinaGradientEnabled: Plasmoid.configuration.malvinaGradientEnabled
         malvinaGradientEnd: Plasmoid.configuration.malvinaGradientEnd
+        malvinaGradientThird: Plasmoid.configuration.malvinaGradientThird
+        malvinaGradientColorCount: Plasmoid.configuration.malvinaGradientColorCount
         malvinaGradientDirection: Plasmoid.configuration.malvinaGradientDirection
         backgroundColor: Plasmoid.configuration.backgroundColor
         soledadOpacity: Plasmoid.configuration.soledadOpacity
@@ -286,13 +290,17 @@ PlasmoidItem {
             Plasmoid.configuration.malvinaGradientSyncBreathing = enabled
             Plasmoid.configuration.malvinaGradientBreathingIntensity = intensity
         }
-        onRequestIslandGradientChange: function(a, b, c, d, e, f) {
+        onRequestIslandGradientChange: function(a, b, c, d, e, f, g, h, i, j) {
             Plasmoid.configuration.soledadGradientEnabled = a
             Plasmoid.configuration.soledadGradientEnd = b
             Plasmoid.configuration.soledadGradientDirection = c
             Plasmoid.configuration.malvinaGradientEnabled = d
             Plasmoid.configuration.malvinaGradientEnd = e
             Plasmoid.configuration.malvinaGradientDirection = f
+            Plasmoid.configuration.soledadGradientColorCount = g
+            Plasmoid.configuration.soledadGradientThird = h
+            Plasmoid.configuration.malvinaGradientColorCount = i
+            Plasmoid.configuration.malvinaGradientThird = j
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
                                             alphaBg, trayOverride, trayColor,
