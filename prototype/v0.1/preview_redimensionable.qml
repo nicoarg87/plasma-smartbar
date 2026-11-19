@@ -37,16 +37,7 @@ Window {
         repeat: false
         onTriggered: previewWindow.saveAppearancePreset()
     }
-    function synchronizeIslandPalette() {
-        // Malvina utiliza la pareja cromática de Soledad. No tocar
-        // dirección, geometría ni sus archivos personales.
-        demoMalvinaColor = demoSoledadColor
-        demoMalvinaGradientEnd = demoSoledadGradientEnd
-        demoMalvinaGradientEnabled = demoSoledadGradientEnabled
-        demoMalvinaGradientSyncBreathing = demoSoledadGradientSyncBreathing
-    }
     function collectAppearancePreset() {
-        synchronizeIslandPalette()
         const values = {}
         for (const key of appearanceKeys) {
             const value = previewWindow[key]
@@ -134,7 +125,6 @@ Window {
                 console.warn("SmartBar: no se pudo leer apariencia guardada:", e)
             }
         }
-        synchronizeIslandPalette()
         appearanceRestored = true
     }
     Component.onCompleted: restoreAppearancePreset()
@@ -467,7 +457,7 @@ Window {
             previewWindow.demoSoClockTextColor = color
         }
         soledadColor: previewWindow.demoSoledadColor
-        malvinaColor: previewWindow.demoSoledadColor
+        malvinaColor: previewWindow.demoMalvinaColor
         soledadGradientEnabled: previewWindow.demoSoledadGradientEnabled
         soledadGradientEnd: previewWindow.demoSoledadGradientEnd
         soledadGradientDirection: previewWindow.demoSoledadGradientDirection
@@ -476,7 +466,7 @@ Window {
         malvinaGradientSyncBreathing: previewWindow.demoMalvinaGradientSyncBreathing
         malvinaGradientBreathingIntensity: previewWindow.demoMalvinaGradientBreathingIntensity
         malvinaGradientEnabled: previewWindow.demoMalvinaGradientEnabled
-        malvinaGradientEnd: previewWindow.demoSoledadGradientEnd
+        malvinaGradientEnd: previewWindow.demoMalvinaGradientEnd
         malvinaGradientDirection: previewWindow.demoMalvinaGradientDirection
         backgroundColor: previewWindow.demoBackgroundColor
         soledadOpacity: previewWindow.demoSoledadOpacity
@@ -579,7 +569,7 @@ Window {
             previewWindow.demoSoledadGradientEnd = b
             previewWindow.demoSoledadGradientDirection = c
             previewWindow.demoMalvinaGradientEnabled = d
-            previewWindow.demoMalvinaGradientEnd = b
+            previewWindow.demoMalvinaGradientEnd = e
             previewWindow.demoMalvinaGradientDirection = f
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
@@ -588,7 +578,7 @@ Window {
                                             gripColor, gripOpacity) {
             previewWindow.demoSoledadColor = a
             previewWindow.demoSoledadOpacity = alphaA
-            previewWindow.demoMalvinaColor = a
+            previewWindow.demoMalvinaColor = b
             previewWindow.demoMalvinaOpacity = alphaB
             previewWindow.demoShowBackground = shown
             previewWindow.demoBackgroundColor = bg
