@@ -930,3 +930,22 @@ bash prototype/v0.1/probar_ancho.sh
 **Verificación manual:** al abrir SO, no aparecen subpestañas de efectos o texto; elegir «Texto SO» muestra inmediatamente edición contextual. Desplazarse hasta el final para comprobar que Efectos está bajo encuadre y reloj y sus controles funcionan; probar velocidad e intensidad y retorno desde Color y transparencia. Modificar varios parámetros de Soledad y Malvina, pulsar Cancelar y confirmar que no persisten. Repetir con X; después pulsar Aplicar y comprobar que Cancelar revierte solo ediciones posteriores. Preparar un tema nuevo y Cancelar (no debe guardarse); preparar de nuevo y Aplicar (debe guardarse). Confirmar que el botón Cerrar fue eliminado. Observar que centrar/mover derecha ejecuta solo al Aplicar. Registrar captura y salida de Konsole si falla, en [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
 
 **Estado:** implementación experimental [12983ef](https://github.com/nicoarg87/plasma-smartbar/commit/12983eff1634240ff49276c33a61d35f5a2f7a95) y [5eca518](https://github.com/nicoarg87/plasma-smartbar/commit/5eca51815222368930b18ae4e8637f6a2feeb4d8); 470 aserciones de regresión PASS en V8 con fuentes GitHub, **no sustituyen prueba QML/CachyOS**. Software MIT, gráficos GIF originales CC0 según inventario, licencias individuales vigentes.
+
+
+## Noche de fábrica protegida — captura y restauración (19/11/2026)
+
+**Objetivo aprobado:** «Noche de fábrica» figura en Temas, y su botón «Restaurar Noche de fábrica» debe recuperar siempre el diseño exacto de fábrica, aunque el usuario haya editado posteriormente degradados, GIF, intensidad o colores. El usuario puede seguir personalizando la barra activa y guardar Personalizado o favorita, pero no sobrescribir el original. La miniatura de Noche utiliza **solo** el recurso original empaquetado, no otra imagen de la interfaz.
+
+**IMPLEMENTADO:** import `assets/FactoryNightTheme.js`, guardado de `themeNightJson` antiguo aislado del tema fijo, prohibición de modificar Noche con `storeTheme("night")`, botón Restaurar y verificación de recursos gráficos. Si `preset=null` o no se encuentra su GIF/fondo, el botón permanece **deshabilitado** y aparece aviso de que falta incorporar el perfil exacto. Existe exportación de datos desde la configuración **Temas → Copiar mi apariencia actual para fijar Noche… → Copiar JSON actual**. El JSON exporta la apariencia real editada (tras Aplicar) con velocidades y tamaños, y contiene la ruta local del archivo gráfico para que el empaquetador pueda copiarlo; **no es aún un preset público**.
+
+**Paso pendiente del mantenedor:** abrir visor Qt actualizado y preservar su aspecto actual con Aplicar; ir a Temas, copiar JSON, guardarlo como `~/noche-actual.json` y acompañarlo del **GIF o imagen exactos del botón SO**. Se puede aportar el JSON y la imagen a ChatGPT para que los integre en GitHub; alternativamente ejecutar localmente:
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_factory_night.cjs
+node prototype/v0.1/scripts/fijar_noche_fabrica.cjs ~/noche-actual.json
+```
+El script valida campos obligatorios, exige el fichero original (no acepta URL remota), copia `assets/factory-night-logo.*` y posible fondo de texto, genera `assets/FactoryNightTheme.js` con preset y un manifiesto con SHA-256. Se niega a reescribir un original ya fijado; las rutas locales no se publican. Revisar licencia/procedencia de los recursos gráficos antes de distribución.
+
+**Verificar cuando los binarios estén incorporados:** abrir Temas, observar miniatura inequívoca del GIF real, restaurar Noche, cambiar colores/foto, restaurar de nuevo, comparar todos los valores y comprobar que los temas personales permanecen. Reiniciar visor y repetir. Sin incorporación de la captura y recursos, **no declarar Noche de fábrica acabada**. Pruebas estáticas V8/FS PASS (505 aserciones totales); falta Node/Qt/CachyOS real. PR #3 sigue en borrador; el panel instalado no se toca.
