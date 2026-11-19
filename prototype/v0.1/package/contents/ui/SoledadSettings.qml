@@ -817,6 +817,15 @@ Window {
         property bool pending: false
         property string requestMode: "contour"
         onImageLoaded: if (pending) requestPaint()
+        onImageLoadingFailed: function(url) {
+            if (pending && String(url) === requestedUrl) {
+                pending = false
+                settings.paletteFeedback = "No se pudo abrir el logo/GIF seleccionado. " +
+                    "Comprobá que el archivo siga en su ruta original."
+                if (requestMode === "automatic")
+                    settings.themeStatus = settings.paletteFeedback
+            }
+        }
         function suggestFromImage(mode) {
             requestMode = mode === "automatic" ? "automatic" :
                 mode === "island" ? "island" : "contour"
@@ -826,6 +835,8 @@ Window {
                 : settings.selectedImage.toString()
             if (requestedUrl.length === 0) {
                 settings.paletteFeedback = "No hay imagen para analizar."
+                if (requestMode === "automatic")
+                    settings.themeStatus = settings.paletteFeedback
                 return
             }
             settings.paletteFeedback = "Analizando una muestra local de la imagen…"
@@ -946,11 +957,15 @@ Window {
                     settings.invalidateSuggestedPalette()
                     settings.paletteFeedback = "No se detectaron tonos cromáticos suficientes " +
                         "en este fotograma. Elegí colores manuales o un GIF con más detalle."
+                    if (requestMode === "automatic")
+                        settings.themeStatus = settings.paletteFeedback
                     console.warn("SmartBar: fotograma sin tonos suficientes")
                 }
             } catch (e) {
                 settings.paletteFeedback = "No fue posible analizar esta imagen. " +
                     "Podés elegir colores manualmente sin perder los actuales."
+                if (requestMode === "automatic")
+                    settings.themeStatus = settings.paletteFeedback
                 console.warn("SmartBar: error muestreando paleta:", e)
             }
         }
@@ -1363,17 +1378,17 @@ Window {
                         }
                     }
                     QQC2.Label {
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                         text: "MALVINA · Figura exterior y controles"
                         color: "#cde6f5"; font.bold: true
                     }
                     QQC2.Label {
                         text: "Forma de Malvina";
                         color: "white"
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                     }
                     QQC2.ComboBox {
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                         Layout.fillWidth: true
                         model: ["Redondeada (inicial)", "Cuadrada",
                                 "Izquierda redondeada / derecha recta",
@@ -1391,10 +1406,10 @@ Window {
                     QQC2.Label {
                         text: "Botón engranaje de Malvina"
                         color: "white"
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                     }
                     QQC2.ComboBox {
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                         Layout.fillWidth: true
                         model: ["Cuadrado (inicial)", "Cuadrado con esquinas redondeadas", "Circular", "Cápsula"]
                         currentIndex: Math.max(0,["square","rounded","circle","capsule"].indexOf(settings.malvinaGearButtonShape))
@@ -1405,10 +1420,10 @@ Window {
                     QQC2.Label {
                         text: "Botón lupa de Malvina"
                         color: "white"
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                     }
                     QQC2.ComboBox {
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                         Layout.fillWidth: true
                         model: ["Cuadrado (inicial)", "Cuadrado con esquinas redondeadas", "Circular", "Cápsula"]
                         currentIndex: Math.max(0,["square","rounded","circle","capsule"].indexOf(settings.malvinaSearchButtonShape))
@@ -1474,7 +1489,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Altura Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1504,7 +1519,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible && settings.malvinaShape !== "square" && settings.malvinaShape !== "leftTip" && settings.malvinaShape !== "capsule"
+                        visible: settings.geometryScope === "malvina" && settings.malvinaShape !== "square" && settings.malvinaShape !== "leftTip" && settings.malvinaShape !== "capsule"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Esquinas Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
@@ -1534,7 +1549,7 @@ Window {
                         }
                     }
                     RowLayout {
-                        visible: settings.geometryScope === "malvina" && settings.launcherIslandVisible
+                        visible: settings.geometryScope === "malvina"
                         Layout.fillWidth: true
                         QQC2.Label { text: "Ancho Malvina"; color: "white"; Layout.preferredWidth: 170 }
                         QQC2.Slider {
