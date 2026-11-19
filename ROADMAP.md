@@ -481,3 +481,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Al cambiar Aplicaciones → Archivos después de abrir categoría, conservar el ancho del launcher desplegado y aprovecharlo para el buscador; sin panel lateral vacío.
 - [ ] Probar CACHYOS Qt: íconos/fallback, transparencia propia, guardado al cerrar/reabrir, inspiración visual de ambas islas y cambio de modo con tamaño/anclaje sin salto.
 - [ ] Mantener búsqueda de archivos limitada a carpeta actual hasta validar búsqueda global; no ejecutar apps ni archivos de usuario en visor.
+
+## Estabilidad del launcher, foco y opacidad Web/IA — 18/11/2026
+
+- [x] Mantener categoría seleccionada y altura/ancho al alternar Aplicaciones → Archivos → Aplicaciones, sin cerrar popup.
+- [x] Sustituir detector de clic exterior localizado en barra por evento de superposición Qt, para cerrar ambos paneles en clic fuera y preservar cierre individual por Escape (implementación pendiente de test gráfico).
+- [x] Hacer más accesible el hover de Malvina ampliando margen del HoverHandler, sin cambiar geometría visual de isla ni capturar clics externos.
+- [x] Separar opacidad y respiración del panel Web/IA y launcher: al 100 % mostrar fondo opaco y respiración de luminosidad; a valores menores conservar transparencia dinámica.
+- [x] Agrupar transparencia del launcher de Soledad en su pestaña Color, equivalente a la transparencia del panel Web/IA de Malvina. No sobrescribir valores de estética ya guardados.
+- [ ] Probar en CachyOS cierres por clic exterior (dos popups), Escape individual, alternancia repetida, hover Malvina, opacidades al 80/100 % y persistencia.
+- [ ] Investigar si quedan casos de hover intermitente en sesión real KWin/Wayland y de eventos de superposición no recibidos por Popup no modal; si falla, mantener evidencia de Konsole y corregir de manera acotada.
