@@ -257,29 +257,44 @@ Item {
             event.accepted = true
         }
     }
+    function enabledIndices(section) {
+        const ids = section === 1 ? orderedWebIds : orderedAiIds
+        const valid = []
+        for (let i = 0; i < ids.length; ++i)
+            if (enabledFor(ids[i])) valid.push(i)
+        return valid
+    }
     function moveSection(backwards) {
-        if (!options.opened) options.open()
+        if (!options.visible) options.open()
         const sections = [0]
         if (webFirst) {
-            if (orderedWebIds.length) sections.push(1)
-            if (orderedAiIds.length) sections.push(2)
+            if (enabledIndices(1).length) sections.push(1)
+            if (enabledIndices(2).length) sections.push(2)
         } else {
-            if (orderedAiIds.length) sections.push(2)
-            if (orderedWebIds.length) sections.push(1)
+            if (enabledIndices(2).length) sections.push(2)
+            if (enabledIndices(1).length) sections.push(1)
         }
-        const n = sections.indexOf(navigationSection)
-        navigationSection = sections[(Math.max(0,n) + (backwards ? sections.length-1 : 1)) % sections.length]
-        navigationIndex = navigationSection === 1 ? webIndex : aiIndex
+        const current = Math.max(0, sections.indexOf(navigationSection))
+        const step = backwards ? -1 : 1
+        navigationSection = sections[(current + step + sections.length) % sections.length]
+        if (navigationSection !== 0) {
+            const enabled = enabledIndices(navigationSection)
+            const stored = navigationSection === 1 ? webIndex : aiIndex
+            navigationIndex = enabled.indexOf(stored) >= 0 ? stored : enabled[0]
+        }
+        queryInput.forceActiveFocus()
     }
     function moveCandidate(delta) {
         if (navigationSection === 0) return
-        const ids = navigationSection === 1 ? orderedWebIds : orderedAiIds
-        if (!ids.length) return
-        for (let j=0;j<ids.length;j++) {
-            const next=(navigationIndex + delta + ids.length)%ids.length
-            navigationIndex=next
-            if (enabledFor(ids[next])) break
-        }
+        const enabled = enabledIndices(navigationSection)
+        if (!enabled.length) return
+        // Cada paso recorre una lista estable de índices habilitados.
+        let at = enabled.indexOf(navigationIndex)
+        if (at < 0) at = delta > 0 ? -1 : 0
+        const next = enabled[(at + (delta > 0 ? 1 : -1) + enabled.length) % enabled.length]
+        navigationIndex = next
+        if (!options.visible) options.open()
+        queryInput.forceActiveFocus()
     }
     // Solo elegir: no abrir la URL ni modificar la consulta.
     function chooseProvider(section, index) {
@@ -483,7 +498,13 @@ Item {
                     Keys.onBacktabPressed: function(event) {
                         search.moveSection(true); event.accepted = true
                     }
-                    Keys.onPressed: function(event) { search.handleEditorKey(event) }
+                    Keys.onPressed: function(event) {
+                        // Tab/Shift+Tab ya los interceptan sus handlers propios.
+                        if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab)
+                            event.accepted = true
+                        else
+                            search.handleEditorKey(event)
+                    }
                 }
             }
             QQC2.Button {
@@ -638,7 +659,20 @@ Item {
                                                    (sectionRow.section === 1 ? search.webIndex : search.aiIndex) === index)
                                     taskActiveGlowEnabled: false
                                     taskActiveDoubleBorderEnabled: true
+                                    taskActiveBorderColor: Qt.lighter(search.islandOutlineColor, 1.7)
+                                    taskActiveBorderWidth: 2
+                                    taskActiveBorderOpacity: 1
                                     z: dragControl.active ? 10 : 0
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        radius: Math.min(7, height / 4)
+                                        color: "transparent"
+                                        border.color: Qt.lighter(search.islandOutlineColor, 1.7)
+                                        border.width: 2
+                                        visible: search.navigationSection === sectionRow.section &&
+                                                 search.navigationIndex === index
+                                        enabled: false
+                                    }
                                     transform: Translate { x: providerButton.dragX }
                                     QQC2.ToolTip.visible: hovered
                                     QQC2.ToolTip.text: search.nameFor(modelData) + " · Arrastrá para cambiar prioridad"
