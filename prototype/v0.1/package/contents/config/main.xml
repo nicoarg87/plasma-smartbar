@@ -121,11 +121,12 @@
     <entry name="soledadGradientThird" type="String"><default>#ee9852</default></entry>
     <entry name="soledadGradientColorCount" type="Int"><default>2</default></entry>
     <entry name="soledadGradientDirection" type="String"><default>topBottom</default></entry>
-    <entry name="soledadGradientSyncBreathing" type="Bool"><default>true</default></entry>
+    <entry name="soledadGradientSyncBreathing" type="Bool"><default>false</default></entry>
+    <entry name="soledadGradientSyncIntensity" type="Bool"><default>false</default></entry>
     <entry name="soledadGradientBreathingEnabled" type="Bool"><default>true</default></entry>
     <entry name="soledadGradientBreathingIntensity" type="Double"><default>0.6</default></entry>
     <entry name="soledadGradientBreathingSpeed" type="Double"><default>0.6</default></entry>
-    <entry name="malvinaGradientSyncBreathing" type="Bool"><default>true</default></entry>
+    <entry name="malvinaGradientSyncBreathing" type="Bool"><default>false</default></entry>
     <entry name="malvinaGradientBreathingEnabled" type="Bool"><default>true</default></entry>
     <entry name="malvinaGradientBreathingIntensity" type="Double"><default>0.6</default></entry>
     <entry name="malvinaGradientBreathingSpeed" type="Double"><default>0.6</default></entry>
@@ -147,7 +148,7 @@
     <entry name="gripButtonColor" type="String"><default>#010111</default></entry>
     <entry name="gripButtonOpacity" type="Double"><default>0.5</default></entry>
     <!-- Contorno opcional: alerta visual sin ventanas por defecto. -->
-    <entry name="soActivityStyle" type="String"><default>orbit</default></entry>
+    <entry name="soActivityStyle" type="String"><default>breathe</default></entry>
     <entry name="soActivityShowWhenEmpty" type="Bool"><default>true</default></entry>
     <entry name="soActivityShowWhenOpen" type="Bool"><default>false</default></entry>
     <entry name="soActivityColor" type="String"><default>#35d7ff</default></entry>
@@ -159,7 +160,7 @@
     <entry name="soActivityGlowColor" type="String"><default>#ffab52</default></entry>
     <entry name="soActivityGlowIntensity" type="Double"><default>0.7</default></entry>
     <entry name="soActivityGlowSpread" type="Double"><default>5</default></entry>
-    <entry name="soActivityPulseSpeed" type="Double"><default>0.6</default></entry>
+    <entry name="soActivityPulseSpeed" type="Double"><default>0.3</default></entry>
     <entry name="soActivityPulseDepth" type="Double"><default>0.7</default></entry>
     <entry name="soActivityGlowGradient" type="Bool"><default>true</default></entry>
   </group>
