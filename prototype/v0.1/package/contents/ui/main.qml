@@ -181,7 +181,7 @@ PlasmoidItem {
             Plasmoid.configuration.soClockTextColor = color
         }
         soledadColor: Plasmoid.configuration.soledadColor
-        malvinaColor: Plasmoid.configuration.soledadColor
+        malvinaColor: Plasmoid.configuration.malvinaColor
         soledadGradientEnabled: Plasmoid.configuration.soledadGradientEnabled
         soledadGradientEnd: Plasmoid.configuration.soledadGradientEnd
         soledadGradientDirection: Plasmoid.configuration.soledadGradientDirection
@@ -190,7 +190,7 @@ PlasmoidItem {
         malvinaGradientSyncBreathing: Plasmoid.configuration.malvinaGradientSyncBreathing
         malvinaGradientBreathingIntensity: Plasmoid.configuration.malvinaGradientBreathingIntensity
         malvinaGradientEnabled: Plasmoid.configuration.malvinaGradientEnabled
-        malvinaGradientEnd: Plasmoid.configuration.soledadGradientEnd
+        malvinaGradientEnd: Plasmoid.configuration.malvinaGradientEnd
         malvinaGradientDirection: Plasmoid.configuration.malvinaGradientDirection
         backgroundColor: Plasmoid.configuration.backgroundColor
         soledadOpacity: Plasmoid.configuration.soledadOpacity
@@ -290,7 +290,7 @@ PlasmoidItem {
             Plasmoid.configuration.soledadGradientEnd = b
             Plasmoid.configuration.soledadGradientDirection = c
             Plasmoid.configuration.malvinaGradientEnabled = d
-            Plasmoid.configuration.malvinaGradientEnd = b
+            Plasmoid.configuration.malvinaGradientEnd = e
             Plasmoid.configuration.malvinaGradientDirection = f
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
@@ -299,7 +299,7 @@ PlasmoidItem {
                                             gripColor, gripOpacity) {
             Plasmoid.configuration.soledadColor = a
             Plasmoid.configuration.soledadOpacity = alphaA
-            Plasmoid.configuration.malvinaColor = a
+            Plasmoid.configuration.malvinaColor = b
             Plasmoid.configuration.malvinaOpacity = alphaB
             Plasmoid.configuration.showBackground = shown
             Plasmoid.configuration.backgroundColor = bg
