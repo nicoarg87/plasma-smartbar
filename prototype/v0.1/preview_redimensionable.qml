@@ -24,6 +24,7 @@ Window {
     // Temas son ranuras aparte del último aspecto, favorito y default personal:
     // restaurar favoritos NO destruye los temas Día/Noche guardados.
     property string demoThemeDayJson: String(localPreviewSettings.value("themeDayJson", ""))
+    property string demoThemeDayPreviousJson: String(localPreviewSettings.value("themeDayPreviousJson", ""))
     property string demoThemeNightJson: String(localPreviewSettings.value("themeNightJson", ""))
     property string demoThemeCustomJson: String(localPreviewSettings.value("themeCustomJson", ""))
     readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoLauncherOpacityOverride","demoLauncherOpacity","demoLauncherIconsWithNames","demoMalvinaOptionsOpacityOverride","demoMalvinaOptionsOpacity","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
@@ -417,6 +418,7 @@ Window {
         autoCollapseSO: previewWindow.demoAutoCollapseSO
         soLeftClickOpensLauncher: previewWindow.demoSoLeftClickOpensLauncher
         themeDayJson: previewWindow.demoThemeDayJson
+        themeDayPreviousJson: previewWindow.demoThemeDayPreviousJson
         themeNightJson: previewWindow.demoThemeNightJson
         themeCustomJson: previewWindow.demoThemeCustomJson
         launcherCategoryLayout: previewWindow.demoLauncherCategoryLayout
@@ -605,11 +607,13 @@ Window {
         onRequestThemeSlotChange: function(slot, data) {
             // Guardado inmediato sin tocar appearanceV1 ni favoriteSoledadV1.
             if (slot === "day") previewWindow.demoThemeDayJson = data
+            else if (slot === "dayPrevious") previewWindow.demoThemeDayPreviousJson = data
             else if (slot === "night") previewWindow.demoThemeNightJson = data
             else if (slot === "custom") previewWindow.demoThemeCustomJson = data
             else return
             localPreviewSettings.setValue("theme" +
-                (slot === "day" ? "Day" : slot === "night" ? "Night" : "Custom") +
+                (slot === "day" ? "Day" : slot === "dayPrevious" ? "DayPrevious" :
+                 slot === "night" ? "Night" : "Custom") +
                 "Json", data)
             localPreviewSettings.sync()
         }
