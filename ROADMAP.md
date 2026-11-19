@@ -516,3 +516,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Proponer para aprobación separar «paleta derivada del contorno» de «paleta extraída del GIF» y preservar luminosidad real del material nocturno, sin alterar automáticamente paletas personalizadas.
 - [ ] Consultar al mantenedor si «Restablecer colores» debe afectar la isla actual o ambas, y si debería restaurar una paleta del tema elegido, antes de modificar la función.
 - [ ] Una vez aprobados los cambios, agregar pruebas de extracción/copia/respiración/Aplicar/cerrar/reabrir y comprobar que no aparecen colores heredados del GIF anterior.
+
+## ERR-016: correcciones aplicadas con aprobación — 18/11/2026
+
+- [x] Aprobación funcional del mantenedor para separar contorno/fondo, mejorar extracción nocturna, reset acotado y corregir restauración aun si requiere reconfigurar estilos.
+- [x] Separar sugerencias de GIF y contorno, invalidar sugerencias de imagen obsoleta y exigir aplicación explícita al fondo.
+- [x] Pasar de Canvas 32×32 con HSV de brillo fijo a 64×64 con muestras RGB reales y recarga local de la imagen para evitar caché de un GIF cambiado en la misma ruta.
+- [x] «Restablecer colores de esta superficie» modifica solo el destino seleccionado y limpia gradientes obsoletos; no borrar GIF, contorno ni otras islas.
+- [x] Documentar el diagnóstico/corrección en `docs/ERRORES_COMUNES.md` ERR-016 y mantener intacto el panel KDE existente.
+- [ ] PROBAR con el GIF nocturno real en CachyOS: tonos propuestos, Aplicar y reabrir, contorno celeste separado, respiración, copiar a Malvina, restablecer Soledad sin afectar Malvina y viceversa. Si falla, registrar Konsole y captura.
+- [ ] Validar más adelante muestras de varios cuadros GIF si el muestreo de uno solo no representa adecuadamente su paleta, sin modificar ni redistribuir el recurso privado del mantenedor.
