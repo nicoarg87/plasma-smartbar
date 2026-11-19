@@ -1004,6 +1004,9 @@ Item {
             soledadSettings.alignmentEdited = false
             soledadSettings.currentTab = tabIndex
             soledadSettings.refreshOutlinePreview()
+            // Leer el estado completo SOLO tras cargar las 139 preferencias del
+            // modelo. Cancelar/X no toca KConfig ni el perfil local guardado.
+            soledadSettings.captureSettingsBaseline()
         }
         // Engranaje SO → portada Temas; engranaje Malvina → sus buscadores.
         // Nunca reutilizar la pestaña de otra isla que quedó abierta antes.
