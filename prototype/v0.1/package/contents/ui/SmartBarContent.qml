@@ -371,8 +371,9 @@ Item {
     property real soledadIndependentBreathingPhase: 0
     property real malvinaIndependentBreathingPhase: 0
     readonly property bool soledadGradientBreathingActive:
-        soledadGradientEnabled && soledadGradientBreathingEnabled
+        root.visible && soledadGradientEnabled && soledadGradientBreathingEnabled
     readonly property bool malvinaGradientBreathingActive:
+        root.visible && malvinaActuallyVisible &&
         malvinaGradientEnabled && malvinaGradientBreathingEnabled
     readonly property bool sharedBreathingActive:
         (soledadGradientBreathingActive && soledadGradientSyncBreathing) ||
