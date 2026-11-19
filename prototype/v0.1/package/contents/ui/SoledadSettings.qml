@@ -9,6 +9,7 @@ import QtQuick.Dialogs
 import "PaletteExtractor.js" as PaletteExtractor
 import "assets/FactoryNightTheme.js" as FactoryNightTheme
 import "assets/FactorySunsetTheme.js" as FactorySunsetTheme
+import "assets/FactoryDayTheme.js" as FactoryDayTheme
 
 Window {
     id: settings
@@ -113,6 +114,7 @@ Window {
             const json = previewFactorySlot === "sunset" ? factorySunsetJson :
                          previewFactorySlot === "night" ? factoryNightJson :
                          previewFactorySlot === "day" ? themeDayJson :
+                         previewFactorySlot === "dayOfficial" ? factoryDayJson :
                          previewFactorySlot === "nightLegacy" ? themeNightJson :
                          previewFactorySlot.indexOf("library:") === 0 ? slotJson(previewFactorySlot) : ""
             if (json.length) data = JSON.parse(json)
@@ -247,6 +249,24 @@ Window {
     }
     readonly property string factorySunsetJson:
         factorySunsetAvailable ? JSON.stringify(factorySunsetPreset) : ""
+    // Tema oficial Día, solo lectura; no confundir con themeDayJson (Atardecer).
+    readonly property var factoryDayPreset: FactoryDayTheme.preset
+    readonly property url factoryDayImage:
+        factoryDayPreset && factoryDayPreset.assetFile
+            ? Qt.resolvedUrl("assets/" + factoryDayPreset.assetFile) : ""
+    Image { id: factoryDayProbe; visible: false; asynchronous: false; cache: true
+            source: settings.factoryDayImage }
+    Image { id: factoryDayTextProbe; visible: false; asynchronous: false; cache: true
+            source: factoryDayPreset && factoryDayPreset.assetTextFile
+                ? Qt.resolvedUrl("assets/" + factoryDayPreset.assetTextFile) : "" }
+    readonly property bool factoryDayAvailable:
+        factoryDayPreset !== null && factoryDayPreset !== undefined &&
+        factoryDayPreset.version === 1 &&
+        (factoryDayPreset.logoMode === "text" ||
+         (factoryDayPreset.assetFile && factoryDayProbe.status === Image.Ready)) &&
+        (!factoryDayPreset.assetTextFile || factoryDayTextProbe.status === Image.Ready)
+    readonly property string factoryDayJson:
+        factoryDayAvailable ? JSON.stringify(factoryDayPreset) : ""
     property string factoryExportTarget: "night"
     function showFactoryCapture(target) {
         factoryExportTarget = target === "sunset" ? "sunset" : "night"
@@ -545,7 +565,8 @@ Window {
             return isFinite(index) && index >= 0 && index < items.length &&
                    Math.floor(index) === index ? items[index].jsonData : ""
         }
-        return slot === "sunset" ? factorySunsetJson :
+        return slot === "dayOfficial" ? factoryDayJson :
+               slot === "sunset" ? factorySunsetJson :
                slot === "night" ? factoryNightJson :
                slot === "nightLegacy" ? themeNightJson :
                slot === "dayPrevious" ? themeDayPreviousJson :
@@ -553,6 +574,10 @@ Window {
     }
     function storeTheme(slot) {
         // Los originales de fábrica Noche y Atardecer no se pueden escribir.
+        if (slot === "dayOfficial") {
+            themeStatus = "Día oficial es inmutable; usá una copia personalizada."
+            return
+        }
         if (slot === "night") {
             themeStatus = "Noche de fábrica está protegida; usá Personalizado."
             return
@@ -647,11 +672,13 @@ Window {
             // sin copiar el degradado de una isla hacia la otra.
             // Noche utiliza recursos inmutables del paquete (no rutas locales
             // del equipo del autor ni la foto activa de otro tema).
-            if (slot === "night" || slot === "sunset") {
+            if (slot === "night" || slot === "sunset" || slot === "dayOfficial") {
                 if (info.assetFile) {
                     logoMode = "custom"
                     filePath = slot === "sunset"
-                        ? factorySunsetImage.toString() : factoryNightImage.toString()
+                        ? factorySunsetImage.toString()
+                        : slot === "dayOfficial" ? factoryDayImage.toString()
+                        : factoryNightImage.toString()
                 }
                 if (info.assetTextFile)
                     soTextBackgroundImage =
@@ -661,7 +688,8 @@ Window {
             // son independientes de estos tres espacios de tema.
             applyChanges()
             themeStatus = "Tema " +
-                (slot === "sunset" ? "Atardecer de fábrica" :
+                (slot === "dayOfficial" ? "Día oficial" :
+                 slot === "sunset" ? "Atardecer de fábrica" :
                  slot === "day" ? "Atardecer anterior" :
                  slot === "night" ? "Noche de fábrica" :
                  slot.indexOf("library:") === 0 ? "personal guardado" : "Personalizado") +
@@ -4560,7 +4588,8 @@ Window {
                                 Layout.fillHeight: true
                                 spacing: 6
                                 QQC2.Label {
-                                    text: (settings.previewFactorySlot === "sunset" || settings.previewFactorySlot === "day") ? "Atardecer" :
+                                    text: settings.previewFactorySlot === "dayOfficial" ? "Día" :
+                                          (settings.previewFactorySlot === "sunset" || settings.previewFactorySlot === "day") ? "Atardecer" :
                                           (settings.previewFactorySlot === "night" || settings.previewFactorySlot === "nightLegacy") ? "Noche" : "Tema actual"
                                     color: "white"
                                     font.bold: true
@@ -4577,6 +4606,7 @@ Window {
                                         : settings.previewFactorySlot === "night"
                                           ? settings.factoryNightImage :
                                           settings.previewFactorySlot === "day" ? settings.themeImageSource(settings.themeDayJson) :
+                                          settings.previewFactorySlot === "dayOfficial" ? settings.factoryDayImage :
                                           settings.previewFactorySlot === "nightLegacy" ? settings.themeImageSource(settings.themeNightJson) :
                                           settings.previewFactorySlot.indexOf("library:") === 0 ? settings.themeImageSource(settings.slotJson(settings.previewFactorySlot)) : settings.selectedImage
                                     fillMode: Image.PreserveAspectFit
@@ -4598,6 +4628,7 @@ Window {
                                         : settings.previewFactorySlot === "night"
                                           ? settings.factoryNightImage :
                                           settings.previewFactorySlot === "day" ? settings.themeImageSource(settings.themeDayJson) :
+                                          settings.previewFactorySlot === "dayOfficial" ? settings.factoryDayImage :
                                           settings.previewFactorySlot === "nightLegacy" ? settings.themeImageSource(settings.themeNightJson) :
                                           settings.previewFactorySlot.indexOf("library:") === 0 ? settings.themeImageSource(settings.slotJson(settings.previewFactorySlot)) : settings.selectedImage
                                     fillMode: Image.PreserveAspectFit
@@ -4692,9 +4723,10 @@ Window {
                                                           ? settings.themeImageSource(settings.themeNightJson)
                                                           : settings.factoryNightImage)
                                                       : index === 2
-                                                        ? (settings.dayThemeIndex() >= 0
-                                                            ? settings.themeImageSource(settings.savedThemeLibrary[settings.dayThemeIndex()].jsonData)
-                                                            : "")
+                                                        ? (settings.factoryDayAvailable ? settings.factoryDayImage
+                                                            : settings.dayThemeIndex() >= 0
+                                                              ? settings.themeImageSource(settings.savedThemeLibrary[settings.dayThemeIndex()].jsonData)
+                                                              : "")
                                                         : settings.themeImageSource(settings.savedThemeLibrary[settings.otherNamedThemeOriginalIndex(index - 3)].jsonData)
                                             }
                                             QQC2.Label {
@@ -4717,8 +4749,11 @@ Window {
                                                 slot = settings.themeNightJson.length ? "nightLegacy" :
                                                     (settings.factoryNightAvailable ? "night" : "")
                                             } else if (selectedIndex === 2) {
-                                                const savedDayIndex = settings.dayThemeIndex()
-                                                if (savedDayIndex >= 0) slot = "library:" + savedDayIndex
+                                                if (settings.factoryDayAvailable) slot = "dayOfficial"
+                                                else {
+                                                    const savedDayIndex = settings.dayThemeIndex()
+                                                    if (savedDayIndex >= 0) slot = "library:" + savedDayIndex
+                                                }
                                             } else {
                                                 const originalIndex = settings.otherNamedThemeOriginalIndex(selectedIndex - 3)
                                                 if (originalIndex >= 0) slot = "library:" + originalIndex
