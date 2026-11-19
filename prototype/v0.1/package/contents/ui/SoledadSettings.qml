@@ -71,7 +71,7 @@ Window {
         refreshOutlinePreview()
         appliedLabel.text = ""
     }
-    onClosing: function(event) { themeChooserExpanded = false; discardPendingEdits() }
+    onClosing: function(event) { themeChooserExpanded = false; factoryToolsExpanded = false; discardPendingEdits() }
 
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
     property int geometrySection: 0
@@ -105,6 +105,7 @@ Window {
         else if (kind === "favorite") restoreFavoriteAppearanceRequested()
     }
     property bool themeChooserExpanded: false
+    property bool factoryToolsExpanded: false
     property string newThemeName: ""
     readonly property var savedThemeLibrary: parseThemeLibrary(themeLibraryJson)
     function parseThemeLibrary(json) {
@@ -301,7 +302,7 @@ Window {
 
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
-    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false }
+    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; factoryToolsExpanded = false }
     function showSoledadLogo() {
         navigationGroup = "soledad"
         currentTab = 1
@@ -4731,22 +4732,23 @@ Window {
                                 color: "#b9cce2"
                                 wrapMode: Text.WordWrap
                             }
-                            QQC2.Label {
+                            QQC2.Button {
                                 Layout.fillWidth: true
-                                text: "INCORPORAR ORIGINALES DE FÁBRICA"
-                                color: "#b9cce2"
-                                font.bold: true
                                 visible: !settings.factorySunsetAvailable || !settings.factoryNightAvailable
+                                text: settings.factoryToolsExpanded
+                                    ? "Herramientas de fábrica (avanzado)  ▴"
+                                    : "Herramientas de fábrica (avanzado)  ▾"
+                                onClicked: settings.factoryToolsExpanded = !settings.factoryToolsExpanded
                             }
                             QQC2.Button {
                                 Layout.fillWidth: true
-                                visible: !settings.factorySunsetAvailable
+                                visible: settings.factoryToolsExpanded && !settings.factorySunsetAvailable
                                 text: "Exportar aspecto actual para fijar Atardecer de fábrica…"
                                 onClicked: settings.showFactoryCapture("sunset")
                             }
                             QQC2.Button {
                                 Layout.fillWidth: true
-                                visible: !settings.factoryNightAvailable
+                                visible: settings.factoryToolsExpanded && !settings.factoryNightAvailable
                                 text: "Exportar aspecto actual para fijar Noche de fábrica…"
                                 onClicked: settings.showFactoryCapture("night")
                             }
