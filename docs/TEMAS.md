@@ -61,3 +61,14 @@ La imagen nocturna aún **no está incorporada como binario al repositorio GitHu
 **Código experimental:** `SoledadSettings.qml` reconoce la ruta `assets/so-night.gif`. Si el archivo original está instalado y el usuario pulsa **Aplicar Noche**, reemplaza **solamente la ruta del logo y activa la reproducción GIF**; los valores del tema guardado (colores/degradados, formas, iluminación, respiración y opacidades) permanecen como estaban. Si falta el binario, el tema conserva su ruta anterior. La miniatura de Noche puede mostrar el GIF original disponible. El tema Día permanece sin alterar.
 
 **Entrega del binario:** se preparó un ZIP para colocarlo en el checkout local sin tocar los paneles KDE ni sobreescribir archivos de imagen existentes. El binario exacto **aún no ha sido incorporado al árbol del repositorio GitHub**; solo están allí el código y sus metadatos de autoría/licencia. Pendientes: copiar el GIF a la ruta prevista y probar visualmente en CachyOS, comprobar persistencia, estado de Noche, permisos y ausencia de regresiones. Las paletas exactas del usuario siguen siendo ajustes locales y no se sustituyen por colores inventados.
+
+
+## Atardecer, respaldo y separación de favorita — 19/11/2026
+
+**Cambio funcional confirmado:** el tema antes visible como «Día» ahora se denomina **Atardecer**. La clave de persistencia **`themeDayJson` se conserva intencionalmente** para leer el estilo antiguo sin migraciones destructivas. `themeNightJson` y `themeCustomJson` continúan separados.
+
+«Aplicar Atardecer» carga los colores, direcciones y demás campos guardados sin sustituirlos forzosamente por los de otra isla. «Actualizar Atardecer con estética actual…» exige confirmación explícita y conserva una copia recuperable en `themeDayPreviousJson`. «Recuperar Atardecer anterior…» intercambia la copia anterior y actual, de modo que la recuperación es reversible. La actualización no se ejecuta al seleccionar un tema, guardar favorita, cerrar el visor ni usar Aplicar. Atardecer y Noche conservan la respiración requerida por el mantenedor.
+
+`favoriteSoledadV1`, `personalDefaultV1` y `appearanceV1` se mantienen independientes de las tres ranuras. Guardar favorita solo modifica la primera clave; al restaurar favorita, se copia al estado activo sin tocar temas y con guardado atómico (un solo guardado final del estado activo). Los nuevos snapshots de temas incorporan otros campos visuales (fondo, texto, controles, fichas); los JSON V1 antiguos no se borran ni reemplazan.
+
+**Pendiente:** validar en Qt/CachyOS, especialmente que la favorita con el degradado recién ajustado pueda restaurarse y fijarse como Atardecer sin alterar Noche. «Día claro» con colores más luminosos sobre una playa similar queda como **propuesta futura**, sin imagen nueva, ranura funcional ni cambios de requisitos confirmados.
