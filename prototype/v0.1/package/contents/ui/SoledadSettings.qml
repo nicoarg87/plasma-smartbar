@@ -28,6 +28,15 @@ Window {
     property int logoSection: 0
     property int outlineSection: 0
     property int appearanceSection: 0
+    // El menú lateral decide el destino. Dentro de Soledad o Malvina no
+    // existe selector para saltar a controles de la otra isla.
+    property string geometryScope: "shared"
+    property string colorScope: "soledad"
+    property string themeDayJson: ""
+    property string themeNightJson: ""
+    property string themeCustomJson: ""
+    property string themeStatus: "Elegí un tema guardado o creá uno a partir del logo SO."
+    signal saveThemeSlotRequested(string slot, string jsonData)
 
     // Botones del menú lateral: no cortar nombres cuando la ventana es angosta
     // o cuando el usuario aumenta la escala de fuentes de KDE.
@@ -64,35 +73,37 @@ Window {
         }
     }
 
-    // Navegación orientada al usuario; usa las mismas páginas y ajustes
-    // existentes para preservar aplicación y persistencia anteriores.
+    // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
+    // otra isla; los controles compartidos se encuentran en General.
+    function showThemes() { currentTab = 4 }
     function showSoledadLogo() { currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
     function showSoledadEffects() { currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
     function showSoledadWindows() { currentTab = 2; appearanceSubtabs.currentIndex = 1 }
     function showMalvinaProviders() { currentTab = 0; islandSubtabs.currentIndex = 2 }
-    function showMalvinaShape() {
+    function showGeometry(scope, section) {
+        geometryScope = scope
+        geometrySection = section
         currentTab = 0
         islandSubtabs.currentIndex = 0
-        geometrySection = 1
         if (positionScroll.contentItem) positionScroll.contentItem.contentY = 0
     }
-    function showSharedLayout() {
-        currentTab = 0
-        islandSubtabs.currentIndex = 0
-        geometrySection = 0
-        if (positionScroll.contentItem) positionScroll.contentItem.contentY = 0
-    }
+    function showSoledadShape() { showGeometry("soledad", 1) }
+    function showMalvinaShape() { showGeometry("malvina", 1) }
+    function showSharedLayout() { showGeometry("shared", 0) }
+    function showSharedButtons() { showGeometry("shared", 1) }
+    function showSharedSizes() { showGeometry("shared", 2) }
     function showSharedBehavior() { currentTab = 0; islandSubtabs.currentIndex = 1 }
     function showSharedColors(target) {
+        colorScope = target === 0 ? "soledad" : target === 1 ? "malvina" : "shared"
         currentTab = 2
         appearanceSubtabs.currentIndex = 0
         appearanceSection = 0
         appearanceTarget.currentIndex = target
+        if (appearanceScroll.contentItem) appearanceScroll.contentItem.contentY = 0
     }
-    function showSharedOutlines() {
-        currentTab = 2
-        appearanceSubtabs.currentIndex = 2
-    }
+    function showSharedOutlines() { currentTab = 2; appearanceSubtabs.currentIndex = 2 }
+    function showSoledadGradient() { showSharedColors(0); appearanceSection = 1 }
+    function showMalvinaGradient() { showSharedColors(1); appearanceSection = 1 }
     property int currentTab: 0
     property alias currentIslandSubtab: islandSubtabs.currentIndex
     property string malvinaGoogleUrl: "https://www.google.com/search?q={query}"
