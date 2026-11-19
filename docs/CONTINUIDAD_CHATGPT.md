@@ -484,3 +484,17 @@ En mensaje de seguimiento aprobó explícitamente **70 % de opacidad** como valo
 Cuatro pruebas estáticas PASS en runner V8 sobre fuentes GitHub, QML con llaves balanceadas; **no probado aún gráficamente en CachyOS**, KWin/Wayland ni panel instalado. Test local con Fish:
 `cd ~/plasma-smartbar; git switch prototype/v0.1-islas-so; git pull --ff-only; node prototype/v0.1/tests/test_breathing_menu.cjs; bash prototype/v0.1/probar_ancho.sh`.
 Verificar barra lateral, scroll a ventana angosta y zoom KDE, posición de Editar, enlace y ms/ciclo, ambos modos de respiración, 70 %, guardar/recargar y seguridad del panel. Actualizar [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15) con resultados. No fusionar a main ni tocar el panel existente.
+
+
+## 65. Accesos de SO y licencia MIT/CC0 ratificados (19/11/2026)
+
+
+**Orden vigente:** en Soledad primero «Launcher y botón SO», luego «Botón de inicio SO». Los **Efectos luminosos SO** no son otra entrada lateral: aparecen como subpestaña de ese botón, al lado de «Logo, ancho y texto». Después vienen Color y transparencia, Figura y tamaño, Cajón y ventanas. De iluminación SO se puede navegar en un clic a Color y transparencia/Degradado y respiración de Soledad; desde Color se regresa directo al brillo SO. No acoplar indebidamente la velocidad del contorno con la de las islas.
+
+**Usabilidad:** ventana inicial más ancha cuando pantalla lo permite (tope 1180 px), mínimo dependiente de la pantalla, reserva lateral de 32 px junto al scroll en las diez vistas y filas independientes para HEX/Copiar/Editar. Si KDE cambia el escalado, comprobar visualmente que ningún control quede debajo de la barra.
+
+**Licencias:** el `LICENSE` vigente ya es MIT, pero se detectó `KPlugin.License=GPL-3.0-only` en `prototype/v0.1/package/metadata.json`; corregido a `MIT` en [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384). Todo el código original y documentación propios se mantienen **MIT**, mientras que los GIF animados originales aportados por el mantenedor y generados en ChatGPT quedan dedicados a **CC0 1.0 Universal** hasta donde pueda disponer de sus derechos. No etiquetar terceros de MIT ni CC0 sin procedencia. Los ZIP originales aportados en chat no implican que sus bytes ya estén en GitHub; preservarlos.
+
+**Commits:** UI [0274f6d](https://github.com/nicoarg87/plasma-smartbar/commit/0274f6dcc6f70a274ff7f336f40f80adc036cc5c), regresión [c9c59a9](https://github.com/nicoarg87/plasma-smartbar/commit/c9c59a957178226ac54d00aa8a2b6466a7a5e19f), inventario [99f9432](https://github.com/nicoarg87/plasma-smartbar/commit/99f9432c66263a143b8c9d72c5cf5e179c11c711).
+
+**Estado:** cambios de código, pendiente ejecución real Qt/CachyOS y prueba de persistencia. Con Fish: `cd ~/plasma-smartbar; git switch prototype/v0.1-islas-so; git pull --ff-only; node prototype/v0.1/tests/test_breathing_menu.cjs; bash prototype/v0.1/probar_ancho.sh`. No instalar widget ni modificar panel real; documentar fallos en issue #15.
