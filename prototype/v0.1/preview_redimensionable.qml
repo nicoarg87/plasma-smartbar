@@ -30,6 +30,8 @@ Window {
     property string demoThemeNightJson: String(localPreviewSettings.value("themeNightJson", ""))
     property string demoThemeCustomJson: String(localPreviewSettings.value("themeCustomJson", ""))
     property string demoThemeLibraryJson: String(localPreviewSettings.value("themeLibraryJson", "[]"))
+    property bool demoHasPersonalDefault: String(localPreviewSettings.value("personalDefaultV1", "")).length > 0
+    property bool demoHasFavoriteAppearance: String(localPreviewSettings.value("favoriteSoledadV1", "")).length > 0
     readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoLauncherOpacityOverride","demoLauncherOpacity","demoLauncherIconsWithNames","demoMalvinaOptionsOpacityOverride","demoMalvinaOptionsOpacity","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientThird","demoSoledadGradientColorCount","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientThird","demoMalvinaGradientColorCount","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientSyncIntensity","demoSoledadGradientBreathingEnabled","demoSoledadGradientBreathingIntensity","demoSoledadGradientBreathingSpeed","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingEnabled","demoMalvinaGradientBreathingIntensity","demoMalvinaGradientBreathingSpeed","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
     QtCore.Settings {
         id: localPreviewSettings
@@ -63,6 +65,7 @@ Window {
         saveAppearanceTimer.stop()
         const current = collectAppearancePreset()
         localPreviewSettings.setValue("favoriteSoledadV1", current)
+        demoHasFavoriteAppearance = true
         localPreviewSettings.sync()
         console.log("SmartBar: estética favorita guardada localmente")
     }
@@ -73,6 +76,7 @@ Window {
         saveAppearanceTimer.stop()
         const current = collectAppearancePreset()
         localPreviewSettings.setValue("personalDefaultV1", current)
+        demoHasPersonalDefault = true
         localPreviewSettings.sync()
         console.log("SmartBar: configuración completa fijada como predeterminada personal local")
     }
@@ -445,6 +449,10 @@ Window {
         themeNightJson: previewWindow.demoThemeNightJson
         themeCustomJson: previewWindow.demoThemeCustomJson
         themeLibraryJson: previewWindow.demoThemeLibraryJson
+        personalDefaultAvailable: previewWindow.demoHasPersonalDefault
+        favoriteAppearanceAvailable: previewWindow.demoHasFavoriteAppearance
+        onRequestRestorePersonalDefault: previewWindow.restorePersonalDefault()
+        onRequestRestoreFavoriteAppearance: previewWindow.restoreFavoriteAppearance()
         launcherCategoryLayout: previewWindow.demoLauncherCategoryLayout
         launcherSwitchShape: previewWindow.demoLauncherSwitchShape
         launcherSwitchColorOverride: previewWindow.demoLauncherSwitchColorOverride
