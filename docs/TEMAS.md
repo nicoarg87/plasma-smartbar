@@ -45,3 +45,10 @@ El mantenedor quiere un apartado claramente identificado **«Temas»** en las op
 **Navegación reorganizada:** sidebar plegable en **Temas, Soledad, Malvina, General y compartidas**. El engranaje de SO abre la portada Temas; Malvina abre directamente sus proveedores Web/IA. Se ocultaron los selectores cruzados de páginas antiguas: cada isla tiene un editor de color/degradado y figura/tamaño propios, con tres accesos locales claros «Color y opacidad», «DEGRADADO», «Respiración y fondo». Los controles de paleta compartida, botones y contornos están en General. No se eliminó ninguna clave KConfig.
 
 **ESTADO:** implementado en código, revisado estáticamente, **sin prueba de carga ni interacción QML en CachyOS** posterior a estos cambios. Pendiente validar guardado Día/Noche/Personalizado, miniatura de GIF, análisis nocturno, saltos a Logo, colores separados, presentación de los menús y rutas locales después de reiniciar. El recurso GIF de la playa nocturna que el usuario seleccionó en su equipo NO se incorporó como binario a esta rama; la ranura Noche puede apuntar al archivo que ya utiliza el usuario. Licencia de cada GIF sigue siendo independiente.
+
+
+## Licencia confirmada del recurso Playa Noche — 19/11/2026
+
+El mantenedor confirmó expresamente que el GIF de **Playa Noche** utilizado localmente fue generado con ChatGPT/OpenAI por encargo suyo y autorizó dedicar **esta imagen** bajo **Creative Commons CC0 1.0 Universal**, en la medida de sus derechos. Declaración registrada en [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md#declaración-de-licencia--gif-playa-nocturna-19112026).
+
+La imagen nocturna aún **no está incorporada como binario al repositorio GitHub**: la licencia está asentada para el archivo exacto, y faltan su incorporación, verificación SHA-256 y metadatos. No publicar capturas de pantalla ni generar sustitutos con esta etiqueta. CC0 del arte es independiente de MIT para el código actual. Los ajustes locales del usuario no cambian por este registro.
