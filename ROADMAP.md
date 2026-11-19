@@ -614,3 +614,18 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **Prueba real en CachyOS:** ejecutar test Node + visor, confirmar que no se oculta ningún botón por la barra vertical a resolución normal/ventana angosta/escalado KDE, los saltos de degradado/contorno llegan al apartado correcto, el launcher queda primero y los temas/ajustes actuales sobreviven.
 - [ ] Confirmar que los dos GIF originales pueden leerse desde sus rutas locales sin cambiar archivos personales; incorporar a GitHub solo cuando el archivo exacto y el alcance de su licencia se verifiquen.
 - [ ] Mantener [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) como borrador y [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15) abiertos hasta prueba visual en CachyOS. No sustituir el panel real.
+
+
+## Prioridad aprobada — Isla y launcher y respiración SO independiente (19/11/2026)
+
+- [x] Cambiar «Launcher y botón SO» por **«Isla y launcher»** como primer acceso, incluyendo enlaces al posicionamiento compartido y a figura/tamaño de Soledad.
+- [x] Mantener «Botón de inicio SO» en segundo lugar, con **Brillo y respiración** como primer apartado de su subpestaña «Efectos luminosos SO».
+- [x] Hacer respiración del contorno el estilo inicial para configuraciones nuevas, con **0,3 ciclos/s** en vez de 0,6; sin sobrescribir preferencias guardadas.
+- [x] Mantener velocidades de la línea SO y de los degradados Soledad/Malvina independientes para perfiles nuevos; casillas existentes de sincronización de ritmo siguen disponibles por isla.
+- [x] Incorporar casilla «Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)», botón «Desvincular» y ajuste «Igualar intensidad» en Color, guardado como `soledadGradientSyncIntensity=false` por defecto.
+- [x] Propagar nueva preferencia por render QML, señales de Aplicar, KConfig, Qt Settings del visor, favoritos y temas sin migrar valores existentes.
+- [x] Prueba de regresión estática [a222be0](https://github.com/nicoarg87/plasma-smartbar/commit/a222be07888284191c4a945a8416cb32262916c5): PASS 139 comprobaciones V8. Junto con temas y paleta, 245 PASS.
+- [ ] **Validar Qt en CachyOS**: contorno con velocidad propia; al ajustar SO no variar fondos desacoplados; al sincronizar reproducir ritmo e intensidad de SO; al desvincular recuperar parámetros independientes, sin afectar Malvina.
+- [ ] Comprobar intensidad 0 %, estilos, animación, visibilidad, consumo y persistencia tras Aplicar/reabrir, junto a temas Atardecer/Noche y predeterminada personal.
+- [ ] Mantener [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15) y [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) abiertos hasta validación. No modificar el panel KDE instalado.
+
