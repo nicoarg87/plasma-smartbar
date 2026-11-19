@@ -114,7 +114,8 @@ Item {
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     signal requestOutlineChange(var updated)
     signal requestIslandGradientChange(bool soEnabled, string soEnd, string soDirection,
-                                       bool malEnabled, string malEnd, string malDirection)
+                                       bool malEnabled, string malEnd, string malDirection,
+                                       int soCount, string soThird, int malCount, string malThird)
     signal requestGradientBreathingChange(bool enabled, real intensity)
     signal requestMalvinaGradientBreathingChange(bool enabled, real intensity)
     // Logo SO panorámico: cápsula, imagen tropical estirada de origen.
@@ -351,6 +352,8 @@ Item {
     property color malvinaColor: "#101e31"
     property bool soledadGradientEnabled: false
     property color soledadGradientEnd: "#ee9852"
+    property color soledadGradientThird: "#ee9852"
+    property int soledadGradientColorCount: 2
     property string soledadGradientDirection: "topBottom"
     property bool soledadGradientSyncBreathing: false
     property real soledadGradientBreathingIntensity: 0.6
@@ -388,6 +391,8 @@ Item {
     property real malvinaGradientBreathingIntensity: 0.6
     property bool malvinaGradientEnabled: false
     property color malvinaGradientEnd: "#445577"
+    property color malvinaGradientThird: "#445577"
+    property int malvinaGradientColorCount: 2
     property string malvinaGradientDirection: "topBottom"
     property color backgroundColor: "#202333"
     property real soledadOpacity: 0.5
@@ -900,6 +905,8 @@ Item {
             soledadSettings.malvinaColor = root.malvinaColor
             soledadSettings.soledadGradientEnabled = root.soledadGradientEnabled
             soledadSettings.soledadGradientEnd = root.soledadGradientEnd
+            soledadSettings.soledadGradientThird = root.soledadGradientThird
+            soledadSettings.soledadGradientColorCount = root.soledadGradientColorCount
             soledadSettings.soledadGradientDirection = root.soledadGradientDirection
             soledadSettings.soledadGradientSyncBreathing = root.soledadGradientSyncBreathing
             soledadSettings.soledadGradientBreathingIntensity = root.soledadGradientBreathingIntensity
@@ -907,6 +914,8 @@ Item {
             soledadSettings.malvinaGradientBreathingIntensity = root.malvinaGradientBreathingIntensity
             soledadSettings.malvinaGradientEnabled = root.malvinaGradientEnabled
             soledadSettings.malvinaGradientEnd = root.malvinaGradientEnd
+            soledadSettings.malvinaGradientThird = root.malvinaGradientThird
+            soledadSettings.malvinaGradientColorCount = root.malvinaGradientColorCount
             soledadSettings.malvinaGradientDirection = root.malvinaGradientDirection
             soledadSettings.backgroundColor = root.backgroundColor
             soledadSettings.soledadOpacity = root.soledadOpacity
@@ -1023,8 +1032,8 @@ Item {
         onSaveMalvinaGradientBreathingRequested: function(enabled, intensity) {
             root.requestMalvinaGradientBreathingChange(enabled, intensity)
         }
-        onSaveIslandGradientRequested: function(a, b, c, d, e, f) {
-            root.requestIslandGradientChange(a, b, c, d, e, f)
+        onSaveIslandGradientRequested: function(a, b, c, d, e, f, g, h, i, j) {
+            root.requestIslandGradientChange(a, b, c, d, e, f, g, h, i, j)
         }
         onSaveTaskActiveIndicatorRequested: function(glowEnabled, doubleBorderEnabled) {
             root.requestTaskActiveIndicatorChange(glowEnabled, doubleBorderEnabled)
