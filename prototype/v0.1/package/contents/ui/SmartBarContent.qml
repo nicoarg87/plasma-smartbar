@@ -1088,7 +1088,7 @@ Item {
                 root.launcherIslandVisible
                 ? launcherIsland.x + launcherIsland.width / 2
                 : systemIsland.x + systemIsland.width / 2
-            if (categoryLayout === 1 && showCategoryPanel) {
+            if (categoryLayout === 1 && (showCategoryPanel || (filesMode && expandedCanvas))) {
                 // B: conservar el borde derecho del cuadro principal en
                 // su sitio; el segundo cuadro ocupa espacio a la izquierda.
                 const baseX = Math.max(0, Math.min(
