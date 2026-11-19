@@ -15,6 +15,7 @@
 | Recurso | Procedencia | Licencia autorizada | Distribución en el proyecto |
 |---|---|---|---|
 | Imagen tropical con palmera, barra rústica y atardecer | Generación solicitada al servicio de OpenAI por el mantenedor; archivo definitivo recuperado en el chat, no subido a GitHub | **CC0 1.0**, para derechos que el mantenedor pueda dedicar | **Disponible en ZIP local**, SHA-256 registrado; pendiente de inclusión en GitHub y prueba Qt |
+| GIF «Playa nocturna» (tema Noche, archivo exacto pendiente de incorporar) | Generación de imagen mediante ChatGPT/OpenAI por encargo y selección del mantenedor, confirmada por él el 19/11/2026 | **CC0 1.0 Universal** por decisión expresa del mantenedor, limitada a los derechos que pueda dedicar | **Solo en su equipo, por ruta local**; no hay binario nocturno ni hash comprobado en GitHub. Asociar esta licencia al archivo exacto cuando se reciba |
 | Huella/logo vinculado a Golden Dog | Autoría/licencia no acreditadas | **Sin licencia de redistribución acreditada** | **No incluir**; retirar recurso del prototipo hasta aclararlo |
 | Fotos/logos/GIF que el usuario cargue localmente | Aportados individualmente por cada usuario | **No heredan MIT ni CC0** | Solo referencias locales; no copiar ni redistribuir archivos |
 
@@ -53,3 +54,15 @@ El mantenedor volvió a suministrar la **imagen tropical exacta** en la conversa
 **Destino del recurso en el prototipo:** `prototype/v0.1/package/contents/ui/assets/so-tropical.gif`, **GIF animado predeterminado** con forma de cápsula horizontal y modo Estirar. El fichero suministrado se encuentra en un **ZIP de prueba adjunto a esta conversación**. **La integración del binario en GitHub sigue pendiente**: se modificó el código QML para referenciarlo, pero el GIF no ha sido subido al árbol del repositorio desde esta sesión. Si no está en el checkout, mostrar la alternativa textual SO por error de carga.
 
 **Prueba declarada por el mantenedor:** indica que el GIF ya fue ensayado y es funcional. **Pendiente por verificar en la rama actualizada:** carga, máscara de cápsula, estiramiento, loop y consumo de recursos al iniciarse como logo predeterminado sin seleccionar un GIF personalizado. No confundir esta revisión pendiente con la prueba previa del usuario.
+
+## Declaración de licencia — GIF «Playa nocturna» (19/11/2026)
+
+**Recurso autorizado:** la imagen/GIF de la playa nocturna generada mediante ChatGPT/OpenAI a solicitud del mantenedor y utilizada por él para el tema **Playa Noche** de Plasma SmartBar Islands. Esta declaración afecta exclusivamente a **esa imagen nocturna original**, y no a otros GIF, imágenes cargadas por usuarios, marcas, ni al código del programa.
+
+**Decisión expresa del mantenedor:** publicar dicho recurso gráfico bajo la dedicación **Creative Commons CC0 1.0 Universal** (https://creativecommons.org/publicdomain/zero/1.0/), en la máxima medida permitida por la ley y exclusivamente respecto de los derechos que pueda legítimamente dedicar. Cualquier persona puede copiar, modificar, redistribuir y utilizar comercialmente la obra sin solicitar permiso de derechos de autor al mantenedor, hasta donde esa dedicación sea jurídicamente eficaz.
+
+**Identificación técnica todavía pendiente:** el usuario ha utilizado el GIF nocturno en su CachyOS, pero el **archivo original no está presente en el repositorio** ni se ha recibido aquí como GIF verificable. No se dispone de nombre definitivo, dimensiones, SHA-256 ni comprobación de contenidos y procedencia adicionales. Al incorporar el binario, asociar esta declaración a la ruta y hash exactos y preservar el fichero sin reconstrucciones.
+
+**Separación legal:** los archivos de código y documentación propios del repositorio están actualmente bajo **MIT**; CC0 no altera su licencia. La declaración no concede derechos de marcas ni de terceros; las obras obtenidas con IA pueden no tener derechos de autor exclusivos en todas las jurisdicciones. Sin garantía jurídica de exclusividad, originalidad o ausencia de derechos ajenos.
+
+**Estado:** **licencia del recurso nocturno declarada y documentada por autorización del mantenedor; incorporación y verificación del binario pendientes**. No etiquetar una captura de pantalla de SmartBar ni un GIF nocturno diferente como si fuera el original.
