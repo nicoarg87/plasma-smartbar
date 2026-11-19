@@ -49,7 +49,7 @@ assert(generator.includes("crypto.createHash(\"sha256\")"));
 assert(generator.includes('delete preset.originalImageUrl'));
 assert(generator.includes('preset.filePath = ""'));
 assert(generator.includes('preset.soTextBackgroundImage = ""'));
-assert(generator.includes("no se puede reemplazar con este comando"));
+assert(generator.includes("No se puede reemplazar con este comando"));
 assert(generator.includes("Falta ") || generator.includes("Falta"));
 if (/var preset = null\b/.test(moduleText)) {
     // El usuario aún no ha exportado su perfil. No declarar un tema fake.
