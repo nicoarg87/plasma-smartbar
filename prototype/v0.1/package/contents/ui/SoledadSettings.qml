@@ -2061,7 +2061,7 @@ Window {
                         Layout.fillWidth: true
                         spacing: 6
                         Repeater {
-                            model: ["Imagen", "Texto", "Encuadre", "Reloj"]
+                            model: ["Logo y ancho", "Texto", "Encuadre", "Reloj"]
                             delegate: QQC2.Button {
                                 required property int index
                                 required property string modelData
@@ -3290,18 +3290,25 @@ Window {
                         font.bold: true
                         color: "white"
                     }
-                    RowLayout {
+                    // Disposición responsiva: los botones y HEX quedan dentro
+                    // del ancho disponible incluso a la escala mínima de KDE.
+                    GridLayout {
                         visible: appearanceTarget.currentIndex <= 1 &&
                                  settings.sampledColors.length > 0
                         Layout.fillWidth: true
-                        spacing: 8
+                        columns: appearanceScroll.availableWidth >= 740 ? 3
+                            : (appearanceScroll.availableWidth >= 470 ? 2 : 1)
+                        columnSpacing: 8
+                        rowSpacing: 8
                         Repeater {
                             model: settings.sampledColors.length
                             delegate: ColumnLayout {
                                 required property int index
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 spacing: 4
                                 RowLayout {
+                                    Layout.fillWidth: true
                                     spacing: 5
                                     Rectangle {
                                         width: 32; height: 24; radius: 5
@@ -3310,18 +3317,22 @@ Window {
                                     QQC2.Label {
                                         text: "Tono " + (index + 1)
                                         color: "white"
+                                        Layout.fillWidth: true
                                     }
                                 }
                                 QQC2.TextField {
                                     id: sampleHexField
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
                                     selectByMouse: true
                                     text: settings.sampleHex(index)
                                     onEditingFinished: settings.editSampleHex(index, text)
                                 }
                                 RowLayout {
-                                    spacing: 3
+                                    Layout.fillWidth: true
+                                    spacing: 5
                                     QQC2.Button {
+                                        Layout.fillWidth: true
                                         text: "Copiar"
                                         onClicked: {
                                             sampleHexField.selectAll()
@@ -3330,6 +3341,7 @@ Window {
                                         }
                                     }
                                     QQC2.Button {
+                                        Layout.fillWidth: true
                                         text: "Editar"
                                         onClicked: {
                                             samplePaletteColorDialog.sampleIndex = index
@@ -3342,11 +3354,13 @@ Window {
                             }
                         }
                     }
-                    RowLayout {
+                    ColumnLayout {
                         visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
-                        spacing: 8
+                        spacing: 5
                         QQC2.Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
                             text: "Colores del degradado"
                             color: "white"
                             font.bold: true
@@ -3361,56 +3375,66 @@ Window {
                     }
                     Repeater {
                         model: settings.activeGradientColorCount
-                        delegate: RowLayout {
+                        delegate: ColumnLayout {
                             required property int index
                             readonly property string slotName:
                                 index === 0 ? "base" : index === 1 ? "end" : "third"
                             visible: appearanceTarget.currentIndex <= 1
                             Layout.fillWidth: true
-                            spacing: 6
-                            QQC2.Label {
-                                text: "Color " + (index + 1)
-                                color: "white"
-                                Layout.preferredWidth: 55
-                            }
-                            QQC2.ComboBox {
-                                Layout.preferredWidth: 133
-                                model: ["Manual"].concat(settings.sampledColors.map(
-                                    function(x, i) { return "Tono " + (i + 1) }))
-                                currentIndex: settings.selectedSampleIndex(slotName)
-                                onActivated: function(i) {
-                                    if (i > 0) settings.chooseSampledColor(i - 1, slotName)
-                                }
-                            }
-                            Rectangle {
-                                width: 25; height: 25; radius: 4
-                                color: settings.islandColor(slotName)
-                            }
-                            QQC2.TextField {
-                                id: activeHexField
+                            spacing: 4
+                            RowLayout {
                                 Layout.fillWidth: true
-                                selectByMouse: true
-                                placeholderText: "#000000"
-                                text: settings.toHex(settings.islandColor(slotName))
-                                onEditingFinished: settings.setIslandHex(slotName, text)
-                            }
-                            QQC2.Button {
-                                text: "Copiar"
-                                onClicked: {
-                                    activeHexField.selectAll()
-                                    activeHexField.copy()
-                                    activeHexField.deselect()
+                                spacing: 6
+                                QQC2.Label {
+                                    text: "Color " + (index + 1)
+                                    color: "white"
+                                    Layout.preferredWidth: 55
+                                }
+                                QQC2.ComboBox {
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    model: ["Manual"].concat(settings.sampledColors.map(
+                                        function(x, i) { return "Tono " + (i + 1) }))
+                                    currentIndex: settings.selectedSampleIndex(slotName)
+                                    onActivated: function(i) {
+                                        if (i > 0) settings.chooseSampledColor(i - 1, slotName)
+                                    }
+                                }
+                                Rectangle {
+                                    width: 26; height: 25; radius: 4
+                                    color: settings.islandColor(slotName)
                                 }
                             }
-                            QQC2.Button {
-                                text: "Editar"
-                                onClicked: {
-                                    activeGradientColorDialog.targetIsland =
-                                        appearanceTarget.currentIndex
-                                    activeGradientColorDialog.slotName = slotName
-                                    activeGradientColorDialog.selectedColor =
-                                        settings.islandColor(slotName)
-                                    activeGradientColorDialog.open()
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 5
+                                QQC2.TextField {
+                                    id: activeHexField
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    selectByMouse: true
+                                    placeholderText: "#000000"
+                                    text: settings.toHex(settings.islandColor(slotName))
+                                    onEditingFinished: settings.setIslandHex(slotName, text)
+                                }
+                                QQC2.Button {
+                                    text: "Copiar"
+                                    onClicked: {
+                                        activeHexField.selectAll()
+                                        activeHexField.copy()
+                                        activeHexField.deselect()
+                                    }
+                                }
+                                QQC2.Button {
+                                    text: "Editar"
+                                    onClicked: {
+                                        activeGradientColorDialog.targetIsland =
+                                            appearanceTarget.currentIndex
+                                        activeGradientColorDialog.slotName = slotName
+                                        activeGradientColorDialog.selectedColor =
+                                            settings.islandColor(slotName)
+                                        activeGradientColorDialog.open()
+                                    }
                                 }
                             }
                         }
