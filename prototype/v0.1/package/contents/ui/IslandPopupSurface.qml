@@ -6,6 +6,8 @@ Item {
     id: surface
     property color baseColor: "#010111"
     property color endColor: "#ee9852"
+    property color thirdColor: "#ee9852"
+    property int gradientColorCount: 2
     property bool gradientEnabled: false
     property string gradientDirection: "topBottom"
     property real baseOpacity: 1
@@ -20,6 +22,7 @@ Item {
         ? 1 + (1 - Math.max(0, Math.min(1, breathingFactor))) * 0.24 : 1
     readonly property color visibleBaseColor: Qt.lighter(baseColor, effectiveBrightness)
     readonly property color visibleEndColor: Qt.lighter(endColor, effectiveBrightness)
+    readonly property color visibleThirdColor: Qt.lighter(thirdColor, effectiveBrightness)
     property color outlineColor: "#4e8499"
     property real outlineOpacity: 1
     property real outlineWidth: 1
@@ -40,24 +43,40 @@ Item {
             gradient: Gradient {
                 orientation: surface.gradientDirection === "leftRight" ||
                              surface.gradientDirection === "rightLeft"
-                             ? Gradient.Horizontal : Gradient.Vertical
+                    ? Gradient.Horizontal : Gradient.Vertical
                 GradientStop {
                     position: 0
-                    color: surface.gradientDirection === "bottomTop" ||
-                           surface.gradientDirection === "rightLeft"
-                        ? Qt.rgba(surface.visibleEndColor.r, surface.visibleEndColor.g,
-                                  surface.visibleEndColor.b, surface.effectiveAlpha)
-                        : Qt.rgba(surface.visibleBaseColor.r, surface.visibleBaseColor.g,
-                                  surface.visibleBaseColor.b, surface.effectiveAlpha)
+                    color: {
+                        const reverse = surface.gradientDirection === "bottomTop" ||
+                                        surface.gradientDirection === "rightLeft"
+                        const col = reverse
+                            ? (surface.gradientColorCount === 3
+                               ? surface.visibleThirdColor : surface.visibleEndColor)
+                            : surface.visibleBaseColor
+                        return Qt.rgba(col.r, col.g, col.b, surface.effectiveAlpha)
+                    }
+                }
+                GradientStop {
+                    position: surface.gradientColorCount === 3 ? 0.5 : 1
+                    color: {
+                        const reverse = surface.gradientDirection === "bottomTop" ||
+                                        surface.gradientDirection === "rightLeft"
+                        const col = surface.gradientColorCount === 3
+                            ? surface.visibleEndColor
+                            : (reverse ? surface.visibleBaseColor : surface.visibleEndColor)
+                        return Qt.rgba(col.r, col.g, col.b, surface.effectiveAlpha)
+                    }
                 }
                 GradientStop {
                     position: 1
-                    color: surface.gradientDirection === "bottomTop" ||
-                           surface.gradientDirection === "rightLeft"
-                        ? Qt.rgba(surface.visibleBaseColor.r, surface.visibleBaseColor.g,
-                                  surface.visibleBaseColor.b, surface.effectiveAlpha)
-                        : Qt.rgba(surface.visibleEndColor.r, surface.visibleEndColor.g,
-                                  surface.visibleEndColor.b, surface.effectiveAlpha)
+                    color: {
+                        const reverse = surface.gradientDirection === "bottomTop" ||
+                                        surface.gradientDirection === "rightLeft"
+                        const col = reverse ? surface.visibleBaseColor
+                            : (surface.gradientColorCount === 3
+                               ? surface.visibleThirdColor : surface.visibleEndColor)
+                        return Qt.rgba(col.r, col.g, col.b, surface.effectiveAlpha)
+                    }
                 }
             }
         }
