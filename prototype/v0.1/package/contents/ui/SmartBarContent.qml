@@ -7,6 +7,29 @@ import QtQuick.Controls as QQC2
 
 Item {
     id: root
+    focus: true // Teclas locales al enfocar el visor; no captura atajos globales KWin.
+    property bool superKeyPending: false
+    property bool soLauncherOpenOnLeftPress: false
+    property bool soLauncherOpenOnRightPress: false
+    Keys.onPressed: function(event) {
+        // Detectar Super sola, sin activarla hasta soltar: evita abrir
+        // launcher por Super+Espacio u otros atajos del escritorio.
+        if (event.key === Qt.Key_Meta && !event.isAutoRepeat &&
+                !(event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.ShiftModifier))) {
+            root.superKeyPending = true
+            event.accepted = true
+        } else if (root.superKeyPending && event.key !== Qt.Key_Meta) {
+            root.superKeyPending = false
+        }
+    }
+    Keys.onReleased: function(event) {
+        if (event.key === Qt.Key_Meta) {
+            if (root.superKeyPending)
+                root.openInstalledLauncher("so")
+            root.superKeyPending = false
+            event.accepted = true
+        }
+    }
 
     // Componente compartido: puede vivir tanto en un plasmoide de KDE
     // como en una ventana Qt de prueba. Solo dibuja islas, no banda continua.
@@ -660,12 +683,18 @@ Item {
         }
     }
 
-    function triggerSOButton(leftClick) {
+    function triggerSOButton(leftClick, wasOpenAtPress) {
         const launch = leftClick === soLeftClickOpensLauncher
-        if (launch)
-            openInstalledLauncher("so")
-        else
+        if (launch) {
+            // El estado se captura al PRESIONAR; un CloseOnPressOutside
+            // no puede transformar el mismo gesto de cierre en reapertura.
+            if (wasOpenAtPress)
+                installedAppsPopup.close()
+            else
+                openInstalledLauncher("so")
+        } else {
             toggleOpenWindowsFromSO()
+        }
     }
 
     function toggleSO() { toggleOpenWindowsFromSO() }
@@ -679,7 +708,10 @@ Item {
         sequence: "Meta+Space"
         context: Qt.WindowShortcut
         enabled: root.launcherIslandVisible && !root.autoRevealBlocked
-        onActivated: malvinaSearch.focusSearch()
+        onActivated: {
+            root.superKeyPending = false
+            malvinaSearch.focusSearch()
+        }
     }
     function openInstalledLauncher(source) {
         const requestedSource = source === "malvina" ? "malvina" : "so"
@@ -1103,6 +1135,7 @@ Item {
         malvinaVisible: root.launcherIslandVisible
         installedApplications: root.localAppCatalog
         catalogIsReal: root.localCatalogReady
+        triggerButtonHovered: root.installedLauncherSource === "so" && soButton.hovered
         onRequestShowMalvina: {
             root.setLauncherIslandVisible(true)
             installedAppsPopup.close()
@@ -1788,6 +1821,8 @@ Item {
                     onPressed: {
                         root.soTooltipSuppressed = true
                         root.soHoldTriggered = false
+                        root.soLauncherOpenOnLeftPress = installedAppsPopup.visible &&
+                            root.installedLauncherSource === "so"
                         soHoldTimer.restart()
                     }
                     onHoveredChanged: {
@@ -1798,8 +1833,9 @@ Item {
                     onClicked: {
                         soHoldTimer.stop()
                         if (!root.soHoldTriggered) {
-                            root.triggerSOButton(true)
+                            root.triggerSOButton(true, root.soLauncherOpenOnLeftPress)
                         }
+                        root.soLauncherOpenOnLeftPress = false
                         root.soHoldTriggered = false
                     }
                     Timer {
@@ -1826,8 +1862,15 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton
-                        onPressed: root.soTooltipSuppressed = true
-                        onClicked: root.triggerSOButton(false)
+                        onPressed: {
+                            root.soTooltipSuppressed = true
+                            root.soLauncherOpenOnRightPress = installedAppsPopup.visible &&
+                                root.installedLauncherSource === "so"
+                        }
+                        onClicked: {
+                            root.triggerSOButton(false, root.soLauncherOpenOnRightPress)
+                            root.soLauncherOpenOnRightPress = false
+                        }
                     }
 
                     QQC2.ToolTip.visible: hovered && !root.soTooltipSuppressed &&
