@@ -89,6 +89,8 @@ Item {
     property string themeDayPreviousJson: ""
     property string themeNightJson: ""
     property string themeCustomJson: ""
+    // Lista ampliable de temas personales guardados por el usuario.
+    property string themeLibraryJson: "[]"
     signal requestThemeSlotChange(string slot, string jsonData)
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
@@ -868,6 +870,7 @@ Item {
             soledadSettings.themeDayPreviousJson = root.themeDayPreviousJson
             soledadSettings.themeNightJson = root.themeNightJson
             soledadSettings.themeCustomJson = root.themeCustomJson
+            soledadSettings.themeLibraryJson = root.themeLibraryJson
             soledadSettings.filePath = root.soLogoPath
             soledadSettings.shape = root.soLogoShape
             soledadSettings.cropFitMode = root.soLogoFitMode
