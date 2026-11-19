@@ -16,4 +16,4 @@ El recurso binario exacto **no se ha subido a este árbol de GitHub** mediante e
 
 `SoledadSettings.qml` detecta la presencia del archivo y, al aplicar la ranura Noche guardada, usa el GIF incluido. Si el binario falta, respeta la imagen nocturna local ya guardada. La selección de imagen no borra ni cambia los colores, degradados, opacidades o permisos de los perfiles del usuario.
 
-Detalle jurídico: [Licencias de recursos gráficos](../../../../../docs/LICENCIAS_RECURSOS_GRAFICOS.md).
+Detalle jurídico: [Licencias de recursos gráficos](../../../../../../docs/LICENCIAS_RECURSOS_GRAFICOS.md).
