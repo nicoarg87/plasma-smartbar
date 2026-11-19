@@ -472,3 +472,12 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Registrar prueba positiva del mantenedor: confirmación de mostrar/ocultar Malvina por 1 s desde menú de los seis puntos.
 - [ ] Verificar en CachyOS que A no desplace el cursor fuera de las aplicaciones, que B conserve posición sin sobresalir, que archivos se filtren correctamente y que scroll/colores/gradiente/contorno/respiración y preferencia tras reiniciar funcionen.
 - [ ] Integrar búsqueda global de archivos y ejecución segura de apps en una etapa independiente con pruebas KDE/KWin; nunca inventar que el prototipo ya ejecuta o indexa todo el equipo.
+
+## Launcher: iconos, transparencia propia y ancho estable al buscar archivos — 18/11/2026
+
+- [x] Configurar opacidad del launcher heredada de Soledad por defecto, deslizador independiente solo al activar excepción; guardar en visor/KConfig.
+- [x] Configurar opacidad del panel Web/IA que se abre con Tab en Malvina, heredada de la isla 2 salvo excepción explícita.
+- [x] Agregar iconos de categorías del tema KDE y recuperar Icon de entradas .desktop; modo ícono+nombre predeterminado o solo nombre, sin modo solo íconos.
+- [x] Al cambiar Aplicaciones → Archivos después de abrir categoría, conservar el ancho del launcher desplegado y aprovecharlo para el buscador; sin panel lateral vacío.
+- [ ] Probar CACHYOS Qt: íconos/fallback, transparencia propia, guardado al cerrar/reabrir, inspiración visual de ambas islas y cambio de modo con tamaño/anclaje sin salto.
+- [ ] Mantener búsqueda de archivos limitada a carpeta actual hasta validar búsqueda global; no ejecutar apps ni archivos de usuario en visor.
