@@ -1391,3 +1391,16 @@ node prototype/v0.1/tests/test_breathing_menu.cjs
 bash prototype/v0.1/probar_ancho.sh
 ```
 **Próximo paso:** informar resultados y eventuales logs en [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15). PR #3 sigue en borrador y no se autoriza modificar el panel instalado ni fusionar a main sin validación.
+
+
+## Implementación experimental 19/11/2026 — Isla y launcher; respiración SO desacoplable
+
+**Confirmado por el mantenedor:** renombrar menú principal a «Isla y launcher», dar acceso a posición y figura desde allí; respiración visible como primer apartado de efectos luminosos del Botón de inicio SO. Línea luminosa SO con velocidad/intensidad propia, no acoplada a fondos por defecto; ofrecer sincronización explícita de ritmo e intensidad del degradado.
+
+**Implementado en rama** `prototype/v0.1-islas-so`: [f3b77b2](https://github.com/nicoarg87/plasma-smartbar/commit/f3b77b2b3ec4c8eb3e673febdefb0ce9ecff39e4) navegación, primer apartado, slider de línea y controles de enlace/desenlace; [d99da09](https://github.com/nicoarg87/plasma-smartbar/commit/d99da094aba0680288831fbbec01652b862b024e) render de intensidad de fondo elegida o profundidad de pulso SO, sin aplicar al otro fondo; [9a99702](https://github.com/nicoarg87/plasma-smartbar/commit/9a997022d87fcc4b06b0d8272f749f754e03b568) clave en vista previa, persistencia local y autoguardado; [560e0b3](https://github.com/nicoarg87/plasma-smartbar/commit/560e0b3cf6e05c11f52691df73d305e1a60c538f) KConfig interfaz; [026da63](https://github.com/nicoarg87/plasma-smartbar/commit/026da6345ea73974d409b3bbaeb27bed48587969) clave KConfig con defecto falso; [a222be0](https://github.com/nicoarg87/plasma-smartbar/commit/a222be07888284191c4a945a8416cb32262916c5) regresión.
+
+**Nuevos valores solo si no había configuración:** estilo `breathe`, velocidad línea SO `0.3` ciclos/s, velocidad degradados propia (`GradientSyncBreathing=false`). Se respetan `appearanceV1`, favorita, predeterminada personal, temas y valores KConfig existentes; si el perfil antiguo ya tenía sincronización de ritmo activada, puede desvincularse expresamente.
+
+**Verificado estáticamente:** test de navegación/respiración PASS (139 comprobaciones); test de temas PASS (62), test de gradientes PASS (44), fuentes actuales GitHub con runner V8 y FS simulados (total 245). Balance de llaves QML 0. **No probado aún:** apertura real QML/CachyOS, fase/velocidad de línea y fondos, intensidad 0–100 %, función de sync/desvincular, persistencia de vieja estética, temas y escalado. PR #3 sigue borrador; sin instalar ni modificar panel KDE.
+
+**Prueba Fish:** `cd ~/plasma-smartbar; git switch prototype/v0.1-islas-so; git pull --ff-only; node prototype/v0.1/tests/test_breathing_menu.cjs; bash prototype/v0.1/probar_ancho.sh`. Confirmar líneas, gradiente SO y Malvina separados, luego sincronizar ritmo e intensidad en Soledad, volver a desvincular y corroborar que las preferencias sobreviven a Aplicar/reabrir. Documentar en [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
