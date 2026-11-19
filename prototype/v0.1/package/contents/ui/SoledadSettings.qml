@@ -498,6 +498,8 @@ Window {
         }
         return slot === "sunset" ? factorySunsetJson :
                slot === "night" ? factoryNightJson :
+               slot === "nightLegacy" ? themeNightJson :
+               slot === "dayPrevious" ? themeDayPreviousJson :
                slot === "day" ? themeDayJson : themeCustomJson
     }
     function storeTheme(slot) {
@@ -4607,6 +4609,41 @@ Window {
                                 }
                             }
                             RowLayout {
+                                visible: settings.themeDayPreviousJson.length > 0
+                                Layout.fillWidth: true
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    text: "Atardecer anterior · respaldo histórico"
+                                    color: "white"
+                                    wrapMode: Text.WordWrap
+                                }
+                                QQC2.Button {
+                                    text: "Usar"
+                                    onClicked: settings.activateTheme("dayPrevious")
+                                }
+                            }
+                            RowLayout {
+                                visible: settings.themeNightJson.length > 0
+                                Layout.fillWidth: true
+                                Image {
+                                    Layout.preferredWidth: 58
+                                    Layout.preferredHeight: 40
+                                    source: settings.themeImageSource(settings.themeNightJson)
+                                    visible: source.toString().length > 0
+                                    fillMode: Image.PreserveAspectFit
+                                }
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    text: "Noche guardada anteriormente"
+                                    color: "white"
+                                    wrapMode: Text.WordWrap
+                                }
+                                QQC2.Button {
+                                    text: "Usar"
+                                    onClicked: settings.activateTheme("nightLegacy")
+                                }
+                            }
+                            RowLayout {
                                 visible: settings.themeCustomJson.length > 0
                                 Layout.fillWidth: true
                                 Image {
@@ -4686,6 +4723,8 @@ Window {
                                 visible: settings.savedThemeLibrary.length === 0 &&
                                          settings.themeCustomJson.length === 0 &&
                                          settings.themeDayJson.length === 0 &&
+                                         settings.themeDayPreviousJson.length === 0 &&
+                                         settings.themeNightJson.length === 0 &&
                                          !settings.personalDefaultAvailable &&
                                          !settings.favoriteAppearanceAvailable
                                 text: "Todavía no hay temas personales guardados. Poné un nombre arriba y elegí Guardar tema."
