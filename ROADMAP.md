@@ -508,3 +508,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Obtener el **GIF nocturno correcto**, no una captura del visor; verificar origen/licencia/hash y guardar en assets sin reemplazar el GIF actual.
 - [ ] Implementar `Temas` en opciones con dos entradas, previsualización y paleta base del arte nocturno, personalizable en Soledad y Malvina, sin sobrescribir presets/favoritos.
 - [ ] Probar rendimiento/animación, gradientes, opacidad, contorno y restauración de temas en CachyOS antes de integrar en panel real.
+
+## ERR-016: fidelidad del GIF nocturno frente a contornos y degradados — 18/11/2026
+
+- [x] Diagnosticar en código y registrar [ERR-016](docs/ERRORES_COMUNES.md): derivación explícita de paleta desde contorno brillante, muestreo GIF 32×32 con luminosidad alta fija, copia Soledad→Malvina solo de fondo/degradado, respiración como modulación de opacidad y Restablecer colores con valores estáticos para ambas islas.
+- [ ] Verificar en CachyOS con el GIF nocturno real y valores guardados cuál de esos caminos produjo el celeste; conservar evidencia y no sobrescribir estética favorita.
+- [ ] Proponer para aprobación separar «paleta derivada del contorno» de «paleta extraída del GIF» y preservar luminosidad real del material nocturno, sin alterar automáticamente paletas personalizadas.
+- [ ] Consultar al mantenedor si «Restablecer colores» debe afectar la isla actual o ambas, y si debería restaurar una paleta del tema elegido, antes de modificar la función.
+- [ ] Una vez aprobados los cambios, agregar pruebas de extracción/copia/respiración/Aplicar/cerrar/reabrir y comprobar que no aparecen colores heredados del GIF anterior.
