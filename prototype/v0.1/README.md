@@ -885,3 +885,26 @@ bash prototype/v0.1/probar_ancho.sh
 **Ensayo visual:** comprobar «Isla y launcher» primero, que los accesos a posición y figura llevan a sus ajustes; entrar en Botón de inicio SO y Efectos luminosos y encontrar Brillo y respiración primero. Desactivar sincronización, mover el deslizador de velocidad de la línea SO y comprobar que el degradado mantiene su propio ritmo. Activar sincronización de ritmo e intensidad de Soledad, variar la velocidad y la intensidad de la línea SO y observar que el fondo acompaña el pulso. Desvincular, comprobar que se recuperan velocidad/intensidad propias. Ensayar Malvina independientemente, Aplicar, cerrar/reabrir y verificar los temas y favorita existentes. Preservar logs de Konsole y registrar en issue #15.
 
 **Estado:** test estático PASS en V8 (245 comprobaciones agrupadas); pendiente ejecución Node en el equipo y vista real Qt/KWin/Wayland. Metadatos KDE y código propio MIT; GIF originales de ChatGPT del botón SO dedicados CC0 1.0 según inventario de recursos.
+
+
+## Prueba de regresión de velocidad de respiración — 19/11/2026
+
+**Error reportado por el mantenedor en CachyOS:** dentro de Color y transparencia, deslizador de velocidad del degradado bloqueado (p. ej. 0,2 ciclos/s), aun con «Igualar intensidad a SO» desactivado. En Efectos luminosos del botón SO no encontraba con claridad ni podía modificar bien la velocidad/intensidad de la línea.
+
+**Arreglo en rama experimental:** [7ac071b](https://github.com/nicoarg87/plasma-smartbar/commit/7ac071bf32ad60d94cf9e7c4a091384b64d14394) coloca los controles de **Velocidad de la respiración · línea SO** y **Intensidad del pulso · línea SO** al principio de «Brillo y respiración». Los botones ± y los deslizadores son operativos aunque hubiera un efecto distinto seleccionado; al moverlos se activa respiración. La vista previa SO se refresca al modificar dichos ajustes, sin guardar hasta pulsar Aplicar. Una casilla de visibilidad permite ver la línea con ventanas abiertas; por defecto no se cambia el ajuste personal anterior.
+
+En **Color y transparencia → Respiración del fondo y los menús → Velocidad propia del degradado**, los botones ± y el deslizador siempre son accesibles: cambiar velocidad propia desactiva la sincronización de ritmo de la isla y el vínculo de intensidad opcional de Soledad, para evitar controles bloqueados. Si el ritmo sigue sincronizado aparece el valor vigente del botón SO como información, y el valor editable propio se muestra aparte. El enlace desde Efectos luminosos SO desplaza a este apartado, no a la cabecera de colores.
+
+**Repetir prueba desde Fish** (no instala nada en el sistema):
+```fish
+cd ~/plasma-smartbar
+git switch prototype/v0.1-islas-so
+git pull --ff-only
+node prototype/v0.1/tests/test_breathing_menu.cjs
+node prototype/v0.1/tests/test_theme_persistence.cjs
+node prototype/v0.1/tests/test_gradient_palette.cjs
+bash prototype/v0.1/probar_ancho.sh
+```
+En la ventana de configuración: 1) Color y transparencia → Respiración del fondo: pulsar + o mover deslizador aun si la antigua sincronización estaba activa; comprobar que el valor cambia y su estado pasa a propio. 2) Ir a botón SO → Efectos luminosos → primera sección Brillo y respiración: tocar ± de velocidad e intensidad, ver inmediatamente la vista previa y probar la casilla de ventanas abiertas si no aparece la línea. 3) Pulsar Aplicar, cerrar, reabrir, volver a comprobar velocidad de cada superficie y temas. Si no responde, copiar mensajes de Konsole y registrar en issue #15.
+
+**Verificación:** regresión V8 con JS extraído del QML y FS simulado PASS: 169 controles + 62 temas + 44 degradados = 275. **No se probó aún Qt/CachyOS en el entorno de desarrollo del asistente.** No tocar panel real ni fusionar PR #3.
