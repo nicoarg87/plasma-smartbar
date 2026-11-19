@@ -382,12 +382,11 @@ Item {
         padding: 0
         modal: false
         focus: false
-        closePolicy: QQC2.Popup.CloseOnPressOutside
-        onClosed: {
-            // Si se pulsa fuera del único campo, cerrar toda la búsqueda.
-            // No se dispara por clicks en el otro Popup de proveedores.
-            if (search.expanded) search.closeSearch()
-        }
+        // El campo y los proveedores son dos Popup hermanos. El panel Web/IA
+        // queda FUERA del rectángulo de este campo; con CloseOnPressOutside,
+        // seleccionar Google/ChatGPT cerraba la búsqueda antes del onClicked.
+        // Las opciones gestionan el clic exterior para ambos.
+        closePolicy: QQC2.Popup.NoAutoClose
         background: Rectangle {
             radius: search.islandShape === "square" ? 0 :
                     search.islandShape === "capsule" ? height / 2 :
@@ -519,8 +518,8 @@ Item {
         padding: 8
         modal: false
         focus: false
-        // El campo crece fuera de los 34 px nominales; no confundir sus clics
-        // con clics exteriores al Popup. El detector de la barra gestiona el cierre.
+        // Mantener el cierre exterior/ESC en el panel de opciones, NO en
+        // el campo: sus coordenadas son distintas y deben poder coexistir.
         closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
         onClosed: {
             if (search.suppressPopupDismissal) {
