@@ -1308,9 +1308,9 @@ Item {
                 islandRadius: root.malvinaRadius
                 islandColor: root.malvinaColor
                 islandOpacity: root.malvinaOpacity * root.malvinaGradientBreathingFactor
-                optionsPanelOpacity: (root.malvinaOptionsOpacityOverride
-                    ? root.malvinaOptionsOpacity : root.malvinaOpacity) *
-                    root.malvinaGradientBreathingFactor
+                optionsPanelOpacity: root.malvinaOptionsOpacityOverride
+                    ? root.malvinaOptionsOpacity : root.malvinaOpacity
+                optionsPanelBreathingFactor: root.malvinaGradientBreathingFactor
                 islandGradientEnabled: root.malvinaGradientEnabled
                 islandGradientEnd: root.malvinaGradientEnd
                 islandGradientDirection: root.malvinaGradientDirection
