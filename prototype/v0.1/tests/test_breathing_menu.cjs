@@ -83,7 +83,7 @@ for (const island of ["soledad", "malvina"]) {
 assert(ui.includes('property int outlineSection: 2'));
 assert(ui.includes('model: ["Brillo y respiración", "Estados y color", "Luz móvil"]'));
 assert(ui.includes('settings.outlineSection = [2,0,1][index]'));
-assert(ui.includes('text: "Velocidad de la línea luminosa SO"'));
+assert(ui.includes('text: "VELOCIDAD DE LA RESPIRACIÓN · LÍNEA SO"'));
 assert(ui.includes('text: "Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)"'));
 assert(ui.includes('text: "Desvincular degradado: usar velocidad e intensidad propias"'));
 assert(ui.includes('text: "Igualar intensidad a la línea luminosa SO (también sincroniza ritmo)"'));
