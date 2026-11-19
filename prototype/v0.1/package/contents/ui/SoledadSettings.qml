@@ -4403,10 +4403,9 @@ Window {
                         color: "white"
                     }
                     QQC2.Label {
-                        text: "Elegí Atardecer, Noche o Personalizado. " +
-                              "Cada tema conserva la imagen SO, los colores, los degradados " +
-                              "y los contornos; Malvina conserva ajustes independientes " +
-                              "después de aplicar un tema."
+                        text: "Noche de fábrica recupera siempre su aspecto original, sin sobrescribirlo. " +
+                              "Atardecer y Personalizado mantienen sus propias copias. " +
+                              "La miniatura de cada tema debe corresponder a su imagen guardada."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -4449,7 +4448,7 @@ Window {
                         }
                     }
                     QQC2.Label {
-                        text: "Mis temas guardados"
+                        text: "Temas disponibles"
                         color: "white"; font.bold: true
                     }
                     RowLayout {
