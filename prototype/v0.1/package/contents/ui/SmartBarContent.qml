@@ -954,9 +954,14 @@ Item {
             soledadSettings.currentTab = tabIndex
             soledadSettings.refreshOutlinePreview()
         }
-        if (islandSubtabIndex !== undefined)
-            soledadSettings.currentIslandSubtab = islandSubtabIndex
-        soledadSettings.currentTab = tabIndex
+        // Engranaje SO → portada Temas; engranaje Malvina → sus buscadores.
+        // Nunca reutilizar la pestaña de otra isla que quedó abierta antes.
+        if (islandSubtabIndex === 2)
+            soledadSettings.showMalvinaProviders()
+        else if (tabIndex === 0)
+            soledadSettings.showThemes()
+        else
+            soledadSettings.currentTab = tabIndex
         soledadSettings.show()
         soledadSettings.raise()
         soledadSettings.requestActivate()
