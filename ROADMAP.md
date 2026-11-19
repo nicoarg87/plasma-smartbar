@@ -558,3 +558,14 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Ejecutar Node y visor Qt en CachyOS; aplicar/restaurar Atardecer y Noche; comparar colores, dirección y respiración de ambas islas, miniaturas, favorita, predeterminada y reinicio.
 - [ ] Capturar con acción explícita del usuario la favorita local recién guardada como nuevo Atardecer; nunca inventar ni publicar sus valores de configuración.
 - [ ] Estudiar tema **Día claro** como opción futura, separado de Atardecer y Noche, previa confirmación funcional del mantenedor y sin generar imagen ahora.
+
+
+## Paleta visual explícita desde GIF — 19/11/2026
+
+- [x] Sustituir el algoritmo anterior de sugerencias escondidas por extracción local de hasta tres tonos cromáticos frecuentes de un fotograma, bajo demanda.
+- [x] Editor de cada tono con HEX de seis dígitos, copia al portapapeles y diálogo cromático.
+- [x] Asignar cualquier tono al color 1/base o color 2/final de Soledad/Malvina, conservando la independencia por isla.
+- [x] Mantener control existente de activación del degradado y cuatro orientaciones, sin paleta forzada ni modificación automática del contorno SO.
+- [x] Quitar del flujo de creación de tema la aplicación automática de colores a ambas islas; analizar, elegir y Aplicar es explícito.
+- [x] Agregar prueba estática `prototype/v0.1/tests/test_palette_extractor.cjs`.
+- [ ] Ejecutar test Node y QML en CachyOS, comprobar RGB de GIF real, copiar/pegar HEX, selección, ColorDialog, transparencia y respiración, 4 orientaciones, persistencia y no alterar Atardecer/Noche/Favorita. Ver [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
