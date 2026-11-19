@@ -97,13 +97,23 @@ Window {
         factoryNightPreset !== null && factoryNightPreset !== undefined &&
         factoryNightPreset.version === 1 &&
         (factoryNightPreset.logoMode === "text" ||
-         (factoryNightPreset.assetFile && factoryNightProbe.status === Image.Ready))
+         (factoryNightPreset.assetFile && factoryNightProbe.status === Image.Ready)) &&
+        (!factoryNightPreset.assetTextFile ||
+         factoryNightTextProbe.status === Image.Ready)
     Image {
         id: factoryNightProbe
         visible: false
         asynchronous: false
         cache: true
         source: settings.factoryNightImage
+    }
+    Image {
+        id: factoryNightTextProbe
+        visible: false
+        asynchronous: false
+        cache: true
+        source: factoryNightPreset && factoryNightPreset.assetTextFile
+            ? Qt.resolvedUrl("assets/" + factoryNightPreset.assetTextFile) : ""
     }
     readonly property string factoryNightJson:
         factoryNightAvailable ? JSON.stringify(factoryNightPreset) : ""
@@ -113,7 +123,6 @@ Window {
         id: factoryNightExportDialog
         title: "Copiar apariencia exacta para Noche de fábrica"
         modal: true
-        parent: QQC2.Overlay.overlay
         width: Math.min(740, settings.width - 80)
         height: Math.min(560, settings.height - 90)
         standardButtons: QQC2.Dialog.Close
