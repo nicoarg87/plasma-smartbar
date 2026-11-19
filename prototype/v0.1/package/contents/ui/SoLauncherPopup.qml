@@ -82,7 +82,8 @@ QQC2.Popup {
     padding: 9
     modal: false
     focus: true
-    closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+    // Qt distingue clic dentro del launcher de clic fuera, incluso con panel lateral.
+    closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
     signal requestShowMalvina()
     signal appSelected(string name, bool realCatalog)
     function categoryOptions() {
