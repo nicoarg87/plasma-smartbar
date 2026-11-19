@@ -32,6 +32,7 @@ Window {
     property var lastAppliedSettings: ({})
     property var pendingThemeChanges: ({})
     property bool baselineLoaded: false
+    property string pendingAlignAction: ""
     function preferenceCopy(key, value) {
         if (value === undefined || value === null) return value
         if (editableColorKeys.indexOf(key) !== -1) return String(value)
@@ -47,6 +48,7 @@ Window {
         lastAppliedSettings = snapshot
         baselineLoaded = true
         pendingThemeChanges = ({})
+        pendingAlignAction = ""
     }
     function stageThemeSlot(slot, data) {
         const next = JSON.parse(JSON.stringify(pendingThemeChanges))
@@ -61,6 +63,7 @@ Window {
                 settings[key] = preferenceCopy(key, lastAppliedSettings[key])
         }
         pendingThemeChanges = ({})
+        pendingAlignAction = ""
         alignmentEdited = false
         baselineLoaded = false
         refreshOutlinePreview()
@@ -1089,6 +1092,8 @@ Window {
             if (pendingThemeChanges[slot] !== undefined)
                 saveThemeSlotRequested(slot, pendingThemeChanges[slot])
         }
+        if (pendingAlignAction === "center") alignCenterNowRequested()
+        else if (pendingAlignAction === "right") alignNowRequested()
         settingsApplied()
         const before = lastAppliedSettings
         captureSettingsBaseline()
@@ -1683,6 +1688,7 @@ Window {
                         text: "Centrar isla 1 al aplicar"
                         onClicked: {
                             settings.positionMode = "center"
+                            settings.pendingAlignAction = "center"
                             settings.alignmentEdited = true
                         }
                     }
@@ -1712,6 +1718,7 @@ Window {
                         onClicked: {
                             settings.positionMode = "right"
                             settings.alignedRight = true
+                            settings.pendingAlignAction = "right"
                             settings.alignmentEdited = true
                         }
                     }
@@ -2665,6 +2672,7 @@ Window {
                         // Debajo de TODOS los controles del logo aparecen los efectos.
             // Efectos luminosos en la misma página, debajo de logo/texto/reloj.
             ColumnLayout {
+                Layout.fillWidth: true
                 spacing: 8
                 QQC2.Label { id: soLightSectionTitle; text: "Efectos luminosos del botón SO"; color: "white"; font.bold: true }
                     Rectangle {
