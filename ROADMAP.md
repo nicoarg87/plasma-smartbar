@@ -526,3 +526,15 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Documentar el diagnóstico/corrección en `docs/ERRORES_COMUNES.md` ERR-016 y mantener intacto el panel KDE existente.
 - [ ] PROBAR con el GIF nocturno real en CachyOS: tonos propuestos, Aplicar y reabrir, contorno celeste separado, respiración, copiar a Malvina, restablecer Soledad sin afectar Malvina y viceversa. Si falla, registrar Konsole y captura.
 - [ ] Validar más adelante muestras de varios cuadros GIF si el muestreo de uno solo no representa adecuadamente su paleta, sin modificar ni redistribuir el recurso privado del mantenedor.
+
+## Temas y reorganización integral del centro de configuración — 18/11/2026
+
+- [x] Apartado principal **Temas** con vista previa/miniatura del logo SO y botón que abre la personalización del logo.
+- [x] Ranuras Día/Noche/Personalizado con guardado/aplicación explícitos de logo y estética de ambas islas, separadas de favoritos y predeterminada personal.
+- [x] Opción «Crear automáticamente desde el logo SO»: extraer tonos de la imagen/GIF local e iniciar un estilo editable para Soledad y Malvina, conservando la iluminación del contorno.
+- [x] Menú lateral plegable Temas/Soledad/Malvina/General con entradas separadas y degradado claramente visible en cada isla.
+- [x] Ocultar el selector de isla cruzado dentro de Soledad/Malvina; limitar el selector compartido a fondo/bandeja/agarre; mover copiar paleta SO→Malvina a General.
+- [x] Mostrar figura/tamaño exclusivos por isla, altura general y botones comunes en General, sin eliminar funciones existentes.
+- [x] Guardar tres temas en KConfig/Qt Settings sin afectar las otras ranuras ni favoritos personales.
+- [ ] PROBAR EN CACHYOS: carga QML, desplegables de menú, color/degradado, saltos entre páginas, miniatura GIF, Día/Noche/Personalizado, creación automática, Aplicar/reapertura y persistencia de favoritos.
+- [ ] Posterior: incorporar GIF nocturno con derechos y SHA si se autoriza distribuirlo; las ranuras hoy usan ruta local del archivo elegido por el mantenedor.
