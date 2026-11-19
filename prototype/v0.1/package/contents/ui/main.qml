@@ -189,9 +189,13 @@ PlasmoidItem {
         soledadGradientColorCount: Plasmoid.configuration.soledadGradientColorCount
         soledadGradientDirection: Plasmoid.configuration.soledadGradientDirection
         soledadGradientSyncBreathing: Plasmoid.configuration.soledadGradientSyncBreathing
+        soledadGradientBreathingEnabled: Plasmoid.configuration.soledadGradientBreathingEnabled
         soledadGradientBreathingIntensity: Plasmoid.configuration.soledadGradientBreathingIntensity
+        soledadGradientBreathingSpeed: Plasmoid.configuration.soledadGradientBreathingSpeed
         malvinaGradientSyncBreathing: Plasmoid.configuration.malvinaGradientSyncBreathing
+        malvinaGradientBreathingEnabled: Plasmoid.configuration.malvinaGradientBreathingEnabled
         malvinaGradientBreathingIntensity: Plasmoid.configuration.malvinaGradientBreathingIntensity
+        malvinaGradientBreathingSpeed: Plasmoid.configuration.malvinaGradientBreathingSpeed
         malvinaGradientEnabled: Plasmoid.configuration.malvinaGradientEnabled
         malvinaGradientEnd: Plasmoid.configuration.malvinaGradientEnd
         malvinaGradientThird: Plasmoid.configuration.malvinaGradientThird
@@ -282,13 +286,17 @@ PlasmoidItem {
             Plasmoid.configuration.gripShape = gripButtonShape
             Plasmoid.configuration.trayButtonShape = trayShape
         }
-        onRequestGradientBreathingChange: function(enabled, intensity) {
-            Plasmoid.configuration.soledadGradientSyncBreathing = enabled
+        onRequestGradientBreathingChange: function(sync, intensity, active, speed) {
+            Plasmoid.configuration.soledadGradientSyncBreathing = sync
             Plasmoid.configuration.soledadGradientBreathingIntensity = intensity
+            Plasmoid.configuration.soledadGradientBreathingEnabled = active
+            Plasmoid.configuration.soledadGradientBreathingSpeed = speed
         }
-        onRequestMalvinaGradientBreathingChange: function(enabled, intensity) {
-            Plasmoid.configuration.malvinaGradientSyncBreathing = enabled
+        onRequestMalvinaGradientBreathingChange: function(sync, intensity, active, speed) {
+            Plasmoid.configuration.malvinaGradientSyncBreathing = sync
             Plasmoid.configuration.malvinaGradientBreathingIntensity = intensity
+            Plasmoid.configuration.malvinaGradientBreathingEnabled = active
+            Plasmoid.configuration.malvinaGradientBreathingSpeed = speed
         }
         onRequestIslandGradientChange: function(a, b, c, d, e, f, g, h, i, j) {
             Plasmoid.configuration.soledadGradientEnabled = a
