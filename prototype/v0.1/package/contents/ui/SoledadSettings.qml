@@ -28,7 +28,7 @@ Window {
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
     property int geometrySection: 0
     property int logoSection: 0
-    property int outlineSection: 0
+    property int outlineSection: 2
     property int appearanceSection: 0
     // El menú lateral decide el destino. Dentro de Soledad o Malvina no
     // existe selector para saltar a controles de la otra isla.
@@ -134,7 +134,7 @@ Window {
     // otra isla; los controles compartidos se encuentran en General.
     function showThemes() { navigationGroup = "themes"; currentTab = 4 }
     function showSoledadLogo() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
-    function showSoledadEffects() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 0 }
+    function showSoledadEffects() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 2 }
     function showSoledadGlowBreathing() {
         navigationGroup = "soledad"
         currentTab = 1
@@ -204,6 +204,7 @@ Window {
             soledadGradientColorCount: soledadGradientColorCount,
             soledadGradientDirection: soledadGradientDirection,
             soledadGradientSyncBreathing: soledadGradientSyncBreathing,
+            soledadGradientSyncIntensity: soledadGradientSyncIntensity,
             soledadGradientBreathingEnabled: soledadGradientBreathingEnabled,
             soledadGradientBreathingSpeed: soledadGradientBreathingSpeed,
             soledadGradientBreathingIntensity: soledadGradientBreathingIntensity,
@@ -322,7 +323,8 @@ Window {
                 "soledadColor","soledadOpacity","soledadGradientEnabled",
                 "soledadGradientEnd","soledadGradientThird",
                 "soledadGradientColorCount","soledadGradientDirection",
-                "soledadGradientSyncBreathing","soledadGradientBreathingEnabled",
+                "soledadGradientSyncBreathing","soledadGradientSyncIntensity",
+                "soledadGradientBreathingEnabled",
                 "soledadGradientBreathingSpeed","soledadGradientBreathingIntensity",
                 "malvinaColor","malvinaOpacity","malvinaGradientEnabled",
                 "malvinaGradientEnd","malvinaGradientThird",
@@ -469,11 +471,13 @@ Window {
     // Ajustes de respiración propios de cada isla. La sincronización toma
     // velocidad y fase de SO; fuera de ella cada isla usa su velocidad local.
     property bool soledadGradientBreathingEnabled: true
-    property bool soledadGradientSyncBreathing: true
+    property bool soledadGradientSyncBreathing: false
+    // La intensidad de fondo solo sigue al contorno por elección expresa.
+    property bool soledadGradientSyncIntensity: false
     property real soledadGradientBreathingIntensity: 0.6
     property real soledadGradientBreathingSpeed: 0.6
     property bool malvinaGradientBreathingEnabled: true
-    property bool malvinaGradientSyncBreathing: true
+    property bool malvinaGradientSyncBreathing: false
     property real malvinaGradientBreathingIntensity: 0.6
     property real malvinaGradientBreathingSpeed: 0.6
     property bool malvinaGradientEnabled: false
@@ -526,7 +530,7 @@ Window {
         }
     }
 
-    property string effectStyle: "orbit"
+    property string effectStyle: "breathe"
     property color accentColor: "#35d7ff"
     property real strokeSize: 0.75
     property bool allowMotion: true
@@ -535,7 +539,7 @@ Window {
     property color glowColor: "#ffab52"
     property real glowIntensity: 0.7
     property real glowSpread: 5
-    property real pulseSpeed: 0.6
+    property real pulseSpeed: 0.3
     property real pulseDepth: 0.7
     property bool glowGradient: true
     property int trailPercent: 75 // porcentaje del perímetro
@@ -678,7 +682,8 @@ Window {
             soledadGradientEnabled = false
             soledadGradientDirection = "topBottom"
             soledadGradientBreathingEnabled = true
-            soledadGradientSyncBreathing = true
+            soledadGradientSyncBreathing = false
+            soledadGradientSyncIntensity = false
             soledadGradientBreathingIntensity = 0.6
             soledadGradientBreathingSpeed = 0.6
             soledadOpacity = 0.5
@@ -693,7 +698,7 @@ Window {
             malvinaGradientEnabled = false
             malvinaGradientDirection = "topBottom"
             malvinaGradientBreathingEnabled = true
-            malvinaGradientSyncBreathing = true
+            malvinaGradientSyncBreathing = false
             malvinaGradientBreathingIntensity = 0.6
             malvinaGradientBreathingSpeed = 0.6
             malvinaOpacity = 1
@@ -804,7 +809,7 @@ Window {
     }
     signal saveOutlineRequested(var updated)
     signal saveGradientBreathingRequested(bool synchronizedWithSO, real intensity,
-                                         bool breathingEnabled, real speed)
+                                         bool breathingEnabled, real speed, bool syncIntensity)
     signal saveMalvinaGradientBreathingRequested(bool synchronizedWithSO, real intensity,
                                                 bool breathingEnabled, real speed)
     signal saveIslandGradientRequested(bool soEnabled, string soEnd, string soDirection,
@@ -912,7 +917,8 @@ Window {
         saveGradientBreathingRequested(soledadGradientSyncBreathing,
                                       soledadGradientBreathingIntensity,
                                       soledadGradientBreathingEnabled,
-                                      soledadGradientBreathingSpeed)
+                                      soledadGradientBreathingSpeed,
+                                      soledadGradientSyncIntensity)
         saveMalvinaGradientBreathingRequested(malvinaGradientSyncBreathing,
                                               malvinaGradientBreathingIntensity,
                                               malvinaGradientBreathingEnabled,
@@ -1281,7 +1287,7 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
-                        text: "Launcher y botón SO"
+                        text: "Isla y launcher"
                         highlighted: settings.currentTab === 0 &&
                                      islandSubtabs.currentIndex === 1 &&
                                      settings.behaviorScope === "soledad"
@@ -1861,6 +1867,21 @@ Window {
                         visible: settings.behaviorScope === "soledad"
                         Layout.fillWidth: true
                         spacing: 12
+                    QQC2.Label {
+                        text: "Isla y launcher · Soledad"
+                        font.bold: true
+                        color: "white"
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Posición de la isla en la barra…"
+                        onClicked: settings.showSharedLayout()
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Figura y tamaño de la isla Soledad…"
+                        onClicked: settings.showSoledadShape()
+                    }
                     QQC2.Label {
                         text: "Acciones del botón SO"
                         font.bold: true
@@ -2607,14 +2628,14 @@ Window {
                         Layout.fillWidth: true
                         spacing: 6
                         Repeater {
-                            model: ["Estados y color", "Luz móvil", "Brillo y respiración"]
+                            model: ["Brillo y respiración", "Estados y color", "Luz móvil"]
                             delegate: QQC2.Button {
                                 required property int index
                                 required property string modelData
                                 Layout.fillWidth: true
                                 text: modelData
-                                highlighted: settings.outlineSection === index
-                                onClicked: { settings.outlineSection = index; outlineScroll.contentItem.contentY = 0 }
+                                highlighted: settings.outlineSection === [2,0,1][index]
+                                onClicked: { settings.outlineSection = [2,0,1][index]; outlineScroll.contentItem.contentY = 0 }
                             }
                         }
                     }
@@ -2815,9 +2836,39 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "Configurá brillo exterior, fuerza del pulso y duración " +
-                              "de cada ciclo. Este brillo es independiente de los colores " +
-                              "del degradado de las islas."
+                        text: "La línea luminosa del botón SO tiene velocidad e intensidad propias. " +
+                              "Los degradados de Soledad y Malvina mantienen su ritmo salvo que " +
+                              "elijas sincronizarlos expresamente."
+                    }
+                    QQC2.CheckBox {
+                        Layout.fillWidth: true
+                        text: "Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)"
+                        checked: settings.soledadGradientSyncBreathing &&
+                                 settings.soledadGradientSyncIntensity
+                        onToggled: {
+                            settings.soledadGradientSyncBreathing = checked
+                            settings.soledadGradientSyncIntensity = checked
+                        }
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        visible: settings.soledadGradientSyncBreathing ||
+                                 settings.soledadGradientSyncIntensity
+                        text: "Desvincular degradado: usar velocidad e intensidad propias"
+                        onClicked: {
+                            settings.soledadGradientSyncBreathing = false
+                            settings.soledadGradientSyncIntensity = false
+                        }
+                    }
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#bbd8f2"
+                        text: settings.soledadGradientSyncBreathing
+                            ? (settings.soledadGradientSyncIntensity
+                               ? "Soledad sigue el ritmo y la intensidad del contorno SO."
+                               : "Soledad comparte el ritmo (ajuste anterior); su intensidad sigue siendo independiente.")
+                            : "El ritmo del degradado Soledad es independiente. Mover la velocidad de la línea SO no lo cambia."
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
@@ -2953,7 +3004,7 @@ Window {
                         QQC2.ToolTip.text: "Abrir los colores, el degradado y su velocidad en Soledad. La iluminación del botón SO es independiente."
                     }
                     QQC2.Label {
-                        text: "Velocidad de respiración"
+                        text: "Velocidad de la línea luminosa SO"
                         color: "white"
                         visible: settings.effectStyle === "breathe" && settings.allowMotion
                     }
@@ -2997,7 +3048,7 @@ Window {
                               "Menos milisegundos significa una respiración más rápida."
                     }
                     QQC2.Label {
-                        text: "Intensidad del pulso de luz (0–100 %)"
+                        text: "Intensidad del pulso de la línea SO (0–100 %)"
                         color: "white"
                         visible: settings.effectStyle === "breathe" && settings.allowMotion
                     }
@@ -3020,7 +3071,7 @@ Window {
                     QQC2.Button {
                         text: "Restablecer contorno"
                         onClicked: {
-                            settings.effectStyle = "orbit"
+                            settings.effectStyle = "breathe"
                             settings.accentColor = "#35d7ff"
                             settings.strokeSize = 0.75
                             settings.allowMotion = true
@@ -3030,7 +3081,7 @@ Window {
                             settings.glowColor = "#ffab52"
                             settings.glowIntensity = 0.7
                             settings.glowSpread = 5
-                            settings.pulseSpeed = 0.6
+                            settings.pulseSpeed = 0.3
                             settings.pulseDepth = 0.7
                             settings.glowGradient = true
                             settings.showOutlineWhenEmpty = true
@@ -3612,7 +3663,7 @@ Window {
                         enabled: appearanceTarget.currentIndex === 0
                             ? settings.soledadGradientBreathingEnabled
                             : settings.malvinaGradientBreathingEnabled
-                        text: "Sincronizar velocidad y ritmo con el botón SO (predeterminado)"
+                        text: "Sincronizar velocidad y ritmo con la línea SO"
                         checked: appearanceTarget.currentIndex === 0
                             ? settings.soledadGradientSyncBreathing
                             : settings.malvinaGradientSyncBreathing
@@ -3630,24 +3681,36 @@ Window {
                         text: (appearanceTarget.currentIndex === 0
                                ? settings.soledadGradientSyncBreathing
                                : settings.malvinaGradientSyncBreathing)
-                            ? "Las islas pueden compartir la fase y la velocidad de la luz SO; " +
-                              "cada isla conserva su intensidad. Para ver pulsar el contorno, " +
-                              "seleccioná Efectos luminosos dentro de Botón de inicio SO."
-                            : "Respiración independiente: esta isla usa su propia velocidad " +
-                              "sin cambiar la luz del botón SO ni la otra isla."
+                            ? "El fondo comparte fase y velocidad con la línea SO. " +
+                              "La intensidad solo se iguala en Soledad si activás la opción siguiente."
+                            : "El degradado usa su propia velocidad: cambiar la velocidad de " +
+                              "la línea luminosa SO no lo modifica."
+                    }
+                    QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex === 0
+                        Layout.fillWidth: true
+                        text: "Igualar intensidad a la línea luminosa SO (también sincroniza ritmo)"
+                        enabled: settings.soledadGradientBreathingEnabled
+                        checked: settings.soledadGradientSyncIntensity
+                        onToggled: {
+                            settings.soledadGradientSyncIntensity = checked
+                            if (checked) settings.soledadGradientSyncBreathing = true
+                        }
                     }
                     RowLayout {
                         visible: appearanceTarget.currentIndex <= 1
                         Layout.fillWidth: true
-                        enabled: appearanceTarget.currentIndex === 0
-                            ? settings.soledadGradientBreathingEnabled
-                            : settings.malvinaGradientBreathingEnabled
+                        enabled: (appearanceTarget.currentIndex === 0
+                            ? settings.soledadGradientBreathingEnabled &&
+                              !settings.soledadGradientSyncIntensity
+                            : settings.malvinaGradientBreathingEnabled)
                         QQC2.Label { text: "Intensidad"; color: "white" }
                         QQC2.Slider {
                             Layout.fillWidth: true
                             from: 0; to: 1; stepSize: 0.05
                             value: appearanceTarget.currentIndex === 0
-                                ? settings.soledadGradientBreathingIntensity
+                                ? (settings.soledadGradientSyncIntensity
+                                    ? settings.pulseDepth : settings.soledadGradientBreathingIntensity)
                                 : settings.malvinaGradientBreathingIntensity
                             onMoved: {
                                 if (appearanceTarget.currentIndex === 0)
@@ -3657,7 +3720,8 @@ Window {
                         }
                         QQC2.Label {
                             text: Math.round((appearanceTarget.currentIndex === 0
-                                ? settings.soledadGradientBreathingIntensity
+                                ? (settings.soledadGradientSyncIntensity
+                                    ? settings.pulseDepth : settings.soledadGradientBreathingIntensity)
                                 : settings.malvinaGradientBreathingIntensity) * 100) + "%"
                             color: "white"
                             Layout.preferredWidth: 42
