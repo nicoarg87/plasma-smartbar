@@ -53,9 +53,17 @@ for (const field of [
 assert.doesNotMatch(activate, /applyBeachDayPalette|synchronizeIslandPalette/);
 assert.match(activate, /applyChanges\(\)/);
 assert.match(block(settings, "updateSunsetFromCurrent"),
-             /saveThemeSlotRequested\("dayPrevious"/);
+             /stageThemeSlot\("dayPrevious"/);
 assert.match(block(settings, "restorePreviousSunset"),
-             /saveThemeSlotRequested\("day"/);
+             /stageThemeSlot\("day"/);
+assert.match(block(settings, "storeTheme"), /stageThemeSlot\(slot, data\)/);
+assert.doesNotMatch(block(settings, "storeTheme"), /saveThemeSlotRequested/);
+assert.match(block(settings, "applyChanges"),
+             /saveThemeSlotRequested\(slot, pendingThemeChanges\[slot\]\)/);
+assert.match(block(settings, "discardPendingEdits"),
+             /pendingThemeChanges = \(\{\}\)/);
+assert.match(block(settings, "captureSettingsBaseline"),
+             /pendingThemeChanges = \(\{\}\)/);
 assert.match(settings, /text: "Aplicar Atardecer"/);
 assert.match(settings, /updateSunsetConfirmation\.open\(\)/);
 for (const s of [settings, preview, root, plasmoid, kcfg]) {
