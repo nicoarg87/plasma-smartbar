@@ -1023,7 +1023,6 @@ Window {
                         onClicked: settings.showThemes()
                     }
                     SettingsMenuButton {
-                        visible: settings.navigationGroup === "themes"
                         text: (settings.navigationGroup === "soledad" ? "▾ " : "▸ ") + "SOLEDAD · Isla 1"
                         highlighted: settings.navigationGroup === "soledad"
                         onClicked: settings.navigationGroup = "soledad"
@@ -1062,7 +1061,6 @@ Window {
                         onClicked: settings.showSharedColors(0)
                     }
                     SettingsMenuButton {
-                        visible: settings.navigationGroup === "soledad"
                         text: (settings.navigationGroup === "malvina" ? "▾ " : "▸ ") + "MALVINA · Isla 2"
                         highlighted: settings.navigationGroup === "malvina"
                         onClicked: settings.navigationGroup = "malvina"
@@ -1089,7 +1087,6 @@ Window {
                         onClicked: settings.showSharedColors(1)
                     }
                     SettingsMenuButton {
-                        visible: settings.navigationGroup === "malvina"
                         text: (settings.navigationGroup === "shared" ? "▾ " : "▸ ") + "GENERAL Y COMPARTIDAS"
                         highlighted: settings.navigationGroup === "shared"
                         onClicked: settings.navigationGroup = "shared"
