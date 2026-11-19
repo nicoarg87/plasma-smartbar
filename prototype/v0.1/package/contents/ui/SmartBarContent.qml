@@ -86,6 +86,7 @@ Item {
     signal requestPersistCurrentSettings()
     // Espacios locales de temas: no cambian posiciones ni permisos de Malvina.
     property string themeDayJson: ""
+    property string themeDayPreviousJson: ""
     property string themeNightJson: ""
     property string themeCustomJson: ""
     signal requestThemeSlotChange(string slot, string jsonData)
@@ -824,6 +825,7 @@ Item {
         if (!soledadSettings.visible) {
             soledadSettings.logoMode = root.soLogoMode
             soledadSettings.themeDayJson = root.themeDayJson
+            soledadSettings.themeDayPreviousJson = root.themeDayPreviousJson
             soledadSettings.themeNightJson = root.themeNightJson
             soledadSettings.themeCustomJson = root.themeCustomJson
             soledadSettings.filePath = root.soLogoPath
