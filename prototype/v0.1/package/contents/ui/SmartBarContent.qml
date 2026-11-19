@@ -197,25 +197,20 @@ Item {
                 root.malvinaHoverRevealed = false
         }
     }
-    // Detector pasivo para clics fuera de Malvina DENTRO de la ventana Qt.
-    // No captura el clic: Soledad y los otros controles siguen funcionando.
-    // El popup de proveedores gestiona sus propios clics en MalvinaSearch.
-    TapHandler {
-        enabled: malvinaSearch.expanded
-        gesturePolicy: TapHandler.DragThreshold
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onTapped: function(point) {
-            const position = malvinaSearch.mapFromItem(root, point.position.x, point.position.y)
-            const insideSearch = position.x >= 0 && position.x <= malvinaSearch.width &&
-                                 position.y >= 0 &&
-                                 position.y <= Math.max(malvinaSearch.height, malvinaSearch.desiredEditorHeight)
-            if (!insideSearch) {
-                malvinaSearch.closeSearch()
-                if (root.autoHideMalvina) {
-                    malvinaRevealTimer.stop()
-                    malvinaHideTimer.stop()
-                    root.malvinaHoverRevealed = false
-                }
+    // Qt reubica el contenido de los Popup en Overlay. Un TapHandler
+    // en root no recibe de forma fiable clics exteriores a esos Popup.
+    // Overlay.pressed se dispara solo fuera de superficies emergentes:
+    // cerramos ambos paneles en un mismo clic, sin interceptar sus controles.
+    // Escape sigue cerrando individualmente el panel con foco.
+    QQC2.Overlay.onPressed: {
+        if (installedAppsPopup.visible)
+            installedAppsPopup.close()
+        if (malvinaSearch.expanded) {
+            malvinaSearch.closeSearch()
+            if (root.autoHideMalvina) {
+                malvinaRevealTimer.stop()
+                malvinaHideTimer.stop()
+                root.malvinaHoverRevealed = false
             }
         }
     }
@@ -1155,10 +1150,13 @@ Item {
         // El paso efectivo de clics a ventanas ajenas requiere validar KWin.
         Item {
             id: malvinaHotspot
-            width: Math.max(malvinaSearch.implicitWidth +
+            // Hotspot pasivo y algo mayor que la isla escondida para
+            // que el usuario encuentre Malvina en la esquina izquierda.
+            // No contiene MouseArea: no captura clics del escritorio.
+            width: Math.max(120, malvinaSearch.implicitWidth +
                             (root.malvinaShape === "leftTip" ? 34 : 10),
                             root.malvinaWidth)
-            height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
+            height: root.fixedHeight
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
 
