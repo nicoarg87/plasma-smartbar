@@ -600,3 +600,17 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Actualizar test `test_breathing_menu.cjs`: PASS estático junto a otros tres tests.
 - [ ] Probar en CachyOS barra lateral, scrollbar y Editar con ventana reducida, 70 % en nuevas configuraciones, duración ms/ciclo e intensidad del brillo. Mantener el panel KDE existente sin cambios. [Issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
 - [ ] Para consolidar todos los demás valores estéticos locales actuales como predeterminados personales, pulsar **«Fijar actual como predeterminada»** en el visor, confirmar restauración tras reinicio y no copiar datos privados a GitHub sin permiso.
+
+
+## Corrección final de configuración Soledad y licencias — 19/11/2026
+
+
+- [x] Unificar «Botón de inicio SO» y «Efectos luminosos SO» bajo una entrada lateral única, con subpestañas visibles para Logo/ancho/texto y Efectos; mover «Launcher y botón SO» al primer lugar de Soledad. [0274f6d](https://github.com/nicoarg87/plasma-smartbar/commit/0274f6dcc6f70a274ff7f336f40f80adc036cc5c).
+- [x] Agregar en el apartado Brillo y respiración SO acceso directo a Color y transparencia → Degradado y respiración de Soledad, sin mezclar controles y velocidades. Mantener enlace inverso.
+- [x] Abrir ventana de configuración más ancha si cabe; reservar margen de scrollbar y separar botones HEX/Copiar/Editar en filas que no desborden. Verificar cada vista y escala de KDE en pruebas.
+- [x] Corregir `KPlugin.License` de GPL-3.0-only a MIT para respetar licencia vigente del software y documentación propios. [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384).
+- [x] Ratificar dedicación CC0 1.0 Universal del arte/GIF original de botones SO generado por ChatGPT y aportado por el mantenedor, separado de MIT del código. No aplicar CC0 a terceros; conservar hash y original.
+- [x] Actualizar regresión `test_breathing_menu.cjs` para orden, navegación, scrollbar y metadatos. [c9c59a9](https://github.com/nicoarg87/plasma-smartbar/commit/c9c59a957178226ac54d00aa8a2b6466a7a5e19f).
+- [ ] **Prueba real en CachyOS:** ejecutar test Node + visor, confirmar que no se oculta ningún botón por la barra vertical a resolución normal/ventana angosta/escalado KDE, los saltos de degradado/contorno llegan al apartado correcto, el launcher queda primero y los temas/ajustes actuales sobreviven.
+- [ ] Confirmar que los dos GIF originales pueden leerse desde sus rutas locales sin cambiar archivos personales; incorporar a GitHub solo cuando el archivo exacto y el alcance de su licencia se verifiquen.
+- [ ] Mantener [PR #3](https://github.com/nicoarg87/plasma-smartbar/pull/3) como borrador y [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15) abiertos hasta prueba visual en CachyOS. No sustituir el panel real.
