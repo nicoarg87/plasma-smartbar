@@ -52,3 +52,12 @@ El mantenedor quiere un apartado claramente identificado **«Temas»** en las op
 El mantenedor confirmó expresamente que el GIF de **Playa Noche** utilizado localmente fue generado con ChatGPT/OpenAI por encargo suyo y autorizó dedicar **esta imagen** bajo **Creative Commons CC0 1.0 Universal**, en la medida de sus derechos. Declaración registrada en [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md#declaración-de-licencia--gif-playa-nocturna-19112026).
 
 La imagen nocturna aún **no está incorporada como binario al repositorio GitHub**: la licencia está asentada para el archivo exacto, y faltan su incorporación, verificación SHA-256 y metadatos. No publicar capturas de pantalla ni generar sustitutos con esta etiqueta. CC0 del arte es independiente de MIT para el código actual. Los ajustes locales del usuario no cambian por este registro.
+
+
+## GIF Playa Noche original verificado — 19/11/2026
+
+**Cambio de estado respecto del bloqueo histórico:** ahora **sí se recibió el GIF nocturno original utilizable**. Archivo: `Playa tropical nocturna animada.gif`, **439×217**, 16 cuadros de 140 ms, **600.332 bytes**, SHA-256 `aec76461b1765a838cb9dfd8cbb84e9509a6113b6ffedd66b6d9c06bd57d8ba6`. El mantenedor confirmó su generación en ChatGPT/OpenAI y autorizó **CC0 1.0 Universal** para ese recurso, bajo los límites legales ya documentados en [Licencias gráficas](LICENCIAS_RECURSOS_GRAFICOS.md).
+
+**Código experimental:** `SoledadSettings.qml` reconoce la ruta `assets/so-night.gif`. Si el archivo original está instalado y el usuario pulsa **Aplicar Noche**, reemplaza **solamente la ruta del logo y activa la reproducción GIF**; los valores del tema guardado (colores/degradados, formas, iluminación, respiración y opacidades) permanecen como estaban. Si falta el binario, el tema conserva su ruta anterior. La miniatura de Noche puede mostrar el GIF original disponible. El tema Día permanece sin alterar.
+
+**Entrega del binario:** se preparó un ZIP para colocarlo en el checkout local sin tocar los paneles KDE ni sobreescribir archivos de imagen existentes. El binario exacto **aún no ha sido incorporado al árbol del repositorio GitHub**; solo están allí el código y sus metadatos de autoría/licencia. Pendientes: copiar el GIF a la ruta prevista y probar visualmente en CachyOS, comprobar persistencia, estado de Noche, permisos y ausencia de regresiones. Las paletas exactas del usuario siguen siendo ajustes locales y no se sustituyen por colores inventados.
