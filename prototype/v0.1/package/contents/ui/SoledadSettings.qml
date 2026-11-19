@@ -1051,7 +1051,8 @@ Window {
                     SettingsMenuButton {
                         text: (settings.navigationGroup === "themes" ? "▾ " : "▸ ") + "TEMAS"
                         highlighted: settings.navigationGroup === "themes"
-                        onClicked: settings.navigationGroup = "themes"
+                        onClicked: settings.navigationGroup =
+                            settings.navigationGroup === "themes" ? "" : "themes"
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "themes"
@@ -1062,7 +1063,8 @@ Window {
                     SettingsMenuButton {
                         text: (settings.navigationGroup === "soledad" ? "▾ " : "▸ ") + "SOLEDAD · Isla 1"
                         highlighted: settings.navigationGroup === "soledad"
-                        onClicked: settings.navigationGroup = "soledad"
+                        onClicked: settings.navigationGroup =
+                            settings.navigationGroup === "soledad" ? "" : "soledad"
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "soledad"
@@ -1108,7 +1110,8 @@ Window {
                     SettingsMenuButton {
                         text: (settings.navigationGroup === "malvina" ? "▾ " : "▸ ") + "MALVINA · Isla 2"
                         highlighted: settings.navigationGroup === "malvina"
-                        onClicked: settings.navigationGroup = "malvina"
+                        onClicked: settings.navigationGroup =
+                            settings.navigationGroup === "malvina" ? "" : "malvina"
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "malvina"
@@ -1134,7 +1137,8 @@ Window {
                     SettingsMenuButton {
                         text: (settings.navigationGroup === "shared" ? "▾ " : "▸ ") + "GENERAL Y COMPARTIDAS"
                         highlighted: settings.navigationGroup === "shared"
-                        onClicked: settings.navigationGroup = "shared"
+                        onClicked: settings.navigationGroup =
+                            settings.navigationGroup === "shared" ? "" : "shared"
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "shared"
