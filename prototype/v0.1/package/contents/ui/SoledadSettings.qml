@@ -4600,73 +4600,101 @@ Window {
                     }
                     // Un único desplegable. Sin tarjetas, subtítulos ni botones "Usar".
                     // Primero las instantáneas locales que el usuario ya guardó.
-                    QQC2.ComboBox {
-                        id: themeSelector
+                    // Selector básico con Popup propio: evita el ComboBox con lista vacía.
+                    QQC2.Button {
+                        id: themeSelectorButton
                         Layout.fillWidth: true
-                        implicitHeight: 44
-                        model: settings.savedThemeLibrary.length + 2
-                        textRole: ""
-                        displayText: "Elegir tema  ▾"
-                        currentIndex: -1
-                        delegate: QQC2.ItemDelegate {
-                            required property int index
-                            width: themeSelector.width
-                            implicitHeight: 48
-                            contentItem: RowLayout {
-                                spacing: 10
-                                AnimatedImage {
-                                    Layout.preferredWidth: 54
-                                    Layout.preferredHeight: 36
-                                    fillMode: Image.PreserveAspectFit
-                                    playing: visible
-                                    source: index === 0
-                                        ? (settings.themeDayJson.length ? settings.themeImageSource(settings.themeDayJson) : settings.factorySunsetImage)
-                                        : index === 1
-                                          ? (settings.themeNightJson.length ? settings.themeImageSource(settings.themeNightJson) : settings.factoryNightImage)
-                                          : settings.themeImageSource(settings.savedThemeLibrary[index - 2].jsonData)
-                                }
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    color: "white"
-                                    text: index === 0 ? "Atardecer" :
-                                          index === 1 ? "Noche" :
-                                          settings.savedThemeLibrary[index - 2].name
-                                }
-                            }
-                            onClicked: {
-                                themeSelector.popup.close()
-                                themeSelector.currentIndex = -1
-                                if (index === 0) {
-                                    const slot = settings.themeDayJson.length > 0 ? "day" :
-                                        (settings.factorySunsetAvailable ? "sunset" : "")
-                                    if (slot) {
-                                        settings.previewFactorySlot = slot
-                                        settings.activateTheme(slot)
-                                    } else settings.themeStatus = "Atardecer todavía no tiene una instantánea disponible."
-                                } else if (index === 1) {
-                                    const slot = settings.themeNightJson.length > 0 ? "nightLegacy" :
-                                        (settings.factoryNightAvailable ? "night" : "")
-                                    if (slot) {
-                                        settings.previewFactorySlot = slot
-                                        settings.activateTheme(slot)
-                                    } else settings.themeStatus = "Noche todavía no tiene una instantánea disponible."
-                                } else {
-                                    settings.previewFactorySlot = "library:" + (index - 2)
-                                    settings.restoreNamedTheme(index - 2)
-                                }
-                            }
+                        text: "Elegir tema  " + (themeOptionsPopup.opened ? "▴" : "▾")
+                        onClicked: {
+                            if (themeOptionsPopup.opened) themeOptionsPopup.close()
+                            else themeOptionsPopup.open()
                         }
-                        popup: QQC2.Popup {
-                            y: themeSelector.height
-                            width: themeSelector.width
-                            padding: 2
-                            implicitHeight: Math.min(contentItem.implicitHeight + 4, 260)
-                            contentItem: ListView {
-                                clip: true
-                                implicitHeight: contentHeight
-                                model: themeSelector.delegateModel
-                                currentIndex: -1
-                                QQC2.ScrollIndicator.vertical: QQC2.ScrollIndicator {}
+                    }
+                    QQC2.Popup {
+                        id: themeOptionsPopup
+                        parent: themeSelectorButton
+                        x: 0
+                        y: themeSelectorButton.height
+                        width: themeSelectorButton.width
+                        height: Math.min(240, 50 * (2 + settings.savedThemeLibrary.length) + 8)
+                        padding: 4
+                        modal: false
+                        focus: true
+                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+                        background: Rectangle {
+                            color: "#252b38"
+                            border.color: "#63778e"
+                            radius: 5
+                        }
+                        contentItem: Flickable {
+                            clip: true
+                            contentWidth: width
+                            contentHeight: themeOptionsColumn.implicitHeight
+                            boundsBehavior: Flickable.StopAtBounds
+                            QQC2.ScrollBar.vertical: QQC2.ScrollBar {
+                                policy: QQC2.ScrollBar.AsNeeded
+                            }
+                            Column {
+                                id: themeOptionsColumn
+                                width: parent.width
+                                spacing: 2
+                                Repeater {
+                                    model: 2 + settings.savedThemeLibrary.length
+                                    delegate: QQC2.ItemDelegate {
+                                        required property int index
+                                        width: themeOptionsColumn.width
+                                        height: 48
+                                        contentItem: RowLayout {
+                                            spacing: 10
+                                            AnimatedImage {
+                                                Layout.preferredWidth: 58
+                                                Layout.preferredHeight: 38
+                                                fillMode: Image.PreserveAspectFit
+                                                playing: visible
+                                                source: index === 0
+                                                    ? (settings.themeDayJson.length
+                                                        ? settings.themeImageSource(settings.themeDayJson)
+                                                        : settings.factorySunsetImage)
+                                                    : index === 1
+                                                      ? (settings.themeNightJson.length
+                                                          ? settings.themeImageSource(settings.themeNightJson)
+                                                          : settings.factoryNightImage)
+                                                      : settings.themeImageSource(settings.savedThemeLibrary[index - 2].jsonData)
+                                            }
+                                            QQC2.Label {
+                                                Layout.fillWidth: true
+                                                color: "white"
+                                                text: index === 0 ? "Atardecer" :
+                                                      index === 1 ? "Noche" :
+                                                      settings.savedThemeLibrary[index - 2].name
+                                            }
+                                        }
+                                        onClicked: {
+                                            const selectedIndex = index
+                                            themeOptionsPopup.close()
+                                            let slot = ""
+                                            if (selectedIndex === 0) {
+                                                slot = settings.themeDayJson.length ? "day" :
+                                                    (settings.factorySunsetAvailable ? "sunset" : "")
+                                            } else if (selectedIndex === 1) {
+                                                slot = settings.themeNightJson.length ? "nightLegacy" :
+                                                    (settings.factoryNightAvailable ? "night" : "")
+                                            } else {
+                                                slot = "library:" + (selectedIndex - 2)
+                                            }
+                                            if (slot.length) {
+                                                settings.activateTheme(slot)
+                                                // La vista previa lee la apariencia activa y el GIF
+                                                // recién restaurados; no reutiliza la imagen anterior.
+                                                settings.previewFactorySlot = ""
+                                            } else {
+                                                settings.themeStatus = selectedIndex === 0
+                                                    ? "No se encuentra el Atardecer guardado."
+                                                    : "No se encuentra la Noche guardada."
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
