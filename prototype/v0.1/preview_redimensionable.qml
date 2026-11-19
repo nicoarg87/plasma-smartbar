@@ -29,7 +29,7 @@ Window {
     property string demoThemeDayPreviousJson: String(localPreviewSettings.value("themeDayPreviousJson", ""))
     property string demoThemeNightJson: String(localPreviewSettings.value("themeNightJson", ""))
     property string demoThemeCustomJson: String(localPreviewSettings.value("themeCustomJson", ""))
-    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoLauncherOpacityOverride","demoLauncherOpacity","demoLauncherIconsWithNames","demoMalvinaOptionsOpacityOverride","demoMalvinaOptionsOpacity","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
+    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoLauncherOpacityOverride","demoLauncherOpacity","demoLauncherIconsWithNames","demoMalvinaOptionsOpacityOverride","demoMalvinaOptionsOpacity","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientThird","demoSoledadGradientColorCount","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientThird","demoMalvinaGradientColorCount","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
     QtCore.Settings {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
@@ -46,7 +46,7 @@ Window {
             const value = previewWindow[key]
             values[key] = key === "demoOutlineConfig"
                 ? JSON.parse(JSON.stringify(value))
-                : (key.endsWith("Color") || key.endsWith("Background") || key.endsWith("GradientEnd") ||
+                : (key.endsWith("Color") || key.endsWith("Background") || key.endsWith("GradientEnd") || key.endsWith("GradientThird") ||
                    key === "demoSoClockTextColor" ? String(value) : value)
         }
         return JSON.stringify(values)
@@ -261,6 +261,8 @@ Window {
     property color demoMalvinaColor: "#101e31"
     property bool demoSoledadGradientEnabled: false
     property color demoSoledadGradientEnd: "#ee9852"
+    property color demoSoledadGradientThird: "#ee9852"
+    property int demoSoledadGradientColorCount: 2
     property string demoSoledadGradientDirection: "topBottom"
     property bool demoSoledadGradientSyncBreathing: false
     property real demoSoledadGradientBreathingIntensity: 0.6
@@ -268,6 +270,8 @@ Window {
     property real demoMalvinaGradientBreathingIntensity: 0.6
     property bool demoMalvinaGradientEnabled: false
     property color demoMalvinaGradientEnd: "#445577"
+    property color demoMalvinaGradientThird: "#445577"
+    property int demoMalvinaGradientColorCount: 2
     property string demoMalvinaGradientDirection: "topBottom"
     property color demoBackgroundColor: "#202333"
     property real demoSoledadOpacity: 0.5
@@ -475,6 +479,8 @@ Window {
         malvinaColor: previewWindow.demoMalvinaColor
         soledadGradientEnabled: previewWindow.demoSoledadGradientEnabled
         soledadGradientEnd: previewWindow.demoSoledadGradientEnd
+        soledadGradientThird: previewWindow.demoSoledadGradientThird
+        soledadGradientColorCount: previewWindow.demoSoledadGradientColorCount
         soledadGradientDirection: previewWindow.demoSoledadGradientDirection
         soledadGradientSyncBreathing: previewWindow.demoSoledadGradientSyncBreathing
         soledadGradientBreathingIntensity: previewWindow.demoSoledadGradientBreathingIntensity
@@ -482,6 +488,8 @@ Window {
         malvinaGradientBreathingIntensity: previewWindow.demoMalvinaGradientBreathingIntensity
         malvinaGradientEnabled: previewWindow.demoMalvinaGradientEnabled
         malvinaGradientEnd: previewWindow.demoMalvinaGradientEnd
+        malvinaGradientThird: previewWindow.demoMalvinaGradientThird
+        malvinaGradientColorCount: previewWindow.demoMalvinaGradientColorCount
         malvinaGradientDirection: previewWindow.demoMalvinaGradientDirection
         backgroundColor: previewWindow.demoBackgroundColor
         soledadOpacity: previewWindow.demoSoledadOpacity
@@ -579,13 +587,17 @@ Window {
             previewWindow.demoMalvinaGradientSyncBreathing = enabled
             previewWindow.demoMalvinaGradientBreathingIntensity = intensity
         }
-        onRequestIslandGradientChange: function(a, b, c, d, e, f) {
+        onRequestIslandGradientChange: function(a, b, c, d, e, f, g, h, i, j) {
             previewWindow.demoSoledadGradientEnabled = a
             previewWindow.demoSoledadGradientEnd = b
             previewWindow.demoSoledadGradientDirection = c
             previewWindow.demoMalvinaGradientEnabled = d
             previewWindow.demoMalvinaGradientEnd = e
             previewWindow.demoMalvinaGradientDirection = f
+            previewWindow.demoSoledadGradientColorCount = g
+            previewWindow.demoSoledadGradientThird = h
+            previewWindow.demoMalvinaGradientColorCount = i
+            previewWindow.demoMalvinaGradientThird = j
         }
         onRequestAppearanceChange: function(a, alphaA, b, alphaB, shown, bg,
                                             alphaBg, trayOverride, trayColor,
@@ -994,6 +1006,12 @@ Window {
     onDemoSoledadGradientEndChanged: {
         if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
+    onDemoSoledadGradientThirdChanged: {
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
+    }
+    onDemoSoledadGradientColorCountChanged: {
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
+    }
     onDemoSoledadGradientDirectionChanged: {
         if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
@@ -1001,6 +1019,12 @@ Window {
         if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGradientEndChanged: {
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGradientThirdChanged: {
+        if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
+    }
+    onDemoMalvinaGradientColorCountChanged: {
         if (appearanceRestored && !appearanceWriteSuspended) saveAppearanceTimer.restart()
     }
     onDemoMalvinaGradientDirectionChanged: {
