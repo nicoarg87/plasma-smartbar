@@ -11,7 +11,7 @@ Window {
     id: settings
     visible: false
     flags: Qt.Dialog
-    title: "Plasma SmartBar · Configuración de Soledad, Malvina y ajustes comunes"
+    title: "Configuraciones"
     color: "#242236"
 
     // Tamaño de referencia: el editor de logo es la pestaña más alta.
@@ -149,6 +149,16 @@ Window {
         if (pulseDepth <= 0) pulseDepth = 0.7
         if (pulseSpeed <= 0) pulseSpeed = 0.6
     }
+    // Paleta diurna: las dos islas comparten los tonos del tema Dia,
+    // sin alterar el preset Noche ni los ajustes personalizados.
+    // Cada isla conserva su propia direccion de degradado.
+    function applyBeachDayPalette() {
+        soledadGradientDirection = "leftRight"
+        malvinaColor = soledadColor
+        malvinaGradientEnd = soledadGradientEnd
+        malvinaOpacity = soledadOpacity
+        malvinaGradientDirection = "rightLeft"
+    }
     function themeSnapshot() {
         return JSON.stringify({
             version: 1,
@@ -195,6 +205,8 @@ Window {
         }
         if (slot === "day" || slot === "night")
             ensureBeachBreathing()
+        if (slot === "day")
+            applyBeachDayPalette()
         const data = themeSnapshot()
         if (slot === "day") themeDayJson = data
         else if (slot === "night") themeNightJson = data
@@ -247,6 +259,11 @@ Window {
             // No se aplica esta regla a los temas personalizados.
             if (slot === "day" || slot === "night")
                 ensureBeachBreathing()
+            // El JSON antiguo de Dia contiene direcciones verticales y
+            // una paleta nocturna residual en Malvina. Corregir al aplicarlo,
+            // sin reescribir el snapshot ni modificar Playa Noche.
+            if (slot === "day")
+                applyBeachDayPalette()
             // Reusar la ruta de guardado vigente, inclusive los favoritos que
             // son independientes de estos tres espacios de tema.
             applyChanges()
