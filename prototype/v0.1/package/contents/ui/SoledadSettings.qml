@@ -27,7 +27,6 @@ Window {
 
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
     property int geometrySection: 0
-    property int logoSection: 0
     property int outlineSection: 2
     property int appearanceSection: 0
     // El menú lateral decide el destino. Dentro de Soledad o Malvina no
@@ -133,16 +132,26 @@ Window {
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
     function showThemes() { navigationGroup = "themes"; currentTab = 4 }
-    function showSoledadLogo() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 0; logoSection = 0 }
-    function showSoledadEffects() { navigationGroup = "soledad"; currentTab = 1; logoSubtabs.currentIndex = 1; outlineSection = 2 }
-    function showSoledadGlowBreathing() {
+    function showSoledadLogo() {
         navigationGroup = "soledad"
         currentTab = 1
-        logoSubtabs.currentIndex = 1
-        outlineSection = 2
-        if (outlineScroll.contentItem)
-            outlineScroll.contentItem.contentY = 0
+        if (logoScroll.contentItem) logoScroll.contentItem.contentY = 0
     }
+    function scrollToSoledadEffects() {
+        Qt.callLater(function() {
+            if (!logoScroll.contentItem || !soLightSectionTitle.visible) return
+            const scroll = logoScroll.contentItem
+            const y = soLightSectionTitle.mapToItem(scroll.contentItem, 0, 0).y
+            scroll.contentY = Math.max(0, Math.min(scroll.contentHeight - scroll.height, y - 12))
+        })
+    }
+    function showSoledadEffects() {
+        navigationGroup = "soledad"
+        currentTab = 1
+        outlineSection = 2
+        scrollToSoledadEffects()
+    }
+    function showSoledadGlowBreathing() { showSoledadEffects() }
     function showSoledadWindows() { navigationGroup = "soledad"; currentTab = 2; appearanceSubtabs.currentIndex = 1 }
     function showSoledadLauncher() {
         navigationGroup = "soledad"; behaviorScope = "soledad"
@@ -2102,45 +2111,24 @@ Window {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 spacing: 6
-                // Una sola entrada lateral; las dos subpestañas pertenecen al botón SO.
-                QQC2.TabBar {
-                    id: logoSubtabs
-                    visible: true
-                    Layout.fillWidth: true
-                    SettingsPageTab { text: "Logo, ancho y texto"; width: logoSubtabs.width / 2 }
-                    SettingsPageTab { text: "Efectos luminosos SO"; width: logoSubtabs.width / 2 }
-                }
-                StackLayout {
-                    currentIndex: logoSubtabs.currentIndex
+                // Única página continua: imagen o texto, encuadre, reloj y luz SO.
+                QQC2.ScrollView {
+                    id: logoScroll
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-            // 1. Logo: se conserva encuadre visual y recorte no destructivo.
-            QQC2.ScrollView {
-                id: logoScroll
-                clip: true
-                contentWidth: Math.max(0, availableWidth - 32)
-                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
-                ColumnLayout {
-                    width: Math.max(0, logoScroll.availableWidth - 32)
-                    spacing: 10
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-                        Repeater {
-                            model: ["Logo y ancho", "Texto", "Encuadre", "Reloj"]
-                            delegate: QQC2.Button {
-                                required property int index
-                                required property string modelData
-                                Layout.fillWidth: true
-                                text: modelData
-                                highlighted: settings.logoSection === index
-                                onClicked: { settings.logoSection = index; logoScroll.contentItem.contentY = 0 }
-                            }
-                        }
-                    }
+                    clip: true
+                    contentWidth: Math.max(0, availableWidth - 32)
+                    QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                     ColumnLayout {
-                        visible: settings.logoSection === 0
+                        width: Math.max(0, logoScroll.availableWidth - 32)
+                        spacing: 14
+                        QQC2.Label {
+                            text: "Logo, ancho y texto"
+                            color: "white"
+                            font.bold: true
+                        }
+                    ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 9
                     ColumnLayout {
@@ -2324,7 +2312,7 @@ Window {
                     }
                     }
                     ColumnLayout {
-                        visible: settings.logoSection === 1
+                        visible: settings.logoMode === "text"
                         Layout.fillWidth: true
                         spacing: 9
                     QQC2.Label {
@@ -2415,8 +2403,24 @@ Window {
                         }
                     }
                     }
+                    QQC2.Button {
+                        text: "Restablecer logo y formato"
+                        onClicked: {
+                            settings.logoMode = "default"
+                            settings.filePath = ""
+                            settings.soButtonFrameShape = "capsule"
+                            settings.soButtonWidth = 96
+                            settings.cropRotation = 0
+                            settings.enableGif = true
+                            settings.cropZoom = 1
+                            settings.cropPanX = 0
+                            settings.cropPanY = 0
+                            settings.shape = "square"
+                            settings.cropFitMode = "stretch"
+                        }
+                    }
                     ColumnLayout {
-                        visible: settings.logoSection === 2
+                        visible: settings.logoMode !== "text"
                         Layout.fillWidth: true
                         spacing: 9
                     QQC2.Label {
@@ -2503,7 +2507,6 @@ Window {
                     }
                     }
                     ColumnLayout {
-                        visible: settings.logoSection === 3
                         Layout.fillWidth: true
                         spacing: 9
                     QQC2.Label {
@@ -2585,30 +2588,12 @@ Window {
                         }
                     }
                     }
-                    QQC2.Button {
-                        text: "Restablecer logo y formato"
-                        onClicked: {
-                            settings.logoMode = "default"
-                            settings.filePath = ""
-                            settings.soButtonFrameShape = "capsule"
-                            settings.soButtonWidth = 96
-                            settings.cropRotation = 0
-                            settings.enableGif = true
-                            settings.cropZoom = 1
-                            settings.cropPanX = 0
-                            settings.cropPanY = 0
-                            settings.shape = "square"
-                            settings.cropFitMode = "stretch"
-                        }
-                    }
-                }
-            }
 
-
-            // 2. Contorno con vista previa fija y opciones contextuales.
+                        // Debajo de TODOS los controles del logo aparecen los efectos.
+            // Efectos luminosos en la misma página, debajo de logo/texto/reloj.
             ColumnLayout {
                 spacing: 8
-                QQC2.Label { text: "Contorno de actividad del botón SO"; color: "white"; font.bold: true }
+                QQC2.Label { id: soLightSectionTitle; text: "Efectos luminosos del botón SO"; color: "white"; font.bold: true }
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 92
@@ -2663,17 +2648,6 @@ Window {
                     text: "Vista previa: la velocidad y el pulso cambian aquí al instante. Pulsá Aplicar para guardar en la barra."
                     color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                 }
-                QQC2.ScrollView {
-                    id: outlineScroll
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    clip: true
-                    contentWidth: Math.max(0, availableWidth - 32)
-                    QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
-                    ColumnLayout {
-                        width: Math.max(0, outlineScroll.availableWidth - 32)
-                        spacing: 13
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 6
@@ -2685,7 +2659,7 @@ Window {
                                 Layout.fillWidth: true
                                 text: modelData
                                 highlighted: settings.outlineSection === [2,0,1][index]
-                                onClicked: { settings.outlineSection = [2,0,1][index]; outlineScroll.contentItem.contentY = 0 }
+                                onClicked: { settings.outlineSection = [2,0,1][index]; settings.scrollToSoledadEffects() }
                             }
                         }
                     }
@@ -3181,11 +3155,9 @@ Window {
                             settings.showOutlineWhenOpen = false
                         }
                     }
-                }
-                }
+
             }
-
-
+                    }
                 }
             }
             ColumnLayout {
