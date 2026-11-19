@@ -815,7 +815,8 @@ Window {
         property string requestMode: "contour"
         onImageLoaded: if (pending) requestPaint()
         function suggestFromImage(mode) {
-            requestMode = mode === "island" ? "island" : "contour"
+            requestMode = mode === "automatic" ? "automatic" :
+                mode === "island" ? "island" : "contour"
             requestedUrl = settings.logoMode === "text"
                 ? (settings.soTextBackgroundImage.length > 0
                    ? settings.soTextBackgroundImage : settings.defaultImage.toString())
@@ -900,7 +901,23 @@ Window {
                     }
                     const base = meanRange(0.12, 0.52)
                     const endColor = meanRange(0.53, 0.88)
-                    if (requestMode === "island") {
+                    if (requestMode === "automatic") {
+                        // Tema automático: compartir la FUENTE (GIF) de la
+                        // paleta, no vincular para siempre ambas islas.
+                        // Se pueden editar por separado luego.
+                        settings.soledadColor = base
+                        settings.soledadGradientEnd = endColor
+                        settings.soledadGradientEnabled = true
+                        settings.malvinaColor = base
+                        settings.malvinaGradientEnd = endColor
+                        settings.malvinaGradientEnabled = true
+                        settings.invalidateSuggestedPalette()
+                        settings.storeTheme("custom")
+                        settings.themeStatus = "Tema Personalizado creado desde el logo SO: " +
+                            settings.toHex(base) + " → " + settings.toHex(endColor) +
+                            ". Revisá Soledad y Malvina y pulsá Aplicar para verlos " +
+                            "en la barra. El contorno y su luz no se modificaron."
+                    } else if (requestMode === "island") {
                         settings.suggestedIslandBase = base
                         settings.suggestedIslandEnd = endColor
                         settings.suggestedPaletteName =
