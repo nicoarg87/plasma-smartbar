@@ -1248,13 +1248,15 @@ Window {
                 border.width: 1
                 border.color: "#41475e"
                 QQC2.ScrollView {
+                    id: navigationScroll
                     anchors.fill: parent
                     anchors.margins: 7
                     clip: true
-                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                    contentWidth: Math.max(0, availableWidth - 12)
+                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                     QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                     ColumnLayout {
-                        width: Math.max(0, parent.width - 16)
+                        width: Math.max(0, navigationScroll.availableWidth - 12)
                         spacing: 5
                     SettingsMenuButton {
                         sectionHeader: true
@@ -1425,11 +1427,11 @@ Window {
             QQC2.ScrollView {
                 id: positionScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, positionScroll.availableWidth - 8)
+                    width: Math.max(0, positionScroll.availableWidth - 12)
                     spacing: 16
                     RowLayout {
                         Layout.fillWidth: true
@@ -1854,11 +1856,11 @@ Window {
             QQC2.ScrollView {
                 id: collapseScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, collapseScroll.availableWidth - 8)
+                    width: Math.max(0, collapseScroll.availableWidth - 12)
                     spacing: 16
                     ColumnLayout {
                         visible: settings.behaviorScope === "soledad"
@@ -2049,11 +2051,11 @@ Window {
             QQC2.ScrollView {
                 id: logoScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, logoScroll.availableWidth - 8)
+                    width: Math.max(0, logoScroll.availableWidth - 12)
                     spacing: 10
                     RowLayout {
                         Layout.fillWidth: true
@@ -2599,11 +2601,11 @@ Window {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
-                    contentWidth: Math.max(0, availableWidth - 8)
+                    contentWidth: Math.max(0, availableWidth - 12)
                     QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                    QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                     ColumnLayout {
-                        width: Math.max(0, outlineScroll.availableWidth - 8)
+                        width: Math.max(0, outlineScroll.availableWidth - 12)
                         spacing: 13
                     RowLayout {
                         Layout.fillWidth: true
@@ -2996,11 +2998,11 @@ Window {
             QQC2.ScrollView {
                 id: appearanceScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, appearanceScroll.availableWidth - 8)
+                    width: Math.max(0, appearanceScroll.availableWidth - 12)
                     spacing: 14
                     QQC2.Label {
                         text: settings.colorScope === "soledad"
@@ -3641,11 +3643,11 @@ Window {
             QQC2.ScrollView {
                 id: taskStylesScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, taskStylesScroll.availableWidth - 8)
+                    width: Math.max(0, taskStylesScroll.availableWidth - 12)
                     spacing: 14
                     QQC2.Label {
                         text: "Presentación de aplicaciones y líneas"
@@ -3782,11 +3784,11 @@ Window {
             QQC2.ScrollView {
                 id: sharedOutlineScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, sharedOutlineScroll.availableWidth - 8)
+                    width: Math.max(0, sharedOutlineScroll.availableWidth - 12)
                     spacing: 14
                     QQC2.Label {
                         text: "Editá el contorno de cada superficie por separado.\n" +
@@ -3873,11 +3875,11 @@ Window {
             QQC2.ScrollView {
                 id: aboutScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, aboutScroll.availableWidth - 8)
+                    width: Math.max(0, aboutScroll.availableWidth - 12)
                     spacing: 16
                     QQC2.Label {
                         text: "Ayuda rápida"
@@ -3961,11 +3963,11 @@ Window {
             QQC2.ScrollView {
                 id: themesScroll
                 clip: true
-                contentWidth: Math.max(0, availableWidth - 8)
+                contentWidth: Math.max(0, availableWidth - 12)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
-                    width: Math.max(0, themesScroll.availableWidth - 10)
+                    width: Math.max(0, themesScroll.availableWidth - 12)
                     spacing: 12
                     QQC2.Label {
                         text: "Temas visuales"
