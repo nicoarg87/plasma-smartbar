@@ -84,6 +84,11 @@ Item {
     property string malvinaSearchButtonShape: "square"
     signal requestMalvinaButtonShapesChange(string gearShape, string searchShape)
     signal requestPersistCurrentSettings()
+    // Espacios locales de temas: no cambian posiciones ni permisos de Malvina.
+    property string themeDayJson: ""
+    property string themeNightJson: ""
+    property string themeCustomJson: ""
+    signal requestThemeSlotChange(string slot, string jsonData)
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     property bool taskActiveGlowEnabled: true
@@ -818,6 +823,9 @@ Item {
         // pestaña ni al pulsar Aplicar: la ventana permanece visible.
         if (!soledadSettings.visible) {
             soledadSettings.logoMode = root.soLogoMode
+            soledadSettings.themeDayJson = root.themeDayJson
+            soledadSettings.themeNightJson = root.themeNightJson
+            soledadSettings.themeCustomJson = root.themeCustomJson
             soledadSettings.filePath = root.soLogoPath
             soledadSettings.shape = root.soLogoShape
             soledadSettings.cropFitMode = root.soLogoFitMode
@@ -957,6 +965,9 @@ Item {
     SoledadSettings {
         id: soledadSettings
         onSettingsApplied: root.requestPersistCurrentSettings()
+        onSaveThemeSlotRequested: function(slot, data) {
+            root.requestThemeSlotChange(slot, data)
+        }
         onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaProvidersChange(google, duck, yahoo,
                                                chatGpt, gemini, claude)
