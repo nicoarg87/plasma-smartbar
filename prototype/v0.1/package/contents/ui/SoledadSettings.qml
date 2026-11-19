@@ -163,6 +163,55 @@ Window {
     function restoreNamedTheme(index) {
         activateTheme("library:" + index)
     }
+    // Día ocupa una sola opción en el selector; nunca se mezcla con la
+    // antigua clave histórica themeDayJson (Atardecer).
+    function dayThemeIndex() {
+        const items = savedThemeLibrary
+        for (let i = 0; i < items.length; ++i) {
+            if (items[i].name.trim().toLocaleLowerCase() === "día" ||
+                items[i].name.trim().toLocaleLowerCase() === "dia") return i
+        }
+        return -1
+    }
+    readonly property var otherNamedThemes: savedThemeLibrary.filter(function(item) {
+        const name = item.name.trim().toLocaleLowerCase()
+        return name !== "día" && name !== "dia"
+    })
+    function otherNamedThemeOriginalIndex(index) {
+        let count = 0
+        const items = savedThemeLibrary
+        for (let i = 0; i < items.length; ++i) {
+            const name = items[i].name.trim().toLocaleLowerCase()
+            if (name === "día" || name === "dia") continue
+            if (count++ === index) return i
+        }
+        return -1
+    }
+    function saveCurrentDayTheme() {
+        const items = savedThemeLibrary.slice()
+        const existing = dayThemeIndex()
+        const snapshot = themeSnapshot()
+        if (existing >= 0) {
+            if (items.length >= 200) {
+                themeStatus = "No hay espacio para guardar la copia anterior de Día."
+                return
+            }
+            // El tema anterior sigue accesible en la biblioteca, como copia.
+            items.push({name: "Día · versión anterior", jsonData: items[existing].jsonData})
+            items[existing] = {name: "Día", jsonData: snapshot}
+        } else {
+            if (items.length >= 200) {
+                themeStatus = "Biblioteca llena; no se borró ningún tema."
+                return
+            }
+            items.push({name: "Día", jsonData: snapshot})
+        }
+        themeLibraryJson = JSON.stringify(items)
+        stageThemeSlot("library", themeLibraryJson)
+        applyChanges()
+        previewFactorySlot = ""
+        themeStatus = "Día guardado en este equipo con el GIF, los colores y los efectos actuales. Se conservó la versión anterior."
+    }
     // Perfil Noche original de fábrica: SOLO manifiesto distribuido con el
     // programa; el tema histórico guardado localmente no lo modifica.
     readonly property var factoryNightPreset: FactoryNightTheme.preset
@@ -1023,6 +1072,10 @@ Window {
     onShowOutlineWhenOpenChanged: if (visible) refreshOutlinePreview()
     onGlowIntensityChanged: if (visible) refreshOutlinePreview()
     onGlowSpreadChanged: if (visible) refreshOutlinePreview()
+    onAccentColorChanged: if (visible) refreshOutlinePreview()
+    onGlowColorChanged: if (visible) refreshOutlinePreview()
+    onGlowGradientChanged: if (visible) refreshOutlinePreview()
+    onStrokeSizeChanged: if (visible) refreshOutlinePreview()
     readonly property bool outlineIsOrbit: effectStyle === "orbit" || effectStyle === "orbitGlow"
     readonly property bool outlineUsesGlow: effectStyle === "glow" || effectStyle === "breathe" || effectStyle === "orbitGlow"
     readonly property bool outlineCanMove: outlineIsOrbit || effectStyle === "breathe"
@@ -2913,7 +2966,7 @@ Window {
                         Layout.fillWidth: true
                         spacing: 6
                         Repeater {
-                            model: ["Brillo y respiración", "Estados y color", "Luz móvil"]
+                            model: ["Brillo y respiración", "Cuándo mostrar", "Luz móvil"]
                             delegate: QQC2.Button {
                                 required property int index
                                 required property string modelData
@@ -2959,59 +3012,6 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
-                    }
-                    QQC2.Label { text: "Efecto"; color: "white" }
-                    QQC2.ComboBox {
-                        Layout.fillWidth: true
-                        model: ["Desactivado", "Borde fijo clásico", "Luz móvil clásica",
-                                "Brillo exterior fijo", "Respiración luminosa",
-                                "Luz móvil con resplandor"]
-                        currentIndex: Math.max(0, ["off","steady","orbit","glow","breathe","orbitGlow"]
-                            .indexOf(settings.effectStyle))
-                        onActivated: function(i) {
-                            settings.effectStyle = ["off","steady","orbit","glow","breathe","orbitGlow"][i]
-                            if (i >= 3 && settings.toHex(settings.accentColor).toLowerCase() === "#35d7ff")
-                                settings.accentColor = "#ffd27a"
-                        }
-                    }
-                    RowLayout {
-                        visible: settings.effectStyle !== "off"
-                        Layout.fillWidth: true
-                        QQC2.Button {
-                            text: "Elegir color…"
-                            onClicked: {
-                                outlineColorDialog.selectedColor = settings.accentColor
-                                outlineColorDialog.open()
-                            }
-                        }
-                        Rectangle {
-                            width: 40; height: 27
-                            radius: 6
-                            color: settings.accentColor
-                        }
-                        QQC2.Label {
-                            text: settings.toHex(settings.accentColor)
-                            color: "white"
-                        }
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Label {
-                            text: "Grosor";
-                            color: "white";
-                            Layout.preferredWidth: 80
-                            visible: settings.effectStyle !== "off"
-                        }
-                        QQC2.Slider {
-                            Layout.fillWidth: true
-                            from: 0.5; to: 2; stepSize: 0.25
-                            value: settings.strokeSize
-                            onMoved: settings.strokeSize = value
-                        }
-                        QQC2.Label {
-                            text: settings.strokeSize.toFixed(2) + " px"
-                            color: "white"
-                        }
                     }
                     }
                     ColumnLayout {
@@ -3110,6 +3110,59 @@ Window {
                         visible: settings.outlineSection === 2
                         Layout.fillWidth: true
                         spacing: 9
+                    QQC2.Label { text: "Efecto"; color: "white" }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Desactivado", "Borde fijo clásico", "Luz móvil clásica",
+                                "Brillo exterior fijo", "Respiración luminosa",
+                                "Luz móvil con resplandor"]
+                        currentIndex: Math.max(0, ["off","steady","orbit","glow","breathe","orbitGlow"]
+                            .indexOf(settings.effectStyle))
+                        onActivated: function(i) {
+                            settings.effectStyle = ["off","steady","orbit","glow","breathe","orbitGlow"][i]
+                            if (i >= 3 && settings.toHex(settings.accentColor).toLowerCase() === "#35d7ff")
+                                settings.accentColor = "#ffd27a"
+                        }
+                    }
+                    RowLayout {
+                        visible: settings.effectStyle !== "off"
+                        Layout.fillWidth: true
+                        QQC2.Button {
+                            text: "Color de la línea SO…"
+                            onClicked: {
+                                outlineColorDialog.selectedColor = settings.accentColor
+                                outlineColorDialog.open()
+                            }
+                        }
+                        Rectangle {
+                            width: 40; height: 27
+                            radius: 6
+                            color: settings.accentColor
+                        }
+                        QQC2.Label {
+                            text: settings.toHex(settings.accentColor)
+                            color: "white"
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Label {
+                            text: "Grosor";
+                            color: "white";
+                            Layout.preferredWidth: 80
+                            visible: settings.effectStyle !== "off"
+                        }
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.5; to: 2; stepSize: 0.25
+                            value: settings.strokeSize
+                            onMoved: settings.strokeSize = value
+                        }
+                        QQC2.Label {
+                            text: settings.strokeSize.toFixed(2) + " px"
+                            color: "white"
+                        }
+                    }
                     QQC2.Label {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -3290,7 +3343,7 @@ Window {
                         visible: settings.outlineUsesGlow
                         Layout.fillWidth: true
                         QQC2.Button {
-                            text: "Color exterior…"
+                            text: "Color exterior del brillo…"
                             onClicked: {
                                 glowColorDialog.selectedColor = settings.glowColor
                                 glowColorDialog.open()
@@ -3307,7 +3360,7 @@ Window {
                     }
                     QQC2.Label {
                         visible: settings.outlineUsesGlow
-                        text: "El color principal se elige arriba. El color exterior se elige aquí; en el degradado se combinan ambos."
+                        text: "El color de la línea SO y el color exterior están en este mismo apartado; el degradado combina ambos."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -4616,7 +4669,7 @@ Window {
                         x: 0
                         y: themeSelectorButton.height
                         width: themeSelectorButton.width
-                        height: Math.min(240, 50 * (2 + settings.savedThemeLibrary.length) + 8)
+                        height: Math.min(240, 50 * (3 + settings.otherNamedThemes.length) + 8)
                         padding: 4
                         modal: false
                         focus: true
@@ -4638,7 +4691,7 @@ Window {
                                 width: parent.width
                                 spacing: 2
                                 Repeater {
-                                    model: 2 + settings.savedThemeLibrary.length
+                                    model: 3 + settings.otherNamedThemes.length
                                     delegate: QQC2.ItemDelegate {
                                         required property int index
                                         width: themeOptionsColumn.width
@@ -4658,14 +4711,19 @@ Window {
                                                       ? (settings.themeNightJson.length
                                                           ? settings.themeImageSource(settings.themeNightJson)
                                                           : settings.factoryNightImage)
-                                                      : settings.themeImageSource(settings.savedThemeLibrary[index - 2].jsonData)
+                                                      : index === 2
+                                                        ? (settings.dayThemeIndex() >= 0
+                                                            ? settings.themeImageSource(settings.savedThemeLibrary[settings.dayThemeIndex()].jsonData)
+                                                            : "")
+                                                        : settings.themeImageSource(settings.savedThemeLibrary[settings.otherNamedThemeOriginalIndex(index - 3)].jsonData)
                                             }
                                             QQC2.Label {
                                                 Layout.fillWidth: true
                                                 color: "white"
                                                 text: index === 0 ? "Atardecer" :
                                                       index === 1 ? "Noche" :
-                                                      settings.savedThemeLibrary[index - 2].name
+                                                      index === 2 ? "Día" :
+                                                      settings.savedThemeLibrary[settings.otherNamedThemeOriginalIndex(index - 3)].name
                                             }
                                         }
                                         onClicked: {
@@ -4678,8 +4736,12 @@ Window {
                                             } else if (selectedIndex === 1) {
                                                 slot = settings.themeNightJson.length ? "nightLegacy" :
                                                     (settings.factoryNightAvailable ? "night" : "")
+                                            } else if (selectedIndex === 2) {
+                                                const savedDayIndex = settings.dayThemeIndex()
+                                                if (savedDayIndex >= 0) slot = "library:" + savedDayIndex
                                             } else {
-                                                slot = "library:" + (selectedIndex - 2)
+                                                const originalIndex = settings.otherNamedThemeOriginalIndex(selectedIndex - 3)
+                                                if (originalIndex >= 0) slot = "library:" + originalIndex
                                             }
                                             if (slot.length) {
                                                 settings.activateTheme(slot)
@@ -4689,13 +4751,20 @@ Window {
                                             } else {
                                                 settings.themeStatus = selectedIndex === 0
                                                     ? "No se encuentra el Atardecer guardado."
-                                                    : "No se encuentra la Noche guardada."
+                                                    : selectedIndex === 1
+                                                      ? "No se encuentra la Noche guardada."
+                                                      : "Guardá primero el Día actual desde el botón inferior."
                                             }
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Guardar cambios actuales en Día"
+                        onClicked: settings.saveCurrentDayTheme()
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
