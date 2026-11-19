@@ -14,6 +14,8 @@ QQC2.Popup {
     property string selectedCategory: ""
     property bool showMoreCategories: false
     property bool filesMode: false
+    // Iconos de tema KDE (sin modo de solo iconos: el nombre siempre visible).
+    property bool iconsWithNames: true
     property int primaryWidth: 285
     property int filesWidth: 500
     property int categoryWidth: 280
@@ -96,6 +98,23 @@ QQC2.Popup {
             return app.name.toLowerCase().includes(query)
         })
     }
+    function categoryIcon(category) {
+        const names = {
+            "Internet": "applications-internet",
+            "Oficina": "applications-office",
+            "Multimedia": "applications-multimedia",
+            "Sistema": "applications-system",
+            "Utilidades": "applications-utilities",
+            "Educación": "applications-education",
+            "Juegos": "applications-games",
+            "Gráficos": "applications-graphics",
+            "Desarrollo": "applications-development",
+            "Ciencia": "applications-science",
+            "Otras": "applications-other",
+            "+": "list-add"
+        }
+        return names[category] || "applications-other"
+    }
     component LauncherActionButton: QQC2.Button {
         id: action
         implicitHeight: 34
@@ -115,14 +134,11 @@ QQC2.Popup {
             cornerRadius: launcher.switchShape === "square" ? 0 :
                 launcher.switchShape === "rounded" ? 6 : 13
         }
-        contentItem: Text {
-            text: action.text
-            font: action.font
-            color: "white"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
+        // El contenido predeterminado de QQC2.Button sí renderiza
+        // icon.name y icon.source del tema KDE; el Text propio anterior no.
+        palette.buttonText: "white"
+        icon.width: 19
+        icon.height: 19
     }
     function resetAndFocus() {
         filesMode = false
@@ -194,6 +210,11 @@ QQC2.Popup {
                             width: appsList.width - 5
                             height: 32
                             text: modelData.name
+                            icon.name: modelData.icon || launcher.categoryIcon(launcher.selectedCategory)
+                            icon.source: modelData.iconSource || ""
+                            display: launcher.iconsWithNames
+                                ? QQC2.AbstractButton.TextBesideIcon
+                                : QQC2.AbstractButton.TextOnly
                             onClicked: launcher.appSelected(modelData.name, launcher.catalogIsReal)
                         }
                     }
@@ -359,6 +380,13 @@ QQC2.Popup {
                         readonly property string label: typeof modelData === "string"
                             ? modelData : modelData.name
                         text: label + (searchInput.text.trim() ? " · aplicación" : "")
+                        icon.name: typeof modelData === "string"
+                            ? launcher.categoryIcon(label)
+                            : (modelData.icon || launcher.categoryIcon(modelData.category))
+                        icon.source: typeof modelData === "string" ? "" : (modelData.iconSource || "")
+                        display: launcher.iconsWithNames
+                            ? QQC2.AbstractButton.TextBesideIcon
+                            : QQC2.AbstractButton.TextOnly
                         highlighted: label === launcher.selectedCategory
                         onClicked: {
                             if (label === "+")
