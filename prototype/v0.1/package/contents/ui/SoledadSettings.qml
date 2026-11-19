@@ -337,6 +337,11 @@ Window {
     property bool launcherSwitchColorOverride: false
     property color launcherSwitchColor: "#010111"
     property int launcherMaxSlots: 20
+    property bool launcherOpacityOverride: false
+    property real launcherOpacity: 1
+    property bool launcherIconsWithNames: true
+    property bool malvinaOptionsOpacityOverride: false
+    property real malvinaOptionsOpacity: 1
     property bool autoCollapseTray: false
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
@@ -417,6 +422,9 @@ Window {
     signal saveLauncherStyleRequested(int layoutMode, string switchShape,
                                      bool customColor, string switchColor,
                                      int maxVisibleSlots)
+    signal saveLauncherOpacityRequested(bool customOpacity, real opacityValue)
+    signal saveLauncherIconDisplayRequested(bool iconsWithNames)
+    signal saveMalvinaOptionsOpacityRequested(bool customOpacity, real opacityValue)
     signal saveBehaviorRequested(bool collapseSO, bool collapseTray,
                                  bool returnRight, bool showMalvina,
                                  bool alignRight, bool alignmentEdited)
@@ -518,6 +526,10 @@ Window {
         saveLauncherStyleRequested(launcherCategoryLayout, launcherSwitchShape,
                                    launcherSwitchColorOverride, toHex(launcherSwitchColor),
                                    launcherMaxSlots)
+        saveLauncherOpacityRequested(launcherOpacityOverride, launcherOpacity)
+        saveLauncherIconDisplayRequested(launcherIconsWithNames)
+        saveMalvinaOptionsOpacityRequested(malvinaOptionsOpacityOverride,
+                                           malvinaOptionsOpacity)
         savePositionModeRequested(positionMode)
         saveBehaviorRequested(autoCollapseSO, autoCollapseTray,
                               autoReturnRight, launcherIslandVisible,
@@ -1295,6 +1307,51 @@ Window {
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
+                    }
+                    QQC2.CheckBox {
+                        text: "Personalizar transparencia del launcher"
+                        checked: settings.launcherOpacityOverride
+                        onToggled: {
+                            if (checked && !settings.launcherOpacityOverride)
+                                settings.launcherOpacity = settings.soledadOpacity
+                            settings.launcherOpacityOverride = checked
+                        }
+                    }
+                    QQC2.Label {
+                        text: settings.launcherOpacityOverride
+                            ? "Opacidad propia del launcher (100 % = fondo opaco)"
+                            : "Opacidad heredada de Soledad: " +
+                              Math.round(settings.soledadOpacity * 100) + "%"
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.1; to: 1; stepSize: 0.05
+                            enabled: settings.launcherOpacityOverride
+                            value: settings.launcherOpacityOverride
+                                ? settings.launcherOpacity : settings.soledadOpacity
+                            onMoved: settings.launcherOpacity = value
+                        }
+                        QQC2.Label {
+                            color: "white"
+                            text: Math.round((settings.launcherOpacityOverride
+                                ? settings.launcherOpacity : settings.soledadOpacity) * 100) + "%"
+                        }
+                    }
+                    QQC2.Label {
+                        text: "Íconos de sectores y aplicaciones"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.ComboBox {
+                        Layout.fillWidth: true
+                        model: ["Ícono y nombre (predeterminado)", "Solo nombre"]
+                        currentIndex: settings.launcherIconsWithNames ? 0 : 1
+                        onActivated: function(i) { settings.launcherIconsWithNames = i === 0 }
                     }
                     QQC2.Label {
                         text: "Ubicación del panel de aplicaciones"
@@ -2397,6 +2454,48 @@ Window {
                                 onClicked: { settings.appearanceSection = index; appearanceScroll.contentItem.contentY = 0 }
                             }
                         }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 1
+                        text: "Panel de opciones Web / IA (Tab)"
+                        color: "white"
+                        font.bold: true
+                    }
+                    QQC2.CheckBox {
+                        visible: appearanceTarget.currentIndex === 1
+                        text: "Personalizar transparencia del panel Web / IA"
+                        checked: settings.malvinaOptionsOpacityOverride
+                        onToggled: {
+                            if (checked && !settings.malvinaOptionsOpacityOverride)
+                                settings.malvinaOptionsOpacity = settings.malvinaOpacity
+                            settings.malvinaOptionsOpacityOverride = checked
+                        }
+                    }
+                    RowLayout {
+                        visible: appearanceTarget.currentIndex === 1
+                        Layout.fillWidth: true
+                        QQC2.Slider {
+                            Layout.fillWidth: true
+                            from: 0.1; to: 1; stepSize: 0.05
+                            enabled: settings.malvinaOptionsOpacityOverride
+                            value: settings.malvinaOptionsOpacityOverride
+                                ? settings.malvinaOptionsOpacity : settings.malvinaOpacity
+                            onMoved: settings.malvinaOptionsOpacity = value
+                        }
+                        QQC2.Label {
+                            color: "white"
+                            text: Math.round((settings.malvinaOptionsOpacityOverride
+                                ? settings.malvinaOptionsOpacity : settings.malvinaOpacity) * 100) + "%"
+                        }
+                    }
+                    QQC2.Label {
+                        visible: appearanceTarget.currentIndex === 1
+                        color: "#ddd6e8"
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: settings.malvinaOptionsOpacityOverride
+                            ? "Opacidad propia. Conserva los colores, el degradado y la respiración de Malvina."
+                            : "Hereda la opacidad de Malvina. Activá la opción anterior para regularla por separado."
                     }
                     ColumnLayout {
                         visible: settings.appearanceSection === 0
