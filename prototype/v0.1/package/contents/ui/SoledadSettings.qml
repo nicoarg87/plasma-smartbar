@@ -1390,6 +1390,18 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
+                    QQC2.Button {
+                        text: "Restablecer posición y altura general"
+                        onClicked: {
+                            settings.autoReturnRight = true
+                            settings.alignedRight = true
+                            settings.positionMode = "right"
+                            settings.alignmentEdited = true
+                            settings.panelHeight = 48
+                        }
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "No modifica las figuras ni los tamaños particulares de las islas."
+                    }
                     }
                     ColumnLayout {
                         visible: settings.geometrySection === 1
@@ -1619,25 +1631,24 @@ Window {
                         color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
                     }
                     QQC2.Button {
-                        text: "Restablecer islas y posición"
+                        text: settings.geometryScope === "soledad"
+                            ? "Restablecer figura y tamaño SOLEDAD"
+                            : "Restablecer figura y tamaño MALVINA"
                         onClicked: {
-                            settings.launcherIslandVisible = true
-                            settings.autoReturnRight = true
-                            settings.alignedRight = true
-                            settings.positionMode = "right"
-                            settings.alignmentEdited = true
-                            settings.panelHeight = 48
-                            settings.soledadHeight = 44
-                            settings.malvinaHeight = 44
-                            settings.soledadRadius = 22
-                            settings.malvinaRadius = 22
-                            settings.soledadMinWidth = 0
-                            settings.malvinaWidth = 52
-                            settings.soledadShape = "leftRoundRightSquare"
-                            settings.malvinaShape = "rounded"
-                            settings.gripShape = "rounded"
-                            settings.trayButtonShape = "rounded"
+                            if (settings.geometryScope === "soledad") {
+                                settings.soledadHeight = 44
+                                settings.soledadRadius = 22
+                                settings.soledadMinWidth = 0
+                                settings.soledadShape = "leftRoundRightSquare"
+                            } else if (settings.geometryScope === "malvina") {
+                                settings.malvinaHeight = 44
+                                settings.malvinaRadius = 22
+                                settings.malvinaWidth = 52
+                                settings.malvinaShape = "rounded"
+                            }
                         }
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.text: "Solo modifica la isla que estás configurando."
                     }
                     }
                 }
