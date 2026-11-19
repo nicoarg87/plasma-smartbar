@@ -24,6 +24,8 @@ Item {
     property real optionsPanelBreathingFactor: 1
     property bool islandGradientEnabled: false
     property color islandGradientEnd: "#445577"
+    property color islandGradientThird: "#445577"
+    property int islandGradientColorCount: 2
     property string islandGradientDirection: "topBottom"
     // Los paneles flotantes heredan los contornos de la isla 2.
     property color islandOutlineColor: "#4e8499"
@@ -430,24 +432,40 @@ Item {
                 gradient: Gradient {
                     orientation: search.islandGradientDirection === "leftRight" ||
                                  search.islandGradientDirection === "rightLeft"
-                                 ? Gradient.Horizontal : Gradient.Vertical
+                        ? Gradient.Horizontal : Gradient.Vertical
                     GradientStop {
                         position: 0
-                        color: search.islandGradientDirection === "bottomTop" ||
-                               search.islandGradientDirection === "rightLeft"
-                               ? Qt.rgba(search.islandGradientEnd.r, search.islandGradientEnd.g,
-                                         search.islandGradientEnd.b, search.islandOpacity)
-                               : Qt.rgba(search.islandColor.r, search.islandColor.g,
-                                         search.islandColor.b, search.islandOpacity)
+                        color: {
+                            const reverse = search.islandGradientDirection === "bottomTop" ||
+                                            search.islandGradientDirection === "rightLeft"
+                            const value = reverse
+                                ? (search.islandGradientColorCount === 3
+                                   ? search.islandGradientThird : search.islandGradientEnd)
+                                : search.islandColor
+                            return Qt.rgba(value.r, value.g, value.b, search.islandOpacity)
+                        }
+                    }
+                    GradientStop {
+                        position: search.islandGradientColorCount === 3 ? 0.5 : 1
+                        color: {
+                            const reverse = search.islandGradientDirection === "bottomTop" ||
+                                            search.islandGradientDirection === "rightLeft"
+                            const value = search.islandGradientColorCount === 3
+                                ? search.islandGradientEnd
+                                : (reverse ? search.islandColor : search.islandGradientEnd)
+                            return Qt.rgba(value.r, value.g, value.b, search.islandOpacity)
+                        }
                     }
                     GradientStop {
                         position: 1
-                        color: search.islandGradientDirection === "bottomTop" ||
-                               search.islandGradientDirection === "rightLeft"
-                               ? Qt.rgba(search.islandColor.r, search.islandColor.g,
-                                         search.islandColor.b, search.islandOpacity)
-                               : Qt.rgba(search.islandGradientEnd.r, search.islandGradientEnd.g,
-                                         search.islandGradientEnd.b, search.islandOpacity)
+                        color: {
+                            const reverse = search.islandGradientDirection === "bottomTop" ||
+                                            search.islandGradientDirection === "rightLeft"
+                            const value = reverse ? search.islandColor
+                                : (search.islandGradientColorCount === 3
+                                   ? search.islandGradientThird : search.islandGradientEnd)
+                            return Qt.rgba(value.r, value.g, value.b, search.islandOpacity)
+                        }
                     }
                 }
             }
@@ -558,6 +576,8 @@ Item {
             cornerRadius: 10
             baseColor: search.islandColor
             endColor: search.islandGradientEnd
+            thirdColor: search.islandGradientThird
+            gradientColorCount: search.islandGradientColorCount
             gradientEnabled: search.islandGradientEnabled
             gradientDirection: search.islandGradientDirection
             baseOpacity: search.optionsPanelOpacity
