@@ -15,10 +15,13 @@ const config = fs.readFileSync(path.join(root,"package/contents/config/main.xml"
 
 assert(ui.includes("id: themesDropdownButton"));
 assert(ui.includes("property bool themeChooserExpanded: false"));
-assert(ui.includes('function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false }'));
+assert(ui.includes('function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; factoryToolsExpanded = false }'));
 assert(ui.includes('text: settings.themeChooserExpanded'));
 assert(ui.includes('onClicked: settings.themeChooserExpanded = !settings.themeChooserExpanded'));
 assert(ui.includes("id: themeListScroll"));
+assert(ui.includes("property bool factoryToolsExpanded: false"));
+assert(ui.includes("settings.factoryToolsExpanded = !settings.factoryToolsExpanded"));
+assert(ui.includes("visible: settings.factoryToolsExpanded && !settings.factorySunsetAvailable"));
 assert(ui.includes("visible: settings.themeChooserExpanded"));
 assert(ui.includes("QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn"));
 assert(ui.includes('text: "Guardar tema"'));
@@ -26,7 +29,7 @@ assert(ui.includes("settings.saveNamedTheme()"));
 assert(ui.includes("placeholderText: \"Nombre: Mi tema, Día, Atardecer...\""));
 assert(ui.includes("model: settings.savedThemeLibrary"));
 assert(ui.includes("settings.restoreNamedTheme(index)"));
-assert(ui.includes("themeChooserExpanded = false; discardPendingEdits()"));
+assert(ui.includes("themeChooserExpanded = false; factoryToolsExpanded = false; discardPendingEdits()"));
 assert(!ui.includes('text: "Actualizar Atardecer con estética actual…"'));
 const themeArea = ui.substring(ui.indexOf("id: themesScroll"),ui.indexOf("// Pie fijo:", ui.indexOf("id: themesScroll")));
 assert(themeArea.includes("id: themeListScroll"));
