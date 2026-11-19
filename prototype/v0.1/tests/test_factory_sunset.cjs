@@ -34,10 +34,10 @@ assert(!ui.includes("restoreSunsetConfirmation.open()"));
 assert(!ui.includes("function updateSunsetFromCurrent()"));
 assert(!ui.includes("function restorePreviousSunset()"));
 
-const cardStart = ui.indexOf('text: "Atardecer" + (settings.factorySunsetAvailable');
-const nightCardStart = ui.indexOf('text: "Noche" + (settings.factoryNightAvailable', cardStart);
+const cardStart = ui.indexOf('Image {\n                                    visible: settings.factorySunsetAvailable &&', ui.indexOf("id: themeListScroll"));
+const nightCardStart = ui.indexOf('Image {\n                                    visible: settings.factoryNightAvailable &&', cardStart);
 assert(cardStart >= 0 && nightCardStart > cardStart);
-const sunsetRowEnd = ui.indexOf('visible: settings.factoryNightAvailable &&',cardStart);
+const sunsetRowEnd = nightCardStart;
 assert(sunsetRowEnd > cardStart && nightCardStart > sunsetRowEnd);
 const sunsetCard = ui.substring(cardStart, sunsetRowEnd);
 assert(sunsetCard.includes("settings.factorySunsetImage"));
