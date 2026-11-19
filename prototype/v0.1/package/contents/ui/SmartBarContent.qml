@@ -197,28 +197,9 @@ Item {
                 root.malvinaHoverRevealed = false
         }
     }
-    // Qt reubica el contenido de los Popup en Overlay. Un TapHandler
-    // en root no recibe de forma fiable clics exteriores a esos Popup.
-    // Overlay.pressed se dispara solo fuera de superficies emergentes:
-    // cerramos ambos paneles en un mismo clic, sin interceptar sus controles.
-    // Escape sigue cerrando individualmente el panel con foco.
-    QQC2.Overlay.onPressed: {
-        // Al tocar SO o la isla 2 permitimos que ambos paneles puedan
-        // coexistir, como en la prueba del mantenedor. El clic en el
-        // escritorio vacío cierra los dos.
-        if (!soButton.hovered && !malvinaHotspotHover.hovered) {
-            if (installedAppsPopup.visible)
-                installedAppsPopup.close()
-            if (malvinaSearch.expanded) {
-                malvinaSearch.closeSearch()
-                if (root.autoHideMalvina) {
-                    malvinaRevealTimer.stop()
-                    malvinaHideTimer.stop()
-                    root.malvinaHoverRevealed = false
-                }
-            }
-        }
-    }
+    // Cada Popup gestiona sus clics exteriores mediante closePolicy de Qt.
+    // No cerrar globalmente desde Overlay.onPressed: ese evento también
+    // llegaba al pulsar controles DENTRO del launcher en CachyOS.
     // Preferencias independientes: no contraer por abrir la otra sección
     // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
     property bool autoCollapseSO: true
@@ -1127,10 +1108,11 @@ Item {
             installedAppsPopup.close()
         }
         onAppSelected: function(name, realCatalog) {
+            // La v0.1 es solo lectura. No cerramos el launcher al
+            // seleccionar una app porque aún NO la ejecutamos.
             console.log("SmartBar: aplicación seleccionada:", name,
                         realCatalog ? "(identificada en el equipo, no se ejecuta)"
                                     : "(muestra, no se ejecuta)")
-            installedAppsPopup.close()
         }
         onClosed: {
             if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
