@@ -111,7 +111,10 @@ Window {
         let data = null
         try {
             const json = previewFactorySlot === "sunset" ? factorySunsetJson :
-                         previewFactorySlot === "night" ? factoryNightJson : ""
+                         previewFactorySlot === "night" ? factoryNightJson :
+                         previewFactorySlot === "day" ? themeDayJson :
+                         previewFactorySlot === "nightLegacy" ? themeNightJson :
+                         previewFactorySlot.indexOf("library:") === 0 ? slotJson(previewFactorySlot) : ""
             if (json.length) data = JSON.parse(json)
         } catch (error) { data = null }
         const base = data || {
@@ -1585,7 +1588,7 @@ Window {
                     }
                     SettingsMenuButton {
                         visible: settings.navigationGroup === "themes"
-                        text: "Temas · Atardecer, Noche y personalizado"
+                        text: "Temas"
                         highlighted: settings.currentTab === 4
                         onClicked: settings.showThemes()
                     }
@@ -4503,7 +4506,7 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "Elegí un tema de la lista desplegable. Podés guardar el diseño que estás usando ahora sin borrar los anteriores."
+                        text: "Elegí Atardecer o Noche con un clic. Los temas nuevos se suman al mismo desplegable."
                     }
                     // Vista previa principal del tema seleccionado, independiente de la lista.
                     QQC2.Label {
@@ -4526,8 +4529,8 @@ Window {
                                 Layout.fillHeight: true
                                 spacing: 6
                                 QQC2.Label {
-                                    text: settings.previewFactorySlot === "sunset" ? "Atardecer" :
-                                          settings.previewFactorySlot === "night" ? "Noche" : "Tema actual"
+                                    text: (settings.previewFactorySlot === "sunset" || settings.previewFactorySlot === "day") ? "Atardecer" :
+                                          (settings.previewFactorySlot === "night" || settings.previewFactorySlot === "nightLegacy") ? "Noche" : "Tema actual"
                                     color: "white"
                                     font.bold: true
                                 }
@@ -4541,7 +4544,10 @@ Window {
                                     source: settings.previewFactorySlot === "sunset"
                                         ? settings.factorySunsetImage
                                         : settings.previewFactorySlot === "night"
-                                          ? settings.factoryNightImage : settings.selectedImage
+                                          ? settings.factoryNightImage :
+                                          settings.previewFactorySlot === "day" ? settings.themeImageSource(settings.themeDayJson) :
+                                          settings.previewFactorySlot === "nightLegacy" ? settings.themeImageSource(settings.themeNightJson) :
+                                          settings.previewFactorySlot.indexOf("library:") === 0 ? settings.themeImageSource(settings.slotJson(settings.previewFactorySlot)) : settings.selectedImage
                                     fillMode: Image.PreserveAspectFit
                                     playing: visible
                                 }
@@ -4559,7 +4565,10 @@ Window {
                                     source: settings.previewFactorySlot === "sunset"
                                         ? settings.factorySunsetImage
                                         : settings.previewFactorySlot === "night"
-                                          ? settings.factoryNightImage : settings.selectedImage
+                                          ? settings.factoryNightImage :
+                                          settings.previewFactorySlot === "day" ? settings.themeImageSource(settings.themeDayJson) :
+                                          settings.previewFactorySlot === "nightLegacy" ? settings.themeImageSource(settings.themeNightJson) :
+                                          settings.previewFactorySlot.indexOf("library:") === 0 ? settings.themeImageSource(settings.slotJson(settings.previewFactorySlot)) : settings.selectedImage
                                     fillMode: Image.PreserveAspectFit
                                     playing: visible
                                 }
@@ -4589,239 +4598,57 @@ Window {
                             }
                         }
                     }
-                    QQC2.Button {
-                        id: themesDropdownButton
+                    // Un único desplegable. Sin tarjetas, subtítulos ni botones "Usar".
+                    // Primero las instantáneas locales que el usuario ya guardó.
+                    QQC2.ComboBox {
+                        id: themeSelector
                         Layout.fillWidth: true
-                        highlighted: settings.themeChooserExpanded
-                        text: settings.themeChooserExpanded
-                            ? "Temas guardados de fábrica  ▴"
-                            : "Temas guardados de fábrica  ▾"
-                        onClicked: settings.themeChooserExpanded = !settings.themeChooserExpanded
-                    }
-                    QQC2.ScrollView {
-                        id: themeListScroll
-                        visible: settings.themeChooserExpanded
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 360
-                        clip: true
-                        contentWidth: Math.max(0, availableWidth - 24)
-                        QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
-                        QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
-                        ColumnLayout {
-                            width: Math.max(0, themeListScroll.availableWidth - 24)
-                            spacing: 12
-                            QQC2.Label {
-                                text: "TEMAS GUARDADOS DE FÁBRICA"
-                                color: "#b9cce2"
-                                font.bold: true
-                            }
-                            // Lista sencilla: primero Atardecer, después Noche.
-                            // No inventar el contenido de los manifiestos que aún son null.
-                            Repeater {
-                                model: [
-                                    { name: "Atardecer", slot: "sunset" },
-                                    { name: "Noche", slot: "night" }
-                                ]
-                                delegate: QQC2.ItemDelegate {
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    implicitHeight: 66
-                                    enabled: modelData.slot === "sunset"
-                                        ? settings.factorySunsetAvailable : settings.factoryNightAvailable
-                                    onClicked: {
-                                        settings.previewFactorySlot = modelData.slot
-                                        settings.activateTheme(modelData.slot)
-                                        settings.themeChooserExpanded = false
-                                    }
-                                    contentItem: RowLayout {
-                                        spacing: 12
-                                        AnimatedImage {
-                                            Layout.preferredWidth: 76
-                                            Layout.preferredHeight: 48
-                                            source: modelData.slot === "sunset"
-                                                ? settings.factorySunsetImage : settings.factoryNightImage
-                                            playing: visible
-                                            fillMode: Image.PreserveAspectFit
-                                        }
-                                        QQC2.Label {
-                                            Layout.fillWidth: true
-                                            text: modelData.name + (modelData.slot === "sunset"
-                                                ? (settings.factorySunsetAvailable ? "" : " · original pendiente")
-                                                : (settings.factoryNightAvailable ? "" : " · original pendiente"))
-                                            color: "white"
-                                        }
-                                    }
+                        implicitHeight: 44
+                        model: settings.savedThemeLibrary.length + 2
+                        textRole: ""
+                        displayText: "Elegir tema  ▾"
+                        currentIndex: -1
+                        delegate: QQC2.ItemDelegate {
+                            required property int index
+                            width: themeSelector.width
+                            implicitHeight: 48
+                            text: index === 0 ? "Atardecer" :
+                                  index === 1 ? "Noche" :
+                                  settings.savedThemeLibrary[index - 2].name
+                            onClicked: {
+                                themeSelector.popup.close()
+                                themeSelector.currentIndex = -1
+                                if (index === 0) {
+                                    const slot = settings.themeDayJson.length > 0 ? "day" :
+                                        (settings.factorySunsetAvailable ? "sunset" : "")
+                                    if (slot) {
+                                        settings.previewFactorySlot = slot
+                                        settings.activateTheme(slot)
+                                    } else settings.themeStatus = "Atardecer todavía no tiene una instantánea disponible."
+                                } else if (index === 1) {
+                                    const slot = settings.themeNightJson.length > 0 ? "nightLegacy" :
+                                        (settings.factoryNightAvailable ? "night" : "")
+                                    if (slot) {
+                                        settings.previewFactorySlot = slot
+                                        settings.activateTheme(slot)
+                                    } else settings.themeStatus = "Noche todavía no tiene una instantánea disponible."
+                                } else {
+                                    settings.previewFactorySlot = "library:" + (index - 2)
+                                    settings.restoreNamedTheme(index - 2)
                                 }
                             }
-                            QQC2.Label {
-                                Layout.fillWidth: true
-                                text: "TUS TEMAS GUARDADOS"
-                                font.bold: true
-                                color: "#b9cce2"
-                            }
-                            RowLayout {
-                                visible: settings.themeDayJson.length > 0
-                                Layout.fillWidth: true
-                                Image {
-                                    Layout.preferredWidth: 58
-                                    Layout.preferredHeight: 40
-                                    source: settings.themeImageSource(settings.themeDayJson)
-                                    visible: source.toString().length > 0
-                                    fillMode: Image.PreserveAspectFit
-                                }
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Atardecer guardado anteriormente"
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Usar"
-                                    onClicked: settings.activateTheme("day")
-                                }
-                            }
-                            RowLayout {
-                                visible: settings.themeDayPreviousJson.length > 0
-                                Layout.fillWidth: true
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Atardecer anterior · respaldo histórico"
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Usar"
-                                    onClicked: settings.activateTheme("dayPrevious")
-                                }
-                            }
-                            RowLayout {
-                                visible: settings.themeNightJson.length > 0
-                                Layout.fillWidth: true
-                                Image {
-                                    Layout.preferredWidth: 58
-                                    Layout.preferredHeight: 40
-                                    source: settings.themeImageSource(settings.themeNightJson)
-                                    visible: source.toString().length > 0
-                                    fillMode: Image.PreserveAspectFit
-                                }
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Noche guardada anteriormente"
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Usar"
-                                    onClicked: settings.activateTheme("nightLegacy")
-                                }
-                            }
-                            RowLayout {
-                                visible: settings.themeCustomJson.length > 0
-                                Layout.fillWidth: true
-                                Image {
-                                    Layout.preferredWidth: 58
-                                    Layout.preferredHeight: 40
-                                    source: settings.themeImageSource(settings.themeCustomJson)
-                                    visible: source.toString().length > 0
-                                    fillMode: Image.PreserveAspectFit
-                                }
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Personalizado guardado"
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Usar"
-                                    onClicked: settings.activateTheme("custom")
-                                }
-                            }
-                            RowLayout {
-                                visible: settings.personalDefaultAvailable
-                                Layout.fillWidth: true
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Mi predeterminada personal (ya guardada)"
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Usar"
-                                    onClicked: settings.restoreExistingLocalTheme("personal")
-                                }
-                            }
-                            RowLayout {
-                                visible: settings.favoriteAppearanceAvailable
-                                Layout.fillWidth: true
-                                QQC2.Label {
-                                    Layout.fillWidth: true
-                                    text: "Mi estética favorita (ya guardada)"
-                                    color: "white"
-                                    wrapMode: Text.WordWrap
-                                }
-                                QQC2.Button {
-                                    text: "Usar"
-                                    onClicked: settings.restoreExistingLocalTheme("favorite")
-                                }
-                            }
-                            Repeater {
-                                model: settings.savedThemeLibrary
-                                delegate: RowLayout {
-                                    required property int index
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    spacing: 8
-                                    Image {
-                                        Layout.preferredWidth: 58
-                                        Layout.preferredHeight: 40
-                                        source: settings.themeImageSource(modelData.jsonData)
-                                        visible: source.toString().length > 0
-                                        fillMode: Image.PreserveAspectFit
-                                    }
-                                    QQC2.Label {
-                                        Layout.fillWidth: true
-                                        text: modelData.name
-                                        color: "white"
-                                        wrapMode: Text.WordWrap
-                                    }
-                                    QQC2.Button {
-                                        text: "Usar"
-                                        onClicked: settings.restoreNamedTheme(index)
-                                    }
-                                }
-                            }
-                            QQC2.Label {
-                                Layout.fillWidth: true
-                                visible: settings.savedThemeLibrary.length === 0 &&
-                                         settings.themeCustomJson.length === 0 &&
-                                         settings.themeDayJson.length === 0 &&
-                                         settings.themeDayPreviousJson.length === 0 &&
-                                         settings.themeNightJson.length === 0 &&
-                                         !settings.personalDefaultAvailable &&
-                                         !settings.favoriteAppearanceAvailable
-                                text: "Todavía no hay temas personales guardados. Poné un nombre arriba y elegí Guardar tema."
-                                color: "#b9cce2"
-                                wrapMode: Text.WordWrap
-                            }
-                            QQC2.Button {
-                                Layout.fillWidth: true
-                                visible: !settings.factorySunsetAvailable || !settings.factoryNightAvailable
-                                text: settings.factoryToolsExpanded
-                                    ? "Herramientas de fábrica (avanzado)  ▴"
-                                    : "Herramientas de fábrica (avanzado)  ▾"
-                                onClicked: settings.factoryToolsExpanded = !settings.factoryToolsExpanded
-                            }
-                            QQC2.Button {
-                                Layout.fillWidth: true
-                                visible: settings.factoryToolsExpanded && !settings.factorySunsetAvailable
-                                text: "Exportar aspecto actual para fijar Atardecer de fábrica…"
-                                onClicked: settings.showFactoryCapture("sunset")
-                            }
-                            QQC2.Button {
-                                Layout.fillWidth: true
-                                visible: settings.factoryToolsExpanded && !settings.factoryNightAvailable
-                                text: "Exportar aspecto actual para fijar Noche de fábrica…"
-                                onClicked: settings.showFactoryCapture("night")
+                        }
+                        popup: QQC2.Popup {
+                            y: themeSelector.height
+                            width: themeSelector.width
+                            padding: 2
+                            implicitHeight: Math.min(contentItem.implicitHeight + 4, 260)
+                            contentItem: ListView {
+                                clip: true
+                                implicitHeight: contentHeight
+                                model: themeSelector.delegateModel
+                                currentIndex: -1
+                                QQC2.ScrollIndicator.vertical: QQC2.ScrollIndicator {}
                             }
                         }
                     }
