@@ -1294,6 +1294,9 @@ Window {
         onAccepted: {
             settings.filePath = selectedFile.toString()
             settings.logoMode = "custom"
+            settings.previewFactorySlot = ""
+            if (settings.creatingNewTheme && useGifPaletteForTheme.checked)
+                Qt.callLater(function() { paletteSampler.suggestFromImage("theme") })
         }
     }
     ColorDialog {
@@ -4591,8 +4594,8 @@ Window {
                         Layout.fillWidth: true
                         highlighted: settings.themeChooserExpanded
                         text: settings.themeChooserExpanded
-                            ? "Temas guardados y de fábrica  ▴"
-                            : "Seleccionar tema  ▾"
+                            ? "Temas guardados de fábrica  ▴"
+                            : "Temas guardados de fábrica  ▾"
                         onClicked: settings.themeChooserExpanded = !settings.themeChooserExpanded
                     }
                     QQC2.ScrollView {
