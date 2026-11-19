@@ -21,7 +21,7 @@ Window {
     // Persistencia local SOLO del visor Qt: no modifica ningún panel KDE.
     // Se guardan los valores elegidos, no una estética inventada en GitHub.
     property bool appearanceRestored: false
-    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
+    readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoLauncherOpacityOverride","demoLauncherOpacity","demoLauncherIconsWithNames","demoMalvinaOptionsOpacityOverride","demoMalvinaOptionsOpacity","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientBreathingIntensity","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingIntensity","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
     QtCore.Settings {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
@@ -195,6 +195,11 @@ Window {
     property bool demoLauncherSwitchColorOverride: false
     property color demoLauncherSwitchColor: "#010111"
     property int demoLauncherMaxSlots: 20
+    property bool demoLauncherOpacityOverride: false
+    property real demoLauncherOpacity: 1
+    property bool demoLauncherIconsWithNames: true
+    property bool demoMalvinaOptionsOpacityOverride: false
+    property real demoMalvinaOptionsOpacity: 1
     property bool demoAutoCollapseTray: false
     // Estados de sesión de la maqueta (el panel KDE no se instala).
     property string demoSoLogoMode: "default"
@@ -411,6 +416,11 @@ Window {
         launcherSwitchColorOverride: previewWindow.demoLauncherSwitchColorOverride
         launcherSwitchColor: previewWindow.demoLauncherSwitchColor
         launcherMaxSlots: previewWindow.demoLauncherMaxSlots
+        launcherOpacityOverride: previewWindow.demoLauncherOpacityOverride
+        launcherOpacity: previewWindow.demoLauncherOpacity
+        launcherIconsWithNames: previewWindow.demoLauncherIconsWithNames
+        malvinaOptionsOpacityOverride: previewWindow.demoMalvinaOptionsOpacityOverride
+        malvinaOptionsOpacity: previewWindow.demoMalvinaOptionsOpacity
         launcherAvailableHeight: Math.max(160, previewWindow.height - bar.fixedHeight - 28)
         autoCollapseTray: previewWindow.demoAutoCollapseTray
         soLogoMode: previewWindow.demoSoLogoMode
@@ -591,6 +601,17 @@ Window {
             previewWindow.demoLauncherSwitchColor = color
             previewWindow.demoLauncherMaxSlots = slots
         }
+        onRequestLauncherOpacityChange: function(customOpacity, opacityValue) {
+            previewWindow.demoLauncherOpacityOverride = customOpacity
+            previewWindow.demoLauncherOpacity = opacityValue
+        }
+        onRequestLauncherIconDisplayChange: function(iconsWithNames) {
+            previewWindow.demoLauncherIconsWithNames = iconsWithNames
+        }
+        onRequestMalvinaOptionsOpacityChange: function(customOpacity, opacityValue) {
+            previewWindow.demoMalvinaOptionsOpacityOverride = customOpacity
+            previewWindow.demoMalvinaOptionsOpacity = opacityValue
+        }
         onRequestAutoCollapseTrayChange: function(newValue) {
             previewWindow.demoAutoCollapseTray = newValue
         }
@@ -738,6 +759,11 @@ Window {
     onDemoLauncherSwitchColorOverrideChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
     onDemoLauncherSwitchColorChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
     onDemoLauncherMaxSlotsChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoLauncherOpacityOverrideChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoLauncherOpacityChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoLauncherIconsWithNamesChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoMalvinaOptionsOpacityOverrideChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
+    onDemoMalvinaOptionsOpacityChanged: { if (appearanceRestored) saveAppearanceTimer.restart() }
     onDemoAutoCollapseTrayChanged: {
         if (appearanceRestored) saveAppearanceTimer.restart()
     }
