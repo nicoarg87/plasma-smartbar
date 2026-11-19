@@ -382,7 +382,12 @@ Item {
         padding: 0
         modal: false
         focus: false
-        closePolicy: QQC2.Popup.NoAutoClose
+        closePolicy: QQC2.Popup.CloseOnPressOutside
+        onClosed: {
+            // Si se pulsa fuera del único campo, cerrar toda la búsqueda.
+            // No se dispara por clicks en el otro Popup de proveedores.
+            if (search.expanded) search.closeSearch()
+        }
         background: Rectangle {
             radius: search.islandShape === "square" ? 0 :
                     search.islandShape === "capsule" ? height / 2 :
@@ -516,7 +521,7 @@ Item {
         focus: false
         // El campo crece fuera de los 34 px nominales; no confundir sus clics
         // con clics exteriores al Popup. El detector de la barra gestiona el cierre.
-        closePolicy: QQC2.Popup.CloseOnEscape
+        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
         onClosed: {
             if (search.suppressPopupDismissal) {
                 search.suppressPopupDismissal = false
