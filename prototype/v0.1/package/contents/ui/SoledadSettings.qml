@@ -195,30 +195,8 @@ Window {
             }
         }
     }
-    QQC2.Dialog {
-        id: updateSunsetConfirmation
-        title: "Confirmar actualización de Atardecer"
-        modal: true
-        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.Cancel
-        QQC2.Label {
-            text: "Guardar la estética actual como Atardecer. La versión anterior quedará recuperable."
-            wrapMode: Text.WordWrap
-            width: 290
-        }
-        onAccepted: settings.updateSunsetFromCurrent()
-    }
-    QQC2.Dialog {
-        id: restoreSunsetConfirmation
-        title: "Recuperar Atardecer anterior"
-        modal: true
-        standardButtons: QQC2.Dialog.Yes | QQC2.Dialog.Cancel
-        QQC2.Label {
-            text: "Intercambiar la versión anterior y la actual. No se tocará la estética favorita."
-            wrapMode: Text.WordWrap
-            width: 290
-        }
-        onAccepted: settings.restorePreviousSunset()
-    }
+    // Los antiguos diálogos para sobrescribir Atardecer se retiraron.
+    // Las ranuras históricas siguen persistidas, pero no son el original.
 
     // Botones del menú lateral: no cortar nombres cuando la ventana es angosta
     // o cuando el usuario aumenta la escala de fuentes de KDE.
@@ -476,40 +454,18 @@ Window {
             themeStatus = "Atardecer de fábrica está protegido; usá Personalizado."
             return
         }
-        if (slot === "day" && slotJson(slot).length > 0) {
-            themeStatus = "Atardecer está protegido; recuperalo con Aplicar."
+        if (slot === "day") {
+            themeStatus = "La antigua ranura Atardecer se conserva, pero ya no se modifica; usá Personalizado."
             return
         }
         const data = themeSnapshot()
-        if (slot === "day") themeDayJson = data
-        else if (slot === "night") themeNightJson = data
-        else themeCustomJson = data
+        themeCustomJson = data
         stageThemeSlot(slot, data)
-        themeStatus = "Tema " + (slot === "day" ? "Atardecer" : slot === "night" ? "Noche" : "Personalizado") +
+        themeStatus = "Tema Personalizado" +
                       " preparado. Pulsá Aplicar para guardarlo sin reemplazar otros temas."
     }
-    // Acción excepcional, solicitada por el mantenedor, con confirmación:
-    // no reescribir Atardecer durante Aplicar, favoritos o autoguardado.
-    function updateSunsetFromCurrent() {
-        if (themeDayJson.length > 0) {
-            themeDayPreviousJson = themeDayJson
-            stageThemeSlot("dayPrevious", themeDayPreviousJson)
-        }
-        const data = themeSnapshot()
-        themeDayJson = data
-        stageThemeSlot("day", data)
-        themeStatus = "Atardecer preparado y respaldo recuperable. Pulsá Aplicar para guardar ambos."
-    }
-    function restorePreviousSunset() {
-        if (!themeDayPreviousJson.length) return
-        const previous = themeDayPreviousJson
-        const current = themeDayJson
-        themeDayPreviousJson = current
-        themeDayJson = previous
-        stageThemeSlot("dayPrevious", current)
-        stageThemeSlot("day", previous)
-        themeStatus = "Atardecer anterior listo para recuperar. Pulsá Aplicar para guardar el intercambio."
-    }
+    // Las instantáneas antiguas de Atardecer no se descartan ni se reescriben.
+    // El original se distribuye exclusivamente en FactorySunsetTheme.js.
     function themeImageSource(jsonData) {
         try {
             if (!jsonData) return ""
@@ -4453,9 +4409,9 @@ Window {
                         color: "white"
                     }
                     QQC2.Label {
-                        text: "Noche de fábrica recupera siempre su aspecto original, sin sobrescribirlo. " +
-                              "Atardecer y Personalizado mantienen sus propias copias. " +
-                              "La miniatura de cada tema debe corresponder a su imagen guardada."
+                        text: "Atardecer y Noche son temas de fábrica protegidos: restaurarlos " +
+                              "no cambia el original. Podés editar los colores, logos y efectos " +
+                              "de la barra y guardarlos en Personalizado. Día se definirá aparte."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -4514,48 +4470,45 @@ Window {
                                 anchors.fill: parent
                                 anchors.margins: 8
                                 spacing: 5
-                                QQC2.Label { text: "Atardecer"; color: "white"; font.bold: true }
+                                QQC2.Label { text: "Atardecer de fábrica"; color: "white"; font.bold: true }
                                 Image {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 64
                                     fillMode: Image.PreserveAspectFit
-                                    source: settings.themeDayJson.length
-                                        ? settings.themeImageSource(settings.themeDayJson)
-                                        : ""
-                                    visible: source.toString().length > 0
+                                    source: settings.factorySunsetAvailable &&
+                                            settings.factorySunsetPreset.logoMode !== "text"
+                                        ? settings.factorySunsetImage : ""
+                                    visible: settings.factorySunsetAvailable &&
+                                             settings.factorySunsetPreset.logoMode !== "text"
                                     cache: false
                                 }
                                 QQC2.Label {
-                                    visible: settings.themeDayJson.length === 0
-                                    text: "Atardecer todavía no está fijado"
-                                    color: "#d0ddeb"
+                                    visible: settings.factorySunsetAvailable &&
+                                             settings.factorySunsetPreset.logoMode === "text"
+                                    text: settings.factorySunsetAvailable
+                                        ? settings.factorySunsetPreset.soTextLabel : ""
+                                    color: "white"
+                                    font.bold: true
                                 }
-                                RowLayout {
+                                QQC2.Label {
                                     Layout.fillWidth: true
-                                    QQC2.Button {
-                                        Layout.fillWidth: true
-                                        visible: settings.themeDayJson.length === 0
-                                        text: "Fijar Atardecer"
-                                        onClicked: settings.storeTheme("day")
-                                    }
-                                    QQC2.Button {
-                                        Layout.fillWidth: true
-                                        enabled: settings.themeDayJson.length > 0
-                                        text: "Aplicar Atardecer"
-                                        onClicked: settings.activateTheme("day")
-                                    }
+                                    wrapMode: Text.WordWrap
+                                    text: settings.factorySunsetAvailable
+                                        ? "Tema de fábrica protegido. Restaurarlo no impide cambiar colores y efectos."
+                                        : "Pendiente: incorporar la captura exacta y su imagen; no se usará otra paleta."
+                                    color: settings.factorySunsetAvailable ? "#b6ebdf" : "#ffd6aa"
                                 }
                                 QQC2.Button {
                                     Layout.fillWidth: true
-                                    enabled: settings.themeDayJson.length > 0
-                                    text: "Actualizar Atardecer con estética actual…"
-                                    onClicked: updateSunsetConfirmation.open()
+                                    text: "Restaurar Atardecer de fábrica"
+                                    enabled: settings.factorySunsetAvailable
+                                    onClicked: settings.activateTheme("sunset")
                                 }
                                 QQC2.Button {
                                     Layout.fillWidth: true
-                                    enabled: settings.themeDayPreviousJson.length > 0
-                                    text: "Recuperar Atardecer anterior…"
-                                    onClicked: restoreSunsetConfirmation.open()
+                                    visible: !settings.factorySunsetAvailable
+                                    text: "Copiar mi apariencia actual para fijar Atardecer…"
+                                    onClicked: settings.showFactoryCapture("sunset")
                                 }
                             }
                         }
@@ -4607,7 +4560,7 @@ Window {
                                     Layout.fillWidth: true
                                     visible: !settings.factoryNightAvailable
                                     text: "Copiar mi apariencia actual para fijar Noche…"
-                                    onClicked: factoryNightExportDialog.open()
+                                    onClicked: settings.showFactoryCapture("night")
                                 }
                             }
                         }
