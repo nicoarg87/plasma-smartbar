@@ -813,17 +813,18 @@ Window {
         interval: 3500
         repeat: false
         onTriggered: {
-            if (!paletteSampler.pending) return
-            if (paletteSampler.isImageLoaded(paletteSampler.requestedUrl)) {
-                paletteSampler.requestPaint()
-                return
+            if (paletteSampler.pending) {
+                if (paletteSampler.isImageLoaded(paletteSampler.requestedUrl)) {
+                    paletteSampler.requestPaint()
+                } else {
+                    paletteSampler.pending = false
+                    settings.paletteFeedback = paletteSampler.isImageError(paletteSampler.requestedUrl)
+                        ? "No se pudo abrir el GIF/imagen. Comprobá la ruta del archivo."
+                        : "La imagen todavía no está disponible para analizar; volvé a intentar."
+                    if (paletteSampler.requestMode === "automatic")
+                        settings.themeStatus = settings.paletteFeedback
+                }
             }
-            paletteSampler.pending = false
-            settings.paletteFeedback = paletteSampler.isImageError(paletteSampler.requestedUrl)
-                ? "No se pudo abrir el GIF/imagen. Comprobá la ruta del archivo."
-                : "La imagen todavía no está disponible para analizar; volvé a intentar."
-            if (paletteSampler.requestMode === "automatic")
-                settings.themeStatus = settings.paletteFeedback
         }
     }
     // Sugeridor óptico local. No transmite imágenes ni modifica archivos.
