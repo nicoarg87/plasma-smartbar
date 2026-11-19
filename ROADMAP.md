@@ -491,3 +491,11 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Agrupar transparencia del launcher de Soledad en su pestaña Color, equivalente a la transparencia del panel Web/IA de Malvina. No sobrescribir valores de estética ya guardados.
 - [ ] Probar en CachyOS cierres por clic exterior (dos popups), Escape individual, alternancia repetida, hover Malvina, opacidades al 80/100 % y persistencia.
 - [ ] Investigar si quedan casos de hover intermitente en sesión real KWin/Wayland y de eventos de superposición no recibidos por Popup no modal; si falla, mantener evidencia de Konsole y corregir de manera acotada.
+
+## Regresión de clic interior en launcher SO y panel Web/IA — 18/11/2026
+
+- [x] Reconocer regresión probada por el mantenedor: launcher SO se cerraba al tocar controles internos; Malvina cerraba al seleccionar proveedor Web/IA.
+- [x] Eliminar cierre global `Overlay.onPressed` de `SmartBarContent.qml`; usar política nativa de clic exterior en el popup SO. Mantener abierto launcher si se selecciona app de muestra sin ejecución.
+- [x] Diferenciar campo de Malvina de popup hermano de proveedores; el campo desactiva cierre exterior cuando Web/IA está visible, y recupera cierre exterior cuando solo está abierto el campo.
+- [ ] Reprobar en CachyOS/Wayland el clic dentro de ambos popups, alternancia, selección Web/IA, Escape individual, clic exterior, foco de escritura, dos paneles simultáneos; registrar fallos si persisten.
+- [ ] Ejecutar test funcional con Qt gráfico y comprobar que `closePolicy` de dos popups hermanos no afecta el flujo; no declarar corrección comprobada antes de ensayo.
