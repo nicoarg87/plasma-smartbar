@@ -17,6 +17,8 @@ Item {
     property real islandOpacity: 1
     property bool gradientEnabled: false
     property color gradientEnd: "#445577"
+    property color gradientThird: "#445577"
+    property int gradientColorCount: 2
     property string gradientDirection: "topBottom"
     property var outlineSettings: ({style:"solid",width:1,color:"#4e8499",opacity:1})
     property string googleTemplate: "https://www.google.com/search?q={query}"
@@ -68,26 +70,42 @@ Item {
             topRightRadius: parent.topRightRadius
             bottomRightRadius: parent.bottomRightRadius
             gradient: Gradient {
-                orientation: (island.gradientDirection === "leftRight" ||
-                              island.gradientDirection === "rightLeft")
+                orientation: island.gradientDirection === "leftRight" ||
+                             island.gradientDirection === "rightLeft"
                     ? Gradient.Horizontal : Gradient.Vertical
                 GradientStop {
                     position: 0
-                    color: island.gradientDirection === "bottomTop" ||
-                           island.gradientDirection === "rightLeft"
-                        ? Qt.rgba(island.gradientEnd.r, island.gradientEnd.g,
-                                  island.gradientEnd.b, island.islandOpacity)
-                        : Qt.rgba(island.islandColor.r, island.islandColor.g,
-                                  island.islandColor.b, island.islandOpacity)
+                    color: {
+                        const reverse = island.gradientDirection === "bottomTop" ||
+                                        island.gradientDirection === "rightLeft"
+                        const col = reverse
+                            ? (island.gradientColorCount === 3
+                               ? island.gradientThird : island.gradientEnd)
+                            : island.islandColor
+                        return Qt.rgba(col.r, col.g, col.b, island.islandOpacity)
+                    }
+                }
+                GradientStop {
+                    position: island.gradientColorCount === 3 ? 0.5 : 1
+                    color: {
+                        const reverse = island.gradientDirection === "bottomTop" ||
+                                        island.gradientDirection === "rightLeft"
+                        const col = island.gradientColorCount === 3
+                            ? island.gradientEnd
+                            : (reverse ? island.islandColor : island.gradientEnd)
+                        return Qt.rgba(col.r, col.g, col.b, island.islandOpacity)
+                    }
                 }
                 GradientStop {
                     position: 1
-                    color: island.gradientDirection === "bottomTop" ||
-                           island.gradientDirection === "rightLeft"
-                        ? Qt.rgba(island.islandColor.r, island.islandColor.g,
-                                  island.islandColor.b, island.islandOpacity)
-                        : Qt.rgba(island.gradientEnd.r, island.gradientEnd.g,
-                                  island.gradientEnd.b, island.islandOpacity)
+                    color: {
+                        const reverse = island.gradientDirection === "bottomTop" ||
+                                        island.gradientDirection === "rightLeft"
+                        const col = reverse ? island.islandColor
+                            : (island.gradientColorCount === 3
+                               ? island.gradientThird : island.gradientEnd)
+                        return Qt.rgba(col.r, col.g, col.b, island.islandOpacity)
+                    }
                 }
             }
         }
@@ -107,6 +125,13 @@ Item {
             anchors.left: parent.left
             anchors.leftMargin: 5
             anchors.verticalCenter: parent.verticalCenter
+            islandColor: island.islandColor
+            islandOpacity: island.islandOpacity
+            islandGradientEnabled: island.gradientEnabled
+            islandGradientEnd: island.gradientEnd
+            islandGradientThird: island.gradientThird
+            islandGradientColorCount: island.gradientColorCount
+            islandGradientDirection: island.gradientDirection
             googleTemplate: island.googleTemplate
             duckTemplate: island.duckTemplate
             yahooTemplate: island.yahooTemplate
