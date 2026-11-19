@@ -1245,3 +1245,10 @@ El mantenedor pidió guardar **toda la configuración actual que tiene en su Cac
 - **REPORTE/REQUISITO CONFIRMADO:** En la búsqueda de Archivos del launcher SO, Enter no hacía nada. El mantenedor solicita abrir el administrador de archivos por defecto del sistema (Dolphin cuando KDE lo tenga configurado), y poder escoger otro desde ajustes si existe integración verificable.
 - **IMPLEMENTADO EN RAMA EXPERIMENTAL, NO PROBADO EN CACHYOS:** [commit decb9d2](https://github.com/nicoarg87/plasma-smartbar/commit/decb9d27dde6063ee09152cae2bf71374de4d51f) agrega `onAccepted` para abrir carpeta actual mediante `Qt.openUrlExternally(fileList.folder)` y botón «Abrir en gestor». Solo URL `file:///`, sin ejecutar archivos ni alterar el panel KDE; el gestor lo determina el escritorio.
 - **PENDIENTE:** retest con Fish ejecutando `bash prototype/v0.1/probar_ancho.sh`; comprobar Enter, botón, asociaciones KDE, archivos/carpetas, foco y errores de Konsole. Selector de gestor instalado **NO IMPLEMENTADO**: requerirá backend validado y una opción real, no simular elección con una lista inoperante. Seguimiento: [issue #14](https://github.com/nicoarg87/plasma-smartbar/issues/14).
+
+
+## Respiración siempre activa en presets Playa Día y Playa Noche — 19/11/2026
+
+- **CONFIRMADO:** al aplicar Playa Día o Playa Noche se activan ambos degradados y su sincronización con la respiración SO, incluso con cero ventanas. Colores e intensidades preexistentes permanecen; temas personalizados no se fuerzan.
+- **IMPLEMENTADO SOLO EN RAMA EXPERIMENTAL:** [54f1e67](https://github.com/nicoarg87/plasma-smartbar/commit/54f1e673e1df033a6732f29a26f4013fe6ae87a6) añade ensureBeachBreathing al guardar/aplicar Día/Noche. Los nuevos snapshots también incluyen modo, condiciones, velocidad y profundidad de pulso.
+- **PENDIENTE DE PROBAR EN CACHYOS:** ambos presets, cero/muchas ventanas, launcher, Malvina Web/IA, colores, opacidad, rendimiento, persistencia y reinicio. La incorporación de los presets de solo lectura con los valores exactos del mantenedor sigue pendiente (issue #13). No instalar el panel ni fusionar a main sin pruebas.
