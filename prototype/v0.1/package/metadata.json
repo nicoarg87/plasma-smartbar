@@ -6,7 +6,7 @@
     "Icon": "preferences-system-windows",
     "Category": "Windows and Tasks",
     "Version": "0.1.0",
-    "License": "GPL-3.0-only",
+    "License": "MIT",
     "Website": "https://github.com/nicoarg87/plasma-smartbar",
     "BugReportUrl": "https://github.com/nicoarg87/plasma-smartbar/issues"
   },
