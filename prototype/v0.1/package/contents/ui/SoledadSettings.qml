@@ -29,7 +29,7 @@ Window {
 
     // Copia de las preferencias de la sesión: «Cancelar» y la X revierten
     // solo cambios sin aplicar. «Aplicar» actualiza el punto de recuperación.
-    readonly property var editableSettingsKeys: ["logoMode","themeDayJson","themeDayPreviousJson","themeNightJson","themeCustomJson","filePath","shape","cropFitMode","cropZoom","cropPanX","cropPanY","cropRotation","enableGif","clockFontFamily","clockFontSize","clockTextColor","panelHeight","soledadHeight","malvinaHeight","soledadRadius","malvinaRadius","soledadMinWidth","malvinaWidth","malvinaGoogleUrl","malvinaDuckUrl","malvinaYahooUrl","malvinaChatGptUrl","malvinaGeminiUrl","malvinaClaudeUrl","malvinaWebFirst","malvinaWebOrder","malvinaAiOrder","malvinaExtraWeb","malvinaExtraAi","malvinaHiddenWeb","malvinaHiddenAi","malvinaCompactAi","malvinaGoogleName","malvinaDuckName","malvinaYahooName","malvinaChatGptName","malvinaGeminiName","malvinaClaudeName","malvinaWebGoogleEnabled","malvinaWebDuckEnabled","malvinaWebYahooEnabled","malvinaAllowChatGpt","malvinaAllowGemini","malvinaAllowClaude","soledadShape","malvinaShape","malvinaGearButtonShape","malvinaSearchButtonShape","outlineConfig","taskActiveGlowEnabled","taskActiveDoubleBorderEnabled","taskDisplayMode","taskFrameShape","taskFrameColor","taskFrameOpacity","taskFrameWidth","gripShape","trayButtonShape","soButtonFrameShape","soButtonWidth","soTextLabel","soTextColor","soTextBackground","soTextBackgroundOpacity","soTextFontFamily","soTextFontSize","soTextBold","soTextBackgroundImage","soledadColor","malvinaColor","soledadGradientEnabled","soledadGradientEnd","soledadGradientThird","soledadGradientColorCount","soledadGradientDirection","soledadGradientSyncBreathing","soledadGradientSyncIntensity","soledadGradientBreathingEnabled","soledadGradientBreathingIntensity","soledadGradientBreathingSpeed","malvinaGradientSyncBreathing","malvinaGradientBreathingEnabled","malvinaGradientBreathingIntensity","malvinaGradientBreathingSpeed","malvinaGradientEnabled","malvinaGradientEnd","malvinaGradientThird","malvinaGradientColorCount","malvinaGradientDirection","backgroundColor","soledadOpacity","malvinaOpacity","backgroundOpacity","showBackground","trayButtonColorOverride","trayButtonColor","trayButtonOpacity","gripButtonColorOverride","gripButtonColor","gripButtonOpacity","effectStyle","accentColor","strokeSize","allowMotion","orbitSpeed","trailPercent","trailStyle","glowColor","glowIntensity","glowSpread","pulseSpeed","pulseDepth","glowGradient","showOutlineWhenEmpty","showOutlineWhenOpen","autoCollapseSO","soLeftClickOpensLauncher","launcherCategoryLayout","launcherSwitchShape","launcherSwitchColorOverride","launcherSwitchColor","launcherMaxSlots","launcherOpacityOverride","launcherOpacity","launcherIconsWithNames","malvinaOptionsOpacityOverride","malvinaOptionsOpacity","autoCollapseTray","autoReturnRight","launcherIslandVisible","autoHideMalvina","alignedRight","positionMode","alignmentEdited"]
+    readonly property var editableSettingsKeys: ["logoMode","themeDayJson","themeDayPreviousJson","themeNightJson","themeCustomJson","themeLibraryJson","filePath","shape","cropFitMode","cropZoom","cropPanX","cropPanY","cropRotation","enableGif","clockFontFamily","clockFontSize","clockTextColor","panelHeight","soledadHeight","malvinaHeight","soledadRadius","malvinaRadius","soledadMinWidth","malvinaWidth","malvinaGoogleUrl","malvinaDuckUrl","malvinaYahooUrl","malvinaChatGptUrl","malvinaGeminiUrl","malvinaClaudeUrl","malvinaWebFirst","malvinaWebOrder","malvinaAiOrder","malvinaExtraWeb","malvinaExtraAi","malvinaHiddenWeb","malvinaHiddenAi","malvinaCompactAi","malvinaGoogleName","malvinaDuckName","malvinaYahooName","malvinaChatGptName","malvinaGeminiName","malvinaClaudeName","malvinaWebGoogleEnabled","malvinaWebDuckEnabled","malvinaWebYahooEnabled","malvinaAllowChatGpt","malvinaAllowGemini","malvinaAllowClaude","soledadShape","malvinaShape","malvinaGearButtonShape","malvinaSearchButtonShape","outlineConfig","taskActiveGlowEnabled","taskActiveDoubleBorderEnabled","taskDisplayMode","taskFrameShape","taskFrameColor","taskFrameOpacity","taskFrameWidth","gripShape","trayButtonShape","soButtonFrameShape","soButtonWidth","soTextLabel","soTextColor","soTextBackground","soTextBackgroundOpacity","soTextFontFamily","soTextFontSize","soTextBold","soTextBackgroundImage","soledadColor","malvinaColor","soledadGradientEnabled","soledadGradientEnd","soledadGradientThird","soledadGradientColorCount","soledadGradientDirection","soledadGradientSyncBreathing","soledadGradientSyncIntensity","soledadGradientBreathingEnabled","soledadGradientBreathingIntensity","soledadGradientBreathingSpeed","malvinaGradientSyncBreathing","malvinaGradientBreathingEnabled","malvinaGradientBreathingIntensity","malvinaGradientBreathingSpeed","malvinaGradientEnabled","malvinaGradientEnd","malvinaGradientThird","malvinaGradientColorCount","malvinaGradientDirection","backgroundColor","soledadOpacity","malvinaOpacity","backgroundOpacity","showBackground","trayButtonColorOverride","trayButtonColor","trayButtonOpacity","gripButtonColorOverride","gripButtonColor","gripButtonOpacity","effectStyle","accentColor","strokeSize","allowMotion","orbitSpeed","trailPercent","trailStyle","glowColor","glowIntensity","glowSpread","pulseSpeed","pulseDepth","glowGradient","showOutlineWhenEmpty","showOutlineWhenOpen","autoCollapseSO","soLeftClickOpensLauncher","launcherCategoryLayout","launcherSwitchShape","launcherSwitchColorOverride","launcherSwitchColor","launcherMaxSlots","launcherOpacityOverride","launcherOpacity","launcherIconsWithNames","malvinaOptionsOpacityOverride","malvinaOptionsOpacity","autoCollapseTray","autoReturnRight","launcherIslandVisible","autoHideMalvina","alignedRight","positionMode","alignmentEdited"]
     readonly property var editableColorKeys: ["soTextColor","soTextBackground","clockTextColor","soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","backgroundColor","trayButtonColor","gripButtonColor","accentColor","glowColor","launcherSwitchColor","taskFrameColor"]
     property var lastAppliedSettings: ({})
     property var pendingThemeChanges: ({})
@@ -71,7 +71,7 @@ Window {
         refreshOutlinePreview()
         appliedLabel.text = ""
     }
-    onClosing: function(event) { discardPendingEdits() }
+    onClosing: function(event) { themeChooserExpanded = false; discardPendingEdits() }
 
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
     property int geometrySection: 0
@@ -90,6 +90,45 @@ Window {
     property string themeDayPreviousJson: ""
     property string themeNightJson: ""
     property string themeCustomJson: ""
+    // Colección local extensible. No sustituye las ranuras históricas ni
+    // los temas originales de fábrica, que permanecen protegidos.
+    property string themeLibraryJson: "[]"
+    property bool themeChooserExpanded: false
+    property string newThemeName: ""
+    readonly property var savedThemeLibrary: parseThemeLibrary(themeLibraryJson)
+    function parseThemeLibrary(json) {
+        try {
+            const items = JSON.parse(json || "[]")
+            if (!Array.isArray(items)) return []
+            return items.filter(function(item) {
+                return item && typeof item.name === "string" &&
+                       typeof item.jsonData === "string" && item.jsonData.length > 0
+            })
+        } catch (error) {
+            console.warn("SmartBar: biblioteca de temas inválida, no se borró", error)
+            return []
+        }
+    }
+    function saveNamedTheme() {
+        const items = savedThemeLibrary.slice()
+        if (items.length >= 200) {
+            themeStatus = "Límite de 200 temas alcanzado. Conservá los que ya guardaste."
+            return
+        }
+        const name = String(newThemeName).trim().slice(0, 60) ||
+                     ("Mi tema " + (items.length + 1))
+        items.push({name: name, jsonData: themeSnapshot()})
+        themeLibraryJson = JSON.stringify(items)
+        stageThemeSlot("library", themeLibraryJson)
+        // Guardar tema confirma el estado visual y evita que se pierda al salir.
+        applyChanges()
+        newThemeName = ""
+        themeStatus = "Tema «" + name + "» guardado en la biblioteca local. " +
+                      "Los anteriores se conservan."
+    }
+    function restoreNamedTheme(index) {
+        activateTheme("library:" + index)
+    }
     // Perfil Noche original de fábrica: SOLO manifiesto distribuido con el
     // programa; el tema histórico guardado localmente no lo modifica.
     readonly property var factoryNightPreset: FactoryNightTheme.preset
@@ -251,7 +290,7 @@ Window {
 
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
-    function showThemes() { navigationGroup = "themes"; currentTab = 4 }
+    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false }
     function showSoledadLogo() {
         navigationGroup = "soledad"
         currentTab = 1
@@ -440,6 +479,12 @@ Window {
         })
     }
     function slotJson(slot) {
+        if (slot.indexOf("library:") === 0) {
+            const index = Number(slot.substring(8))
+            const items = savedThemeLibrary
+            return isFinite(index) && index >= 0 && index < items.length &&
+                   Math.floor(index) === index ? items[index].jsonData : ""
+        }
         return slot === "sunset" ? factorySunsetJson :
                slot === "night" ? factoryNightJson :
                slot === "day" ? themeDayJson : themeCustomJson
@@ -555,7 +600,8 @@ Window {
             themeStatus = "Tema " +
                 (slot === "sunset" ? "Atardecer de fábrica" :
                  slot === "day" ? "Atardecer anterior" :
-                 slot === "night" ? "Noche de fábrica" : "Personalizado") +
+                 slot === "night" ? "Noche de fábrica" :
+                 slot.indexOf("library:") === 0 ? "personal guardado" : "Personalizado") +
                 " restaurado. Podés personalizar la barra sin modificar el original."
         } catch(e) {
             themeStatus = "No se pudo aplicar el tema guardado: " + e
@@ -1172,7 +1218,7 @@ Window {
         alignmentEdited = false
         // Confirmar los cambios de temas al pulsar Aplicar. Cancelar y la X
         // jamás sobreescriben ranuras ni la estética favorita.
-        const themeSlots = ["dayPrevious", "day", "night", "custom"]
+        const themeSlots = ["dayPrevious", "day", "night", "custom", "library"]
         for (let i = 0; i < themeSlots.length; ++i) {
             const slot = themeSlots[i]
             if (pendingThemeChanges[slot] !== undefined)
