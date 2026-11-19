@@ -210,7 +210,9 @@ Window {
         stageThemeSlot("library", themeLibraryJson)
         applyChanges()
         previewFactorySlot = ""
-        themeStatus = "Día guardado en este equipo con el GIF, los colores y los efectos actuales. Se conservó la versión anterior."
+        themeStatus = existing >= 0
+            ? "Día actualizado y guardado en este equipo. La versión anterior sigue disponible."
+            : "Día guardado en este equipo con el GIF, los colores y los efectos actuales."
     }
     // Perfil Noche original de fábrica: SOLO manifiesto distribuido con el
     // programa; el tema histórico guardado localmente no lo modifica.
@@ -488,6 +490,8 @@ Window {
         return JSON.stringify({
             version: 1,
             effectStyle: effectStyle, allowMotion: allowMotion,
+            strokeSize: strokeSize, orbitSpeed: orbitSpeed,
+            trailPercent: trailPercent, trailStyle: trailStyle,
             showOutlineWhenEmpty: showOutlineWhenEmpty,
             showOutlineWhenOpen: showOutlineWhenOpen,
             pulseSpeed: pulseSpeed, pulseDepth: pulseDepth,
@@ -620,7 +624,8 @@ Window {
             const info = JSON.parse(jsonData)
             if (info.version !== 1) throw new Error("Versión de tema desconocida")
             const fields = [
-                "effectStyle","allowMotion","showOutlineWhenEmpty",
+                "effectStyle","allowMotion","strokeSize","orbitSpeed",
+                "trailPercent","trailStyle","showOutlineWhenEmpty",
                 "showOutlineWhenOpen","pulseSpeed","pulseDepth",
                 "logoMode","filePath","shape","cropFitMode","cropZoom",
                 "cropPanX","cropPanY","cropRotation","enableGif",
