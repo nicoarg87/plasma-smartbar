@@ -12,13 +12,18 @@ const bar = file("package/contents/ui/SmartBarContent.qml");
 const main = file("package/contents/ui/main.qml");
 const preview = file("preview_redimensionable.qml");
 const kconfig = file("package/contents/config/main.xml");
-const menuStart = ui.indexOf('text: "Botón de inicio SO"');
-const light = ui.indexOf('text: "Efectos luminosos"', menuStart);
-const colors = ui.indexOf('text: "Color y transparencia"', light);
+const metadata = JSON.parse(file("package/metadata.json"));
+assert.equal(metadata.KPlugin.License, "MIT", "El metadato KDE debe coincidir con LICENSE");
+const launcher = ui.indexOf('text: "Launcher y botón SO"');
+const menuStart = ui.indexOf('text: "Botón de inicio SO"', launcher);
+const colors = ui.indexOf('text: "Color y transparencia"', menuStart);
 const shape = ui.indexOf('text: "Figura y tamaño"', colors);
 const windows = ui.indexOf('text: "Cajón y ventanas"', shape);
-assert(menuStart > 0 && menuStart < light && light < colors &&
+assert(launcher > 0 && launcher < menuStart && menuStart < colors &&
        colors < shape && shape < windows, "Orden de navegación Soledad");
+assert(!ui.includes('text: "Efectos luminosos"'), "Los efectos no son otra entrada lateral");
+assert(ui.includes('id: logoSubtabs\n                    visible: true'));
+assert(ui.includes('text: "Efectos luminosos SO"'));
 assert.equal((ui.match(/text: "Botón de inicio SO"/g) || []).length, 1);
 assert(!ui.includes('text: "Anchura del botón SO"'));
 assert(!ui.includes('text: "Logo SO"'));
@@ -32,7 +37,13 @@ assert(ui.includes("function showMalvinaGradient() { showSharedColors(1) }"));
 assert(!ui.includes('visible: settings.logoSection === 4'));
 assert(ui.includes('function showSoledadGlowBreathing()'));
 assert(ui.includes('onClicked: settings.showSoledadGlowBreathing()'));
-assert(ui.includes('text: "Ir a Efectos luminosos → Brillo y respiración SO"'));
+assert(ui.includes('text: "Ir a Botón de inicio SO → Efectos luminosos → Brillo y respiración"'));
+assert(ui.includes('text: "Ir a Color y transparencia → Degradado y respiración de Soledad"'));
+assert(ui.includes('onClicked: settings.showSoledadGradient()'));
+assert(ui.includes('Math.min(1180, Math.max(560, Screen.desktopAvailableWidth - 48))'));
+assert.equal((ui.match(/contentWidth: Math.max\(0, availableWidth - 32\)/g) || []).length, 10,
+             "Margen de seguridad ausente para el scrollbar");
+assert(ui.includes('id: currentColorCopyField\n                            Layout.fillWidth: true'));
 assert(ui.includes('text: "Duración del ciclo"'));
 assert(ui.includes('text: "Intensidad del pulso de luz (0–100 %)"'));
 assert(ui.includes('onValueModified: settings.pulseSpeed ='));
@@ -97,4 +108,4 @@ assert(kconfig.includes('<entry name="launcherOpacityOverride" type="Bool"><defa
        "El launcher debe poder heredar opacidad de Soledad");
 assert(kconfig.includes('<entry name="malvinaOptionsOpacityOverride" type="Bool"><default>false</default>'),
        "El panel Web/IA debe poder heredar opacidad de Malvina");
-console.log("OK: navegación Botón de inicio SO, scroll adaptativo, respiración y 70 % por defecto.");
+console.log("OK: navegación integrada SO, launcher primero, scrollbar, MIT, respiración y 70 %.");
