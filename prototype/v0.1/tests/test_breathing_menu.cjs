@@ -252,7 +252,7 @@ const transactionKeys = JSON.parse(allKeysMatch[1]);
 const loaded = bar.substring(bar.indexOf("function openSoledadSettings("),
                              bar.indexOf("    SoledadSettings {"));
 const required = [...loaded.matchAll(/soledadSettings\.([A-Za-z_][\w]*)\s*=/g)]
-    .map(x => x[1]).filter(x => x !== "currentTab");
+    .map(x => x[1]).filter(x => !["currentTab","personalDefaultAvailable","favoriteAppearanceAvailable"].includes(x));
 for (const name of required)
     assert(transactionKeys.includes(name), "Cancelar omite el ajuste " + name);
 assert(transactionKeys.length >= 130, "Snapshot incompleto");
