@@ -1,0 +1,63 @@
+// Contrato de Noche de fábrica: recursos fijos, restauración fiel y sin
+// dependencia de themes locales ni imágenes de otros temas.
+// Ejecutar: node prototype/v0.1/tests/test_factory_night.cjs
+"use strict";
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..");
+const ui = fs.readFileSync(path.join(root, "package/contents/ui/SoledadSettings.qml"), "utf8");
+const generator = fs.readFileSync(path.join(root, "scripts/fijar_noche_fabrica.cjs"), "utf8");
+const presetPath = path.join(root, "package/contents/ui/assets/FactoryNightTheme.js");
+const moduleText = fs.readFileSync(presetPath, "utf8");
+
+assert(ui.includes('import "assets/FactoryNightTheme.js" as FactoryNightTheme'));
+assert(ui.includes("readonly property var factoryNightPreset: FactoryNightTheme.preset"));
+assert(ui.includes("readonly property bool factoryNightAvailable:"));
+assert(ui.includes("factoryNightProbe.status === Image.Ready"));
+assert(ui.includes("factoryNightTextProbe.status === Image.Ready"));
+assert(ui.includes('slot === "night" ? factoryNightJson'),
+       "Noche debe usar el preset empaquetado, jamás themeNightJson");
+assert(ui.includes('if (slot === "night") {\n            themeStatus = "Noche de fábrica está protegida; usá Personalizado."'));
+assert(!ui.includes('onClicked: settings.storeTheme("night")'));
+assert(!ui.includes('text: "Fijar tema Noche"'));
+assert(ui.includes('text: "Restaurar Noche de fábrica"'));
+assert(ui.includes('enabled: settings.factoryNightAvailable'));
+assert(ui.includes('onClicked: settings.activateTheme("night")'));
+assert(ui.includes('text: "Copiar mi apariencia actual para fijar Noche…"'));
+assert(ui.includes('onClicked: factoryNightExportDialog.open()'));
+assert(ui.includes("factoryNightExportText.copy()"));
+assert(ui.includes("settings.factoryNightCandidateJson()"));
+assert(ui.includes("originalImageUrl = logoMode === \"text\" ? \"\" : selectedImage.toString()"));
+assert(ui.includes("filePath = factoryNightImage.toString()"));
+assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
+assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
+assert(!ui.includes("themeImageSource(settings.themeNightJson)"),
+       "La tarjeta de Noche muestra una miniatura distinta del perfil fijo");
+assert(!ui.includes('source: settings.selectedImage\n'),
+       "No utilizar el logo actualmente seleccionado como miniatura de Noche");
+assert(ui.includes('soButtonWidth: soButtonWidth'), "Fábrica omite ancho de botón");
+assert(ui.includes('panelHeight: panelHeight'), "Fábrica omite altura de barra");
+assert(ui.includes('"soButtonWidth","panelHeight"'), "Restauración no trae geometría visual");
+assert(ui.includes('"taskDisplayMode"'), "Restauración no incluye indicador de ventanas");
+assert(generator.includes("fs.copyFileSync"));
+assert(generator.includes("crypto.createHash(\"sha256\")"));
+assert(generator.includes('delete preset.originalImageUrl'));
+assert(generator.includes('preset.filePath = ""'));
+assert(generator.includes('preset.soTextBackgroundImage = ""'));
+assert(generator.includes("no se puede reemplazar con este comando"));
+assert(generator.includes("Falta ") || generator.includes("Falta"));
+if (/var preset = null\b/.test(moduleText)) {
+    // El usuario aún no ha exportado su perfil. No declarar un tema fake.
+    assert(!fs.existsSync(path.join(root, "package/contents/ui/assets/factory-night-manifest.json")));
+    console.log("OK: Noche original protegida, sin imagen ajena; captura exacta del usuario pendiente.");
+} else {
+    const manifestPath = path.join(root, "package/contents/ui/assets/factory-night-manifest.json");
+    assert(fs.existsSync(manifestPath), "Manifiesto de recursos de fábrica ausente");
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    assert(manifest.presetSha256);
+    for (const asset of manifest.assets) {
+        assert(fs.existsSync(path.join(root, "package/contents/ui/assets", asset.file)));
+    }
+    console.log("OK: Noche original empaquetada, recursos presentes y restauración protegida.");
+}
