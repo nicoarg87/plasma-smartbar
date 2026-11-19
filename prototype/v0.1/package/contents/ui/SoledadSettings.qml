@@ -471,8 +471,10 @@ Window {
         try {
             if (!jsonData) return ""
             const info = JSON.parse(jsonData)
-            return info.logoMode === "custom" && info.filePath
-                ? info.filePath : defaultImage.toString()
+            if (info.logoMode === "custom" && info.filePath) return info.filePath
+            if (info.logoMode === "default") return defaultImage.toString()
+            // Texto sin imagen no debe tomar un GIF de otra ranura.
+            return ""
         } catch(e) { return "" }
     }
     function activateTheme(slot) {
@@ -4471,8 +4473,14 @@ Window {
                                     fillMode: Image.PreserveAspectFit
                                     source: settings.themeDayJson.length
                                         ? settings.themeImageSource(settings.themeDayJson)
-                                        : settings.defaultImage
+                                        : ""
+                                    visible: source.toString().length > 0
                                     cache: false
+                                }
+                                QQC2.Label {
+                                    visible: settings.themeDayJson.length === 0
+                                    text: "Atardecer todavía no está fijado"
+                                    color: "#d0ddeb"
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
