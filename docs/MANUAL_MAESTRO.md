@@ -1168,3 +1168,16 @@ El degradado y paneles de Soledad/Malvina usan velocidades independientes **por 
 La nueva preferencia está conectada en `SoledadSettings.qml`, `SmartBarContent.qml`, `preview_redimensionable.qml`, `main.qml` y `main.xml`. Las preferencias Qt Settings `appearanceV1`, `favoriteSoledadV1`, `personalDefaultV1` y los temas mantienen compatibilidad: si una instantánea anterior no tiene esta clave, se usa su valor existente/predeterminado, no se borran otras opciones. Los defaults antiguos guardados de sincronización se respetan.
 
 Código experimental, validación estática de navegación y persistencia positiva; pendiente verificación visual del contorno y gradientes en CachyOS, especialmente independencia de velocidades, interruptores de sincronización y reapertura.
+
+
+## Solución del bloqueo de velocidad del degradado — 19/11/2026
+
+**Causa técnica demostrada en el código anterior:** la velocidad del degradado de Soledad/Malvina estaba deshabilitada cuando `GradientSyncBreathing` seguía activado (perfiles antiguos restaurados); «Igualar intensidad de línea SO» era otra casilla, por lo que apagarla no habilitaba velocidad. La etiqueta mostraba entonces el valor de velocidad de SO (p. ej., 0,2 ciclos/s) mientras el deslizador quedaba inactivo. También se había escondido la velocidad de la línea SO al final de la página de efectos, limitada a `effectStyle=breathe`.
+
+**Corrección operativa:** «Color y transparencia → Respiración del fondo y los menús → Velocidad propia del degradado» ofrece deslizador y botones ± **siempre operativos**. Modificarlos ejecuta `setIndependentGradientSpeed(target,speed)`, deja `GradientBreathingEnabled=true`, `GradientSyncBreathing=false` y, en Soledad, `GradientSyncIntensity=false`. La velocidad local guardada del degradado se conserva hasta que el usuario la edita; no se sobrescriben colores/opacidad ni la velocidad de la línea. Un texto informa cuál ritmo está activo y si seguía sincronizado. Para igualar ritmo o intensidad, las casillas siguen disponibles.
+
+**Línea SO:** «Botón de inicio SO → Efectos luminosos → Brillo y respiración» muestra **primero** velocidad 0,1–3 ciclos/s y duración aproximada por ciclo (ms), además de **intensidad del pulso** con deslizador y ±. Ajustar cualquiera activa `breathe` y `allowMotion` en la vista de edición. La **vista previa del contorno** actualiza instantáneamente velocidad e intensidad y recalcula la muestra; la configuración efectiva de SmartBar sigue guardándose al pulsar Aplicar. Se presenta casilla de **Mostrar la línea SO cuando hay ventanas abiertas** para evitar confundir una opción de visibilidad apagada con una animación que no responde. Sincronizar o desvincular degradado sigue siendo opcional.
+
+**Navegación:** el enlace de Efectos luminosos hacia degradado ejecuta `showSoledadGradientBreathing()` y desplaza el editor al apartado correspondiente, no a la cabecera distante. El usuario puede seguir editando sus colores y temas sin perder preferencias anteriores.
+
+**Estado:** rama experimental [7ac071b](https://github.com/nicoarg87/plasma-smartbar/commit/7ac071bf32ad60d94cf9e7c4a091384b64d14394); regresión V8 basada en código y funciones JS de QML, 275 comprobaciones en total PASS; **prueba QML/CachyOS y usabilidad pendiente**.
