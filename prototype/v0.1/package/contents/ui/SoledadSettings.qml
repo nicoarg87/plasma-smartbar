@@ -135,9 +135,27 @@ Window {
     // V1 de tema visual: foto/logo + colores de las dos islas, líneas y
     // contornos, sin alterar posición, controles de ventanas ni permisos IA.
     // Sólo snapshots explícitos; no se publican GIFs personales en GitHub.
+    // Presets Playa Dia/Noche: conservar tonos y fuerza guardados, pero
+    // asegurar que ambos degradados respiren sin depender del estado de ventanas.
+    function ensureBeachBreathing() {
+        soledadGradientEnabled = true
+        malvinaGradientEnabled = true
+        soledadGradientSyncBreathing = true
+        malvinaGradientSyncBreathing = true
+        effectStyle = "breathe"
+        allowMotion = true
+        showOutlineWhenEmpty = true
+        showOutlineWhenOpen = true
+        if (pulseDepth <= 0) pulseDepth = 0.7
+        if (pulseSpeed <= 0) pulseSpeed = 0.6
+    }
     function themeSnapshot() {
         return JSON.stringify({
             version: 1,
+            effectStyle: effectStyle, allowMotion: allowMotion,
+            showOutlineWhenEmpty: showOutlineWhenEmpty,
+            showOutlineWhenOpen: showOutlineWhenOpen,
+            pulseSpeed: pulseSpeed, pulseDepth: pulseDepth,
             logoMode: logoMode, filePath: filePath, shape: shape,
             cropFitMode: cropFitMode, cropZoom: cropZoom,
             cropPanX: cropPanX, cropPanY: cropPanY,
@@ -175,6 +193,8 @@ Window {
             themeStatus = "Este tema está protegido. Aplicalo para recuperar sus colores originales."
             return
         }
+        if (slot === "day" || slot === "night")
+            ensureBeachBreathing()
         const data = themeSnapshot()
         if (slot === "day") themeDayJson = data
         else if (slot === "night") themeNightJson = data
@@ -201,6 +221,8 @@ Window {
             const info = JSON.parse(jsonData)
             if (info.version !== 1) throw new Error("Versión de tema desconocida")
             const fields = [
+                "effectStyle","allowMotion","showOutlineWhenEmpty",
+                "showOutlineWhenOpen","pulseSpeed","pulseDepth",
                 "logoMode","filePath","shape","cropFitMode","cropZoom",
                 "cropPanX","cropPanY","cropRotation","enableGif",
                 "soledadColor","soledadOpacity","soledadGradientEnabled",
@@ -220,6 +242,11 @@ Window {
             }
             if (info.outlineConfig && typeof info.outlineConfig === "object")
                 outlineConfig = JSON.parse(JSON.stringify(info.outlineConfig))
+            // Los presets de playa mantienen la respiracion aunque el JSON
+            // previo se hubiera grabado con interruptores apagados.
+            // No se aplica esta regla a los temas personalizados.
+            if (slot === "day" || slot === "night")
+                ensureBeachBreathing()
             // Reusar la ruta de guardado vigente, inclusive los favoritos que
             // son independientes de estos tres espacios de tema.
             applyChanges()
