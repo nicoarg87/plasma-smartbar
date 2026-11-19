@@ -8,6 +8,7 @@ import QtQuick.Controls as QQC2
 import QtQuick.Dialogs
 import "PaletteExtractor.js" as PaletteExtractor
 import "assets/FactoryNightTheme.js" as FactoryNightTheme
+import "assets/FactorySunsetTheme.js" as FactorySunsetTheme
 
 Window {
     id: settings
@@ -82,6 +83,8 @@ Window {
     property string behaviorScope: "shared"
     property string colorScope: "soledad"
     property string navigationGroup: "themes"
+    // Claves históricas de Atardecer: NO son el tema de fábrica. Se conservan
+    // sin migraciones ni reemplazos y quedan apartadas de los futuros temas Día.
     property string themeDayJson: ""
     // Respaldo recuperable del Atardecer previo; conservar la clave histórica.
     property string themeDayPreviousJson: ""
@@ -117,11 +120,46 @@ Window {
     }
     readonly property string factoryNightJson:
         factoryNightAvailable ? JSON.stringify(factoryNightPreset) : ""
-    property string themeStatus: "Noche de fábrica conserva su original; los cambios se guardan por separado."
+    // Atardecer original de sistema: manifest propio, distinto de themeDayJson
+    // y de Noche. Nunca utilizar una imagen o colores de un tema diferente.
+    readonly property var factorySunsetPreset: FactorySunsetTheme.preset
+    readonly property url factorySunsetImage:
+        factorySunsetPreset && factorySunsetPreset.assetFile
+            ? Qt.resolvedUrl("assets/" + factorySunsetPreset.assetFile) : ""
+    readonly property bool factorySunsetAvailable:
+        factorySunsetPreset !== null && factorySunsetPreset !== undefined &&
+        factorySunsetPreset.version === 1 &&
+        (factorySunsetPreset.logoMode === "text" ||
+         (factorySunsetPreset.assetFile && factorySunsetProbe.status === Image.Ready)) &&
+        (!factorySunsetPreset.assetTextFile ||
+         factorySunsetTextProbe.status === Image.Ready)
+    Image {
+        id: factorySunsetProbe
+        visible: false
+        asynchronous: false
+        cache: true
+        source: settings.factorySunsetImage
+    }
+    Image {
+        id: factorySunsetTextProbe
+        visible: false
+        asynchronous: false
+        cache: true
+        source: factorySunsetPreset && factorySunsetPreset.assetTextFile
+            ? Qt.resolvedUrl("assets/" + factorySunsetPreset.assetTextFile) : ""
+    }
+    readonly property string factorySunsetJson:
+        factorySunsetAvailable ? JSON.stringify(factorySunsetPreset) : ""
+    property string factoryExportTarget: "night"
+    function showFactoryCapture(target) {
+        factoryExportTarget = target === "sunset" ? "sunset" : "night"
+        factoryNightExportDialog.open()
+    }
+    property string themeStatus: "Atardecer y Noche de fábrica conservan sus originales; los cambios van por separado."
     signal saveThemeSlotRequested(string slot, string jsonData)
     QQC2.Dialog {
         id: factoryNightExportDialog
-        title: "Copiar apariencia exacta para Noche de fábrica"
+        title: "Copiar apariencia exacta para " + (settings.factoryExportTarget === "sunset" ? "Atardecer" : "Noche") + " de fábrica"
         modal: true
         width: Math.min(740, settings.width - 80)
         height: Math.min(560, settings.height - 90)
@@ -424,13 +462,18 @@ Window {
         })
     }
     function slotJson(slot) {
-        return slot === "day" ? themeDayJson :
-               slot === "night" ? factoryNightJson : themeCustomJson
+        return slot === "sunset" ? factorySunsetJson :
+               slot === "night" ? factoryNightJson :
+               slot === "day" ? themeDayJson : themeCustomJson
     }
     function storeTheme(slot) {
-        // El original Noche no se puede sobreescribir desde el editor.
+        // Los originales de fábrica Noche y Atardecer no se pueden escribir.
         if (slot === "night") {
             themeStatus = "Noche de fábrica está protegida; usá Personalizado."
+            return
+        }
+        if (slot === "sunset") {
+            themeStatus = "Atardecer de fábrica está protegido; usá Personalizado."
             return
         }
         if (slot === "day" && slotJson(slot).length > 0) {
@@ -482,7 +525,9 @@ Window {
         if (!jsonData) {
             themeStatus = slot === "night"
                 ? "Falta incorporar el perfil Noche exacto y su imagen original; no se aplicará otro tema."
-                : "Este tema todavía no está guardado. Personalizá la isla y pulsá Guardar."
+                : slot === "sunset"
+                  ? "Falta incorporar el Atardecer exacto y su imagen original; no se aplicará otro tema."
+                  : "Este tema todavía no está guardado. Personalizá la isla y pulsá Guardar."
             return
         }
         try {
@@ -538,10 +583,11 @@ Window {
             // sin copiar el degradado de una isla hacia la otra.
             // Noche utiliza recursos inmutables del paquete (no rutas locales
             // del equipo del autor ni la foto activa de otro tema).
-            if (slot === "night") {
+            if (slot === "night" || slot === "sunset") {
                 if (info.assetFile) {
                     logoMode = "custom"
-                    filePath = factoryNightImage.toString()
+                    filePath = slot === "sunset"
+                        ? factorySunsetImage.toString() : factoryNightImage.toString()
                 }
                 if (info.assetTextFile)
                     soTextBackgroundImage =
@@ -551,7 +597,9 @@ Window {
             // son independientes de estos tres espacios de tema.
             applyChanges()
             themeStatus = "Tema " +
-                (slot === "day" ? "Atardecer" : slot === "night" ? "Noche de fábrica" : "Personalizado") +
+                (slot === "sunset" ? "Atardecer de fábrica" :
+                 slot === "day" ? "Atardecer anterior" :
+                 slot === "night" ? "Noche de fábrica" : "Personalizado") +
                 " restaurado. Podés personalizar la barra sin modificar el original."
         } catch(e) {
             themeStatus = "No se pudo aplicar el tema guardado: " + e
