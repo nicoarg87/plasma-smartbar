@@ -1331,3 +1331,24 @@ El mantenedor pidió guardar **toda la configuración actual que tiene en su Cac
 **Mejora de visibilidad del degradado:** [13edd7d](https://github.com/nicoarg87/plasma-smartbar/commit/13edd7d4a34b96c3a121348394eab2fb837ab438) cambia el relleno heredado del botón de bandeja y del agarre cuando Soledad tiene degradado: ahora es transparente para dejar visible la interpolación de la isla. Si el usuario eligió un color propio para esos botones, su color/opacity se respeta. Esta era una posible causa de que el gradiente quedara oculto detrás del color base de los botones, **no confirmada visualmente en CachyOS**.
 
 **Verificación de regresiones:** la prueba antigua `test_palette_extractor.cjs` se actualizó al selector compacto, [1b4dd94](https://github.com/nicoarg87/plasma-smartbar/commit/1b4dd949f2fe59440a3133778015b37a8d731085). Los tres tests `test_palette_extractor.cjs`, `test_gradient_palette.cjs` y `test_theme_persistence.cjs` se ejecutaron contra las fuentes vigentes con un entorno `require` simulado sobre V8, con resultado **PASS**. Falta ejecución Node real desde checkout y ensayo Qt/CachyOS.
+
+
+## Hito experimental — menú cromático unificado y respiración con intensidad/velocidad propias (19/11/2026)
+
+**PROBADO POR EL MANTENEDOR ANTES DE ESTE CAMBIO:** extracción de tres tonos, modo 2/3, encendido/apagado de degradado y sus cuatro direcciones funcionan y se ven bien en CachyOS para Soledad/Malvina. **PROBLEMA REMANENTE REPORTADO:** la intensidad respirante no resulta perceptible y el menú tiene accesos redundantes.
+
+**CONFIRMADO:** nueva ordenación de Soledad con anchura primera, luego logo, efectos, color/transparencia, figura/tamaño, cajón/ventanas y launcher; eliminar accesos laterales separados a degradado; respiración y fondo debajo de dirección dentro de «Color y transparencia» de ambas islas; sincronización SO predeterminada, con intensidad por isla y velocidad propia al desincronizar.
+
+**IMPLEMENTADO en rama experimental:**
+- [328e02b](https://github.com/nicoarg87/plasma-smartbar/commit/328e02b21e3079914dd151941ca72c9ed073bc8f): orden lateral y sección específica anchura SO, sin borrar funciones.
+- [b5f4526](https://github.com/nicoarg87/plasma-smartbar/commit/b5f4526d8744e04b156e16bcd41d03982524d499): unificar color/opacidad/degradado en una página por isla y extender snapshot, señales y propiedades de respiración.
+- [1bd9347](https://github.com/nicoarg87/plasma-smartbar/commit/1bd9347a032693c8899a74f9bb95351c5a3e6a76): controles de activar/sincronizar/intensidad/velocidad debajo de dirección, sin pestañas intermedias.
+- [7a30699](https://github.com/nicoarg87/plasma-smartbar/commit/7a30699ffa2267b11f90afc54054c2c3741c9b7a): fase compartida e independientes en un solo reloj condicional. Se elimina el bloqueo por ventanas/contorno de SO, pero el logo sigue compartiendo fase si usa su modo Respiración.
+- [068d88c](https://github.com/nicoarg87/plasma-smartbar/commit/068d88cf9c15fb7252ec4cc14b5d4f54e6bd533e), [d149431](https://github.com/nicoarg87/plasma-smartbar/commit/d149431e0d334d66416ef670267b07669ba49ca2), [086efff](https://github.com/nicoarg87/plasma-smartbar/commit/086efff6a833f9d529bcdea42b9d794f47526a7d): persistencia en visor Qt Settings y KConfig con defaults verdaderos para nuevas configuraciones y respeto de la antigua.
+- [115f07d](https://github.com/nicoarg87/plasma-smartbar/commit/115f07d3be87aaf0574b8d94f0cec3da1093a597): elimina duplicado de anchura y actualiza ayuda del GIF.
+- [b0efac8](https://github.com/nicoarg87/plasma-smartbar/commit/b0efac8d98e516d31c31a20f42f445d5e5db26c5): independencia de intensidad respecto a `soActivityPulseDepth` del logo SO.
+- [0917e86](https://github.com/nicoarg87/plasma-smartbar/commit/0917e865714b67d8814a761f9fb77a585ee6763c): aplicar/guardar Atardecer o Noche respeta opciones respiratorias de su instantánea, sin forzarlas.
+- [71ae7b0](https://github.com/nicoarg87/plasma-smartbar/commit/71ae7b0dca803ebb4f68438335b8103b52e4755e): detener temporizador cuando superficie oculta o intensidad igual a 0; un solo temporizador activo por barra.
+- [cf6affc](https://github.com/nicoarg87/plasma-smartbar/commit/cf6affc3e98cf1613fcebc6bb6e4a68eef9d80f4): prueba `test_breathing_menu.cjs`.
+
+**VERIFICADO ESTÁTICAMENTE**: cuatro pruebas (menú/respiración, degradado 2/3, extractor, temas/favorita) con PASS mediante ejecución V8 de sus fuentes vigentes y `require` de archivos simulado; balance de llaves de ocho QML del prototipo correcto. **NO PROBADO EN CACHYOS DESPUÉS DE ESTE CAMBIO**: faltan QML cargando, controles, sincronización real SO, brillo/visibilidad en 0 %/100 % de opacidad, menús, persistencia, fondo continuo, consumo CPU/GPU. No tocar el panel existente. Seguimiento [issue #15](https://github.com/nicoarg87/plasma-smartbar/issues/15).
