@@ -546,3 +546,15 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Sustituir manejador no compatible `Canvas.onImageLoadingFailed` por `isImageError()` y Timer, según Qt 6.
 - [ ] Probar en CachyOS menús plegables, SO y Malvina sin cruces, nuevo Temas, tres espacios guardados y error/timeout de archivo GIF ausente.
 - [ ] Asegurar accesibilidad por teclado a encabezados y controles con escalado de fuentes KDE.
+
+
+## Reparación de persistencia Atardecer y favorita — 19/11/2026
+
+- [x] Renombrar visualmente Día → **Atardecer**, conservando `themeDayJson` como clave antigua para no perder el perfil local.
+- [x] Eliminar sobrescritura automática de la paleta y dirección de Malvina al aplicar Atardecer.
+- [x] Actualización explícita y confirmada de Atardecer con respaldo recuperable independiente `themeDayPreviousJson`.
+- [x] Separar escritura de favorito/predeterminada del último estado, suprimir autoguardados intermedios en restauración y ampliar campos de estética capturados.
+- [x] Agregar `prototype/v0.1/tests/test_theme_persistence.cjs` (prueba estática de regresión).
+- [ ] Ejecutar Node y visor Qt en CachyOS; aplicar/restaurar Atardecer y Noche; comparar colores, dirección y respiración de ambas islas, miniaturas, favorita, predeterminada y reinicio.
+- [ ] Capturar con acción explícita del usuario la favorita local recién guardada como nuevo Atardecer; nunca inventar ni publicar sus valores de configuración.
+- [ ] Estudiar tema **Día claro** como opción futura, separado de Atardecer y Noche, previa confirmación funcional del mantenedor y sin generar imagen ahora.
