@@ -37,7 +37,7 @@ Las decisiones funcionales siguen perteneciendo al mantenedor. Este archivo regi
 | ERR-012 | `SoLauncherPopup.qml`, catálogo `.desktop` | Categorías/lista originalmente sin íconos; extractor omitía `Icon`. | P3 | Se incorporaron metadatos; comprobar íconos reales/fallback en CachyOS |
 | ERR-013 | `preview_redimensionable.qml`, ventana de pruebas | Superposición de launcher y controles inferiores; tamaño inicial insuficiente para popup ancho/alto. | P2 | Visor ampliado; bordes y pantallas pequeñas pendientes |
 | ERR-014 | `SmartBarContent.qml`, `MalvinaSearch.qml` | Combinaciones de atajos (Super sola, Super+Espacio) y foco todavía no garantizadas globalmente en Wayland. | P2 | **Pendiente** de solución segura KWin y ensayo local |
-| ERR-015 | Soledad/Malvina: gobernanza de preferencias | Configuración compartida en pestaña de isla incorrecta; color/gradiente o controles de panel imposibles de encontrar. | P2 | Menús reordenados; comprobar navegación y persistencia |
+| ERR-015 | Soledad/Malvina: gobernanza de preferencias | Los controles de una isla aparecían en la otra y el degradado quedaba oculto entre selectores. | P2 | **Menús y accesos reordenados en código, falta prueba CachyOS** |
 | ERR-016 | `SoledadSettings.qml`, muestreo GIF y colores de contorno | GIF nocturno producía tonos demasiado claros, contorno celeste podía contaminar fondo y reset afectaba ambas islas. | P2 | **Corregido en código, prueba CachyOS pendiente** |
 
 **Nota sobre frecuencia:** «recurrente» significa al menos dos observaciones o regresiones inequívocas en el historial del mantenedor, **no** un conteo automático de ejecuciones. No hay instrumentación de telemetría ni deben enviarse preferencias personales fuera del equipo.
@@ -78,6 +78,13 @@ Las decisiones funcionales siguen perteneciendo al mantenedor. Este archivo regi
 - **Riesgo:** perder estética elegida, permisos o estado de Malvina, especialmente al modificar formularios.
 - **Regla:** no sobrescribir configuraciones personales; asegurar `Aplicar`, `appearanceV1`, `favoriteSoledadV1`, `personalDefaultV1`, KConfig, cambio y cierre; revisar cada nueva propiedad en todos los enlaces de guardado.
 - **Prueba:** cambiar un ajuste por apartado, Aplicar, cerrar visor, reiniciar, restaurar favorita, restaurar personal. No introducir defaults en el repositorio como si fueran los valores particulares del mantenedor.
+
+### ERR-015 — Pestañas cruzadas, colores escondidos y navegación confusa
+
+- **Recurrente según el mantenedor:** el editor de figura de Malvina permitía acceder a Soledad, la página de colores Soledad tenía selector de Malvina y viceversa, y el degradado quedaba oculto en una combinación de pestañas y subpestañas. El menú lateral completo era difícil de recorrer.
+- **Corrección publicada en rama experimental:** `SoledadSettings.qml` usa cuatro bloques plegables (Temas, Soledad, Malvina, General). `geometryScope` y `colorScope` acotan figura/tamaño y color/degradado a cada isla; se oculta el selector cruzado y se reserva General para fondo/bandeja/agarre y copiar paleta SO→Malvina. El acceso «DEGRADADO» está en la primera fila del editor de color de cada isla. `SmartBarContent.qml` abre por defecto Temas desde el engranaje SO y Web/IA desde Malvina; los temas se guardan localmente.
+- **Prueba obligatoria:** recorrer todos los bloques con panel abierto y reiniciado, verificar que nunca haya controles de Malvina en Soledad ni viceversa; que los comunes se accedan desde General y que Gradiente/Respiración sean visibles; cambiar colores de cada isla y comprobar que el otro no cambia salvo copiar paleta explícitamente. Verificar panel KDE existente intacto y QML sin errores.
+- **Estado:** implementado en código, **sin prueba visual real en CachyOS**.
 
 ### ERR-016 — Colores de GIF, contorno y degradado mezclados en el editor
 
