@@ -165,6 +165,17 @@ QQC2.Popup {
         searchInput.forceActiveFocus()
     }
     function focusInput() { searchInput.forceActiveFocus() }
+    // Abrir únicamente una carpeta local mediante la asociación XDG/KDE.
+    // No ejecuta archivos de la lista ni construye comandos de shell.
+    function openCurrentFolderInManager() {
+        if (!filesMode) return
+        const folderUrl = String(fileList.folder)
+        if (!folderUrl.startsWith("file:///")) {
+            console.warn("SmartBar: carpeta local inválida para abrir")
+            return
+        }
+        Qt.openUrlExternally(fileList.folder)
+    }
     readonly property url homeFolder: "file://" + StandardPaths.writableLocation(StandardPaths.HomeLocation)
     background: IslandPopupSurface {
         baseColor: launcher.islandColor
@@ -344,6 +355,13 @@ QQC2.Popup {
                     outlineStyle: launcher.outlineStyle
                 }
                 placeholderText: launcher.filesMode ? "Buscar archivo en esta carpeta…" : "Buscar aplicación…"
+                // Enter en modo Archivos abre la carpeta mostrada con el
+                // administrador predeterminado del sistema (Dolphin en KDE
+                // si está configurado como predeterminado).
+                onAccepted: {
+                    if (launcher.filesMode)
+                        launcher.openCurrentFolderInManager()
+                }
                 onTextChanged: {
                     if (!launcher.filesMode && text.length > 0)
                         launcher.selectedCategory = ""
@@ -385,10 +403,16 @@ QQC2.Popup {
                             fileList.folder = path.slice(0,cut)
                     }
                 }
+                LauncherActionButton {
+                    text: "Abrir en gestor"
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.text: "Abrir la carpeta actual con el administrador de archivos predeterminado"
+                    onClicked: launcher.openCurrentFolderInManager()
+                }
             }
             QQC2.Label {
                 Layout.fillWidth: true
-                text: launcher.filesMode ? "Explorar archivos (solo lectura)"
+                text: launcher.filesMode ? "Enter: abrir carpeta en el administrador predeterminado"
                     : (launcher.catalogIsReal ? "Aplicaciones instaladas" : "Categorías de muestra · sin ejecutar")
                 color: "#a8c3d1"
                 font.pixelSize: 11
