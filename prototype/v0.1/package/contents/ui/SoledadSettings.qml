@@ -134,7 +134,7 @@ Window {
                     readOnly: true
                     selectByMouse: true
                     wrapMode: TextEdit.WrapAnywhere
-                    text: settings.themeSnapshot()
+                    text: settings.factoryNightCandidateJson()
                 }
             }
             QQC2.Button {
@@ -330,6 +330,13 @@ Window {
     // Atardecer/Noche conservan exactamente el efecto de respiración
     // capturado en su instantánea: no forzar sincronización ni pulsación
     // cuando el usuario guardó valores propios.
+    function factoryNightCandidateJson() {
+        const values = JSON.parse(themeSnapshot())
+        // Solo se utiliza para encontrar el binario durante el empaquetado:
+        // nunca se debe distribuir la ruta local del mantenedor.
+        values.originalImageUrl = logoMode === "text" ? "" : selectedImage.toString()
+        return JSON.stringify(values)
+    }
     function themeSnapshot() {
         return JSON.stringify({
             version: 1,
@@ -378,6 +385,11 @@ Window {
             malvinaGearButtonShape: malvinaGearButtonShape,
             malvinaSearchButtonShape: malvinaSearchButtonShape,
             soButtonFrameShape: soButtonFrameShape,
+            soButtonWidth: soButtonWidth,
+            panelHeight: panelHeight,
+            soledadHeight: soledadHeight, malvinaHeight: malvinaHeight,
+            soledadRadius: soledadRadius, malvinaRadius: malvinaRadius,
+            soledadMinWidth: soledadMinWidth, malvinaWidth: malvinaWidth,
             gripShape: gripShape, trayButtonShape: trayButtonShape,
             soTextLabel: soTextLabel, soTextColor: toHex(soTextColor),
             soTextBackground: toHex(soTextBackground),
@@ -386,6 +398,7 @@ Window {
             soTextBold: soTextBold, soTextBackgroundImage: soTextBackgroundImage,
             clockFontFamily: clockFontFamily, clockFontSize: clockFontSize,
             clockTextColor: toHex(clockTextColor),
+            taskDisplayMode: taskDisplayMode,
             taskFrameShape: taskFrameShape, taskFrameColor: toHex(taskFrameColor),
             taskFrameOpacity: taskFrameOpacity, taskFrameWidth: taskFrameWidth,
             taskActiveGlowEnabled: taskActiveGlowEnabled,
@@ -486,11 +499,14 @@ Window {
                 "gripButtonColorOverride","gripButtonColor","gripButtonOpacity",
                 "soledadShape","malvinaShape","malvinaGearButtonShape",
                 "malvinaSearchButtonShape","soButtonFrameShape",
+                "soButtonWidth","panelHeight","soledadHeight","malvinaHeight",
+                "soledadRadius","malvinaRadius","soledadMinWidth","malvinaWidth",
                 "gripShape","trayButtonShape",
                 "soTextLabel","soTextColor","soTextBackground",
                 "soTextBackgroundOpacity","soTextFontFamily","soTextFontSize",
                 "soTextBold","soTextBackgroundImage",
                 "clockFontFamily","clockFontSize","clockTextColor",
+                "taskDisplayMode",
                 "taskFrameShape","taskFrameColor","taskFrameOpacity","taskFrameWidth",
                 "taskActiveGlowEnabled","taskActiveDoubleBorderEnabled",
                 "launcherSwitchShape","launcherSwitchColorOverride",
