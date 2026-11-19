@@ -428,3 +428,7 @@ Tras implementar Temas y los menús plegables, se trasladaron las opciones del l
 ## 58. Botones directos DEGRADADO por isla — 18/11/2026
 
 Se publicaron dos accesos dedicados en la barra lateral plegable del centro de configuración: `DEGRADADO SOLEDAD` y `DEGRADADO MALVINA`, con navegación directa a `appearanceSection=1` y `colorScope` exclusivo. `Color y transparencia` pasa a ser el acceso al selector de color/opacidad; no requiere cambiar un selector de isla. Pedido prioritario del mantenedor ante la dificultad recurrente de localizar el gradiente. Requiere ensayo en CachyOS. No modifica por sí mismo valores guardados.
+
+## 59. Reset por isla sin tocar la otra — 18/11/2026
+
+Durante control de regresiones de la reorganización se detectó que el botón heredado «Restablecer islas y posición» podía borrar ambas geometrías desde Soledad o Malvina. Corregido en `SoledadSettings.qml` commit bc3ccb6: reset de forma/tamaño independiente SO y Malvina, y reset de posición/altura común exclusivo en General. Requiere prueba en CachyOS antes de considerarlo resuelto.
