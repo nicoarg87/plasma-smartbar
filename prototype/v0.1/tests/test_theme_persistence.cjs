@@ -68,7 +68,8 @@ assert.match(block(settings, "discardPendingEdits"),
              /pendingThemeChanges = \(\{\}\)/);
 assert.match(block(settings, "captureSettingsBaseline"),
              /pendingThemeChanges = \(\{\}\)/);
-assert.match(settings, /text: "Restaurar Atardecer de fábrica"/);
+assert.match(settings, /text: "Atardecer" \+ \(settings.factorySunsetAvailable/);
+assert.match(settings, /enabled: settings.factorySunsetAvailable/);
 assert.match(settings, /onClicked: settings.activateTheme\("sunset"\)/);
 assert(!settings.includes('text: "Fijar Atardecer"'));
 assert(!settings.includes('text: "Actualizar Atardecer con estética actual…"'));
