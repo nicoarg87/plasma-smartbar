@@ -94,17 +94,28 @@ Window {
             return
         }
         saveAppearanceTimer.stop()
+        const before = JSON.parse(collectAppearancePreset())
+        let restored = false
         appearanceWriteSuspended = true
         try {
             for (const field of appearanceKeys) {
                 if (Object.prototype.hasOwnProperty.call(values, field))
                     previewWindow[field] = values[field]
             }
+            restored = true
         } catch(e) {
             console.warn("SmartBar: error al restaurar " + label + ":", e)
+            // No persistir una restauración incompleta.
+            for (const field of appearanceKeys) {
+                try { previewWindow[field] = before[field] }
+                catch(rollbackError) {
+                    console.warn("SmartBar: fallo al recuperar " + field, rollbackError)
+                }
+            }
         } finally {
             appearanceWriteSuspended = false
         }
+        if (!restored) return
         saveAppearancePreset()
         console.log("SmartBar: " + label + " restaurada a apariencia activa")
     }
