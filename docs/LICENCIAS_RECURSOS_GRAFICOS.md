@@ -80,3 +80,12 @@ Se recibió **el archivo exacto** `Playa tropical nocturna animada.gif` del mant
 - **Licencia/dedicación aprobada:** [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/), únicamente sobre los derechos que el mantenedor pueda dedicar; no modifica la licencia MIT del código ni afecta marcas/derechos ajenos.
 
 **Distribución:** se preservó el binario original intacto dentro de un **ZIP de instalación local entregado en la conversación**, pero todavía **no está confirmado el GIF binario en GitHub**. El código experimental apunta a `assets/so-night.gif` si existe, sin reemplazar una ruta local nocturna válida cuando no existe. No confundir el inventario/licencia ya publicados con la publicación efectiva de los bytes del GIF.
+
+
+## Ratificación del mantenedor — 19/11/2026: MIT para software y CC0 para GIF propios
+
+**Decisión vigente y obligatoria para el repositorio oficial:** todo el **código fuente original** de Plasma SmartBar Islands, su documentación y los metadatos del paquete KDE se distribuyen bajo **MIT**, conforme al archivo `LICENSE`. El metadato `prototype/v0.1/package/metadata.json` también debe declarar `"License": "MIT"` (corregido en el commit [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384)). Ningún archivo del software propio nuevo debe declarar GPL-3.0 como licencia vigente. Las menciones a GPL-3.0 en textos históricos son antecedentes, **no** la licencia actual.
+
+**GIF/imágenes animadas originales del botón SO aportados por el mantenedor y generados a su pedido mediante ChatGPT/OpenAI:** quedan expresamente autorizados por él para la dedicación **Creative Commons CC0 1.0 Universal**, en la medida de los derechos que pueda dedicar. Se incluyen las versiones originales identificadas como **Atardecer / tropical** y **Playa nocturna / Noche** ya inventariadas, sin alterar sus bytes, hashes ni tamaños. Esta ratificación no afirma que los binarios estén incorporados a GitHub: su instalación local mediante los paquetes ZIP anteriores es independiente del código versionado. Cuando se incorporen, verificar archivo exacto, hash y aviso CC0 en su inventario.
+
+**Límite jurídico:** no aplicar MIT o CC0 automáticamente a Golden Dog, logos ajenos, marcas, bibliotecas externas, ni a imágenes que otros usuarios carguen localmente. Ninguna dedicación autoriza ceder derechos de terceros que el mantenedor no posea.
