@@ -93,6 +93,17 @@ Window {
     // Colección local extensible. No sustituye las ranuras históricas ni
     // los temas originales de fábrica, que permanecen protegidos.
     property string themeLibraryJson: "[]"
+    property bool personalDefaultAvailable: false
+    property bool favoriteAppearanceAvailable: false
+    signal restorePersonalDefaultRequested()
+    signal restoreFavoriteAppearanceRequested()
+    function restoreExistingLocalTheme(kind) {
+        // El visor conserva el preset personal y la estética favorita en
+        // su Qt Settings histórica; pedirle restaurarla sin regrabarla.
+        settings.close()
+        if (kind === "personal") restorePersonalDefaultRequested()
+        else if (kind === "favorite") restoreFavoriteAppearanceRequested()
+    }
     property bool themeChooserExpanded: false
     property string newThemeName: ""
     readonly property var savedThemeLibrary: parseThemeLibrary(themeLibraryJson)
@@ -4616,6 +4627,34 @@ Window {
                                     onClicked: settings.activateTheme("custom")
                                 }
                             }
+                            RowLayout {
+                                visible: settings.personalDefaultAvailable
+                                Layout.fillWidth: true
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    text: "Mi predeterminada personal (ya guardada)"
+                                    color: "white"
+                                    wrapMode: Text.WordWrap
+                                }
+                                QQC2.Button {
+                                    text: "Usar"
+                                    onClicked: settings.restoreExistingLocalTheme("personal")
+                                }
+                            }
+                            RowLayout {
+                                visible: settings.favoriteAppearanceAvailable
+                                Layout.fillWidth: true
+                                QQC2.Label {
+                                    Layout.fillWidth: true
+                                    text: "Mi estética favorita (ya guardada)"
+                                    color: "white"
+                                    wrapMode: Text.WordWrap
+                                }
+                                QQC2.Button {
+                                    text: "Usar"
+                                    onClicked: settings.restoreExistingLocalTheme("favorite")
+                                }
+                            }
                             Repeater {
                                 model: settings.savedThemeLibrary
                                 delegate: RowLayout {
@@ -4646,7 +4685,9 @@ Window {
                                 Layout.fillWidth: true
                                 visible: settings.savedThemeLibrary.length === 0 &&
                                          settings.themeCustomJson.length === 0 &&
-                                         settings.themeDayJson.length === 0
+                                         settings.themeDayJson.length === 0 &&
+                                         !settings.personalDefaultAvailable &&
+                                         !settings.favoriteAppearanceAvailable
                                 text: "Todavía no hay temas personales guardados. Poné un nombre arriba y elegí Guardar tema."
                                 color: "#b9cce2"
                                 wrapMode: Text.WordWrap
