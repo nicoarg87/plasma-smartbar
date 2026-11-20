@@ -77,7 +77,11 @@ assert(ui.includes('Layout.minimumWidth: 0'));
 const fixedScrolls = (ui.match(/QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn/g) || []).length;
 assert(fixedScrolls >= 9, "Las páginas principales deben conservar scrollbar visible");
 assert(ui.includes("id: themesScroll"), "La página Temas debe conservar su scroll");
-assert(ui.includes("id: themeListScroll"), "Los temas deben tener su propio scroll");
+assert(ui.includes("id: themeOptionsPopup") && ui.includes("id: themesScroll"),
+       "La página Temas y el selector desplegable deben conservar su scroll");
+assert(ui.includes("contentHeight: themeOptionsColumn.implicitHeight") &&
+       ui.includes("policy: QQC2.ScrollBar.AsNeeded"),
+       "La lista de temas debe desplazarse cuando hay más opciones que espacio");
 assert(!ui.includes('QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded'));
 assert(ui.includes('text: "RESPIRACIÓN DEL FONDO Y LOS MENÚS"'));
 assert(ui.includes('text: "Activar respiración del degradado"'));
