@@ -28,6 +28,9 @@ assert(btn.includes("function beginActualArtworkFade(durationMs)"));
 assert(btn.includes("renderedPreviewOpacityA + renderedPreviewOpacityB"));
 assert(btn.includes("model: 2"),"Un GIF saliente y otro entrante");
 assert(btn.includes("animateGif: !!artworkLayer.art.animated"));
+assert(btn.includes("artworkLayer.opacity > 0.001"),"No reproducir GIF transparente");
+assert(bar.includes("root.soLogoAnimate && !root.barColorPreviewActive"),
+       "Pausar GIF original cuando está tapado por la previsualización");
 assert(btn.includes("cropShape: artworkLayer.art.shape"));
 assert(btn.includes("artworkLayer.art.textBackgroundImage"));
 assert(bar.includes("soButton.beginArtworkPreview(art,artDuration)"));
