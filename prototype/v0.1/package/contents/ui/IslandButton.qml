@@ -343,7 +343,9 @@ QQC2.Button {
                                 visible: artworkLayer.art.mode === "image"
                                 imageUrl: artworkLayer.art.image || ""
                                 animateGif: !!artworkLayer.art.animated
-                                animationAllowed: artworkLayer.art.animationAllowed !== false
+                                // Evitar reproducir GIFs transparentes o inactivos.
+                                animationAllowed: artworkLayer.art.animationAllowed !== false &&
+                                                  artworkLayer.opacity > 0.001
                                 cropShape: artworkLayer.art.shape || "square"
                                 fitMode: artworkLayer.art.fit || "fit"
                                 zoom: artworkLayer.art.zoom || 1
