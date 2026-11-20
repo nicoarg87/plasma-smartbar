@@ -37,14 +37,10 @@ Window {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
     }
-    // Canal de eventos independiente del aspecto y las ranuras personales.
-    // El supervisor seguro de probar_ancho.sh observa únicamente este archivo.
-    QtCore.Settings {
-        id: wallpaperSignal
-        location: QtCore.StandardPaths.writableLocation(QtCore.StandardPaths.ConfigLocation)
-                  + "/plasma-smartbar-wallpapers.ini"
-        category: "ThemeWallpaper"
-    }
+    // Wallpaper del escritorio SIMULADO exclusivamente: nunca usa KWin
+    // ni escribe la configuración del fondo del escritorio KDE.
+    property string simulatedWallpaperTheme:
+        String(localPreviewSettings.value("simulatedWallpaperTheme", "day"))
     Timer {
         id: saveAppearanceTimer
         interval: 180
@@ -318,6 +314,27 @@ Window {
     property bool demoSoActivityShowWhenEmpty: true
     property bool demoSoActivityShowWhenOpen: false
 
+    // Fondo completo de esta ventana de prueba, detrás de ambas islas.
+    // Image.Stretch llena exactamente el tamaño disponible sin recortar.
+    // Los PNG son originales y se suministran separados por ZIP.
+    Image {
+        id: simulatedDesktopWallpaper
+        anchors.fill: parent
+        z: -1
+        source: Qt.resolvedUrl("package/contents/ui/assets/wallpapers/" +
+            (previewWindow.simulatedWallpaperTheme === "night" ? "night.png" :
+             previewWindow.simulatedWallpaperTheme === "sunset" ? "sunset.png" : "day.png"))
+        fillMode: Image.Stretch
+        asynchronous: true
+        cache: true
+        smooth: true
+        visible: status === Image.Ready
+        onStatusChanged: {
+            if (status === Image.Error)
+                console.warn("SmartBar: falta el wallpaper original del escritorio simulado:", source)
+        }
+    }
+
     SmartBarContent {
         id: bar
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
@@ -429,10 +446,9 @@ Window {
         onRequestPersistCurrentSettings: previewWindow.saveAppearancePreset()
         onRequestWallpaperThemeChange: function(themeName) {
             if (["day", "sunset", "night"].indexOf(themeName) < 0) return
-            wallpaperSignal.setValue("theme", themeName)
-            wallpaperSignal.setValue("revision",
-                Number(wallpaperSignal.value("revision", 0)) + 1)
-            wallpaperSignal.sync()
+            previewWindow.simulatedWallpaperTheme = themeName
+            localPreviewSettings.setValue("simulatedWallpaperTheme", themeName)
+            localPreviewSettings.sync()
         }
         onRequestMalvinaButtonShapesChange: function(gearShape, searchShape) {
             previewWindow.demoMalvinaGearButtonShape = gearShape
