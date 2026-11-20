@@ -67,4 +67,27 @@ vm.runInNewContext([
  'if(closeDemoWindow("Dolphin")||reopenNextDemoWindow())throw Error("panel")'
 ].join("\n"),state);
 assert.deepEqual(JSON.parse(JSON.stringify(state.demoOpenedApps)),["Dolphin"]);
+// Incluso con cero ventanas, el gesto explícito de SO debe poder
+// abrir el cajón VACÍO para utilizar "+". Solo en visor ficticio.
+const emptyState={
+    demoWindowControlsEnabled:true,usingRealTasks:false,
+    soWindowCount:0,soExpanded:false,lastExpandedMode:"tray",
+    installedAppsPopup:{visible:false,close(){}},
+    ensureExpansionFits(){}
+};
+vm.runInNewContext([
+    extract("toggleOpenWindowsFromSO"),
+    "toggleOpenWindowsFromSO()"
+].join("\n"),emptyState);
+assert.equal(emptyState.soExpanded,true);
+assert.equal(emptyState.lastExpandedMode,"so");
+// Si se desactiva el visor ficticio, conservar el contrato anterior de 0 ventanas.
+emptyState.demoWindowControlsEnabled=false;
+emptyState.soExpanded=false;
+vm.runInNewContext([
+    extract("toggleOpenWindowsFromSO"),
+    "toggleOpenWindowsFromSO()"
+].join("\n"),emptyState);
+assert.equal(emptyState.soExpanded,false);
+
 console.log("OK: fichas ficticias SO abren y cierran; TaskManager real sigue solo lectura.");
