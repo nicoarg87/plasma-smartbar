@@ -41,6 +41,8 @@ Window {
     // ni escribe la configuración del fondo del escritorio KDE.
     property string simulatedWallpaperTheme:
         String(localPreviewSettings.value("simulatedWallpaperTheme", "day"))
+    property bool simulatedWallpaperEnabled:
+        String(localPreviewSettings.value("simulatedWallpaperEnabled", true)).toLowerCase() !== "false"
     Timer {
         id: saveAppearanceTimer
         interval: 180
@@ -328,7 +330,7 @@ Window {
         asynchronous: true
         cache: true
         smooth: true
-        visible: status === Image.Ready
+        visible: previewWindow.simulatedWallpaperEnabled && status === Image.Ready
         onStatusChanged: {
             if (status === Image.Error)
                 console.warn("SmartBar: falta el wallpaper original del escritorio simulado:", source)
@@ -444,6 +446,12 @@ Window {
         // Aplicar solicita guardado inmediato de TODOS los valores, no solo
         // los que tenían on...Changed histórico.
         onRequestPersistCurrentSettings: previewWindow.saveAppearancePreset()
+        thematicWallpaperEnabled: previewWindow.simulatedWallpaperEnabled
+        onRequestThematicWallpaperVisibilityChange: function(enabled) {
+            previewWindow.simulatedWallpaperEnabled = enabled
+            localPreviewSettings.setValue("simulatedWallpaperEnabled", enabled)
+            localPreviewSettings.sync()
+        }
         onRequestWallpaperThemeChange: function(themeName) {
             if (["day", "sunset", "night"].indexOf(themeName) < 0) return
             previewWindow.simulatedWallpaperTheme = themeName
