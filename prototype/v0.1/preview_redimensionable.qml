@@ -90,6 +90,7 @@ Window {
     property string wallpaperActiveLayer: "primary"
     property string wallpaperIncomingLayer: ""
     property bool wallpaperFadeBusy: false
+    property string wallpaperDemoPendingTheme: ""
 
     function wallpaperForTheme(theme) {
         const name = theme === "night" ? "night.png" :
@@ -102,6 +103,12 @@ Window {
         const target = wallpaperIncomingLayer === "primary"
             ? simulatedDesktopWallpaper : incomingWallpaper
         if (target.status === Image.Ready) {
+            // Coordinación del ensayo: ambas animaciones arrancan recién
+            // cuando el PNG entrante está cargado, no antes.
+            if (wallpaperDemoPendingTheme === wallpaperIncomingTheme) {
+                bar.previewBarThemeColors(wallpaperIncomingTheme)
+                wallpaperDemoPendingTheme = ""
+            }
             wallpaperFade.target = target
             wallpaperFade.start()
         }
@@ -112,6 +119,7 @@ Window {
         if (["day","sunset","night"].indexOf(theme) < 0) return
         // Ante un nuevo tema real, la selección tiene prioridad aun cuando
         // el fundido anterior dure minutos u horas. No dejarlo en cola.
+        if (saveSelection) wallpaperDemoPendingTheme = ""
         if (saveSelection && wallpaperFadeBusy) {
             // Descartar cualquier solicitud obsoleta, no iniciar un
             // segundo fundido al abortar el anterior.
@@ -170,6 +178,7 @@ Window {
     }
     function abortWallpaperFade() {
         if (!wallpaperFadeBusy) return
+        wallpaperDemoPendingTheme = ""
         wallpaperFade.stop()
         const incoming = wallpaperIncomingLayer === "primary"
             ? simulatedDesktopWallpaper : incomingWallpaper
@@ -189,11 +198,12 @@ Window {
         const i = order.indexOf(wallpaperShownTheme)
         const next = order[(i + 1) % order.length]
         // Un clic = una transición de wallpaper Y colores de las islas.
-        // Solo lectura de paletas: jamás activateTheme ni escritura de temas.
-        bar.previewBarThemeColors(next)
+        // Esperar a que el nuevo PNG esté listo para arrancar ambas a la vez.
+        wallpaperDemoPendingTheme = next
         changeSimulatedWallpaper(next, false)
     }
     onSimulatedWallpaperEnabledChanged: {
+        if (!simulatedWallpaperEnabled) wallpaperDemoPendingTheme = ""
         if (!simulatedWallpaperEnabled && wallpaperFadeBusy) {
             wallpaperFade.stop()
             finishWallpaperFade()
