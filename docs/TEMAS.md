@@ -93,3 +93,19 @@ Implementación experimental: `PaletteExtractor.js` y `SoledadSettings.qml` en l
 - En la rama experimental se preparó un sellado de una sola operación de los tres perfiles. Requiere que el autor ya haya guardado Atardecer (`themeDayJson`), Noche (`themeNightJson`) y un tema personal de nombre exactamente «Día» (`themeLibraryJson`). Desde el mismo entorno de CachyOS donde funciona el visor, ejecutar `node prototype/v0.1/scripts/sellar_tres_temas_fabrica.cjs`. Lee la configuración Qt local, verifica que los tres JSON y recursos existan, y crea manifiestos inmutables con hashes **sin tocar las preferencias locales ni el panel KDE**.
 - Los módulos de fábrica inicialmente contienen `preset = null`, de manera deliberada. El sellado solo puede activarlos con los valores y recursos **exactos**, nunca con un esquema cromático inventado. El resultado se revisa y prueba antes de publicarse mediante Git.
 - **PENDIENTE:** ejecutar el sellado en el equipo del mantenedor, validar en QML carga, GIF, restauración completa y persistencia, revisar derechos de redistribución de cada archivo, publicar los binarios/manifiestos y recién entonces declarar los tres temas oficiales listos para una instalación limpia. Mantener la selección manual; la sincronización con hora/reloj permanece propuesta futura y optativa.
+
+## Asociación de wallpapers fijos al seleccionar tema (19/11/2026)
+
+**Confirmado:** el desplegable oficial de Día/Atardecer/Noche aplica el perfil correspondiente y cambia también la **imagen de fondo de escritorio de Plasma**, sin botones adicionales. Cada wallpaper se **estira** horizontal y verticalmente para cubrir el monitor completo sin recortes; en relaciones de aspecto distintas se admite deformación proporcional visual.
+
+| Tema del selector | Imagen de fondo |
+|---|---|
+| Día | `prototype/v0.1/package/contents/ui/assets/wallpapers/day.png` |
+| Atardecer | `prototype/v0.1/package/contents/ui/assets/wallpapers/sunset.png` |
+| Noche | `prototype/v0.1/package/contents/ui/assets/wallpapers/night.png` |
+
+Los tres PNG originales se entregaron en la conversación y se preservaron en un ZIP de recuperación; sus hashes están registrados en `assets/wallpapers/manifest.json`. **No están en GitHub como binarios aún**. La simulación solo puede cambiar wallpaper si el usuario extrae el ZIP en la raíz del repositorio.
+
+**Implementación de prueba:** `QtCore.Settings` transmite únicamente la elección del tema; `vigilar_wallpaper.py` comprueba el SHA-256 del PNG antes de ejecutar `plasma-apply-wallpaperimage --fill-mode stretch`. El monitor está limitado a la duración de `probar_ancho.sh`, respalda la configuración del escritorio y no instala servicios ni modifica paneles. KDE Plasma tiene soporte nativo para `Image.Stretch`; la invocación CLI aún requiere validación en CachyOS.
+
+**Pendiente:** publicar binarios con licencias individuales confirmadas, comprobar cambio efectivo y persistencia en Plasma/Wayland, validar múltiples pantallas y dejar el backend activo en la futura versión instalable. Automatizar por horario es una **propuesta separada**, no incluida aquí.
