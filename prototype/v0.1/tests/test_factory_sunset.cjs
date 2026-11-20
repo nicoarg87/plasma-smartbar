@@ -52,9 +52,10 @@ assert(popup.includes('(settings.factorySunsetAvailable ? "sunset" : "")'),
 assert(popup.includes('settings.activateTheme(slot)'));
 assert(!popup.includes('settings.selectedImage'), "No usar logo actual como miniatura");
 assert(!popup.includes('text: "Restaurar"'), "No reintroducir botones de tarjetas");
-assert(ui.includes('text: "Exportar aspecto actual para fijar Atardecer de fábrica…"'));
-assert(ui.includes('onClicked: settings.showFactoryCapture("sunset")'));
-assert(ui.includes('onClicked: settings.showFactoryCapture("night")'));
+assert(ui.includes('function showFactoryCapture(target)'),
+       "Mantener el helper de captura de perfiles originales");
+assert(ui.includes('factoryExportTarget = target === "sunset" ? "sunset" : "night"'),
+       "El empaquetador no debe mezclar recursos de distintas fábricas");
 assert(ui.includes('factoryExportTarget === "sunset" ? "Atardecer" : "Noche"'));
 assert(ui.includes("factoryNightExportText.copy()"));
 assert(ui.includes("settings.factoryNightCandidateJson()"), "Una sola exportación de valores reales");
