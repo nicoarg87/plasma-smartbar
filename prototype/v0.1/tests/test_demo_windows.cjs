@@ -65,8 +65,10 @@ for (const pos of ["Right", "Center"]) {
            "Deben existir trazos horizontal y vertical del +");
     assert(snippet.includes('text: "+"') && snippet.includes("!root.usingRealTasks"),
            "Debe seguir siendo solo un control ficticio, no KDE real");
-    assert(snippet.includes("enabled: !root.demoHasRunningWindows ||"),
-           "Deshabilitar + cuando las tres fichas están abiertas");
+    assert(snippet.includes("enabled: !root.demoHasRunningWindows || root.demoClosedHistory.length > 0 ||"),
+           "El + debe habilitarse incluso si Dolphin aún conserva otra ventana");
+    assert(snippet.includes("Deshacer último cierre de ventana simulada"),
+           "El tooltip debe explicar que + no relanza programas reales");
     assert(snippet.includes('"#ffffff" : "#a1b1c0"'),
            "Diferenciar visualmente el botón habilitado y deshabilitado");
 }
@@ -93,7 +95,8 @@ const state={
  demoWindowControlsEnabled:true,usingRealTasks:false,
  demoHasRunningWindows:true,demoApps:catalog.slice(),
  demoOpenedApps:catalog.slice(),lastDemoSelection:"Konsole",DemoWindows:helpers,
- demoWindowInstances:instanceHelpers.initial(),DemoWindowInstances:instanceHelpers
+ demoWindowInstances:instanceHelpers.initial(),DemoWindowInstances:instanceHelpers,
+ demoClosedHistory:[]
 };
 vm.runInNewContext([
  extract("demoInstancesForApp"),extract("openDemoWindow"),extract("closeDemoWindow"),
@@ -108,7 +111,8 @@ vm.runInNewContext([
  'usingRealTasks=false;demoWindowControlsEnabled=false',
  'if(closeDemoWindow("Dolphin")||reopenNextDemoWindow())throw Error("panel")'
 ].join("\n"),state);
-assert.deepEqual(JSON.parse(JSON.stringify(state.demoOpenedApps)),["Dolphin"]);
+assert.deepEqual(JSON.parse(JSON.stringify(state.demoOpenedApps)),["Konsole"],
+                 "El + debe deshacer primero el último cierre (orden LIFO)");
 // Incluso con cero ventanas, el gesto explícito de SO debe poder
 // abrir el cajón VACÍO para utilizar "+". Solo en visor ficticio.
 const emptyState={
