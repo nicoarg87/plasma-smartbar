@@ -1740,3 +1740,12 @@ and node prototype/v0.1/tests/ejecutar_todos.cjs
 and bash prototype/v0.1/probar_ancho.sh
 ```
 Cerrar con X para terminar visor; examinar advertencias antes y después del arranque, scrolling en General/Soledad/Malvina/Temas. PR #3 sigue borrador, código propio licencia MIT.
+
+
+## 20/11/2026 — Confirmación real: limpieza Breeze validada en CachyOS (18/18)
+
+**PROBADO por el mantenedor después de los commits [6012e72](https://github.com/nicoarg87/plasma-smartbar/commit/6012e724c480d4eba873edfc7e40dc500b724886) y [5ffb6b4](https://github.com/nicoarg87/plasma-smartbar/commit/5ffb6b4cc49601f79fa03f638724a9ce874672e5):** `git pull --ff-only` informó «Ya está actualizado» y `node prototype/v0.1/tests/ejecutar_todos.cjs` concluyó **18/18 pruebas sin fallos**. `bash prototype/v0.1/probar_ancho.sh` encontró `assets/so-tropical.gif`, detectó **270 aplicaciones .desktop** en modo solo lectura y abrió el visor Qt Quick. La apariencia local y paletas de ambas islas se cargaron, el usuario interactuó con temas/paletas y con la anchura del visor (logs entre 1000 y 995–1022), y al cerrar el visor apareció «SmartBar: configuración actual sincronizada al cerrar el visor»; la terminal regresó al prompt.
+
+**Dato central:** la salida **no contiene advertencias de `Binding loop detected`, `Unable to assign [undefined]` ni errores de carga QML**, en contraste con los registros anteriores. Así queda validada **en el equipo del mantenedor** la desaparición de los avisos anteriores tras fijar el ancho `16` en las nueve barras verticales de `SoledadSettings.qml`; los tests regresivos siguen pasando. Esto no demuestra todavía que todos los recorridos visuales (especialmente scroll en pantalla reducida) sean correctos ni acredita prestaciones de producción o viabilidad de solapar controles sobre pestañas maximizadas en KWin/Wayland.
+
+**Próximo hito recomendado:** iniciar **modularización interna y gradual** de `SoledadSettings.qml` y `SmartBarContent.qml` bajo issue #11, conservando las interfaces públicas QML, nombres de señales, claves de preferencias y el esquema de los temas; establecer un cambio reversible por commit, suite Node antes/después y prueba gráfica en CachyOS. Antes de alterar cualquier función o comportamiento confirmado, presentar la propuesta y pedir aprobación del mantenedor. PR #3 permanece borrador, `main` y panel KDE intactos; licencia del software propio MIT, gráficos con licencias independientes.
