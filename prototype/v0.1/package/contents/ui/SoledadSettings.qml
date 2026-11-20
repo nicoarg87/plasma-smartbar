@@ -73,7 +73,7 @@ Window {
         refreshOutlinePreview()
         appliedLabel.text = ""
     }
-    onClosing: function(event) { themeChooserExpanded = false; factoryToolsExpanded = false; discardPendingEdits() }
+    onClosing: function(event) { themeChooserExpanded = false; scheduleMenuExpanded = false; factoryToolsExpanded = false; discardPendingEdits() }
 
     // Secciones de geometría reducidas para que entren en la ventana de configuración.
     property int geometrySection: 0
@@ -130,6 +130,7 @@ Window {
                (base.soledadGradientThird || base.soledadGradientEnd || "#46516a")
     }
     // Programación diaria: opción personal, independiente de los temas inmutables.
+    property bool scheduleMenuExpanded: false
     property bool themeScheduleEnabled: true
     property int themeScheduleSlotCount: 4
     property string themeScheduleSlots3Json:
@@ -433,7 +434,7 @@ Window {
 
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
-    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; factoryToolsExpanded = false }
+    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; scheduleMenuExpanded = false; factoryToolsExpanded = false }
     function showSoledadLogo() {
         navigationGroup = "soledad"
         currentTab = 1
@@ -4616,15 +4617,129 @@ Window {
                         color: "#ddd6e8"
                         text: "Elegí Día, Atardecer o Noche. Los temas nuevos se suman al mismo desplegable."
                     }
-                    // Control de visibilidad del wallpaper del escritorio simulado.
-                    // No se mezcla con la biblioteca ni agrega botones de guardado.
-                    QQC2.CheckBox {
+                    // Dos controles juntos: el segundo solo despliega la
+                    // configuración horaria; no cambia el estado automático.
+                    RowLayout {
                         Layout.fillWidth: true
-                        text: "Activar wallpaper temático"
-                        checked: settings.thematicWallpaperEnabled
-                        onClicked: {
-                            settings.thematicWallpaperEnabled = checked
-                            settings.thematicWallpaperVisibilityRequested(checked)
+                        spacing: 8
+                        QQC2.CheckBox {
+                            Layout.fillWidth: true
+                            text: "Activar wallpaper temático"
+                            checked: settings.thematicWallpaperEnabled
+                            onClicked: {
+                                settings.thematicWallpaperEnabled = checked
+                                settings.thematicWallpaperVisibilityRequested(checked)
+                            }
+                        }
+                        QQC2.ToolButton {
+                            id: scheduleMenuButton
+                            text: "Con horarios " + (settings.scheduleMenuExpanded ? "▴" : "▾")
+                            accessibleName: "Configurar cambio automático por horarios"
+                            onClicked: settings.scheduleMenuExpanded = !settings.scheduleMenuExpanded
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "Mostrar u ocultar la programación horaria"
+                        }
+                    }
+                    // Ajustes agrupados en un desplegable; la programación
+                    // sigue funcionando aun cuando este menú esté contraído.
+                    ColumnLayout {
+                        id: themeScheduleMenu
+                        Layout.fillWidth: true
+                        visible: settings.scheduleMenuExpanded
+                        spacing: 10
+                        // Cuatro franjas diarias de fábrica; tres como alternativa.
+                        // No hay botones para aplicar/guardar horarios: cada valor válido persiste.
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            text: "Cambio automático por horario"
+                            color: "white"
+                            font.bold: true
+                        }
+                        QQC2.CheckBox {
+                            Layout.fillWidth: true
+                            text: "Activar cambio automático de tema"
+                            checked: settings.themeScheduleEnabled
+                            onToggled: settings.setScheduleEnabled(checked)
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            QQC2.Label {
+                                text: "Franjas horarias"
+                                color: "#cdd8e8"
+                                Layout.fillWidth: true
+                            }
+                            QQC2.ComboBox {
+                                id: scheduleCountSelector
+                                Layout.preferredWidth: 150
+                                model: ["3 franjas", "4 franjas"]
+                                currentIndex: settings.themeScheduleSlotCount === 3 ? 0 : 1
+                                onActivated: function(index) {
+                                    settings.setScheduleSlotCount(index === 0 ? 3 : 4)
+                                }
+                            }
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
+                            Repeater {
+                                model: settings.themeScheduleSlotCount
+                                delegate: RowLayout {
+                                    required property int index
+                                    Layout.fillWidth: true
+                                    spacing: 7
+                                    QQC2.Label {
+                                        text: String(index + 1) + "."
+                                        color: "#bac9db"
+                                        Layout.preferredWidth: 21
+                                    }
+                                    QQC2.TextField {
+                                        Layout.preferredWidth: 78
+                                        maximumLength: 5
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: settings.scheduleStart(index)
+                                        onEditingFinished: {
+                                            if (!settings.updateScheduleBoundary(index, "start", text))
+                                                text = Qt.binding(function() { return settings.scheduleStart(index) })
+                                        }
+                                    }
+                                    QQC2.Label {
+                                        text: "a"
+                                        color: "#cad7e8"
+                                    }
+                                    QQC2.TextField {
+                                        Layout.preferredWidth: 78
+                                        maximumLength: 5
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: settings.scheduleEnd(index)
+                                        onEditingFinished: {
+                                            if (!settings.updateScheduleBoundary(index, "end", text))
+                                                text = Qt.binding(function() { return settings.scheduleEnd(index) })
+                                        }
+                                    }
+                                    QQC2.ComboBox {
+                                        Layout.fillWidth: true
+                                        model: ["Día", "Atardecer", "Noche"]
+                                        currentIndex: settings.scheduleTheme(index) === "day" ? 0
+                                            : settings.scheduleTheme(index) === "sunset" ? 1 : 2
+                                        onActivated: function(i) {
+                                            settings.updateScheduleTheme(index, ["day", "sunset", "night"][i])
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            color: "#b7c7d9"
+                            text: "Horario local del equipo, todos los días. El fin de cada franja es el inicio de la siguiente; la última cruza medianoche si corresponde. Los horarios de 3 y 4 franjas se conservan por separado."
+                        }
+                        QQC2.Label {
+                            visible: settings.scheduleError.length > 0
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            color: "#ffbba5"
+                            text: settings.scheduleError
                         }
                     }
                     // Vista previa principal del tema seleccionado, independiente de la lista.
@@ -4835,100 +4950,6 @@ Window {
                                 }
                             }
                         }
-                    }
-                    // Cuatro franjas diarias de fábrica; tres como alternativa.
-                    // No hay botones para aplicar/guardar horarios: cada valor válido persiste.
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: "Cambio automático por horario"
-                        color: "white"
-                        font.bold: true
-                    }
-                    QQC2.CheckBox {
-                        Layout.fillWidth: true
-                        text: "Activar cambio automático de tema"
-                        checked: settings.themeScheduleEnabled
-                        onToggled: settings.setScheduleEnabled(checked)
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        QQC2.Label {
-                            text: "Franjas horarias"
-                            color: "#cdd8e8"
-                            Layout.fillWidth: true
-                        }
-                        QQC2.ComboBox {
-                            id: scheduleCountSelector
-                            Layout.preferredWidth: 150
-                            model: ["3 franjas", "4 franjas"]
-                            currentIndex: settings.themeScheduleSlotCount === 3 ? 0 : 1
-                            onActivated: function(index) {
-                                settings.setScheduleSlotCount(index === 0 ? 3 : 4)
-                            }
-                        }
-                    }
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-                        Repeater {
-                            model: settings.themeScheduleSlotCount
-                            delegate: RowLayout {
-                                required property int index
-                                Layout.fillWidth: true
-                                spacing: 7
-                                QQC2.Label {
-                                    text: String(index + 1) + "."
-                                    color: "#bac9db"
-                                    Layout.preferredWidth: 21
-                                }
-                                QQC2.TextField {
-                                    Layout.preferredWidth: 78
-                                    maximumLength: 5
-                                    horizontalAlignment: Text.AlignHCenter
-                                    text: settings.scheduleStart(index)
-                                    onEditingFinished: {
-                                        if (!settings.updateScheduleBoundary(index, "start", text))
-                                            text = Qt.binding(function() { return settings.scheduleStart(index) })
-                                    }
-                                }
-                                QQC2.Label {
-                                    text: "a"
-                                    color: "#cad7e8"
-                                }
-                                QQC2.TextField {
-                                    Layout.preferredWidth: 78
-                                    maximumLength: 5
-                                    horizontalAlignment: Text.AlignHCenter
-                                    text: settings.scheduleEnd(index)
-                                    onEditingFinished: {
-                                        if (!settings.updateScheduleBoundary(index, "end", text))
-                                            text = Qt.binding(function() { return settings.scheduleEnd(index) })
-                                    }
-                                }
-                                QQC2.ComboBox {
-                                    Layout.fillWidth: true
-                                    model: ["Día", "Atardecer", "Noche"]
-                                    currentIndex: settings.scheduleTheme(index) === "day" ? 0
-                                        : settings.scheduleTheme(index) === "sunset" ? 1 : 2
-                                    onActivated: function(i) {
-                                        settings.updateScheduleTheme(index, ["day", "sunset", "night"][i])
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: "#b7c7d9"
-                        text: "Horario local del equipo, todos los días. El fin de cada franja es el inicio de la siguiente; la última cruza medianoche si corresponde. Los horarios de 3 y 4 franjas se conservan por separado."
-                    }
-                    QQC2.Label {
-                        visible: settings.scheduleError.length > 0
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: "#ffbba5"
-                        text: settings.scheduleError
                     }
                     QQC2.Button {
                         Layout.fillWidth: true
