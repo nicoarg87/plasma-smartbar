@@ -30,6 +30,34 @@ assert.equal(functions.forApp(reopened,"Dolphin").length,2);
 assert.equal(functions.close(initial,"Dolphin","fantasma"),initial);
 assert.equal(functions.forApp(functions.withoutApp(initial,"Brave"),"Brave").length,0);
 
+// El + debe deshacer el ÚLTIMO cierre individual aunque la ficha Dolphin
+// continúe visible por tener otra ventana abierta.
+const savedDolphin1=functions.snapshot(initial,"Dolphin","dolphin-1");
+assert.equal(savedDolphin1.appName,"Dolphin");
+assert.equal(savedDolphin1.items.length,1);
+const oneDolphin=functions.close(initial,"Dolphin","dolphin-1");
+const twoAgain=functions.restore(oneDolphin,savedDolphin1);
+assert.deepEqual(Array.from(functions.forApp(twoAgain,"Dolphin"),x=>x.id),
+                 ["dolphin-1","dolphin-2"],"Reponer en el orden original");
+assert.equal(functions.forApp(oneDolphin,"Dolphin").length,1,
+             "No mutar el estado anterior al recuperar");
+assert.equal(functions.forApp(functions.restore(twoAgain,savedDolphin1),"Dolphin").length,2,
+             "No duplicar una instancia ya recuperada");
+const wholeDolphin=functions.snapshot(initial,"Dolphin");
+assert.equal(wholeDolphin.items.length,2);
+const wholeAgain=functions.restore(functions.withoutApp(initial,"Dolphin"),wholeDolphin);
+assert.equal(functions.forApp(wholeAgain,"Dolphin").length,2,
+             "La X de grupo permite reponer todas sus tarjetas ficticias");
+assert.equal(functions.snapshot(initial,"Dolphin","no-existe"),null);
+assert.equal(functions.restore(initial,null),initial);
+assert(bar.includes("property var demoClosedHistory: []") &&
+       bar.includes("DemoWindowInstances.snapshot(demoWindowInstances, appName, windowId)") &&
+       bar.includes("DemoWindowInstances.restore(demoWindowInstances, record)") &&
+       bar.includes("demoClosedHistory = demoClosedHistory.slice(0, -1)"),
+       "Guardar historial y deshacer cierre individual en SO simulada");
+assert.equal((bar.match(/root.demoClosedHistory.length > 0 \|\|/g)||[]).length,2,
+             "El + debe habilitarse a izquierda y centro si se cierra una sola Dolphin");
+
 assert(bar.includes("function closeDemoWindowInstance(appName, windowId)"));
 assert(bar.includes("if (current.length === 1) return closeDemoWindow(appName)"));
 assert(bar.includes("if (!demoWindowControlsEnabled || usingRealTasks ||"));
