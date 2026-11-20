@@ -21,9 +21,22 @@ assert(ui.includes('slot === "night" ? factoryNightJson'),
 assert(ui.includes('if (slot === "night") {\n            themeStatus = "Noche de fábrica está protegida; usá Personalizado."'));
 assert(!ui.includes('onClicked: settings.storeTheme("night")'));
 assert(!ui.includes('text: "Fijar tema Noche"'));
-assert(ui.includes('text: "Noche" + (settings.factoryNightAvailable'));
-assert(ui.includes('enabled: settings.factoryNightAvailable'));
-assert(ui.includes('onClicked: settings.activateTheme("night")'));
+// El selector actual es un único desplegable, sin tarjetas ni botones
+// individuales de restauración. Noche histórica tiene prioridad cuando existe.
+const popupStart = ui.indexOf("id: themeOptionsPopup");
+const popupEnd = ui.indexOf('text: "Crear tema nuevo"', popupStart);
+assert(popupStart > 0 && popupEnd > popupStart, "Falta selector de temas vigente");
+const popup = ui.slice(popupStart, popupEnd);
+assert(popup.includes('index === 1 ? "Noche"'), "Noche debe figurar en la lista");
+assert(popup.includes('settings.factoryNightImage'), "Falta imagen original en opción Noche");
+assert(popup.includes('settings.themeNightJson.length ? "nightLegacy"'),
+       "Se debe poder recuperar la copia histórica de Noche");
+assert(popup.includes('(settings.factoryNightAvailable ? "night" : "")'),
+       "No activar fábrica de Noche si falta su recurso");
+assert(!popup.includes('settings.selectedImage'),
+       "La opción Noche no debe tomar la imagen activa");
+assert(popup.includes('settings.activateTheme(slot)'),
+       "El desplegable debe aplicar exclusivamente el slot seleccionado");
 assert(ui.includes('text: "Exportar aspecto actual para fijar Noche de fábrica…"'));
 assert(ui.includes('onClicked: settings.showFactoryCapture("night")'));
 assert(ui.includes('factoryNightExportDialog.open()'));
@@ -34,15 +47,12 @@ assert(ui.includes("factorySunsetImage.toString() : factoryNightImage.toString()
        "Noche debe recuperar su propia imagen, separada de Atardecer");
 assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
 assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
-const nightCardStart = ui.indexOf('Image {\n                                    visible: settings.factoryNightAvailable &&', ui.indexOf("id: themeListScroll"));
-const nightCardEnd = ui.indexOf('text: "Día · tema de fábrica todavía no definido"', nightCardStart);
-assert(nightCardStart > 0 && nightCardEnd > nightCardStart);
-const nightCard = ui.substring(nightCardStart, nightCardEnd);
-assert(nightCard.includes("settings.factoryNightImage"));
-assert(!nightCard.includes("settings.selectedImage"),
-       "La miniatura original de Noche no debe mostrar el logo actual");
-assert(!nightCard.includes("settings.themeNightJson"),
-       "La miniatura original de Noche no debe mostrar un tema histórico");
+// El modelo del selector mantiene tres opciones principales, más temas personales.
+assert(popup.includes('model: 3 + settings.otherNamedThemes.length'));
+assert(popup.includes('settings.themeImageSource(settings.themeNightJson)'),
+       "Un tema personal histórico debe utilizar su imagen, no la fábrica");
+assert(popup.includes('else if (selectedIndex === 1)'),
+       "La opción Noche debe tener una ruta de selección explícita");
 assert(ui.includes('soButtonWidth: soButtonWidth'), "Fábrica omite ancho de botón");
 assert(ui.includes('panelHeight: panelHeight'), "Fábrica omite altura de barra");
 assert(ui.includes('"soButtonWidth","panelHeight"'), "Restauración no trae geometría visual");
