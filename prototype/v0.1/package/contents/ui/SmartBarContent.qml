@@ -2309,7 +2309,9 @@ Item {
                     activityShowWhenOpen: root.soActivityShowWhenOpen
                     iconSource: root.activeSoLogo
                     iconAnimated: root.activeSoLogoIsGif
-                    iconAnimationEnabled: root.soLogoAnimate
+                    // Durante la demostración el logo de fondo queda oculto;
+                    // no reproducir un segundo GIF innecesariamente.
+                    iconAnimationEnabled: root.soLogoAnimate && !root.barColorPreviewActive
                     clockVisible: root.soClockVisible
                     clockPhase: root.soClockPhase
                     clockTime: root.soClockTime
