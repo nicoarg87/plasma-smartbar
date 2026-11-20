@@ -21,6 +21,19 @@ PlasmoidItem {
     onWidthChanged: console.log("SmartBar v0.1: ancho del applet Plasma =", width)
     SmartBarContent {
         id: demo
+        // La programación se guarda también en KConfig, pero no se ejecuta
+        // sobre el panel real hasta validar el visor en CachyOS.
+        themeScheduleRuntimeEnabled: false
+        themeScheduleEnabled: Plasmoid.configuration.themeScheduleEnabled
+        themeScheduleSlotCount: Plasmoid.configuration.themeScheduleSlotCount
+        themeScheduleSlots3Json: Plasmoid.configuration.themeScheduleSlots3Json
+        themeScheduleSlots4Json: Plasmoid.configuration.themeScheduleSlots4Json
+        onRequestThemeScheduleChange: function(enabled, count, slots3Json, slots4Json) {
+            Plasmoid.configuration.themeScheduleEnabled = enabled
+            Plasmoid.configuration.themeScheduleSlotCount = count
+            Plasmoid.configuration.themeScheduleSlots3Json = slots3Json
+            Plasmoid.configuration.themeScheduleSlots4Json = slots4Json
+        }
         thematicWallpaperEnabled: Plasmoid.configuration.thematicWallpaperEnabled
         // Guarda solo la preferencia. El plasmoide NO cambia el escritorio KDE.
         onRequestThematicWallpaperVisibilityChange: function(enabled) {
