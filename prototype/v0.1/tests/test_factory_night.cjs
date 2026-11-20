@@ -37,8 +37,10 @@ assert(!popup.includes('settings.selectedImage'),
        "La opción Noche no debe tomar la imagen activa");
 assert(popup.includes('settings.activateTheme(slot)'),
        "El desplegable debe aplicar exclusivamente el slot seleccionado");
-assert(ui.includes('text: "Exportar aspecto actual para fijar Noche de fábrica…"'));
-assert(ui.includes('onClicked: settings.showFactoryCapture("night")'));
+assert(ui.includes('function showFactoryCapture(target)'),
+       "Conservar la función de captura sin introducir un botón nuevo");
+assert(ui.includes('factoryExportTarget = target === "sunset" ? "sunset" : "night"'),
+       "La captura de Noche no debe mezclarse con Atardecer");
 assert(ui.includes('factoryNightExportDialog.open()'));
 assert(ui.includes("factoryNightExportText.copy()"));
 assert(ui.includes("settings.factoryNightCandidateJson()"));
