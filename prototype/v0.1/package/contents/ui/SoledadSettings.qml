@@ -1751,6 +1751,8 @@ Window {
                     anchors.margins: 7
                     clip: true
                     contentWidth: Math.max(0, availableWidth - 32)
+                    // Evita el ciclo de Breeze: ancho implícito del separador -> barra -> rightPadding.
+                    QQC2.ScrollBar.vertical.width: 16
                     QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                     QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
                     ColumnLayout {
@@ -1921,6 +1923,7 @@ Window {
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.width: 16
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
                     width: Math.max(0, positionScroll.availableWidth - 32)
@@ -2355,6 +2358,7 @@ Window {
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.width: 16
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
                     width: Math.max(0, collapseScroll.availableWidth - 32)
@@ -2556,6 +2560,7 @@ Window {
                     clip: true
                     contentWidth: Math.max(0, availableWidth - 32)
                     QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                    QQC2.ScrollBar.vertical.width: 16
                     QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                     ColumnLayout {
                         width: Math.max(0, logoScroll.availableWidth - 32)
@@ -3620,6 +3625,7 @@ Window {
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.width: 16
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
                     width: Math.max(0, appearanceScroll.availableWidth - 32)
@@ -4330,6 +4336,7 @@ Window {
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.width: 16
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
                     width: Math.max(0, taskStylesScroll.availableWidth - 32)
@@ -4471,6 +4478,7 @@ Window {
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.width: 16
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
                     width: Math.max(0, sharedOutlineScroll.availableWidth - 32)
@@ -4562,6 +4570,7 @@ Window {
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.width: 16
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
                     width: Math.max(0, aboutScroll.availableWidth - 32)
@@ -4650,6 +4659,7 @@ Window {
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.width: 16
                 QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
                 ColumnLayout {
                     width: Math.max(0, themesScroll.availableWidth - 32)
