@@ -35,10 +35,10 @@
     <entry name="launcherSwitchColor" type="String"><default>#010111</default></entry>
     <entry name="launcherMaxSlots" type="Int"><default>20</default></entry>
     <entry name="launcherOpacityOverride" type="Bool"><default>false</default></entry>
-    <entry name="launcherOpacity" type="Double"><default>0.7</default></entry>
+    <entry name="launcherOpacity" type="Double"><default>0.9</default></entry>
     <entry name="launcherIconsWithNames" type="Bool"><default>true</default></entry>
     <entry name="malvinaOptionsOpacityOverride" type="Bool"><default>false</default></entry>
-    <entry name="malvinaOptionsOpacity" type="Double"><default>0.7</default></entry>
+    <entry name="malvinaOptionsOpacity" type="Double"><default>0.9</default></entry>
     <entry name="soLeftClickOpensLauncher" type="Bool">
       <label>Clic izquierdo SO abre cajon de aplicaciones; derecho abre launcher</label>
       <default>false</default>
@@ -144,17 +144,17 @@
     <entry name="malvinaGradientColorCount" type="Int"><default>2</default></entry>
     <entry name="malvinaGradientDirection" type="String"><default>topBottom</default></entry>
     <entry name="backgroundColor" type="String"><default>#202333</default></entry>
-    <entry name="soledadOpacity" type="Double"><default>0.7</default></entry>
-    <entry name="malvinaOpacity" type="Double"><default>0.7</default></entry>
-    <entry name="backgroundOpacity" type="Double"><default>0.7</default></entry>
+    <entry name="soledadOpacity" type="Double"><default>0.9</default></entry>
+    <entry name="malvinaOpacity" type="Double"><default>0.9</default></entry>
+    <entry name="backgroundOpacity" type="Double"><default>0.9</default></entry>
     <entry name="showBackground" type="Bool"><default>false</default></entry>
     <!-- Botones de bandeja y agarre heredan color y alfa de Soledad, salvo opt-in. -->
     <entry name="trayButtonColorOverride" type="Bool"><default>false</default></entry>
     <entry name="trayButtonColor" type="String"><default>#010111</default></entry>
-    <entry name="trayButtonOpacity" type="Double"><default>0.5</default></entry>
+    <entry name="trayButtonOpacity" type="Double"><default>0.9</default></entry>
     <entry name="gripButtonColorOverride" type="Bool"><default>false</default></entry>
     <entry name="gripButtonColor" type="String"><default>#010111</default></entry>
-    <entry name="gripButtonOpacity" type="Double"><default>0.5</default></entry>
+    <entry name="gripButtonOpacity" type="Double"><default>0.9</default></entry>
     <!-- Contorno opcional: alerta visual sin ventanas por defecto. -->
     <entry name="soActivityStyle" type="String"><default>breathe</default></entry>
     <entry name="soActivityShowWhenEmpty" type="Bool"><default>true</default></entry>
