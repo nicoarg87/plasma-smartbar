@@ -177,10 +177,13 @@ QQC2.Button {
     property color clockTextColor: "#ffffff"
 
     implicitHeight: preferredButtonHeight > 0 ? preferredButtonHeight : 34
+    // Reservar ancho para los nombres sin cambiar la altura de la barra.
     implicitWidth: preferredButtonWidth > 0 ? preferredButtonWidth :
-        (iconSource.toString().length > 0 ? 40 :
-         (inheritIslandFill && taskDisplayMode === "icon" ? 38 :
-          Math.max(40, label.implicitWidth + (taskUsesIcon ? 42 : 18))))
+        (inheritIslandFill
+            ? (taskDisplayMode === "icon" ? 38 :
+                Math.max(72, label.implicitWidth + (taskUsesIcon ? 44 : 18)))
+            : (iconSource.toString().length > 0 ? 40 :
+                Math.max(40, label.implicitWidth + 18)))
     // Evitar que el contenido temporal modifique el área útil del botón.
     padding: 0
     hoverEnabled: true
@@ -503,12 +506,16 @@ QQC2.Button {
             text: control.text
             opacity: control.previewArtworkBaseOpacity
             // Si la imagen no existe, nunca perder el control SO.
+            // Para fichas SO no supeditar el texto al recurso del logo.
             visible: control.taskUsesText && !control.clockVisible &&
-                     (control.iconSource.toString().length === 0 ||
+                     (control.inheritIslandFill ||
+                      control.iconSource.toString().length === 0 ||
                       (iconLoader.item && iconLoader.item.loadError))
             color: control.customTextMode ? control.customTextColor :
                 (control.enabled ? "#eaf7ff" : "#91a8b8")
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: control.inheritIslandFill &&
+                control.taskDisplayMode === "both"
+                ? Text.AlignLeft : Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             font.family: control.customTextMode ? control.customTextFontFamily : "Sans Serif"
             font.pixelSize: control.customTextMode ? control.customTextFontSize : 13
