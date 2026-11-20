@@ -193,7 +193,9 @@ Row {
         padding: 8
         width: Math.min(440, 18 + 204 *
             Math.max(1, chip.host.demoInstancesForApp(chip.appName).length))
-        height: 167
+        // El control horizontal aparece DEBAJO de cada tarjeta, fuera
+        // de la fila de SO, sin cambiar el alto constante de la isla.
+        height: 205
         y: chip.height + 6
         // Respetar ambos extremos de la superficie disponible.
         x: {
@@ -207,11 +209,19 @@ Row {
             if (chip.host.activeDemoPreviewApp === chip.appName)
                 chip.host.activeDemoPreviewApp = ""
         }
-        background: Rectangle {
-            color: "#142637"
-            radius: 8
-            border.color: "#7796a8"
-            border.width: 1
+        background: IslandPopupSurface {
+            baseColor: chip.host.displaySoledadColor
+            endColor: chip.host.displaySoledadGradientEnd
+            thirdColor: chip.host.displaySoledadGradientThird
+            gradientEnabled: chip.host.soledadGradientEnabled
+            gradientColorCount: chip.host.soledadGradientColorCount
+            gradientDirection: chip.host.soledadGradientDirection
+            baseOpacity: chip.host.soledadOpacity
+            outlineColor: chip.host.displayOutlineSoColor
+            outlineOpacity: chip.host.outlineConfig.soledad.opacity
+            outlineWidth: chip.host.outlineConfig.soledad.width
+            outlineStyle: chip.host.outlineConfig.soledad.style
+            cornerRadius: 8
         }
         contentItem: Column {
             spacing: 7
@@ -237,11 +247,14 @@ Row {
                 spacing: 6
                 Repeater {
                     model: chip.host.demoInstancesForApp(chip.appName)
-                    delegate: Rectangle {
+                    delegate: Column {
                         required property var modelData
                         width: 198
-                        height: 118
-                        radius: 5
+                        spacing: 5
+                        Rectangle {
+                            width: parent.width
+                            height: 118
+                            radius: 5
                         color: "#223f53"
                         border.color: "#567f97"
                         border.width: 1
@@ -305,6 +318,14 @@ Row {
                                 font.pixelSize: 11
                                 color: "#c9dbe6"
                             }
+                        }
+                        }
+                        // Cada ventana simulada muestra el mismo control por
+                        // aplicación: no implica audio independiente por ventana.
+                        DemoPreviewVolume {
+                            width: parent.width
+                            host: chip.host
+                            appName: chip.appName
                         }
                     }
                 }
