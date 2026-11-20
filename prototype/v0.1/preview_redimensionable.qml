@@ -659,6 +659,9 @@ Window {
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         // Abrir/cerrar fichas ficticias solo en esta ventana de ensayo.
         demoWindowControlsEnabled: true
+        // Identidad legible para verificar la simulación, sin alterar
+        // demoTaskDisplayMode ni la apariencia personal guardada.
+        previewShowTaskIdentity: true
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
