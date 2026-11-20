@@ -262,7 +262,10 @@ Item {
         catch (_) { return false }
         if (!info || info.version !== 1) return false
         const art = previewArtworkFromTheme(info)
-        if (!art || !soButton.beginArtworkPreview(art,themeColorsDurationMs))
+        // Si la persona apaga el fundido de islas, SO cambia sin
+        // interpolación aunque el wallpaper conserve su propia duración.
+        const artDuration = barThemeTransitionEnabled ? themeColorsDurationMs : 1
+        if (!art || !soButton.beginArtworkPreview(art,artDuration))
             return false
         const palette = {}
         const names = ["soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","trayButtonColor","gripButtonColor","taskFrameColor","launcherSwitchColor","soTextBackground","soTextColor"]
