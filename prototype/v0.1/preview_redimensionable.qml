@@ -24,6 +24,11 @@ Window {
     property bool appearanceRestored: false
     // Inhibe autoguardados de estados parciales al restaurar muchos campos.
     property bool appearanceWriteSuspended: false
+    // Solo el script guardar_dia_actual.sh solicita esta captura UNA vez.
+    // El reloj automático no interviene durante la recuperación de Día.
+    property bool captureDayOnce:
+        String(localPreviewSettings.value("captureDayOnce", false)).toLowerCase() === "true"
+
     // Temas son ranuras aparte del último aspecto, favorito y default personal:
     // restaurar favoritos NO destruye los temas Día/Noche guardados.
     property string demoThemeDayJson: String(localPreviewSettings.value("themeDayJson", ""))
@@ -164,7 +169,88 @@ Window {
         }
         appearanceRestored = true
     }
-    Component.onCompleted: restoreAppearancePreset()
+    function captureDayFromSavedAppearance() {
+        if (!appearanceRestored) {
+            console.warn("SMARTBAR_DAY_CAPTURE_ERROR=No se restauró la apariencia.")
+            Qt.quit()
+            return
+        }
+        if (simulatedWallpaperTheme !== "day") {
+            console.warn("SMARTBAR_DAY_CAPTURE_ERROR=El tema visible no es Día. Elegilo antes de cerrar la maqueta.")
+            localPreviewSettings.setValue("captureDayOnce", false)
+            localPreviewSettings.sync()
+            Qt.quit()
+            return
+        }
+        // Guardar el estado COMPLETO tal cual estaba antes de imponer 90 %.
+        const originalAppearance = collectAppearancePreset()
+        const originalLibrary = demoThemeLibraryJson
+        let items = []
+        try {
+            const parsed = JSON.parse(originalLibrary)
+            if (!Array.isArray(parsed)) throw new Error("biblioteca inválida")
+            items = parsed
+            if (items.length >= 200) throw new Error("biblioteca llena")
+        } catch (error) {
+            console.warn("SMARTBAR_DAY_CAPTURE_ERROR=No se modificó la biblioteca: " + error)
+            localPreviewSettings.setValue("captureDayOnce", false)
+            localPreviewSettings.sync()
+            Qt.quit()
+            return
+        }
+        // Se modifica SOLO opacidad: paleta, GIF, animaciones y geometría
+        // vienen de las preferencias activas del visor, sin estimaciones.
+        demoSoledadOpacity = 0.9
+        demoMalvinaOpacity = 0.9
+        demoLauncherOpacity = 0.9
+        demoMalvinaOptionsOpacity = 0.9
+        demoTrayButtonOpacity = 0.9
+        demoGripButtonOpacity = 0.9
+        demoBackgroundOpacity = 0.9
+        const snapshot = bar.snapshotFromLiveAppearance()
+        let captured
+        try {
+            captured = JSON.parse(snapshot)
+            if (captured.version !== 1 || !captured.filePath && captured.logoMode === "custom")
+                throw new Error("snapshot incompleto")
+        } catch (error) {
+            console.warn("SMARTBAR_DAY_CAPTURE_ERROR=No se escribió Día: " + error)
+            localPreviewSettings.setValue("captureDayOnce", false)
+            localPreviewSettings.sync()
+            Qt.quit()
+            return
+        }
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-")
+        const oldIndex = items.findIndex(function(item) {
+            const name = item && String(item.name || "").trim().toLowerCase()
+            return name === "día" || name === "dia"
+        })
+        // Se mantiene la copia anterior restaurable en la biblioteca.
+        if (oldIndex >= 0) {
+            items.push({name: "Día · respaldo " + stamp.slice(0, 16),
+                        jsonData: items[oldIndex].jsonData})
+            items[oldIndex] = {name: "Día", jsonData: snapshot}
+        } else items.push({name: "Día", jsonData: snapshot})
+        // La copia original y la biblioteca anterior nunca se sobrescriben
+        // dentro de los originales oficiales Factory*Theme.js.
+        localPreviewSettings.setValue("dayCapturedAppearanceBefore90V1", originalAppearance)
+        localPreviewSettings.setValue("dayCapturedLibraryBeforeV1", originalLibrary)
+        localPreviewSettings.setValue("themeLibraryJson", JSON.stringify(items))
+        demoThemeLibraryJson = JSON.stringify(items)
+        saveAppearancePreset()
+        localPreviewSettings.setValue("captureDayOnce", false)
+        localPreviewSettings.sync()
+        console.log("SMARTBAR_DAY_CAPTURE_JSON=" + JSON.stringify({
+            capturedAt: stamp, theme: captured, appearanceBefore90: JSON.parse(originalAppearance),
+            previousLibrary: JSON.parse(originalLibrary)
+        }))
+        Qt.quit()
+    }
+    Component.onCompleted: {
+        restoreAppearancePreset()
+        if (captureDayOnce)
+            Qt.callLater(function() { previewWindow.captureDayFromSavedAppearance() })
+    }
     // Al cerrar, guardar incluso cambios recientes que todavía no alcanzaron
     // el intervalo del temporizador de autoguardado.
     onClosing: function(close) {
@@ -351,7 +437,7 @@ Window {
 
     SmartBarContent {
         id: bar
-        themeScheduleRuntimeEnabled: true
+        themeScheduleRuntimeEnabled: !previewWindow.captureDayOnce
         themeScheduleEnabled: previewWindow.demoThemeScheduleEnabled
         themeScheduleSlotCount: previewWindow.demoThemeScheduleSlotCount
         themeScheduleSlots3Json: previewWindow.demoThemeScheduleSlots3Json
