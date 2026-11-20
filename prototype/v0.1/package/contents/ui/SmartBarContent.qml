@@ -1046,7 +1046,6 @@ Item {
             root.requestWallpaperThemeChange(themeName)
         }
         onThematicWallpaperVisibilityRequested: function(enabled) {
-            root.thematicWallpaperEnabled = enabled
             root.requestThematicWallpaperVisibilityChange(enabled)
         }
         onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
