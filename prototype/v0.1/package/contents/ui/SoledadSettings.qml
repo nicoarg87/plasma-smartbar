@@ -249,7 +249,7 @@ Window {
     function namedThemeIndex(theme) {
         const names = theme === "day" ? ["día", "dia"] :
                       theme === "sunset" ? ["atardecer"] :
-                      theme === "night" ? ["noche"] : []
+                      theme === "night" ? ["noche", "anoche"] : []
         if (!names.length) return -1
         const items = savedThemeLibrary
         for (let i = 0; i < items.length; ++i) {
