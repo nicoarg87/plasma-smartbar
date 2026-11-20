@@ -109,7 +109,7 @@ for (const island of ["soledad", "malvina"]) {
 }
 // La pulsación de SO es la vista principal; al abrir efectos entra en respiración.
 assert(ui.includes('property int outlineSection: 2'));
-assert(ui.includes('model: ["Brillo y respiración", "Estados y color", "Luz móvil"]'));
+assert(ui.includes('model: ["Brillo y respiración", "Cuándo mostrar", "Luz móvil"]'));
 assert(ui.includes('settings.outlineSection = [2,0,1][index]'));
 assert(ui.includes('text: "VELOCIDAD DE LA RESPIRACIÓN · LÍNEA SO"'));
 assert(ui.includes('text: "Sincronizar degradado Soledad con la línea SO (ritmo e intensidad)"'));
