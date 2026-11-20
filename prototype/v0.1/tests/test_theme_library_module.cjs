@@ -46,14 +46,14 @@ const original = [
     {name: "Día", jsonData: "duplicado"} // No deduplicar temas guardados.
 ];
 const serialized = JSON.stringify(original);
-const result = Array.from(ctx.parseThemeLibrary(serialized));
+const result = JSON.parse(JSON.stringify(ctx.parseThemeLibrary(serialized)));
 assert.deepEqual(result, [original[0], original[1], original[2], original[3], original[10]]);
 assert.equal(serialized, JSON.stringify(original), "El parser no debe reescribir entradas");
 assert.equal(warnings.length, 0, "Datos válidos no deben generar advertencias");
 assert.deepEqual(Array.from(ctx.parseThemeLibrary("{json roto")), []);
 assert.equal(warnings.length, 1);
 assert.match(String(warnings[0][0]), /biblioteca de temas inválida/);
-assert.deepEqual(Array.from(ctx.parseThemeLibrary(serialized)), result,
+assert.deepEqual(JSON.parse(JSON.stringify(ctx.parseThemeLibrary(serialized))), result,
     "Tras un error se deben conservar intactas las entradas anteriores");
 
 console.log("OK: módulo puro de biblioteca, tolerancia histórica, perfiles y originales intactos.");
