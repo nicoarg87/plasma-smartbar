@@ -320,10 +320,10 @@ Item {
     property color launcherSwitchColor: "#010111"
     property int launcherMaxSlots: 20
     property bool launcherOpacityOverride: false
-    property real launcherOpacity: 0.7
+    property real launcherOpacity: 0.9
     property bool launcherIconsWithNames: true
     property bool malvinaOptionsOpacityOverride: false
-    property real malvinaOptionsOpacity: 0.7
+    property real malvinaOptionsOpacity: 0.9
     property real launcherAvailableHeight: 450
     property var localAppCatalog: []
     property bool localCatalogReady: false
@@ -503,18 +503,18 @@ Item {
     property int malvinaGradientColorCount: 2
     property string malvinaGradientDirection: "topBottom"
     property color backgroundColor: "#202333"
-    property real soledadOpacity: 0.7
-    property real malvinaOpacity: 0.7
-    property real backgroundOpacity: 0.7
+    property real soledadOpacity: 0.9
+    property real malvinaOpacity: 0.9
+    property real backgroundOpacity: 0.9
     property bool showBackground: false
     // Bandeja y agarre heredan Soledad salvo que la persona elija un
     // color y opacidad independientes para cada tipo de botón.
     property bool trayButtonColorOverride: false
     property color trayButtonColor: "#010111"
-    property real trayButtonOpacity: 0.5
+    property real trayButtonOpacity: 0.9
     property bool gripButtonColorOverride: false
     property color gripButtonColor: "#010111"
-    property real gripButtonOpacity: 0.5
+    property real gripButtonOpacity: 0.9
     readonly property color effectiveTrayButtonColor: trayButtonColorOverride
         ? trayButtonColor : soledadColor
     readonly property real effectiveTrayButtonOpacity: trayButtonColorOverride
