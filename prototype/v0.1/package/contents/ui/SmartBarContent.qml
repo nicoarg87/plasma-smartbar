@@ -439,11 +439,15 @@ Item {
     property bool taskActiveDoubleBorderEnabled: false
     signal requestTaskActiveIndicatorChange(bool glowEnabled, bool doubleBorderEnabled)
     property string taskDisplayMode: "icon" // text, both, icon
+    // "both" conserva el funcionamiento actual y los ajustes personales.
+    // Los modos "preview" y "chip" nunca dejan sin acceso al cierre.
+    property string taskCloseMode: "both"
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
     property real taskFrameWidth: 1
     signal requestTaskDisplayModeChange(string mode)
+    signal requestTaskCloseModeChange(string mode)
     signal requestTaskFrameChange(string shape, string color, real opacity, real width)
     // El visor usa el icono instalado que declara el archivo .desktop.
     // Si no hay icono, TaskAppIcon muestra una inicial legible.
@@ -1365,6 +1369,7 @@ Item {
         soledadSettings.taskActiveGlowEnabled = root.taskActiveGlowEnabled
         soledadSettings.taskActiveDoubleBorderEnabled = root.taskActiveDoubleBorderEnabled
         soledadSettings.taskDisplayMode = root.taskDisplayMode
+        soledadSettings.taskCloseMode = root.taskCloseMode
         soledadSettings.taskFrameShape = root.taskFrameShape
         soledadSettings.taskFrameColor = root.taskFrameColor
         soledadSettings.taskFrameOpacity = root.taskFrameOpacity
@@ -1555,6 +1560,9 @@ Item {
         }
         onSaveTaskDisplayModeRequested: function(mode) {
             root.requestTaskDisplayModeChange(mode)
+        }
+        onSaveTaskCloseModeRequested: function(mode) {
+            root.requestTaskCloseModeChange(mode)
         }
         onSaveTaskFrameRequested: function(shape, color, opacity, width) {
             root.requestTaskFrameChange(shape, color, opacity, width)
