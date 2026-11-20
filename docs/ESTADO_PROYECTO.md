@@ -1529,3 +1529,22 @@ Esos nombres describen fuentes disponibles; **no prueban por sí solos que las t
 **Implementado en rama experimental:** eliminado el rectángulo de `SmartBarContent.qml`, por lo que no se dibuja en el visor ni en el componente compartido. Retirada la casilla «Mostrar fondo continuo opcional» y la opción «Fondo opcional» de la lista visible de colores compartidos. El selector mantiene sus índices internos históricos para no reinterpretar preferencias previas, pero omite el índice 2 descontinuado. Las propiedades heredadas permanecen serializables para no destruir temas ni perfiles del usuario; ya no tienen efecto visual. Preservados Soledad, Malvina, sus áreas propias de interacción y el PNG temático estirado detrás.
 
 **Verificación:** inspección estática positiva: no existe `visible: root.showBackground` ni `MouseArea` en la región de fondo de ancho completo; isla SO, hotspot de Malvina y `Image.Stretch` siguen presentes. Se agregó `tests/test_sin_barra_continua.cjs` para prevenir regresiones. **Pendiente de probar visualmente en CachyOS** y comprobar que desaparece la franja en perfiles guardados con `showBackground=true`. No modificar el panel real.
+
+## 19/11/2026 — Programación horaria diaria de temas: 3 o 4 franjas
+
+**Decisión confirmada:** sistema de cambio automático de Día, Atardecer y Noche según el reloj local de CachyOS, con **4 franjas predeterminadas** configurables y posibilidad de elegir **3 o 4 franjas**. Los límites son editables HH:MM, los temas asignables individualmente y el ciclo se repite diariamente:
+
+| Intervalo inicial | Tema |
+|---|---|
+| 06:00–08:00 | Atardecer |
+| 08:00–18:00 | Día |
+| 18:00–21:00 | Atardecer |
+| 21:00–06:00 del día siguiente | Noche |
+
+**Implementado en rama experimental:** `package/contents/ui/ThemeSchedule.js` calcula la franja por reloj local, admite cruce de medianoche, rechaza tiempos inválidos/orden no creciente, y garantiza continuidad: el final de una franja es el inicio de la siguiente, incluyendo la última/primera. El perfil de 3 franjas tiene inicialmente Día 08:00–18:00, Atardecer 18:00–21:00 y Noche 21:00–08:00; **las configuraciones de 3 y 4 se conservan independientemente** para no destruir modificaciones al alternar.
+
+**Interfaz:** `Configuración → Temas` incorpora `Activar cambio automático de tema`, selector de 3/4 franjas, campos de inicio/fin y selector de tema por franja. **No se añaden botones de guardar**: cambios válidos persisten inmediatamente en preferencias Qt del visor, fuera de los presets oficiales inmutables. La preferencia inicia activa en el perfil de 4 franjas; el usuario puede desactivarla. El formato es HH:MM del reloj local.
+
+**Ejecución:** un temporizador QML del componente compartido consulta la franja cada 15 segundos mientras el visor está abierto; al entrar en una franja nueva, restaura el perfil visual **existente** y solicita cambiar el wallpaper **simulado**, sin efectos de transición. Se suspende mientras esté abierto el diálogo de configuración para no pisar cambios en edición, y reevalúa al cerrarlo. Si falta el preset exacto de Día, Atardecer o Noche, NO inventa otro ni cambia el wallpaper. En el plasmoide real se guardan opciones KConfig, pero `themeScheduleRuntimeEnabled=false` evita activaciones sobre el panel no validado.
+
+**Pruebas realizadas fuera de CachyOS:** motor JavaScript revisado con 20 comprobaciones positivas de medianoche, límites 05:59/06:00/08:00/18:00/21:00, cambio 3/4, tiempo inválido y JSON. Se agregó `tests/test_theme_schedule.cjs`. **Pendiente** ejecutar tests automatizados en CachyOS, verificar visualmente la aplicación horaria real con Qt y los recursos GIF/PNG correctos, persistencia tras reinicio y rendimiento. No declarar funcionalidad probada en KDE real. **Transición suave conjunta** (cambio gradual de colores/GIF/wallpaper) queda **FUERA de esta implementación**, pendiente de decisión y pruebas posteriores. No se han instalado servicios ni cambiado el wallpaper real de KDE.
