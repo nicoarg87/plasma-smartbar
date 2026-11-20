@@ -243,16 +243,22 @@ Window {
     function restoreNamedTheme(index) {
         activateTheme("library:" + index)
     }
-    // Día ocupa una sola opción en el selector; nunca se mezcla con la
-    // antigua clave histórica themeDayJson (Atardecer).
-    function dayThemeIndex() {
+    // Día/Atardecer/Noche de la biblioteca tienen una imagen y un perfil
+    // propios. No confundir la ranura histórica themeDayJson (Atardecer)
+    // ni sustituir los tres originales de fábrica inmutables.
+    function namedThemeIndex(theme) {
+        const names = theme === "day" ? ["día", "dia"] :
+                      theme === "sunset" ? ["atardecer"] :
+                      theme === "night" ? ["noche"] : []
+        if (!names.length) return -1
         const items = savedThemeLibrary
         for (let i = 0; i < items.length; ++i) {
-            if (items[i].name.trim().toLocaleLowerCase() === "día" ||
-                items[i].name.trim().toLocaleLowerCase() === "dia") return i
+            if (names.indexOf(items[i].name.trim().toLocaleLowerCase()) >= 0)
+                return i
         }
         return -1
     }
+    function dayThemeIndex() { return namedThemeIndex("day") }
     readonly property var otherNamedThemes: savedThemeLibrary.filter(function(item) {
         const name = item.name.trim().toLocaleLowerCase()
         return name !== "día" && name !== "dia"
