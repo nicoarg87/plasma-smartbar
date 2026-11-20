@@ -96,6 +96,7 @@ Item {
     signal requestRestorePersonalDefault()
     signal requestRestoreFavoriteAppearance()
     signal requestThemeSlotChange(string slot, string jsonData)
+    signal requestWallpaperThemeChange(string themeName)
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     property bool taskActiveGlowEnabled: true
@@ -1037,6 +1038,9 @@ Item {
         onRestoreFavoriteAppearanceRequested: root.requestRestoreFavoriteAppearance()
         onSaveThemeSlotRequested: function(slot, data) {
             root.requestThemeSlotChange(slot, data)
+        }
+        onWallpaperThemeSelected: function(themeName) {
+            root.requestWallpaperThemeChange(themeName)
         }
         onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaProvidersChange(google, duck, yahoo,
