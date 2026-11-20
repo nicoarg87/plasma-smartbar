@@ -2081,3 +2081,16 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 - **NO PROBADO EN CACHYOS:** estos archivos están publicados y la estructura está revisada; falta ejecutar Python `unittest`, consultar el grafo real `pw-dump`, estudiar un caso de stream presente/ausente y medir correlación con una ventana KDE. La recuperación manual del audio ya fue confirmada por el mantenedor tras `wpctl set-mute 120 0`; no repetir mutear como prueba.
 - **PRUEBA RECOMENDADA SIN CAMBIOS:** con Brave reproduciendo sonido, `python3 prototype/v0.1/scripts/diagnosticar_streams_audio.py`; tests `python3 -m unittest discover -s prototype/v0.1/tests -p 'test_diagnosticar_streams_audio.py' -v`. Los números mostrados NO deben copiarse a `set-mute`/`set-volume`.
 - **Documentación:** [Guía del prototipo](../prototype/v0.1/README.md), [issue #16](https://github.com/nicoarg87/plasma-smartbar/issues/16), rama `prototype/v0.1-islas-so`. `main`, temas/presets y panel instalado intactos.
+
+
+## 20/11/2026 — Validación en CachyOS del diagnóstico de audio, 6 de 6 pruebas PASS
+
+**PROBADO Y REPORTADO POR EL MANTENEDOR, EN FISH/CACHYOS:**
+
+- Ejecutó `git status --short`: archivos sin seguimiento `INSTRUCCIONES_PRUEBA.txt`, `LICENCIA-Y-PRUEBA-GIF-SO.txt`, `.smartbar-app-catalog-preview.json`, `so-tropical.gif`, `so-tropical.png` y `assets/wallpapers/{day,night,sunset}.png`. **NO borrar ni mover ni añadir al repositorio sin autorización; son recursos locales potencialmente valiosos.**
+- `git switch prototype/v0.1-islas-so` + `git pull --ff-only`: actualizado desde `d283b0f` a `aa851c6` mediante fast-forward, sin evidencia de sobrescritura de esos archivos.
+- `python3 -m unittest discover -s prototype/v0.1/tests -p 'test_diagnosticar_streams_audio.py' -v`: **6 tests / 6 OK, 0.001 s**, incluyendo discriminación de clientes frente a streams y `--stdin` sin comandos.
+- `python3 prototype/v0.1/scripts/diagnosticar_streams_audio.py`: **1 stream de salida**, nodo **temporal 119**, aplicación **Brave**, `application.id = com.brave.Browser`, binario `brave`, PID declarado `350`, estado `running`. El programa terminó sin modificar audio. **Ningún mute/volumen real fue accionado por Plasma SmartBar.**
+- **LIMITACIÓN:** todavía NO se comprobó que KDE TasksModel devuelva `AppId = com.brave.Browser` para la ficha de Brave. Un match de nombres no prueba por sí solo propiedad de ventana/audio. ID 119 y PID 350 no se guardan ni se usan para acciones: pueden cambiar.
+
+**SIGUIENTE PRUEBA SEGURA SIN CÓDIGO NUEVO:** utilizar el diagnóstico de KDE ya existente `bash prototype/v0.1/probar_ventanas.sh` desde Fish (scripts Bash se invocan desde Fish sin cambiar shell), abrir Brave con sonido y comparar el renglón **ID:** de su ficha contra `com.brave.Browser`. Conservar discrepancias de AppId y resultado visual; es solo lectura. No instalar panel ni ejecutar `wpctl set-mute`/`set-volume`. [Issue #16](https://github.com/nicoarg87/plasma-smartbar/issues/16) abierto; audio real para versión siguiente a v0.1.
