@@ -129,16 +129,19 @@ Item {
         onTriggered: root.checkThemeSchedule()
     }
     function scheduledThemeSlot(theme) {
-        if (theme === "day") {
+        // Prioridad: fábrica auténtica > tema nombrado por el usuario >
+        // respaldo histórico. Nunca inferir un tema por el wallpaper actual.
+        const named = soledadSettings.namedThemeIndex(theme)
+        if (theme === "day")
             return soledadSettings.factoryDayAvailable ? "dayOfficial" :
-                soledadSettings.dayThemeIndex() >= 0 ?
-                "library:" + soledadSettings.dayThemeIndex() : ""
-        }
+                named >= 0 ? "library:" + named : ""
         if (theme === "sunset")
             return soledadSettings.factorySunsetAvailable ? "sunset" :
+                named >= 0 ? "library:" + named :
                 (soledadSettings.themeDayJson.length ? "day" : "")
         if (theme === "night")
             return soledadSettings.factoryNightAvailable ? "night" :
+                named >= 0 ? "library:" + named :
                 (soledadSettings.themeNightJson.length ? "nightLegacy" : "")
         return ""
     }
@@ -188,14 +191,64 @@ Item {
         if (themeColorsTransitionActive) themeColorsTimer.start()
     }
     function startActualThemeColorTransition() {
+        // La señal llega antes de aplicar el tema: conservar la imagen
+        // saliente de SO para fundirla sobre la nueva, sin alterar geometría.
+        if (themeScheduleRuntimeEnabled && barThemeTransitionEnabled)
+            soButton.beginActualArtworkFade(themeColorsDurationMs)
+        else soButton.clearArtworkPreview()
         beginThemeColorTransition()
-        // Salir de la vista previa antes de recibir los valores del tema.
         barColorPreviewActive = false
     }
     function cancelBarColorPreview() {
         themeColorsTimer.stop()
         themeColorsTransitionActive = false
         barColorPreviewActive = false
+        soButton.clearArtworkPreview()
+    }
+    function previewArtworkFromTheme(info) {
+        const mode = info.logoMode || ""
+        let image = ""
+        if (mode === "default") image = String(defaultSoLogo)
+        else if (mode === "custom")
+            image = info.assetFile ? Qt.resolvedUrl("assets/" + info.assetFile).toString()
+                                   : String(info.filePath || "")
+        if (mode !== "text" && !image.length) return null
+        if (mode !== "text" && mode !== "default" && mode !== "custom")
+            return null
+        const frame = String(info.soButtonFrameShape || soButton.frameShape)
+        const isGif = mode === "default" || image.toLowerCase().endsWith(".gif")
+        return {
+            mode: mode === "text" ? "text" : "image",
+            image: image, animated: isGif,
+            animationAllowed: info.enableGif !== false,
+            shape: frame === "square" ? String(info.shape || soLogoShape) : frame,
+            fit: String(info.cropFitMode || soLogoFitMode),
+            zoom: info.cropZoom === undefined ? soLogoZoom : Number(info.cropZoom),
+            panX: info.cropPanX === undefined ? soLogoPanX : Number(info.cropPanX),
+            panY: info.cropPanY === undefined ? soLogoPanY : Number(info.cropPanY),
+            rotation: info.cropRotation === undefined ? soLogoRotation : Number(info.cropRotation),
+            label: String(info.soTextLabel || "SO"),
+            textColor: String(info.soTextColor || "#ffffff"),
+            textBackground: String(info.soTextBackground || "#192536"),
+            textOpacity: info.soTextBackgroundOpacity === undefined ? 0.9
+                : Number(info.soTextBackgroundOpacity),
+            textBackgroundImage: info.assetTextFile ?
+                Qt.resolvedUrl("assets/" + info.assetTextFile).toString() :
+                String(info.soTextBackgroundImage || ""),
+            textFont: String(info.soTextFontFamily || "Sans Serif"),
+            textSize: Number(info.soTextFontSize || 13),
+            textBold: info.soTextBold !== false
+        }
+    }
+    function previewThemeAvailable(theme) {
+        syncSettingsFromRoot()
+        const slot = scheduledThemeSlot(theme)
+        if (!slot) return false
+        try {
+            const info = JSON.parse(soledadSettings.slotJson(slot))
+            return !!info && info.version === 1 &&
+                   !!previewArtworkFromTheme(info)
+        } catch (_) { return false }
     }
     function previewBarThemeColors(theme) {
         if (!themeScheduleRuntimeEnabled || soledadSettings.visible) return false
@@ -208,6 +261,9 @@ Item {
         try { info = JSON.parse(soledadSettings.slotJson(slot)) }
         catch (_) { return false }
         if (!info || info.version !== 1) return false
+        const art = previewArtworkFromTheme(info)
+        if (!art || !soButton.beginArtworkPreview(art,themeColorsDurationMs))
+            return false
         const palette = {}
         const names = ["soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","trayButtonColor","gripButtonColor","taskFrameColor","launcherSwitchColor","soTextBackground","soTextColor"]
         for (const key of names) if (info[key] !== undefined && info[key] !== null)
