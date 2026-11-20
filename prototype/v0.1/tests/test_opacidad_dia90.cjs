@@ -37,7 +37,7 @@ assert(preview.includes('dayCapturedLibraryBeforeV1'),"Falta respaldo biblioteca
 assert(preview.includes('items.push({name: "Día · respaldo "'));
 assert(preview.includes('localPreviewSettings.setValue("themeLibraryJson"'));
 assert(preview.includes('if (captureDayOnce)'));
-assert(preview.includes('themeScheduleRuntimeEnabled: !previewWindow.captureDayOnce'));
+assert(preview.includes('themeScheduleRuntimeEnabled: previewWindow.appearanceRestored && !previewWindow.captureDayOnce'));
 assert(archive.includes("fs.mkdtempSync"),"La copia no debe sobrescribir otra");
 assert(archive.includes("fs.copyFileSync"),"Copia el GIF si existe");
 assert(sh.includes("scripts/marcar_guardado_dia.qml"));
