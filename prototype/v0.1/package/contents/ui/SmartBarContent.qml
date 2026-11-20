@@ -7,6 +7,7 @@ import QtQuick.Controls as QQC2
 import "ThemeSchedule.js" as ThemeSchedule
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "DemoWindows.js" as DemoWindows
+import "DemoWindowInstances.js" as DemoWindowInstances
 
 Item {
     id: root
@@ -811,6 +812,8 @@ Item {
     // mantiene sus fichas simuladas pasivas y su TaskManager solo lectura.
     property bool demoWindowControlsEnabled: false
     property var demoOpenedApps: demoApps.slice()
+    // Estado efímero de ventanas ficticias; dos Dolphin simuladas para ensayo.
+    property var demoWindowInstances: DemoWindowInstances.initial()
     readonly property int soWindowCount: usingRealTasks
         ? realTaskModel.count
         : (demoHasRunningWindows ? demoOpenedApps.length : 0)
@@ -919,11 +922,15 @@ Item {
     readonly property var demoApps: ["Dolphin", "Konsole", "Brave"]
     // Las fichas abiertas son un estado temporal y reversible del visor.
     // Nunca se guardan como preferencias ni afectan a las tareas reales.
+    function demoInstancesForApp(appName) {
+        return DemoWindowInstances.forApp(demoWindowInstances, appName)
+    }
     function openDemoWindow(appName) {
         if (!demoWindowControlsEnabled || usingRealTasks) return false
         const updated = DemoWindows.open(demoOpenedApps, demoApps, appName)
         if (updated.length === demoOpenedApps.length && demoHasRunningWindows)
             return false
+        demoWindowInstances = DemoWindowInstances.reopen(demoWindowInstances, appName)
         demoOpenedApps = updated
         demoHasRunningWindows = true
         return true
@@ -933,13 +940,26 @@ Item {
             !demoHasRunningWindows) return false
         const updated = DemoWindows.close(demoOpenedApps, appName)
         if (updated.length === demoOpenedApps.length) return false
+        demoWindowInstances = DemoWindowInstances.withoutApp(demoWindowInstances, appName)
         demoOpenedApps = updated
         if (lastDemoSelection === appName) lastDemoSelection = ""
+        return true
+    }
+    // Cierre individual solo de muestra, nunca KDE/KWin.
+    function closeDemoWindowInstance(appName, windowId) {
+        if (!demoWindowControlsEnabled || usingRealTasks ||
+            !demoHasRunningWindows || demoOpenedApps.indexOf(appName) < 0)
+            return false
+        const current = demoInstancesForApp(appName)
+        if (!current.some(item => item.id === windowId)) return false
+        if (current.length === 1) return closeDemoWindow(appName)
+        demoWindowInstances = DemoWindowInstances.close(demoWindowInstances, appName, windowId)
         return true
     }
     function reopenNextDemoWindow() {
         if (!demoWindowControlsEnabled || usingRealTasks) return false
         if (!demoHasRunningWindows) {
+            demoWindowInstances = DemoWindowInstances.initial()
             demoOpenedApps = demoApps.slice()
             demoHasRunningWindows = true
             return true
@@ -2724,7 +2744,8 @@ Item {
                                 if (root.demoHasRunningWindows) {
                                     root.demoHasRunningWindows = false
                                 } else {
-                                    root.demoOpenedApps = root.demoApps.slice()
+                                    root.demoWindowInstances = DemoWindowInstances.initial()
+                                     root.demoOpenedApps = root.demoApps.slice()
                                     root.demoHasRunningWindows = true
                                 }
                             }
