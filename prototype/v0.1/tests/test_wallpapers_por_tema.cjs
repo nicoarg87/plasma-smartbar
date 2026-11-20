@@ -1,35 +1,45 @@
 "use strict";
-// Contrato de conexión tema→wallpaper y modo estirar; sin ejecutar nada en KDE.
-const assert=require("node:assert/strict");
-const fs=require("node:fs");
-const path=require("node:path");
-const root=path.resolve(__dirname,"..");
-const read=p=>fs.readFileSync(path.join(root,p),"utf8");
-const ui=read("package/contents/ui/SoledadSettings.qml");
-const bar=read("package/contents/ui/SmartBarContent.qml");
-const viewer=read("preview_redimensionable.qml");
-const launcher=read("probar_ancho.sh");
-const worker=read("scripts/vigilar_wallpaper.py");
-const manifest=JSON.parse(read("package/contents/ui/assets/wallpapers/manifest.json"));
+// Contrato de fondos del escritorio SIMULADO: sin tocar el wallpaper real KDE.
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..");
+const read = p => fs.readFileSync(path.join(root, p), "utf8");
+const ui = read("package/contents/ui/SoledadSettings.qml");
+const bar = read("package/contents/ui/SmartBarContent.qml");
+const viewer = read("preview_redimensionable.qml");
+const wrapper = read("package/contents/ui/main.qml");
+const config = read("package/contents/config/main.xml");
+const launcher = read("probar_ancho.sh");
+const manifest = JSON.parse(read("package/contents/ui/assets/wallpapers/manifest.json"));
+
+assert(ui.includes('text: "Activar wallpaper temático"'));
+assert(ui.includes("thematicWallpaperVisibilityRequested(checked)"));
 assert(ui.includes("signal wallpaperThemeSelected(string themeName)"));
 assert(ui.includes('settings.wallpaperThemeSelected("day")'));
 assert(ui.includes('settings.wallpaperThemeSelected("sunset")'));
 assert(ui.includes('settings.wallpaperThemeSelected("night")'));
 assert(ui.includes("slot.length && settings.activateTheme(slot)"),
-    "Nunca cambiar wallpaper si el tema no se pudo aplicar");
-assert(bar.includes("signal requestWallpaperThemeChange(string themeName)"));
-assert(bar.includes("onWallpaperThemeSelected: function(themeName)"));
-assert(viewer.includes('category: "ThemeWallpaper"'));
-assert(viewer.includes("onRequestWallpaperThemeChange: function(themeName)"));
-assert(viewer.includes('wallpaperSignal.setValue("revision"'));
-assert(launcher.includes('scripts/vigilar_wallpaper.py'));
-assert(worker.includes('"--fill-mode", "stretch"'));
-assert(worker.includes("backup_kde_settings()"));
-assert.equal(manifest.assets.length,3);
-assert.deepEqual(manifest.assets.map(x=>x.theme),["day","sunset","night"]);
-for(const record of manifest.assets){
-    assert.equal(record.fillMode,"stretch");
-    assert.match(record.sha256,/^[a-f0-9]{64}$/);
-    assert(record.bytes>1000000);
+       "No cambiar wallpaper si la carga del tema falla");
+assert(bar.includes("onThematicWallpaperVisibilityRequested: function(enabled)"));
+assert(bar.includes("requestThematicWallpaperVisibilityChange(bool enabled)"));
+assert(viewer.includes('id: simulatedDesktopWallpaper'));
+assert(viewer.includes("fillMode: Image.Stretch"));
+assert(viewer.includes("previewWindow.simulatedWallpaperEnabled && status === Image.Ready"));
+assert(viewer.includes('localPreviewSettings.value("simulatedWallpaperEnabled", true)'));
+assert(viewer.includes('localPreviewSettings.setValue("simulatedWallpaperEnabled", enabled)'));
+assert(viewer.includes('localPreviewSettings.setValue("simulatedWallpaperTheme", themeName)'));
+assert(wrapper.includes("Plasmoid.configuration.thematicWallpaperEnabled = enabled"));
+assert(config.includes('<entry name="thematicWallpaperEnabled" type="Bool"><default>true</default></entry>'));
+assert(!launcher.includes("vigilar_wallpaper.py"));
+assert(!fs.existsSync(path.join(root, "scripts/vigilar_wallpaper.py")));
+assert(!viewer.includes("plasma-apply-wallpaperimage"));
+assert(!viewer.includes("wallpaperSignal.setValue("));
+assert(!wrapper.includes("wallpaperSignal.setValue("));
+assert.equal(manifest.assets.length, 3);
+assert.deepEqual(manifest.assets.map(x => x.theme), ["day", "sunset", "night"]);
+for (const item of manifest.assets) {
+    assert.equal(item.fillMode, "stretch");
+    assert.match(item.sha256, /^[a-f0-9]{64}$/);
 }
-console.log("OK: 3 wallpapers vinculados sin controles extra; estirar, hashes y backup.");
+console.log("OK: wallpaper temático opcional persistente, 3 fondos estirados solo dentro del visor.");
