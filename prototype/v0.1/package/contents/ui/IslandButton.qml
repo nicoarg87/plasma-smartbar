@@ -357,12 +357,12 @@ QQC2.Button {
                                 radius: control.frameShape === "square" ||
                                         control.frameShape === "rectangle"
                                         ? 0 : height / 2
-                                color: Qt.rgba(
-                                    Qt.color(artworkLayer.art.textBackground || "#192536").r,
-                                    Qt.color(artworkLayer.art.textBackground || "#192536").g,
-                                    Qt.color(artworkLayer.art.textBackground || "#192536").b,
-                                    artworkLayer.art.textOpacity === undefined
-                                        ? 0.9 : artworkLayer.art.textOpacity)
+                                readonly property color surfaceColor:
+                                    artworkLayer.art.textBackground || "#192536"
+                                color: Qt.rgba(surfaceColor.r, surfaceColor.g,
+                                               surfaceColor.b,
+                                               artworkLayer.art.textOpacity === undefined
+                                                   ? 0.9 : artworkLayer.art.textOpacity)
                             }
                             LogoArtwork {
                                 anchors.fill: parent
