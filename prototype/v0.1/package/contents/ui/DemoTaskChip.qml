@@ -6,7 +6,11 @@ import QtQuick.Controls as QQC2
 Row {
     id: chip
     required property var host
-    required property string appName
+    // En un Repeater con lista JS y propiedades required, Qt suministra
+    // el dato de cada fila mediante la propiedad requerida modelData.
+    // Referir modelData desde el padre no funciona en este contexto.
+    required property string modelData
+    readonly property string appName: modelData
     spacing: 1
 
     IslandButton {
