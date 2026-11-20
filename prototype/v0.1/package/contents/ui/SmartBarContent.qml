@@ -220,7 +220,8 @@ Item {
             for (const name of ["soledad","malvina","tray","grip"]) {
                 const record = info.outlineConfig[name]
                 if (record && record.color)
-                    palette["outline"+name.charAt(0).toUpperCase()+name.slice(1)] =
+                    palette[name === "soledad" ? "outlineSo"
+                        : "outline"+name.charAt(0).toUpperCase()+name.slice(1)] =
                         String(record.color)
             }
         }
