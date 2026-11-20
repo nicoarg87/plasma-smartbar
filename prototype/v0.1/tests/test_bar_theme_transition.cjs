@@ -33,7 +33,7 @@ assert(button.includes('function beginActualArtworkFade(durationMs)'));
 assert(button.includes('function clearArtworkPreview()'));
 assert(button.includes('active: control.previewArtworkEnabled'));
 assert(button.includes('model: 2'));
-assert.equal((button.match(/QQC2\\.Button \\{/g)||[]).length,1,
+assert.equal((button.match(/QQC2\.Button \{/g)||[]).length,1,
              "El fundido no debe agregar botones adicionales");
 assert(bar.includes('themeScheduleRuntimeEnabled || soledadSettings.visible'));
 assert(bar.includes('if (info.accentColor) palette.soActivityColor'));
