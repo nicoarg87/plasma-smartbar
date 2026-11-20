@@ -11,23 +11,26 @@ Item {
     Kirigami.Icon {
         id: appIcon
         anchors.centerIn: parent
-        width: Math.max(12, Math.min(24, parent.width - 4))
-        height: Math.max(12, Math.min(24, parent.height - 2))
-        // Preferir el icono REAL del tema KDE (o QIcon del TasksModel).
-        // No usar un glifo genérico que oculte que el tema no lo encuentra.
+        width: Math.max(18, Math.min(27, parent.width - 2))
+        height: Math.max(18, Math.min(27, parent.height - 2))
+        // Icono de KDE o de la entrada .desktop instalada.
         source: root.iconSource
         fallback: ""
         isMask: false
-        visible: valid
+        visible: root.iconSource !== "" && valid
     }
     Text {
-        // Respaldo local legible; nunca fingir un icono oficial inexistente.
-        // Kirigami.Icon.valid informa si hay icono que se pueda mostrar.
-        anchors.centerIn: parent
-        visible: !appIcon.valid
+        // Si falta el icono temático, mantener identidad mediante inicial.
+        anchors.fill: parent
+        visible: !appIcon.visible
         text: root.fallbackLabel.length ? root.fallbackLabel.slice(0, 1).toUpperCase() : "?"
+        font.family: "Sans Serif"
         font.bold: true
-        font.pixelSize: 16
-        color: "#eaf7ff"
+        font.pixelSize: 20
+        fontSizeMode: Text.Fit
+        minimumPixelSize: 14
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        color: "#ffffff"
     }
 }
