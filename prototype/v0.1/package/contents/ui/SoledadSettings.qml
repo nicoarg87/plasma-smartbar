@@ -33,7 +33,7 @@ Window {
 
     // Copia de las preferencias de la sesión: «Cancelar» y la X revierten
     // solo cambios sin aplicar. «Aplicar» actualiza el punto de recuperación.
-    readonly property var editableSettingsKeys: ["logoMode","themeDayJson","themeDayPreviousJson","themeNightJson","themeCustomJson","themeLibraryJson","filePath","shape","cropFitMode","cropZoom","cropPanX","cropPanY","cropRotation","enableGif","clockFontFamily","clockFontSize","clockTextColor","panelHeight","soledadHeight","malvinaHeight","soledadRadius","malvinaRadius","soledadMinWidth","malvinaWidth","malvinaGoogleUrl","malvinaDuckUrl","malvinaYahooUrl","malvinaChatGptUrl","malvinaGeminiUrl","malvinaClaudeUrl","malvinaWebFirst","malvinaWebOrder","malvinaAiOrder","malvinaExtraWeb","malvinaExtraAi","malvinaHiddenWeb","malvinaHiddenAi","malvinaCompactAi","malvinaGoogleName","malvinaDuckName","malvinaYahooName","malvinaChatGptName","malvinaGeminiName","malvinaClaudeName","malvinaWebGoogleEnabled","malvinaWebDuckEnabled","malvinaWebYahooEnabled","malvinaAllowChatGpt","malvinaAllowGemini","malvinaAllowClaude","soledadShape","malvinaShape","malvinaGearButtonShape","malvinaSearchButtonShape","outlineConfig","taskActiveGlowEnabled","taskActiveDoubleBorderEnabled","taskDisplayMode","taskFrameShape","taskFrameColor","taskFrameOpacity","taskFrameWidth","gripShape","trayButtonShape","soButtonFrameShape","soButtonWidth","soTextLabel","soTextColor","soTextBackground","soTextBackgroundOpacity","soTextFontFamily","soTextFontSize","soTextBold","soTextBackgroundImage","soledadColor","malvinaColor","soledadGradientEnabled","soledadGradientEnd","soledadGradientThird","soledadGradientColorCount","soledadGradientDirection","soledadGradientSyncBreathing","soledadGradientSyncIntensity","soledadGradientBreathingEnabled","soledadGradientBreathingIntensity","soledadGradientBreathingSpeed","malvinaGradientSyncBreathing","malvinaGradientBreathingEnabled","malvinaGradientBreathingIntensity","malvinaGradientBreathingSpeed","malvinaGradientEnabled","malvinaGradientEnd","malvinaGradientThird","malvinaGradientColorCount","malvinaGradientDirection","backgroundColor","soledadOpacity","malvinaOpacity","backgroundOpacity","showBackground","trayButtonColorOverride","trayButtonColor","trayButtonOpacity","gripButtonColorOverride","gripButtonColor","gripButtonOpacity","effectStyle","accentColor","strokeSize","allowMotion","orbitSpeed","trailPercent","trailStyle","glowColor","glowIntensity","glowSpread","pulseSpeed","pulseDepth","glowGradient","showOutlineWhenEmpty","showOutlineWhenOpen","autoCollapseSO","soLeftClickOpensLauncher","launcherCategoryLayout","launcherSwitchShape","launcherSwitchColorOverride","launcherSwitchColor","launcherMaxSlots","launcherOpacityOverride","launcherOpacity","launcherIconsWithNames","malvinaOptionsOpacityOverride","malvinaOptionsOpacity","autoCollapseTray","autoReturnRight","launcherIslandVisible","autoHideMalvina","alignedRight","positionMode","alignmentEdited"]
+    readonly property var editableSettingsKeys: ["logoMode","themeDayJson","themeDayPreviousJson","themeNightJson","themeCustomJson","themeLibraryJson","filePath","shape","cropFitMode","cropZoom","cropPanX","cropPanY","cropRotation","enableGif","clockFontFamily","clockFontSize","clockTextColor","panelHeight","soledadHeight","malvinaHeight","soledadRadius","malvinaRadius","soledadMinWidth","malvinaWidth","malvinaGoogleUrl","malvinaDuckUrl","malvinaYahooUrl","malvinaChatGptUrl","malvinaGeminiUrl","malvinaClaudeUrl","malvinaWebFirst","malvinaWebOrder","malvinaAiOrder","malvinaExtraWeb","malvinaExtraAi","malvinaHiddenWeb","malvinaHiddenAi","malvinaCompactAi","malvinaGoogleName","malvinaDuckName","malvinaYahooName","malvinaChatGptName","malvinaGeminiName","malvinaClaudeName","malvinaWebGoogleEnabled","malvinaWebDuckEnabled","malvinaWebYahooEnabled","malvinaAllowChatGpt","malvinaAllowGemini","malvinaAllowClaude","soledadShape","malvinaShape","malvinaGearButtonShape","malvinaSearchButtonShape","outlineConfig","taskActiveGlowEnabled","taskActiveDoubleBorderEnabled","taskDisplayMode","taskCloseMode","taskFrameShape","taskFrameColor","taskFrameOpacity","taskFrameWidth","gripShape","trayButtonShape","soButtonFrameShape","soButtonWidth","soTextLabel","soTextColor","soTextBackground","soTextBackgroundOpacity","soTextFontFamily","soTextFontSize","soTextBold","soTextBackgroundImage","soledadColor","malvinaColor","soledadGradientEnabled","soledadGradientEnd","soledadGradientThird","soledadGradientColorCount","soledadGradientDirection","soledadGradientSyncBreathing","soledadGradientSyncIntensity","soledadGradientBreathingEnabled","soledadGradientBreathingIntensity","soledadGradientBreathingSpeed","malvinaGradientSyncBreathing","malvinaGradientBreathingEnabled","malvinaGradientBreathingIntensity","malvinaGradientBreathingSpeed","malvinaGradientEnabled","malvinaGradientEnd","malvinaGradientThird","malvinaGradientColorCount","malvinaGradientDirection","backgroundColor","soledadOpacity","malvinaOpacity","backgroundOpacity","showBackground","trayButtonColorOverride","trayButtonColor","trayButtonOpacity","gripButtonColorOverride","gripButtonColor","gripButtonOpacity","effectStyle","accentColor","strokeSize","allowMotion","orbitSpeed","trailPercent","trailStyle","glowColor","glowIntensity","glowSpread","pulseSpeed","pulseDepth","glowGradient","showOutlineWhenEmpty","showOutlineWhenOpen","autoCollapseSO","soLeftClickOpensLauncher","launcherCategoryLayout","launcherSwitchShape","launcherSwitchColorOverride","launcherSwitchColor","launcherMaxSlots","launcherOpacityOverride","launcherOpacity","launcherIconsWithNames","malvinaOptionsOpacityOverride","malvinaOptionsOpacity","autoCollapseTray","autoReturnRight","launcherIslandVisible","autoHideMalvina","alignedRight","positionMode","alignmentEdited"]
     readonly property var editableColorKeys: ["soTextColor","soTextBackground","clockTextColor","soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","backgroundColor","trayButtonColor","gripButtonColor","accentColor","glowColor","launcherSwitchColor","taskFrameColor"]
     property var lastAppliedSettings: ({})
     property var pendingThemeChanges: ({})
@@ -631,6 +631,7 @@ Window {
             clockFontFamily: clockFontFamily, clockFontSize: clockFontSize,
             clockTextColor: toHex(clockTextColor),
             taskDisplayMode: taskDisplayMode,
+            taskCloseMode: taskCloseMode,
             taskFrameShape: taskFrameShape, taskFrameColor: toHex(taskFrameColor),
             taskFrameOpacity: taskFrameOpacity, taskFrameWidth: taskFrameWidth,
             taskActiveGlowEnabled: taskActiveGlowEnabled,
@@ -754,7 +755,7 @@ Window {
                 "soTextBackgroundOpacity","soTextFontFamily","soTextFontSize",
                 "soTextBold","soTextBackgroundImage",
                 "clockFontFamily","clockFontSize","clockTextColor",
-                "taskDisplayMode",
+                "taskDisplayMode","taskCloseMode",
                 "taskFrameShape","taskFrameColor","taskFrameOpacity","taskFrameWidth",
                 "taskActiveGlowEnabled","taskActiveDoubleBorderEnabled",
                 "launcherSwitchShape","launcherSwitchColorOverride",
@@ -1239,11 +1240,14 @@ Window {
     property bool taskActiveDoubleBorderEnabled: false
     signal saveTaskActiveIndicatorRequested(bool glowEnabled, bool doubleBorderEnabled)
     property string taskDisplayMode: "icon"
+    // Modos seguros: ambos, solo popup o solo X en la ficha.
+    property string taskCloseMode: "both"
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
     property real taskFrameWidth: 1
     signal saveTaskDisplayModeRequested(string mode)
+    signal saveTaskCloseModeRequested(string mode)
     signal saveTaskFrameRequested(string shape, string color, real opacity, real width)
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     readonly property string outlineTargetKey: ["soledad","malvina","tray","grip"][outlineTarget.currentIndex]
@@ -1357,6 +1361,7 @@ Window {
         saveTaskActiveIndicatorRequested(taskActiveGlowEnabled,
                                          taskActiveDoubleBorderEnabled)
         saveTaskDisplayModeRequested(taskDisplayMode)
+        saveTaskCloseModeRequested(taskCloseMode)
         saveTaskFrameRequested(taskFrameShape, toHex(taskFrameColor),
                                taskFrameOpacity, taskFrameWidth)
         refreshOutlinePreview()
@@ -4388,6 +4393,32 @@ Window {
                         text: "Fichas de aplicaciones abiertas en SO"
                         font.bold: true
                         color: "white"
+                    }
+                    QQC2.Label {
+                        text: "Dónde mostrar el cierre de ventanas"
+                        color: "white"
+                    }
+                    QQC2.ComboBox {
+                        id: taskClosePlacement
+                        Layout.fillWidth: true
+                        model: ["X en ficha y vista previa",
+                                "Solo vista previa (sin X en ficha)",
+                                "Solo X en ficha (sin vista previa)"]
+                        currentIndex: Math.max(0, ["both", "preview", "chip"]
+                            .indexOf(settings.taskCloseMode))
+                        onActivated: function(i) {
+                            settings.taskCloseMode = ["both", "preview", "chip"][i]
+                        }
+                        Accessible.name: "Ubicación del cierre de ventanas SO"
+                    }
+                    QQC2.Label {
+                        text: "Siempre queda una forma de cerrar. " +
+                              "En modo vista previa, cada ventana tiene su propia X; " +
+                              "en modo ficha, la X cierra la ficha agrupada. " +
+                              "Las ventanas reales siguen sin control desde el prototipo."
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: "#ddd6e8"
                     }
                     QQC2.Label {
                         text: "El interior de las fichas conserva el degradado de Soledad. Configurá únicamente su marco."
