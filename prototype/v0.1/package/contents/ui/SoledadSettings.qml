@@ -422,7 +422,8 @@ Window {
         currentTab = 2
         appearanceSubtabs.currentIndex = 0
         appearanceSection = 0
-        appearanceTarget.currentIndex = target
+        // El índice 2 era la barra continua: mantenerlo solo en datos históricos.
+        appearanceTarget.currentIndex = target === 2 ? 3 : target
         if (appearanceScroll.contentItem) appearanceScroll.contentItem.contentY = 0
     }
     function showSharedOutlines() { navigationGroup = "shared"; currentTab = 2; appearanceSubtabs.currentIndex = 2 }
@@ -3517,13 +3518,13 @@ Window {
                             ? "SOLEDAD · Color, degradado y respiración"
                             : settings.colorScope === "malvina"
                             ? "MALVINA · Color, degradado y respiración"
-                            : "GENERAL · Fondo y colores compartidos"
+                            : "GENERAL · Colores compartidos"
                         font.bold: true
                         color: "white"
                     }
                     QQC2.Label {
                         text: settings.colorScope === "shared"
-                            ? "Solo fondo opcional, bandeja y agarre. Las islas se editan en sus propias secciones."
+                            ? "Bandeja y agarre. Las islas se editan en sus propias secciones."
                             : "Estos colores modifican únicamente " +
                               (settings.colorScope === "soledad" ? "Soledad (isla 1)." : "Malvina (isla 2).") +
                               " La otra isla conserva su estética."
@@ -3532,20 +3533,20 @@ Window {
                         wrapMode: Text.WordWrap
                     }
                     // Selector técnico oculto; solo el menú lateral define la
-                    // isla. En General se ofrece únicamente su lista de fondos.
+                    // isla. El índice 2 queda reservado para ajustes históricos y no se ofrece.
                     QQC2.ComboBox {
                         id: appearanceTarget
                         visible: false
-                        model: ["Soledad (isla 1)", "Malvina (isla 2)", "Fondo opcional",
+                        model: ["Soledad (isla 1)", "Malvina (isla 2)", "Reservado",
                                 "Botones de bandeja", "Botón de seis puntos (agarre)"]
                     }
                     QQC2.ComboBox {
                         visible: settings.colorScope === "shared"
                         Layout.fillWidth: true
-                        model: ["Fondo opcional", "Cajón de sistema (bandeja)", "Agarre de seis puntos"]
-                        currentIndex: Math.max(0, appearanceTarget.currentIndex - 2)
+                        model: ["Cajón de sistema (bandeja)", "Agarre de seis puntos"]
+                        currentIndex: appearanceTarget.currentIndex === 4 ? 1 : 0
                         onActivated: function(index) {
-                            appearanceTarget.currentIndex = index + 2
+                            appearanceTarget.currentIndex = index + 3
                             settings.appearanceSection = 0
                         }
                     }
@@ -4200,25 +4201,6 @@ Window {
                     }
 
 
-                    }
-                    ColumnLayout {
-                        visible: settings.appearanceSection === 0 &&
-                                 appearanceTarget.currentIndex === 2
-                        Layout.fillWidth: true
-                        spacing: 9
-                    QQC2.CheckBox {
-                        visible: appearanceTarget.currentIndex === 2
-                        text: "Mostrar fondo continuo opcional"
-                        checked: settings.showBackground
-                        onToggled: settings.showBackground = checked
-                    }
-                    QQC2.Label {
-                        visible: appearanceTarget.currentIndex === 2
-                        text: "El fondo está desactivado por defecto. No cambia la altura ni reemplaza una isla."
-                        color: "#ddd6e8"
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
                     }
                     QQC2.Button {
                         text: "Restablecer colores de esta superficie"
