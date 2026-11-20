@@ -26,6 +26,10 @@ PlasmoidItem {
         themeScheduleRuntimeEnabled: false
         wallpaperFadeAmount: Plasmoid.configuration.wallpaperFadeAmount
         wallpaperFadeUnit: Plasmoid.configuration.wallpaperFadeUnit
+        barThemeTransitionEnabled: Plasmoid.configuration.barThemeTransitionEnabled
+        onRequestBarThemeTransitionChange: function(enabled) {
+            Plasmoid.configuration.barThemeTransitionEnabled = enabled
+        }
         onRequestWallpaperFadeChange: function(amount, unit) {
             Plasmoid.configuration.wallpaperFadeAmount = amount
             Plasmoid.configuration.wallpaperFadeUnit = unit
