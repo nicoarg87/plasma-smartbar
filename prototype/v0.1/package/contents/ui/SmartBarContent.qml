@@ -824,6 +824,9 @@ Item {
     // Cada aplicación FICTICIA tiene su silencio independiente. No representa
     // flujos reales de PipeWire: no mutear dispositivos globales del usuario.
     property var demoMutedApps: ({})
+    // Valores de muestra por aplicación, independientes del sonido real.
+    // La vista previa y su ficha agrupada leen el mismo estado.
+    property var demoAppVolumes: ({})
     // Historial de cierres SOLO del simulador; no implica reabrir programas
     // reales ni recuperar documentos de aplicaciones externas.
     property var demoClosedHistory: []
@@ -938,16 +941,41 @@ Item {
     function demoInstancesForApp(appName) {
         return DemoWindowInstances.forApp(demoWindowInstances, appName)
     }
+    function demoAppVolume(appName) {
+        const stored = demoAppVolumes[appName]
+        return stored === undefined ? 70 :
+            Math.max(0, Math.min(100, Math.round(Number(stored) || 0)))
+    }
+    function setDemoAppVolume(appName, value) {
+        if (!demoWindowControlsEnabled || usingRealTasks ||
+            !demoHasRunningWindows || demoOpenedApps.indexOf(appName) < 0)
+            return false
+        const next = Math.max(0, Math.min(100, Math.round(Number(value) || 0)))
+        const volumes = Object.assign({}, demoAppVolumes)
+        volumes[appName] = next
+        demoAppVolumes = volumes
+        const muted = Object.assign({}, demoMutedApps)
+        muted[appName] = next === 0
+        demoMutedApps = muted
+        return true
+    }
     function demoAppIsMuted(appName) {
-        return demoMutedApps[appName] === true
+        return demoMutedApps[appName] === true || demoAppVolume(appName) === 0
     }
     function toggleDemoAppMute(appName) {
         if (!demoWindowControlsEnabled || usingRealTasks ||
             !demoHasRunningWindows || demoOpenedApps.indexOf(appName) < 0)
             return false
+        const wasMuted = demoAppIsMuted(appName)
         const updated = Object.assign({}, demoMutedApps)
-        updated[appName] = !demoAppIsMuted(appName)
+        updated[appName] = !wasMuted
         demoMutedApps = updated
+        // Si estaba en 0, reactivar restaura un nivel audible de muestra.
+        if (wasMuted && demoAppVolume(appName) === 0) {
+            const volumes = Object.assign({}, demoAppVolumes)
+            volumes[appName] = 50
+            demoAppVolumes = volumes
+        }
         return true
     }
     function openDemoWindow(appName) {
@@ -960,6 +988,9 @@ Item {
         const muted = Object.assign({}, demoMutedApps)
         delete muted[appName]
         demoMutedApps = muted
+        const volumes = Object.assign({}, demoAppVolumes)
+        delete volumes[appName]
+        demoAppVolumes = volumes
         demoOpenedApps = updated
         demoHasRunningWindows = true
         return true
@@ -975,6 +1006,9 @@ Item {
         const muted = Object.assign({}, demoMutedApps)
         delete muted[appName]
         demoMutedApps = muted
+        const volumes = Object.assign({}, demoAppVolumes)
+        delete volumes[appName]
+        demoAppVolumes = volumes
         demoOpenedApps = updated
         if (lastDemoSelection === appName) lastDemoSelection = ""
         return true
@@ -997,6 +1031,7 @@ Item {
         if (!demoHasRunningWindows) {
             demoClosedHistory = []
             demoMutedApps = ({})
+            demoAppVolumes = ({})
             demoWindowInstances = DemoWindowInstances.initial()
             demoOpenedApps = demoApps.slice()
             demoHasRunningWindows = true
