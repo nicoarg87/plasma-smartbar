@@ -156,16 +156,16 @@ for (const name of [
     "launcherOpacity", "malvinaOptionsOpacity"
 ]) {
     assert(kconfig.includes('<entry name="' + name +
-                            '" type="Double"><default>0.7</default>'),
-           "No se estableció valor inicial 70 % en KConfig: " + name);
-    assert(ui.includes('property real ' + name + ': 0.7'));
-    assert(bar.includes('property real ' + name + ': 0.7'));
+                            '" type="Double"><default>0.9</default>'),
+           "No se estableció valor inicial 90 % en KConfig: " + name);
+    assert(ui.includes('property real ' + name + ': 0.9'));
+    assert(bar.includes('property real ' + name + ': 0.9'));
 }
 for (const name of [
     "demoSoledadOpacity", "demoMalvinaOpacity", "demoBackgroundOpacity",
     "demoLauncherOpacity", "demoMalvinaOptionsOpacity"
-]) assert(preview.includes('property real ' + name + ': 0.7'),
-          "Valor 70 % no presente en el visor: " + name);
+]) assert(preview.includes('property real ' + name + ': 0.9'),
+          "Valor 90 % no presente en el visor: " + name);
 assert(kconfig.includes('<entry name="launcherOpacityOverride" type="Bool"><default>false</default>'),
        "El launcher debe poder heredar opacidad de Soledad");
 assert(kconfig.includes('<entry name="malvinaOptionsOpacityOverride" type="Bool"><default>false</default>'),
