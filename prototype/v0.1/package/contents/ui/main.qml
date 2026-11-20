@@ -146,6 +146,11 @@ PlasmoidItem {
         onRequestTaskDisplayModeChange: function(mode) {
             Plasmoid.configuration.taskDisplayMode = mode
         }
+        taskCloseMode: Plasmoid.configuration.taskCloseMode
+        onRequestTaskCloseModeChange: function(mode) {
+            Plasmoid.configuration.taskCloseMode =
+                ["both", "preview", "chip"].indexOf(mode) >= 0 ? mode : "both"
+        }
         taskFrameShape: Plasmoid.configuration.taskFrameShape
         taskFrameColor: Plasmoid.configuration.taskFrameColor
         taskFrameOpacity: Plasmoid.configuration.taskFrameOpacity
