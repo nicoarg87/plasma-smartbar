@@ -88,6 +88,7 @@
     <entry name="malvinaAllowGemini" type="Bool"><default>false</default></entry>
     <entry name="malvinaAllowClaude" type="Bool"><default>false</default></entry>
     <entry name="taskDisplayMode" type="String"><default>icon</default></entry>
+    <entry name="taskCloseMode" type="String"><default>both</default></entry>
     <entry name="taskFrameShape" type="String"><default>rounded</default></entry>
     <entry name="taskFrameColor" type="String"><default>#ffffff</default></entry>
     <entry name="taskFrameOpacity" type="Double"><default>0.12</default></entry>
