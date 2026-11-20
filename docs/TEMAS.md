@@ -119,3 +119,22 @@ Al elegir Día, Atardecer o Noche desde el desplegable, el prototipo muestra la 
 En **Configuración → Temas** se incorpora una sola casilla **«Activar wallpaper temático»**, activada inicialmente, persistente por usuario y **separada de los presets inmutables**. Desactivarla oculta la foto únicamente en la simulación; no altera los colores, GIF del botón SO ni la selección de tema. Si se selecciona otro tema con la casilla desactivada, la última imagen se recordará y reaparecerá al volver a activarla.
 
 La función anterior que llamaba a `plasma-apply-wallpaperimage` fue retirada completamente. La aplicación real del fondo KDE se considera **futura y no implementada**, sujeta a una decisión posterior y pruebas específicas. Los PNG originales siguen distribuidos por ZIP y no como binarios del repositorio GitHub.
+
+## Horarios automáticos (19/11/2026)
+
+**Requisito confirmado:** ofrecer en la misma sección **Temas** una opción de cambio automático horario con **3 o 4 franjas**, cuatro inicialmente. No reordenar el menú de temas ni crear botones de guardado.
+
+**Horarios oficiales del perfil personal inicial de cuatro franjas:**
+
+| Desde | Hasta | Tema |
+|---|---|---|
+| 06:00 | 08:00 | Atardecer |
+| 08:00 | 18:00 | Día |
+| 18:00 | 21:00 | Atardecer |
+| 21:00 | 06:00 (día siguiente) | Noche |
+
+La alternativa de 3 franjas comienza con Día de 08:00 a 18:00, Atardecer de 18:00 a 21:00 y Noche de 21:00 a 08:00. Cada franja tiene hora de inicio, hora de finalización y selector de tema, editables por el usuario; la hora final se mantiene enlazada al inicio de la franja siguiente, evitando huecos y solapamientos. Los perfiles de 3 y 4 franjas se almacenan por separado, y se conserva la preferencia **Activar cambio automático de tema**, inicialmente encendida.
+
+El motor consulta el reloj **local** mientras está abierto el visor (cada 15 segundos); puede volver a comprobar la franja después de cambios de hora o suspensión. No crea servicios residentes, no cambia el fondo real de KDE y no sobreescribe los presets de Día/Atardecer/Noche. Si el perfil elegido no existe aún con sus archivos exactos, el motor no sustituye otro. Al cambiar la franja se restauran de una vez los valores visuales y el **wallpaper del escritorio simulado** asociado, siempre que `Activar wallpaper temático` permita mostrarlo.
+
+**Estado:** implementado solo en el prototipo QML, con comprobaciones positivas del algoritmo y prueba `tests/test_theme_schedule.cjs`; falta retest gráfico y persistencia en CachyOS. La transición **suave** entre imágenes y colores se revisará posteriormente por decisión expresa del mantenedor; no forma parte de esta versión.
