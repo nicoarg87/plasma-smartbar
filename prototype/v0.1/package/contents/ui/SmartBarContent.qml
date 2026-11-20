@@ -112,6 +112,14 @@ Item {
     property int wallpaperFadeAmount: 3
     property string wallpaperFadeUnit: "seconds"
     signal requestWallpaperFadeChange(int amount, string unit)
+    // Único acceso al ensayo visual: lo pueden invocar el visor y ambos
+    // menús contextuales, pero nunca el panel KDE real sin motor de prueba.
+    property bool themeWallpaperPreviewAvailable: false
+    signal requestThemeWallpaperPreview()
+    function triggerThemeWallpaperPreview() {
+        if (!themeScheduleRuntimeEnabled || !themeWallpaperPreviewAvailable) return
+        requestThemeWallpaperPreview()
+    }
     property bool barThemeTransitionEnabled: true
     signal requestBarThemeTransitionChange(bool enabled)
     onThemeScheduleEnabledChanged: lastScheduledSlotKey = ""
@@ -1869,6 +1877,14 @@ Item {
                         text: "Configuración de Malvina…"
                         onTriggered: root.openMalvinaSettings()
                     }
+                    // La misma acción de la prueba del visor, sin duplicar
+                    // temporizadores, lógica ni botones en la barra.
+                    QQC2.MenuItem {
+                        visible: root.themeScheduleRuntimeEnabled
+                        text: "Probar transición de tema y wallpaper"
+                        enabled: root.themeWallpaperPreviewAvailable
+                        onTriggered: root.triggerThemeWallpaperPreview()
+                    }
                     QQC2.MenuItem {
                         text: "Ocultar Malvina (isla 2)"
                         onTriggered: root.setLauncherIslandVisible(false)
@@ -2633,6 +2649,14 @@ Item {
                             // Logo, colores, contorno, autocontracción,
                             // islas y posición comparten ventana con pestañas.
                             onTriggered: root.openSoledadSettings(0)
+                        }
+                        // Acceso rápido al MISMO ensayo del visor; un clic
+                        // avanza una sola franja, sin guardar temas ni wallpaper.
+                        QQC2.MenuItem {
+                            visible: root.themeScheduleRuntimeEnabled
+                            text: "Probar transición de tema y wallpaper"
+                            enabled: root.themeWallpaperPreviewAvailable
+                            onTriggered: root.triggerThemeWallpaperPreview()
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
