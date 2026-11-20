@@ -6,6 +6,7 @@ import QtCore as QtCore
 import QtQuick.Controls as QQC2
 import org.kde.taskmanager 0.1 as TaskManager
 import "package/contents/ui"
+import "package/contents/ui/ThemeSchedule.js" as ThemeSchedule
 
 Window {
     id: previewWindow
@@ -30,6 +31,17 @@ Window {
     property string demoThemeNightJson: String(localPreviewSettings.value("themeNightJson", ""))
     property string demoThemeCustomJson: String(localPreviewSettings.value("themeCustomJson", ""))
     property string demoThemeLibraryJson: String(localPreviewSettings.value("themeLibraryJson", "[]"))
+    // Preferencias HORARIAS locales, no incluidas en las instantáneas de los temas.
+    property bool demoThemeScheduleEnabled:
+        String(localPreviewSettings.value("themeScheduleEnabled", true)).toLowerCase() !== "false"
+    property int demoThemeScheduleSlotCount:
+        Number(localPreviewSettings.value("themeScheduleSlotCount", 4)) === 3 ? 3 : 4
+    property string demoThemeScheduleSlots3Json:
+        String(localPreviewSettings.value("themeScheduleSlots3Json",
+            ThemeSchedule.serialize(ThemeSchedule.defaults(3),3)))
+    property string demoThemeScheduleSlots4Json:
+        String(localPreviewSettings.value("themeScheduleSlots4Json",
+            ThemeSchedule.serialize(ThemeSchedule.defaults(4),4)))
     property bool demoHasPersonalDefault: String(localPreviewSettings.value("personalDefaultV1", "")).length > 0
     property bool demoHasFavoriteAppearance: String(localPreviewSettings.value("favoriteSoledadV1", "")).length > 0
     readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoLauncherOpacityOverride","demoLauncherOpacity","demoLauncherIconsWithNames","demoMalvinaOptionsOpacityOverride","demoMalvinaOptionsOpacity","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientThird","demoSoledadGradientColorCount","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientThird","demoMalvinaGradientColorCount","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientSyncIntensity","demoSoledadGradientBreathingEnabled","demoSoledadGradientBreathingIntensity","demoSoledadGradientBreathingSpeed","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingEnabled","demoMalvinaGradientBreathingIntensity","demoMalvinaGradientBreathingSpeed","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
@@ -339,6 +351,11 @@ Window {
 
     SmartBarContent {
         id: bar
+        themeScheduleRuntimeEnabled: true
+        themeScheduleEnabled: previewWindow.demoThemeScheduleEnabled
+        themeScheduleSlotCount: previewWindow.demoThemeScheduleSlotCount
+        themeScheduleSlots3Json: previewWindow.demoThemeScheduleSlots3Json
+        themeScheduleSlots4Json: previewWindow.demoThemeScheduleSlots4Json
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         anchors.left: parent.left
         anchors.right: parent.right
@@ -450,6 +467,17 @@ Window {
         onRequestThematicWallpaperVisibilityChange: function(enabled) {
             previewWindow.simulatedWallpaperEnabled = enabled
             localPreviewSettings.setValue("simulatedWallpaperEnabled", enabled)
+            localPreviewSettings.sync()
+        }
+        onRequestThemeScheduleChange: function(enabled, count, slots3Json, slots4Json) {
+            previewWindow.demoThemeScheduleEnabled = enabled
+            previewWindow.demoThemeScheduleSlotCount = count
+            previewWindow.demoThemeScheduleSlots3Json = slots3Json
+            previewWindow.demoThemeScheduleSlots4Json = slots4Json
+            localPreviewSettings.setValue("themeScheduleEnabled", enabled)
+            localPreviewSettings.setValue("themeScheduleSlotCount", count)
+            localPreviewSettings.setValue("themeScheduleSlots3Json", slots3Json)
+            localPreviewSettings.setValue("themeScheduleSlots4Json", slots4Json)
             localPreviewSettings.sync()
         }
         onRequestWallpaperThemeChange: function(themeName) {
