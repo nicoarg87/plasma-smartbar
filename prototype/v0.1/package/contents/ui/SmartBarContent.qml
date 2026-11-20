@@ -97,6 +97,8 @@ Item {
     signal requestRestoreFavoriteAppearance()
     signal requestThemeSlotChange(string slot, string jsonData)
     signal requestWallpaperThemeChange(string themeName)
+    signal requestThematicWallpaperVisibilityChange(bool enabled)
+    property bool thematicWallpaperEnabled: true
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     property bool taskActiveGlowEnabled: true
@@ -876,6 +878,7 @@ Item {
             soledadSettings.themeNightJson = root.themeNightJson
             soledadSettings.themeCustomJson = root.themeCustomJson
             soledadSettings.themeLibraryJson = root.themeLibraryJson
+            soledadSettings.thematicWallpaperEnabled = root.thematicWallpaperEnabled
             soledadSettings.personalDefaultAvailable = root.personalDefaultAvailable
             soledadSettings.favoriteAppearanceAvailable = root.favoriteAppearanceAvailable
             soledadSettings.filePath = root.soLogoPath
@@ -1041,6 +1044,10 @@ Item {
         }
         onWallpaperThemeSelected: function(themeName) {
             root.requestWallpaperThemeChange(themeName)
+        }
+        onThematicWallpaperVisibilityRequested: function(enabled) {
+            root.thematicWallpaperEnabled = enabled
+            root.requestThematicWallpaperVisibilityChange(enabled)
         }
         onSaveMalvinaProvidersRequested: function(google, duck, yahoo, chatGpt, gemini, claude) {
             root.requestMalvinaProvidersChange(google, duck, yahoo,
