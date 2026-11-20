@@ -257,12 +257,14 @@ Item {
             event.accepted = true
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
             // Enter en una ficha destacada la CONFIRMA sin transmitir texto.
-            // Recién el siguiente Enter, con navegación de vuelta en 0,
-            // ejecuta la búsqueda. Espacio conserva su función actual.
-            if (Keyboard.enterAction(navigationSection) === "confirm")
-                confirmCandidate()
-            else
-                openSelected()
+            // Recién una segunda pulsación, con navegación de vuelta en 0,
+            // busca. No tratar la repetición de la tecla sostenida como otra.
+            if (!event.isAutoRepeat) {
+                if (Keyboard.enterAction(navigationSection) === "confirm")
+                    confirmCandidate()
+                else
+                    openSelected()
+            }
             event.accepted = true
         }
     }
