@@ -1808,3 +1808,22 @@ and bash prototype/v0.1/probar_ancho.sh
 ```
 
 Esperado: `20/20 pruebas sin fallos`; en el visor activar el gesto de cajón SO, cerrar una ficha ficticia con **×**, recuperarla con **+**, cerrar las tres y recuperarlas desde el cajón vacío, ensayar derecha/centro. Con `TasksModel` real no debe haber acciones de cierre. Cerrar el visor con X. PR #3 continúa en borrador, `main` y panel KDE intactos, licencia del código propio MIT y recursos gráficos por separado.
+
+
+## 20/11/2026 — Corrección de identidad de fichas SO sin nombres ni íconos visibles (captura de CachyOS)
+
+**INCIDENCIA REAL OBSERVADA:** el mantenedor compartió captura del visor con SO expandido y tres fichas de aplicaciones representadas por el mismo símbolo genérico ilegible, **sin nombres visibles**. Identificar correctamente cada aplicación es requisito funcional; no puede darse por válida la prueba solo porque cargó el visor.
+
+**Diagnóstico del código vigente:** el modo de ficha estaba configurado como `taskDisplayMode: "icon"` (solo ícono), que por diseño oculta el `Text` en `IslandButton.qml`; además `demoIconForApp` usaba nombres de iconos genéricos (`system-file-manager`, `utilities-terminal`) y `TaskAppIcon.qml` solicitaba como fallback `application-x-executable`, con un símbolo que no identifica la aplicación si falla el tema KDE. No hay evidencia de que las ventanas reales se hayan cerrado ni alterado.
+
+**Corrección limitada a la rama experimental:**
+- [5cc994c](https://github.com/nicoarg87/plasma-smartbar/commit/5cc994c20ff4f0df15ac109563d38410de71a88f): `TaskAppIcon.qml` utiliza el ícono solicitado por KDE y, mediante `Kirigami.Icon.valid`, muestra una inicial legible si no existe icono válido en el tema. No inventa un logotipo de marca.
+- [789544b](https://github.com/nicoarg87/plasma-smartbar/commit/789544b44fb7a34cba92640309eb7b6419daf3c8): `IslandButton.qml` aporta texto de la ficha al fallback de ícono.
+- [c6dff9e](https://github.com/nicoarg87/plasma-smartbar/commit/c6dff9ebe3a9cee2f51c13163acd2aaef16e2b59): `SmartBarContent.qml` usa los nombres de íconos de aplicación KDE `org.kde.dolphin`, `org.kde.konsole`, y `brave-browser` según el icon theme disponible; propiedad experimental `previewShowTaskIdentity` por defecto `false` y `effectiveTaskDisplayMode = previewShowTaskIdentity ? "both" : taskDisplayMode`, sin cambiar las preferencias guardadas. Las fichas de tareas reales siguen siendo solo lectura.
+- [ffb065f](https://github.com/nicoarg87/plasma-smartbar/commit/ffb065f620bb033c5403c56e0b657db43d27cd2c): el componente `DemoTaskChip.qml` adopta `effectiveTaskDisplayMode`; funciona en las dos posiciones de SO.
+- [70472cd](https://github.com/nicoarg87/plasma-smartbar/commit/70472cd731ee1c3ad38ae65153f41413dfaccdee): `preview_redimensionable.qml` activa `previewShowTaskIdentity: true` **solo en el visor**. El plasmoide / `main.qml` continúa respetando `taskDisplayMode` elegido (icono, texto, ambos), no se reescribe `demoTaskDisplayMode` ni perfiles guardados.
+- [5b220cb](https://github.com/nicoarg87/plasma-smartbar/commit/5b220cb2d2c826c4cf20286d8612d46a29346e67): `test_demo_windows.cjs` incorpora regresión para identidad visible, fallback, iconos concretos y no sobrescritura de preferencia.
+
+**Verificación aquí:** prueba `test_demo_windows.cjs` PASS en V8/FS-VM simulado con fuentes GitHub vigentes. **PENDIENTE:** volver a ejecutar **20/20 Node nativo** y render Qt en CachyOS, validar que se ven los nombres reales Dolphin/Konsole/Brave junto con sus iconos, que si el tema no aporta un icono aparece al menos D/K/B, que +/× siguen accesibles y que SO se expande sin recortar cuando el visor se estrecha. `Kirigami.Icon.valid` es una propiedad documentada de KDE, pero **la disponibilidad exacta de cada icono depende del tema instalado**; no afirmar iconos reales resueltos hasta ver la captura nueva.
+
+**Comando Fish:** `cd ~/plasma-smartbar; and git switch prototype/v0.1-islas-so; and git pull --ff-only; and node prototype/v0.1/tests/ejecutar_todos.cjs; and bash prototype/v0.1/probar_ancho.sh`. PR #3 borrador, panel KDE intacto, software propio MIT, recursos gráficos sin cambios.
