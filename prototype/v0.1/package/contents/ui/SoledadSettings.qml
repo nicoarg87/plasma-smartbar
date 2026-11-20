@@ -675,6 +675,18 @@ Window {
             return ""
         } catch(e) { return "" }
     }
+    // Preferencia de opacidad uniforme solicitada para TODOS los temas.
+    // No altera los colores, bordes, GIFs ni la geometría. El usuario puede
+    // cambiar cada valor luego: al volver a seleccionar un tema se usa 90 %.
+    function setUniformThemeOpacity() {
+        soledadOpacity = 0.9
+        malvinaOpacity = 0.9
+        launcherOpacity = 0.9
+        malvinaOptionsOpacity = 0.9
+        trayButtonOpacity = 0.9
+        gripButtonOpacity = 0.9
+        backgroundOpacity = 0.9 // dato histórico; la franja ya no se dibuja
+    }
     function activateTheme(slot) {
         const jsonData = slotJson(slot)
         if (!jsonData) {
@@ -733,6 +745,10 @@ Window {
             }
             if (info.outlineConfig && typeof info.outlineConfig === "object")
                 outlineConfig = JSON.parse(JSON.stringify(info.outlineConfig))
+            // Regla transversal del mantenimiento: todos los temas se
+            // muestran inicialmente con 90 % de opacidad en sus islas,
+            // incluso cuando una instantánea antigua tenía otro valor.
+            setUniformThemeOpacity()
             // Aplicar recupera el estado capturado, incluidos sync, velocidad
             // e intensidad, sin reactivar interruptores apagados.
             // Respetar exactamente colores y orientaciones guardados,
@@ -873,16 +889,16 @@ Window {
     property int malvinaGradientColorCount: 2
     property string malvinaGradientDirection: "topBottom"
     property color backgroundColor: "#202333"
-    property real soledadOpacity: 0.7
-    property real malvinaOpacity: 0.7
-    property real backgroundOpacity: 0.7
+    property real soledadOpacity: 0.9
+    property real malvinaOpacity: 0.9
+    property real backgroundOpacity: 0.9
     property bool showBackground: false
     property bool trayButtonColorOverride: false
     property color trayButtonColor: "#010111"
-    property real trayButtonOpacity: 0.5
+    property real trayButtonOpacity: 0.9
     property bool gripButtonColorOverride: false
     property color gripButtonColor: "#010111"
-    property real gripButtonOpacity: 0.5
+    property real gripButtonOpacity: 0.9
     readonly property color activeColor:
         appearanceTarget.currentIndex === 0 ? soledadColor :
         appearanceTarget.currentIndex === 1 ? malvinaColor :
@@ -1073,7 +1089,7 @@ Window {
             soledadGradientSyncIntensity = false
             soledadGradientBreathingIntensity = 0.6
             soledadGradientBreathingSpeed = 0.6
-            soledadOpacity = 0.5
+            soledadOpacity = 0.9
             resetSampledColors()
             paletteFeedback = "Soledad volvió a tonos neutros. Para la playa nocturna, " +
                               "elegí Sugerir desde GIF y aplicá sus dos colores."
@@ -1088,10 +1104,10 @@ Window {
             malvinaGradientSyncBreathing = false
             malvinaGradientBreathingIntensity = 0.6
             malvinaGradientBreathingSpeed = 0.6
-            malvinaOpacity = 1
+            malvinaOpacity = 0.9
         } else if (target === 2) {
             backgroundColor = "#202333"
-            backgroundOpacity = 0.5
+            backgroundOpacity = 0.9
             showBackground = false
         } else if (target === 3) {
             trayButtonColorOverride = false
@@ -1163,10 +1179,10 @@ Window {
     property color launcherSwitchColor: "#010111"
     property int launcherMaxSlots: 20
     property bool launcherOpacityOverride: false
-    property real launcherOpacity: 0.7
+    property real launcherOpacity: 0.9
     property bool launcherIconsWithNames: true
     property bool malvinaOptionsOpacityOverride: false
-    property real malvinaOptionsOpacity: 0.7
+    property real malvinaOptionsOpacity: 0.9
     property bool autoCollapseTray: false
     property bool autoReturnRight: true
     property bool launcherIslandVisible: true
