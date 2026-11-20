@@ -96,7 +96,7 @@ const state={
  demoHasRunningWindows:true,demoApps:catalog.slice(),
  demoOpenedApps:catalog.slice(),lastDemoSelection:"Konsole",DemoWindows:helpers,
  demoWindowInstances:instanceHelpers.initial(),DemoWindowInstances:instanceHelpers,
- demoClosedHistory:[]
+ demoClosedHistory:[],demoMutedApps:{}
 };
 vm.runInNewContext([
  extract("demoInstancesForApp"),extract("openDemoWindow"),extract("closeDemoWindow"),
