@@ -7,12 +7,15 @@ const vm=require("node:vm");
 const base=path.resolve(__dirname,"..");
 const uiDir=path.join(base,"package/contents/ui");
 const src=fs.readFileSync(path.join(uiDir,"DemoWindows.js"),"utf8");
+const instancesSrc=fs.readFileSync(path.join(uiDir,"DemoWindowInstances.js"),"utf8");
 const chip=fs.readFileSync(path.join(uiDir,"DemoTaskChip.qml"),"utf8");
 const bar=fs.readFileSync(path.join(uiDir,"SmartBarContent.qml"),"utf8");
 const viewer=fs.readFileSync(path.join(base,"preview_redimensionable.qml"),"utf8");
 assert(src.startsWith(".pragma library\n"));
 const helpers={};
 vm.runInNewContext(src.replace(/^\s*\.pragma library\s*/,""),helpers);
+const instanceHelpers={};
+vm.runInNewContext(instancesSrc.replace(/^\s*\.pragma library\s*/,""),instanceHelpers);
 for(const fn of ["open","close","firstClosed"])assert.equal(typeof helpers[fn],"function");
 const catalog=["Dolphin","Konsole","Brave"];
 const initial=catalog.slice();
@@ -30,6 +33,7 @@ assert.equal(empty.length,0);
 assert.equal(helpers.firstClosed(empty,catalog),"Dolphin");
 assert.equal(helpers.close(empty,"Brave").length,0);
 assert(bar.includes('import "DemoWindows.js" as DemoWindows'));
+assert(bar.includes('import "DemoWindowInstances.js" as DemoWindowInstances'));
 assert(bar.includes("property bool demoWindowControlsEnabled: false"));
 assert(viewer.includes("demoWindowControlsEnabled: true"));
 assert(bar.includes("property var demoOpenedApps: demoApps.slice()"));
@@ -83,10 +87,12 @@ function extract(name) {
 const state={
  demoWindowControlsEnabled:true,usingRealTasks:false,
  demoHasRunningWindows:true,demoApps:catalog.slice(),
- demoOpenedApps:catalog.slice(),lastDemoSelection:"Konsole",DemoWindows:helpers
+ demoOpenedApps:catalog.slice(),lastDemoSelection:"Konsole",DemoWindows:helpers,
+ demoWindowInstances:instanceHelpers.initial(),DemoWindowInstances:instanceHelpers
 };
 vm.runInNewContext([
- extract("openDemoWindow"),extract("closeDemoWindow"),extract("reopenNextDemoWindow"),
+ extract("demoInstancesForApp"),extract("openDemoWindow"),extract("closeDemoWindow"),
+ extract("closeDemoWindowInstance"),extract("reopenNextDemoWindow"),
  'if(!closeDemoWindow("Konsole") || lastDemoSelection!=="")throw Error("cerrar")',
  'if(!reopenNextDemoWindow())throw Error("reabrir")',
  'closeDemoWindow("Dolphin");closeDemoWindow("Brave");closeDemoWindow("Konsole")',
