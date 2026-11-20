@@ -696,3 +696,20 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **Prueba QML/CachyOS**: botón contraído por defecto, scroll vertical correcto en pantalla reducida, listado de predeterminada/favorita y temas históricos, guardar dos temas distintos, cerrar/reabrir el visor y restaurar cada uno.
 - [ ] Continúa pendiente recibir capturas exactas y archivos gráficos para habilitar Atardecer/Noche de fábrica, y crear Día definitivo cuando el mantenedor lo indique; no confundirlos con temas personales.
 - [ ] Mantener issue #15 y PR #3 borrador. Ningún reemplazo del panel KDE existente.
+
+
+## Cajón SO: ventanas ficticias manejables y audio para versión posterior — 20/11/2026
+
+**Decisión del mantenedor:** los **controles de audio por aplicación, silencio/volumen y multimedia/MPRIS** quedan agendados **para la versión siguiente a v0.1**, no forman parte del prototipo actual. Referencia: [issue #16](https://github.com/nicoarg87/plasma-smartbar/issues/16). Las miniaturas y las demás opciones del gestor de tareas deberán evaluarse con Qt/KDE y KWin/Wayland antes de implementarse en ventanas reales; por ahora solo simular fichas.
+
+**Prueba v0.1 en rama experimental** (solo visor Qt, nunca el panel instalado):
+
+- [x] Modelo puro `DemoWindows.js`: abrir/cerrar/reabrir fichas ficticias por nombre, sin ejecutar comandos ni acciones de KWin/TasksModel.
+- [x] Ficha `DemoTaskChip.qml`: conservar botón de selección SO y agregar **×** de cierre ficticio solamente en el visor.
+- [x] Control **+** dentro del cajón SO, deshabilitado cuando están presentes todas las ventanas del catálogo ficticio; reabre las fichas cerradas, en posición derecha y centrada.
+- [x] Permitir acceder al cajón SO vacío con el gesto explícito de ventanas durante el ensayo, incluso después de cerrar todas las ficticias. No alterar comportamiento con TasksModel real ni uso en el plasmoide.
+- [x] Sin persistir estado ficticio ni reescribir preferencias de temas y apariencia.
+- [x] Nueva prueba `test_demo_windows.cjs` PASS en entorno V8/FS simulado, con modelo puro, coordinación QML aislada, cierre total, reapertura y guardas para tareas reales.
+- [ ] **CachyOS/Qt:** suite completa de **20 pruebas** con Node v22+, abrir el visor, mostrar cajón SO con clic derecho (o gesto configurado), cerrar y reabrir Dolphin/Konsole/Brave ficticios, cerrar los tres, comprobar que **+** queda accesible, alternar posición derecha/centro y verificar que la prueba de tareas reales continúa de solo lectura.
+
+No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ensayar la interacción del cajón sin dañar el entorno del mantenedor. PR #3 borrador, licencias e imágenes sin cambios.
