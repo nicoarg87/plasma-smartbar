@@ -584,3 +584,20 @@ Tras inspeccionar configuración vigente, el mantenedor ratificó que **no se ac
 **Realización experimental:** `SmartBarContent.qml` expone `requestThemeWallpaperPreview()` y `triggerThemeWallpaperPreview()`; los dos `MenuItem` usan esta misma ruta, que no está operativa en `main.qml` porque `themeScheduleRuntimeEnabled=false`. `preview_redimensionable.qml` conecta señal y botón a la función ya existente `previewNextWallpaper()`. Bloqueo de prueba mientras funde y si el visor no tiene wallpaper activado. No cambia instantáneas ni el panel KDE. Commits [menús](https://github.com/nicoarg87/plasma-smartbar/commit/0accee1de851cc0c1c60f732e6092acb3a2ba2ab), [cableado](https://github.com/nicoarg87/plasma-smartbar/commit/5006a69bff77d33bcc9e449afc23c517b0f37c70), [etiquetas](https://github.com/nicoarg87/plasma-smartbar/commit/70a55b5d4537c6fc0af2265ea1dcd29381923e76), [visor](https://github.com/nicoarg87/plasma-smartbar/commit/85392f97c7f8f931b6bc81d775c3558fe96da192), [test](https://github.com/nicoarg87/plasma-smartbar/commit/3c16c5e0ef44b1eccbe39e699359db5c764ef1a2).
 
 **Estado:** test `test_context_theme_wallpaper.cjs` pasó en simulación V8 con código actual de GitHub, **pendiente Node y Qt/CachyOS**. Verificar menús en ambos controles con clic derecho, secuencia una transición por activación, no reabrir menú al segundo clic, función temporalmente deshabilitada durante fundido. Mantener PR #3 en borrador y panel KDE existente intacto.
+
+
+## 74. Licencia MIT ratificada y comando seguro de pruebas — 20/11/2026
+
+**Confirmación explícita del mantenedor:** la licencia de **todo el software/código propio del proyecto oficial Plasma SmartBar es MIT**, como ya figura en `LICENSE`, README y `prototype/v0.1/package/metadata.json`. Las instrucciones de continuidad anteriores que dicen GPL-3.0 para el software actual están desactualizadas y **no deben regir nuevas modificaciones**. Mantener por separado las licencias de GIF, logos, imágenes, material de terceros y componentes preexistentes; no presumir permisos de redistribución ni relicenciar trabajos ajenos. No se modificó `LICENSE`, ni las imágenes ni el panel instalado.
+
+**Comando de pruebas confirmado para Fish/CachyOS** (una línea por paso, con `and` que detiene la secuencia si falla):
+
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/ejecutar_todos.cjs
+and bash prototype/v0.1/probar_ancho.sh
+```
+
+La batería Node y la revisión gráfica siguen pendientes de ejecución en el CachyOS del mantenedor; no informar éxito sin salida real de Konsole. El informe de auditoría del 20/11 se corrigió para reflejar la licencia MIT ya ratificada.
