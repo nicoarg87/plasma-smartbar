@@ -33,7 +33,11 @@ assert(viewer.includes('previewWindow.changeSimulatedWallpaper(themeName, true)'
 assert(viewer.includes('changeSimulatedWallpaper(order[(i + 1) % order.length], false)'));
 assert(viewer.includes('id: wallpaperDemoButton'));
 assert(viewer.includes('duration: previewWindow.wallpaperFadeDurationMs'));
-assert(viewer.includes('readonly property int wallpaperFadeDurationMs: 800'));
+assert(viewer.includes('WallpaperFadeDuration.durationMs(demoWallpaperFadeAmount,demoWallpaperFadeUnit)'));
+assert(viewer.includes('localPreviewSettings.value("wallpaperFadeAmount",3)'));
+assert(viewer.includes('localPreviewSettings.value("wallpaperFadeUnit","seconds")'));
+assert(viewer.includes('onRequestWallpaperFadeChange: function(amount, unit)'));
+assert(!viewer.includes('wallpaperDemoRemaining'),"No hay transición automática tras el clic");
 assert(viewer.includes('id: incomingWallpaper'));
 assert(viewer.includes('wallpaperActiveLayer = wallpaperIncomingLayer'));
 assert(wrapper.includes("Plasmoid.configuration.thematicWallpaperEnabled = enabled"));
