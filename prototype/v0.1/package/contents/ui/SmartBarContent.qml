@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import "ThemeSchedule.js" as ThemeSchedule
+import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 
 Item {
     id: root
@@ -111,6 +112,8 @@ Item {
     property int wallpaperFadeAmount: 3
     property string wallpaperFadeUnit: "seconds"
     signal requestWallpaperFadeChange(int amount, string unit)
+    property bool barThemeTransitionEnabled: true
+    signal requestBarThemeTransitionChange(bool enabled)
     onThemeScheduleEnabledChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlotCountChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlots3JsonChanged: lastScheduledSlotKey = ""
@@ -166,6 +169,196 @@ Item {
     signal requestWallpaperThemeChange(string themeName)
     signal requestThematicWallpaperVisibilityChange(bool enabled)
     property bool thematicWallpaperEnabled: true
+    // SOLO PRESENTACIÓN: ninguna interpolación escribe los perfiles originales.
+    // Los colores efectivos son bindings separadas de las preferencias.
+    property bool barColorPreviewActive: false
+    property var barPreviewColors: ({})
+    property bool themeColorsTransitionActive: false
+    readonly property int themeColorsDurationMs:
+        WallpaperFadeDuration.durationMs(wallpaperFadeAmount, wallpaperFadeUnit)
+    Timer {
+        id: themeColorsTimer
+        interval: root.themeColorsDurationMs
+        repeat: false
+        onTriggered: root.themeColorsTransitionActive = false
+    }
+    function beginThemeColorTransition() {
+        themeColorsTimer.stop()
+        themeColorsTransitionActive = themeScheduleRuntimeEnabled && barThemeTransitionEnabled
+        if (themeColorsTransitionActive) themeColorsTimer.start()
+    }
+    function startActualThemeColorTransition() {
+        beginThemeColorTransition()
+        // Salir de la vista previa antes de recibir los valores del tema.
+        barColorPreviewActive = false
+    }
+    function cancelBarColorPreview() {
+        themeColorsTimer.stop()
+        themeColorsTransitionActive = false
+        barColorPreviewActive = false
+    }
+    function previewBarThemeColors(theme) {
+        if (!themeScheduleRuntimeEnabled) return false
+        // Solo lectura del snapshot, NO activateTheme(), applyChanges()
+        // ni modificación de preferencias; no se supone ninguna paleta.
+        syncSettingsFromRoot()
+        const slot = scheduledThemeSlot(theme)
+        if (!slot) return false
+        let info
+        try { info = JSON.parse(soledadSettings.slotJson(slot)) }
+        catch (_) { return false }
+        if (!info || info.version !== 1) return false
+        const palette = {}
+        const names = ["soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","soActivityColor","soActivityGlowColor","trayButtonColor","gripButtonColor","taskFrameColor","launcherSwitchColor","soTextBackground","soTextColor","soClockTextColor"]
+        for (const key of names) if (info[key] !== undefined && info[key] !== null)
+            palette[key] = String(info[key])
+        if (info.outlineConfig && typeof info.outlineConfig === "object") {
+            for (const name of ["soledad","malvina","tray","grip"]) {
+                const record = info.outlineConfig[name]
+                if (record && record.color)
+                    palette["outline"+name.charAt(0).toUpperCase()+name.slice(1)] =
+                        String(record.color)
+            }
+        }
+        beginThemeColorTransition()
+        barPreviewColors = palette
+        barColorPreviewActive = true
+        return true
+    }
+    property color displaySoledadColor:
+        root.barColorPreviewActive && root.barPreviewColors.soledadColor !== undefined
+        ? root.barPreviewColors.soledadColor : root.soledadColor
+    Behavior on displaySoledadColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayMalvinaColor:
+        root.barColorPreviewActive && root.barPreviewColors.malvinaColor !== undefined
+        ? root.barPreviewColors.malvinaColor : root.malvinaColor
+    Behavior on displayMalvinaColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displaySoledadGradientEnd:
+        root.barColorPreviewActive && root.barPreviewColors.soledadGradientEnd !== undefined
+        ? root.barPreviewColors.soledadGradientEnd : root.soledadGradientEnd
+    Behavior on displaySoledadGradientEnd {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displaySoledadGradientThird:
+        root.barColorPreviewActive && root.barPreviewColors.soledadGradientThird !== undefined
+        ? root.barPreviewColors.soledadGradientThird : root.soledadGradientThird
+    Behavior on displaySoledadGradientThird {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayMalvinaGradientEnd:
+        root.barColorPreviewActive && root.barPreviewColors.malvinaGradientEnd !== undefined
+        ? root.barPreviewColors.malvinaGradientEnd : root.malvinaGradientEnd
+    Behavior on displayMalvinaGradientEnd {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayMalvinaGradientThird:
+        root.barColorPreviewActive && root.barPreviewColors.malvinaGradientThird !== undefined
+        ? root.barPreviewColors.malvinaGradientThird : root.malvinaGradientThird
+    Behavior on displayMalvinaGradientThird {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displaySoActivityColor:
+        root.barColorPreviewActive && root.barPreviewColors.soActivityColor !== undefined
+        ? root.barPreviewColors.soActivityColor : root.soActivityColor
+    Behavior on displaySoActivityColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displaySoActivityGlowColor:
+        root.barColorPreviewActive && root.barPreviewColors.soActivityGlowColor !== undefined
+        ? root.barPreviewColors.soActivityGlowColor : root.soActivityGlowColor
+    Behavior on displaySoActivityGlowColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayTrayButtonColor:
+        root.barColorPreviewActive && root.barPreviewColors.trayButtonColor !== undefined
+        ? root.barPreviewColors.trayButtonColor : root.trayButtonColor
+    Behavior on displayTrayButtonColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayGripButtonColor:
+        root.barColorPreviewActive && root.barPreviewColors.gripButtonColor !== undefined
+        ? root.barPreviewColors.gripButtonColor : root.gripButtonColor
+    Behavior on displayGripButtonColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayTaskFrameColor:
+        root.barColorPreviewActive && root.barPreviewColors.taskFrameColor !== undefined
+        ? root.barPreviewColors.taskFrameColor : root.taskFrameColor
+    Behavior on displayTaskFrameColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayLauncherSwitchColor:
+        root.barColorPreviewActive && root.barPreviewColors.launcherSwitchColor !== undefined
+        ? root.barPreviewColors.launcherSwitchColor : root.launcherSwitchColor
+    Behavior on displayLauncherSwitchColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displaySoTextBackground:
+        root.barColorPreviewActive && root.barPreviewColors.soTextBackground !== undefined
+        ? root.barPreviewColors.soTextBackground : root.soTextBackground
+    Behavior on displaySoTextBackground {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displaySoTextColor:
+        root.barColorPreviewActive && root.barPreviewColors.soTextColor !== undefined
+        ? root.barPreviewColors.soTextColor : root.soTextColor
+    Behavior on displaySoTextColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displaySoClockTextColor:
+        root.barColorPreviewActive && root.barPreviewColors.soClockTextColor !== undefined
+        ? root.barPreviewColors.soClockTextColor : root.soClockTextColor
+    Behavior on displaySoClockTextColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayOutlineSoColor:
+        root.barColorPreviewActive && root.barPreviewColors.outlineSo !== undefined
+        ? root.barPreviewColors.outlineSo : root.outlineConfig.soledad.color
+    Behavior on displayOutlineSoColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayOutlineMalvinaColor:
+        root.barColorPreviewActive && root.barPreviewColors.outlineMalvina !== undefined
+        ? root.barPreviewColors.outlineMalvina : root.outlineConfig.malvina.color
+    Behavior on displayOutlineMalvinaColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayOutlineTrayColor:
+        root.barColorPreviewActive && root.barPreviewColors.outlineTray !== undefined
+        ? root.barPreviewColors.outlineTray : root.outlineConfig.tray.color
+    Behavior on displayOutlineTrayColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+    property color displayOutlineGripColor:
+        root.barColorPreviewActive && root.barPreviewColors.outlineGrip !== undefined
+        ? root.barPreviewColors.outlineGrip : root.outlineConfig.grip.color
+    Behavior on displayOutlineGripColor {
+        enabled: root.themeColorsTransitionActive
+        ColorAnimation { duration: root.themeColorsDurationMs; easing.type: Easing.InOutCubic }
+    }
+
     property string gripShape: "rounded"
     property string trayButtonShape: "rounded"
     property bool taskActiveGlowEnabled: true
@@ -955,6 +1148,7 @@ Item {
             soledadSettings.themeScheduleSlotCount = root.themeScheduleSlotCount
             soledadSettings.themeScheduleSlots3Json = root.themeScheduleSlots3Json
             soledadSettings.themeScheduleSlots4Json = root.themeScheduleSlots4Json
+        soledadSettings.barThemeTransitionEnabled = root.barThemeTransitionEnabled
         soledadSettings.wallpaperFadeAmount = root.wallpaperFadeAmount
         soledadSettings.wallpaperFadeUnit = root.wallpaperFadeUnit
         soledadSettings.thematicWallpaperEnabled = root.thematicWallpaperEnabled
@@ -1097,6 +1291,7 @@ Item {
     }
 
     function openSoledadSettings(tabIndex, islandSubtabIndex) {
+        root.cancelBarColorPreview()
         // Un solo centro. Leer valores guardados al abrir, no al cambiar
         // pestaña ni al pulsar Aplicar: la ventana permanece visible.
         if (!soledadSettings.visible) {
@@ -1137,6 +1332,11 @@ Item {
         onSaveWallpaperFadeRequested: function(amount, unit) {
             root.requestWallpaperFadeChange(amount,unit)
         }
+        onSaveBarThemeTransitionRequested: function(enabled) {
+            root.requestBarThemeTransitionChange(enabled)
+            if (!enabled) root.themeColorsTransitionActive = false
+        }
+        onThemeVisualTransitionRequested: root.startActualThemeColorTransition()
         onThematicWallpaperVisibilityRequested: function(enabled) {
             root.requestThematicWallpaperVisibilityChange(enabled)
         }
