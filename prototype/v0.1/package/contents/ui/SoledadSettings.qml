@@ -1148,9 +1148,11 @@ Window {
         }
     }
     // Muestra de edición de SO; la barra real solo cambia al pulsar Aplicar.
-    property var appliedOutlinePreview: ({})
-    function refreshOutlinePreview() {
-        appliedOutlinePreview = {
+    // Desde la carga, la muestra tiene todos los atributos tipados.
+    // Se mantiene como instantánea de edición, no como guardado automático.
+    property var appliedOutlinePreview: outlinePreviewSnapshot()
+    function outlinePreviewSnapshot() {
+        return {
             iconSource: selectedImage,
             iconAnimated: isGif,
             iconAnimationEnabled: enableGif,
@@ -1180,6 +1182,9 @@ Window {
             activityShowWhenEmpty: showOutlineWhenEmpty,
             activityShowWhenOpen: showOutlineWhenOpen
         }
+    }
+    function refreshOutlinePreview() {
+        appliedOutlinePreview = outlinePreviewSnapshot()
     }
     // Mantener la muestra sincronizada con el control actual sin guardar en disco.
     onPulseSpeedChanged: if (visible) refreshOutlinePreview()
@@ -1902,9 +1907,9 @@ Window {
                     id: islandSubtabs
                     visible: false
                     Layout.fillWidth: true
-                    SettingsPageTab { text: "Posición y figuras"; width: islandSubtabs.width / 3 }
-                    SettingsPageTab { text: "Autocontracción"; width: islandSubtabs.width / 3 }
-                    SettingsPageTab { text: "Proveedores Malvina"; width: islandSubtabs.width / 3 }
+                    SettingsPageTab { text: "Posición y figuras" }
+                    SettingsPageTab { text: "Autocontracción" }
+                    SettingsPageTab { text: "Proveedores Malvina" }
                 }
                 StackLayout {
                     currentIndex: islandSubtabs.currentIndex
@@ -3601,9 +3606,9 @@ Window {
                     id: appearanceSubtabs
                     visible: false
                     Layout.fillWidth: true
-                    SettingsPageTab { text: "Color por isla"; width: appearanceSubtabs.width / 3 }
-                    SettingsPageTab { text: "Fichas SO"; width: appearanceSubtabs.width / 3 }
-                    SettingsPageTab { text: "Contornos compartidos"; width: appearanceSubtabs.width / 3 }
+                    SettingsPageTab { text: "Color por isla" }
+                    SettingsPageTab { text: "Fichas SO" }
+                    SettingsPageTab { text: "Contornos compartidos" }
                 }
                 StackLayout {
                     currentIndex: appearanceSubtabs.currentIndex
