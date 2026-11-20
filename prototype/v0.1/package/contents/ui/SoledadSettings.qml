@@ -8,6 +8,7 @@ import QtQuick.Controls as QQC2
 import QtQuick.Dialogs
 import "PaletteExtractor.js" as PaletteExtractor
 import "ThemeSchedule.js" as ThemeSchedule
+import "ThemeLibrary.js" as ThemeLibrary
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "assets/FactoryNightTheme.js" as FactoryNightTheme
 import "assets/FactorySunsetTheme.js" as FactorySunsetTheme
@@ -212,12 +213,7 @@ Window {
     readonly property var savedThemeLibrary: parseThemeLibrary(themeLibraryJson)
     function parseThemeLibrary(json) {
         try {
-            const items = JSON.parse(json || "[]")
-            if (!Array.isArray(items)) return []
-            return items.filter(function(item) {
-                return item && typeof item.name === "string" &&
-                       typeof item.jsonData === "string" && item.jsonData.length > 0
-            })
+            return ThemeLibrary.parse(json)
         } catch (error) {
             console.warn("SmartBar: biblioteca de temas inválida, no se borró", error)
             return []
