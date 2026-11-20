@@ -208,12 +208,13 @@ Window {
         interval: 350
         repeat: false
         onTriggered: {
-            if (previewWindow.wallpaperDemoRemaining <= 0 ||
-                previewWindow.wallpaperFadeBusy ||
-                !previewWindow.simulatedWallpaperEnabled) return
-            const order = ["day","sunset","night"]
-            const i = order.indexOf(previewWindow.wallpaperShownTheme)
-            previewWindow.changeSimulatedWallpaper(order[(i+1)%order.length], false)
+            if (previewWindow.wallpaperDemoRemaining > 0 &&
+                !previewWindow.wallpaperFadeBusy &&
+                previewWindow.simulatedWallpaperEnabled) {
+                const order = ["day","sunset","night"]
+                const i = order.indexOf(previewWindow.wallpaperShownTheme)
+                previewWindow.changeSimulatedWallpaper(order[(i+1)%order.length], false)
+            }
         }
     }
     Timer {
