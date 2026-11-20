@@ -27,6 +27,9 @@
     <!-- Plan horario personal: almacenado fuera de los presets oficiales. -->
     <entry name="themeScheduleEnabled" type="Bool"><default>true</default></entry>
     <entry name="themeScheduleSlotCount" type="Int"><default>4</default></entry>
+    <!-- Duración del fundido del wallpaper; independiente de cada tema. -->
+    <entry name="wallpaperFadeAmount" type="Int"><default>3</default></entry>
+    <entry name="wallpaperFadeUnit" type="String"><default>seconds</default></entry>
     <entry name="themeScheduleSlots3Json" type="String"><default>[{"start":"08:00","theme":"day"},{"start":"18:00","theme":"sunset"},{"start":"21:00","theme":"night"}]</default></entry>
     <entry name="themeScheduleSlots4Json" type="String"><default>[{"start":"06:00","theme":"sunset"},{"start":"08:00","theme":"day"},{"start":"18:00","theme":"sunset"},{"start":"21:00","theme":"night"}]</default></entry>
     <entry name="launcherCategoryLayout" type="Int"><default>0</default></entry>
