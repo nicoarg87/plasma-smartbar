@@ -13,7 +13,19 @@ Row {
     readonly property string appName: modelData
     spacing: 1
 
+    Timer {
+        id: previewHoverDelay
+        interval: 450
+        repeat: false
+        onTriggered: {
+            if (taskButton.hovered && chip.host.demoWindowControlsEnabled &&
+                !chip.host.usingRealTasks && chip.host.demoHasRunningWindows)
+                previewPopup.open()
+        }
+    }
+
     IslandButton {
+        id: taskButton
         inheritIslandFill: true
         taskDisplayMode: chip.host.taskDisplayMode
         taskFrameShape: chip.host.taskFrameShape
@@ -44,8 +56,27 @@ Row {
             chip.host.lastDemoSelection.length > 0 &&
             chip.appName === chip.host.lastDemoSelection
         text: chip.appName
-        onClicked: chip.host.selectDemoApp(chip.appName)
-        QQC2.ToolTip.visible: hovered
+        onClicked: {
+            previewHoverDelay.stop()
+            previewPopup.close()
+            chip.host.selectDemoApp(chip.appName)
+        }
+        onHoveredChanged: {
+            if (hovered && chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks)
+                previewHoverDelay.restart()
+            else
+                previewHoverDelay.stop()
+        }
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+            onClicked: {
+                previewHoverDelay.stop()
+                if (previewPopup.visible) previewPopup.close()
+                else previewPopup.open()
+            }
+        }
+        QQC2.ToolTip.visible: hovered && !previewPopup.visible
         QQC2.ToolTip.text: "Ventana simulada: " + chip.appName
     }
 
@@ -83,4 +114,120 @@ Row {
         QQC2.ToolTip.text: "Cerrar solo la ficha simulada de " + chip.appName
         onClicked: chip.host.closeDemoWindow(chip.appName)
     }
+
+    // Esta ventana flotante no aumenta el grosor ni la fila de SO.
+    // Se muestra por hover breve o clic derecho sobre la ficha agrupadora.
+    // Solo presenta contenido FICTICIO, NO capturas de ventanas KDE.
+    QQC2.Popup {
+        id: previewPopup
+        parent: chip
+        modal: false
+        focus: false
+        padding: 8
+        width: Math.min(440, 18 + 204 *
+            Math.max(1, chip.host.demoInstancesForApp(chip.appName).length))
+        height: 167
+        y: chip.height + 6
+        // Respetar ambos extremos de la superficie disponible.
+        x: {
+            const absX = chip.mapToItem(chip.host, 0, 0).x
+            return Math.max(6 - absX,
+                Math.min(0, chip.host.width - absX - width - 6))
+        }
+        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+        background: Rectangle {
+            color: "#142637"
+            radius: 8
+            border.color: "#7796a8"
+            border.width: 1
+        }
+        contentItem: Column {
+            spacing: 7
+            Text {
+                width: parent.width
+                text: chip.appName + " · ventanas abiertas (simulación)"
+                font.bold: true
+                font.pixelSize: 12
+                color: "#ffffff"
+                elide: Text.ElideRight
+            }
+            Row {
+                spacing: 6
+                Repeater {
+                    model: chip.host.demoInstancesForApp(chip.appName)
+                    delegate: Rectangle {
+                        required property var modelData
+                        width: 198
+                        height: 118
+                        radius: 5
+                        color: "#223f53"
+                        border.color: "#567f97"
+                        border.width: 1
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 8
+                            anchors.right: exitSimulated.left
+                            anchors.rightMargin: 3
+                            anchors.top: parent.top
+                            anchors.topMargin: 7
+                            text: modelData.title
+                            elide: Text.ElideRight
+                            color: "white"
+                            font.pixelSize: 11
+                        }
+                        QQC2.ToolButton {
+                            id: exitSimulated
+                            width: 26
+                            height: 25
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            Accessible.name: "Cerrar " + modelData.title + " (simulada)"
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: "Cerrar solo esta ventana simulada"
+                            contentItem: Item {
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 12
+                                    height: 2
+                                    rotation: 45
+                                    color: "white"
+                                }
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 12
+                                    height: 2
+                                    rotation: -45
+                                    color: "white"
+                                }
+                            }
+                            onClicked: {
+                                const last = chip.host.demoInstancesForApp(chip.appName).length === 1
+                                if (last) previewPopup.close()
+                                chip.host.closeDemoWindowInstance(chip.appName, modelData.id)
+                            }
+                        }
+                        Rectangle {
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.topMargin: 33
+                            anchors.bottom: parent.bottom
+                            anchors.margins: 7
+                            color: "#1a3040"
+                            radius: 3
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.minimized
+                                    ? "Minimizada · vista simulada"
+                                    : "Vista simulada · sin captura real"
+                                font.pixelSize: 11
+                                color: "#c9dbe6"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
