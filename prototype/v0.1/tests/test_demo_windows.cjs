@@ -116,13 +116,37 @@ assert(viewer.includes("previewWindow.demoTaskDisplayMode = mode"),
        "Aplicar debe enviar los cambios al visor");
 assert(viewer.includes('bar.taskDisplayMode === "both"'),
        "El diagnóstico visible debe confirmar el modo efectivo");
-assert(bar.includes('return "org.kde.dolphin"'));
-assert(bar.includes('return "org.kde.konsole"'));
-assert(bar.includes('return "brave-browser"'));
-assert(taskIcon.includes("visible: !appIcon.valid") &&
+// Íconos simulados: no adivinar la presencia de Konsole o Brave en el tema.
+assert(bar.includes("entry.iconSource || entry.icon"),
+       "El simulador debe preferir el ícono .desktop instalado");
+assert(bar.includes('return label === "dolphin" ? "org.kde.dolphin" : ""'),
+       "Si no existe .desktop, usar inicial K/B sin iconos inventados");
+const iconState={localAppCatalog:[
+    {name:"Dolphin",icon:"org.kde.dolphin"},
+    {name:"Konsole",icon:"utilities-terminal"},
+    {name:"Brave Web Browser",icon:"brave-browser"}]};
+vm.runInNewContext([
+    extract("demoIconForApp"),
+    'if(demoIconForApp("Dolphin")!=="org.kde.dolphin")throw Error("Dolphin")',
+    'if(demoIconForApp("Konsole")!=="utilities-terminal")throw Error("Konsole")',
+    'if(demoIconForApp("Brave")!=="brave-browser")throw Error("Brave")',
+    'localAppCatalog=[]',
+    'if(demoIconForApp("Konsole")!==""||demoIconForApp("Brave")!=="")throw Error("fallback")'
+].join("\n"),iconState);
+assert(taskIcon.includes("visible: !appIcon.visible") &&
        taskIcon.includes("fallbackLabel") &&
-       taskIcon.includes('fallback: ""'),
-       "Usar inicial legible si el tema KDE no contiene el ícono");
+       taskIcon.includes('fallback: ""') &&
+       taskIcon.includes('font.pixelSize: 20'),
+       "Usar inicial blanca legible si KDE no ofrece ícono");
+assert(islandButton.includes('height: 28') &&
+       islandButton.includes('width: control.taskDisplayMode === "icon" ? parent.width : 28'),
+       "Reservar un tamaño visible para los iconos");
+assert(chip.includes("contentItem: Item {") &&
+       chip.includes("id: closeDemoChip") &&
+       chip.includes("rotation: 45") &&
+       chip.includes("rotation: -45") &&
+       chip.includes("onClicked: chip.host.closeDemoWindow(chip.appName)"),
+       "La X debe dibujarse con dos trazos dentro del botón existente");
 assert(islandButton.includes("fallbackLabel: control.text"));
 assert(islandButton.includes("control.inheritIslandFill ||"),
        "No esconder nombres de fichas porque falte una imagen de logo");
