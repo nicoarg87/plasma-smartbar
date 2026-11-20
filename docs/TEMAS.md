@@ -109,3 +109,13 @@ Los tres PNG originales se entregaron en la conversación y se preservaron en un
 **Implementación de prueba:** `QtCore.Settings` transmite únicamente la elección del tema; `vigilar_wallpaper.py` comprueba el SHA-256 del PNG antes de ejecutar `plasma-apply-wallpaperimage --fill-mode stretch`. El monitor está limitado a la duración de `probar_ancho.sh`, respalda la configuración del escritorio y no instala servicios ni modifica paneles. KDE Plasma tiene soporte nativo para `Image.Stretch`; la invocación CLI aún requiere validación en CachyOS.
 
 **Pendiente:** publicar binarios con licencias individuales confirmadas, comprobar cambio efectivo y persistencia en Plasma/Wayland, validar múltiples pantallas y dejar el backend activo en la futura versión instalable. Automatizar por horario es una **propuesta separada**, no incluida aquí.
+
+## Preferencia confirmada: aplicar wallpapers solo en el escritorio SIMULADO (19/11/2026)
+
+Esta decisión **sustituye el alcance de las notas anteriores que hablaban de cambiar el fondo de KDE real**.
+
+Al elegir Día, Atardecer o Noche desde el desplegable, el prototipo muestra la imagen PNG correspondiente **detrás de las islas, dentro de la ventana de prueba `preview_redimensionable.qml`**. El posicionamiento es `Image.Stretch`: cubre todo el ancho y alto de la ventana sin bandas ni recortes. El escritorio real de CachyOS y su wallpaper no se modifican.
+
+En **Configuración → Temas** se incorpora una sola casilla **«Activar wallpaper temático»**, activada inicialmente, persistente por usuario y **separada de los presets inmutables**. Desactivarla oculta la foto únicamente en la simulación; no altera los colores, GIF del botón SO ni la selección de tema. Si se selecciona otro tema con la casilla desactivada, la última imagen se recordará y reaparecerá al volver a activarla.
+
+La función anterior que llamaba a `plasma-apply-wallpaperimage` fue retirada completamente. La aplicación real del fondo KDE se considera **futura y no implementada**, sujeta a una decisión posterior y pruebas específicas. Los PNG originales siguen distribuidos por ZIP y no como binarios del repositorio GitHub.
