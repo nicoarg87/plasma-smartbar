@@ -7,6 +7,7 @@ import QtQuick.Controls as QQC2
 import org.kde.taskmanager 0.1 as TaskManager
 import "package/contents/ui"
 import "package/contents/ui/ThemeSchedule.js" as ThemeSchedule
+import "package/contents/ui/WallpaperFadeDuration.js" as WallpaperFadeDuration
 
 Window {
     id: previewWindow
@@ -47,6 +48,14 @@ Window {
     property string demoThemeScheduleSlots4Json:
         String(localPreviewSettings.value("themeScheduleSlots4Json",
             ThemeSchedule.serialize(ThemeSchedule.defaults(4),4)))
+    // Preferencia del fundido: independiente de temas, horarios y apariencia.
+    property string demoWallpaperFadeUnit:
+        WallpaperFadeDuration.normalizeUnit(
+            String(localPreviewSettings.value("wallpaperFadeUnit","seconds")))
+    property int demoWallpaperFadeAmount:
+        WallpaperFadeDuration.normalizeAmount(
+            Number(localPreviewSettings.value("wallpaperFadeAmount",3)),
+            demoWallpaperFadeUnit)
     property bool demoHasPersonalDefault: String(localPreviewSettings.value("personalDefaultV1", "")).length > 0
     property bool demoHasFavoriteAppearance: String(localPreviewSettings.value("favoriteSoledadV1", "")).length > 0
     readonly property var appearanceKeys: ["demoAutoReturnRight","demoLauncherIslandVisible","demoAutoHideMalvina","demoAutoCollapseSO","demoSoLeftClickOpensLauncher","demoLauncherCategoryLayout","demoLauncherSwitchShape","demoLauncherSwitchColorOverride","demoLauncherSwitchColor","demoLauncherMaxSlots","demoLauncherOpacityOverride","demoLauncherOpacity","demoLauncherIconsWithNames","demoMalvinaOptionsOpacityOverride","demoMalvinaOptionsOpacity","demoAutoCollapseTray","demoSoLogoMode","demoSoLogoPath","demoSoLogoShape","demoSoLogoFitMode","demoSoLogoZoom","demoSoLogoPanX","demoSoLogoPanY","demoSoLogoRotation","demoSoLogoAnimate","demoSoClockFontFamily","demoSoClockFontSize","demoSoClockTextColor","demoOutlineConfig","demoPanelHeight","demoSoledadHeight","demoMalvinaHeight","demoSoledadRadius","demoMalvinaRadius","demoSoledadMinWidth","demoMalvinaWidth","demoSoledadShape","demoMalvinaShape","demoMalvinaGearButtonShape","demoMalvinaSearchButtonShape","demoGripShape","demoTrayButtonShape","demoSoButtonFrameShape","demoSoButtonWidth","demoSoledadColor","demoMalvinaColor","demoBackgroundColor","demoSoledadOpacity","demoMalvinaOpacity","demoBackgroundOpacity","demoShowBackground","demoTrayButtonColorOverride","demoTrayButtonColor","demoTrayButtonOpacity","demoGripButtonColorOverride","demoGripButtonColor","demoGripButtonOpacity","demoSoActivityStyle","demoSoActivityColor","demoSoActivityStroke","demoSoActivityMotion","demoSoActivityOrbitSpeed","demoSoActivityTrailPercent","demoSoActivityTrailStyle","demoSoActivityShowWhenEmpty","demoSoActivityShowWhenOpen","demoSoActivityGlowColor","demoSoActivityGlowIntensity","demoSoActivityGlowSpread","demoSoActivityPulseSpeed","demoSoActivityGlowGradient","demoSoledadGradientEnabled","demoSoledadGradientEnd","demoSoledadGradientThird","demoSoledadGradientColorCount","demoSoledadGradientDirection","demoMalvinaGradientEnabled","demoMalvinaGradientEnd","demoMalvinaGradientThird","demoMalvinaGradientColorCount","demoMalvinaGradientDirection","demoSoActivityPulseDepth","demoSoledadGradientSyncBreathing","demoSoledadGradientSyncIntensity","demoSoledadGradientBreathingEnabled","demoSoledadGradientBreathingIntensity","demoSoledadGradientBreathingSpeed","demoMalvinaGradientSyncBreathing","demoMalvinaGradientBreathingEnabled","demoMalvinaGradientBreathingIntensity","demoMalvinaGradientBreathingSpeed","demoSoTextLabel","demoSoTextColor","demoSoTextBackground","demoSoTextBackgroundOpacity","demoSoTextFontFamily","demoSoTextFontSize","demoSoTextBold","demoPositionMode","demoSoTextBackgroundImage","demoTaskFrameShape","demoTaskFrameColor","demoTaskFrameOpacity","demoTaskFrameWidth","demoTaskDisplayMode","demoTaskActiveGlowEnabled","demoTaskActiveDoubleBorderEnabled","demoMalvinaGoogleUrl","demoMalvinaDuckUrl","demoMalvinaYahooUrl","demoMalvinaChatGptUrl","demoMalvinaGeminiUrl","demoMalvinaClaudeUrl","demoMalvinaWebFirst","demoMalvinaWebOrder","demoMalvinaAiOrder","demoMalvinaExtraWeb","demoMalvinaExtraAi","demoMalvinaHiddenWeb","demoMalvinaHiddenAi","demoMalvinaCompactAi","demoMalvinaGoogleName","demoMalvinaDuckName","demoMalvinaYahooName","demoMalvinaChatGptName","demoMalvinaGeminiName","demoMalvinaClaudeName","demoMalvinaAllowChatGpt","demoMalvinaAllowGemini","demoMalvinaAllowClaude","demoMalvinaWebGoogleEnabled","demoMalvinaWebDuckEnabled","demoMalvinaWebYahooEnabled"]
@@ -63,7 +72,8 @@ Window {
     // Solo la ventana de simulación posee transición de imagen.
     // El tema activo y las preferencias Qt siguen siendo independientes
     // del botón de demostración (no se guardan cambios al probar).
-    readonly property int wallpaperFadeDurationMs: 800
+    readonly property int wallpaperFadeDurationMs:
+        WallpaperFadeDuration.durationMs(demoWallpaperFadeAmount,demoWallpaperFadeUnit)
     // Inicialización independiente: NO hacer un binding al valor elegido.
     // De lo contrario un cambio automático actualiza wallpaperShownTheme
     // antes de iniciar el fundido y la animación se saltea.
@@ -77,7 +87,6 @@ Window {
     property string wallpaperActiveLayer: "primary"
     property string wallpaperIncomingLayer: ""
     property bool wallpaperFadeBusy: false
-    property int wallpaperDemoRemaining: 0
 
     function wallpaperForTheme(theme) {
         const name = theme === "night" ? "night.png" :
@@ -98,11 +107,10 @@ Window {
     // presets, instantáneas, GIF, colores ni el estado del reloj.
     function changeSimulatedWallpaper(theme, saveSelection) {
         if (["day","sunset","night"].indexOf(theme) < 0) return
-        if (saveSelection && wallpaperDemoRemaining > 0) {
-            // El tema horario/manual tiene prioridad sobre la demostración.
-            wallpaperDemoRemaining = 0
-            wallpaperDemoHoldTimer.stop()
-        }
+        // Ante un nuevo tema real, la selección tiene prioridad aun cuando
+        // el fundido anterior dure minutos u horas. No dejarlo en cola.
+        if (saveSelection && wallpaperFadeBusy)
+            abortWallpaperFade()
         if (saveSelection) {
             simulatedWallpaperTheme = theme
             localPreviewSettings.setValue("simulatedWallpaperTheme", theme)
@@ -151,15 +159,10 @@ Window {
             const next = wallpaperQueuedTheme
             wallpaperQueuedTheme = ""
             Qt.callLater(function() { previewWindow.changeSimulatedWallpaper(next,false) })
-        } else if (wallpaperDemoRemaining > 0) {
-            wallpaperDemoRemaining--
-            if (wallpaperDemoRemaining > 0) wallpaperDemoHoldTimer.restart()
         }
     }
     function abortWallpaperFade() {
         if (!wallpaperFadeBusy) return
-        wallpaperDemoRemaining = 0
-        wallpaperDemoHoldTimer.stop()
         wallpaperFade.stop()
         const incoming = wallpaperIncomingLayer === "primary"
             ? simulatedDesktopWallpaper : incomingWallpaper
@@ -174,26 +177,14 @@ Window {
         }
     }
     function previewNextWallpaper() {
-        if (wallpaperFadeBusy || !simulatedWallpaperEnabled ||
-            wallpaperDemoRemaining > 0) return
-        // Si una prueba previa fue interrumpida, recuperar la foto del
-        // tema actual antes de iniciar otra demostración.
-        if (wallpaperShownTheme !== simulatedWallpaperTheme) {
-            changeSimulatedWallpaper(simulatedWallpaperTheme, false)
-            return
-        }
+        if (wallpaperFadeBusy || !simulatedWallpaperEnabled) return
         const order = ["day","sunset","night"]
         const i = order.indexOf(wallpaperShownTheme)
-        wallpaperDemoRemaining = 3
-        // Una sola pulsación: tres fundidos y vuelta al wallpaper inicial.
-        // false = no grabar nada, solamente mostrar el efecto.
+        // UN solo cambio por clic. La siguiente foto necesita otro clic.
+        // No guarda ni aplica temas; solo cambia la imagen del visor.
         changeSimulatedWallpaper(order[(i + 1) % order.length], false)
     }
     onSimulatedWallpaperEnabledChanged: {
-        if (!simulatedWallpaperEnabled) {
-            wallpaperDemoRemaining = 0
-            wallpaperDemoHoldTimer.stop()
-        }
         if (!simulatedWallpaperEnabled && wallpaperFadeBusy) {
             wallpaperFade.stop()
             finishWallpaperFade()
@@ -202,21 +193,6 @@ Window {
             !wallpaperFadeBusy) changeSimulatedWallpaper(simulatedWallpaperTheme,false)
     }
 
-    // Intervalo de lectura entre cada fundido: no modifica el escritorio.
-    Timer {
-        id: wallpaperDemoHoldTimer
-        interval: 350
-        repeat: false
-        onTriggered: {
-            if (previewWindow.wallpaperDemoRemaining > 0 &&
-                !previewWindow.wallpaperFadeBusy &&
-                previewWindow.simulatedWallpaperEnabled) {
-                const order = ["day","sunset","night"]
-                const i = order.indexOf(previewWindow.wallpaperShownTheme)
-                previewWindow.changeSimulatedWallpaper(order[(i+1)%order.length], false)
-            }
-        }
-    }
     Timer {
         id: saveAppearanceTimer
         interval: 180
@@ -642,6 +618,8 @@ Window {
         themeScheduleSlotCount: previewWindow.demoThemeScheduleSlotCount
         themeScheduleSlots3Json: previewWindow.demoThemeScheduleSlots3Json
         themeScheduleSlots4Json: previewWindow.demoThemeScheduleSlots4Json
+        wallpaperFadeAmount: previewWindow.demoWallpaperFadeAmount
+        wallpaperFadeUnit: previewWindow.demoWallpaperFadeUnit
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         anchors.left: parent.left
         anchors.right: parent.right
@@ -764,6 +742,14 @@ Window {
             localPreviewSettings.setValue("themeScheduleSlotCount", count)
             localPreviewSettings.setValue("themeScheduleSlots3Json", slots3Json)
             localPreviewSettings.setValue("themeScheduleSlots4Json", slots4Json)
+            localPreviewSettings.sync()
+        }
+        onRequestWallpaperFadeChange: function(amount, unit) {
+            if (!WallpaperFadeDuration.valid(amount,unit)) return
+            previewWindow.demoWallpaperFadeUnit = unit
+            previewWindow.demoWallpaperFadeAmount = amount
+            localPreviewSettings.setValue("wallpaperFadeAmount",amount)
+            localPreviewSettings.setValue("wallpaperFadeUnit",unit)
             localPreviewSettings.sync()
         }
         onRequestWallpaperThemeChange: function(themeName) {
@@ -1115,11 +1101,14 @@ Window {
         anchors.bottomMargin: 48
         text: "Probar transición de wallpaper"
         enabled: previewWindow.simulatedWallpaperEnabled &&
-                 !previewWindow.wallpaperFadeBusy &&
-                 previewWindow.wallpaperDemoRemaining === 0
+                 !previewWindow.wallpaperFadeBusy
         onClicked: previewWindow.previewNextWallpaper()
         QQC2.ToolTip.visible: hovered
-        QQC2.ToolTip.text: "Tres fundidos de 0,8 segundos y vuelta al fondo original. Solo simulación."
+        QQC2.ToolTip.text: "Un fundido por clic. Duración: " +
+            previewWindow.demoWallpaperFadeAmount + " " +
+            (previewWindow.demoWallpaperFadeUnit === "hours" ? "hora(s)" :
+             previewWindow.demoWallpaperFadeUnit === "minutes" ? "minuto(s)" : "segundo(s)") +
+            ". Configuración → Temas → Con horarios."
     }
 
     Row {
