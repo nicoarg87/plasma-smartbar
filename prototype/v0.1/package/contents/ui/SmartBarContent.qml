@@ -198,7 +198,7 @@ Item {
         barColorPreviewActive = false
     }
     function previewBarThemeColors(theme) {
-        if (!themeScheduleRuntimeEnabled) return false
+        if (!themeScheduleRuntimeEnabled || soledadSettings.visible) return false
         // Solo lectura del snapshot, NO activateTheme(), applyChanges()
         // ni modificación de preferencias; no se supone ninguna paleta.
         syncSettingsFromRoot()
@@ -209,9 +209,13 @@ Item {
         catch (_) { return false }
         if (!info || info.version !== 1) return false
         const palette = {}
-        const names = ["soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","soActivityColor","soActivityGlowColor","trayButtonColor","gripButtonColor","taskFrameColor","launcherSwitchColor","soTextBackground","soTextColor","soClockTextColor"]
+        const names = ["soledadColor","malvinaColor","soledadGradientEnd","soledadGradientThird","malvinaGradientEnd","malvinaGradientThird","trayButtonColor","gripButtonColor","taskFrameColor","launcherSwitchColor","soTextBackground","soTextColor"]
         for (const key of names) if (info[key] !== undefined && info[key] !== null)
             palette[key] = String(info[key])
+        // Nombres reales del contrato themeSnapshot(), no renombrar perfiles.
+        if (info.accentColor) palette.soActivityColor = String(info.accentColor)
+        if (info.glowColor) palette.soActivityGlowColor = String(info.glowColor)
+        if (info.clockTextColor) palette.soClockTextColor = String(info.clockTextColor)
         if (info.outlineConfig && typeof info.outlineConfig === "object") {
             for (const name of ["soledad","malvina","tray","grip"]) {
                 const record = info.outlineConfig[name]
@@ -1659,6 +1663,10 @@ Item {
                 Connections {
                     target: root
                     function onMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
+                    function onDisplayMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
+                    function onDisplayMalvinaGradientEndChanged() { malvinaTipSurface.requestPaint() }
+                    function onDisplayMalvinaGradientThirdChanged() { malvinaTipSurface.requestPaint() }
+                    function onDisplayOutlineMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaGradientEnabledChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaGradientEndChanged() { malvinaTipSurface.requestPaint() }
                     function onMalvinaGradientThirdChanged() { malvinaTipSurface.requestPaint() }
@@ -1711,7 +1719,7 @@ Item {
                     const outline = root.outlineConfig.malvina
                     if (outline && outline.style !== "none" && outline.width > 0) {
                         ctx.lineWidth = outline.width
-                        const c = outline.color
+                        const c = root.displayOutlineMalvinaColor
                         ctx.strokeStyle = c
                         ctx.globalAlpha = outline.opacity
                         ctx.stroke()
@@ -1845,6 +1853,9 @@ Item {
                 Connections {
                     target: root
                     function onSoledadColorChanged() { islandSurface.requestPaint() }
+                    function onDisplaySoledadColorChanged() { islandSurface.requestPaint() }
+                    function onDisplaySoledadGradientEndChanged() { islandSurface.requestPaint() }
+                    function onDisplaySoledadGradientThirdChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientEnabledChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientEndChanged() { islandSurface.requestPaint() }
                     function onSoledadGradientThirdChanged() { islandSurface.requestPaint() }
@@ -1989,6 +2000,9 @@ Item {
                 Connections {
                     target: root
                     function onSoledadColorChanged() { soTipBackground.requestPaint() }
+                    function onDisplaySoledadColorChanged() { soTipBackground.requestPaint() }
+                    function onDisplaySoledadGradientEndChanged() { soTipBackground.requestPaint() }
+                    function onDisplaySoledadGradientThirdChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientEnabledChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientEndChanged() { soTipBackground.requestPaint() }
                     function onSoledadGradientThirdChanged() { soTipBackground.requestPaint() }
