@@ -274,6 +274,7 @@ Window {
     }
     property string themeStatus: "Atardecer y Noche de fábrica conservan sus originales; los cambios van por separado."
     signal saveThemeSlotRequested(string slot, string jsonData)
+    signal wallpaperThemeSelected(string themeName)
     QQC2.Dialog {
         id: factoryNightExportDialog
         title: "Copiar apariencia exacta para " + (settings.factoryExportTarget === "sunset" ? "Atardecer" : "Noche") + " de fábrica"
@@ -616,7 +617,7 @@ Window {
                 : slot === "sunset"
                   ? "Falta incorporar el Atardecer exacto y su imagen original; no se aplicará otro tema."
                   : "Este tema todavía no está guardado. Personalizá la isla y pulsá Guardar."
-            return
+            return false
         }
         try {
             const info = JSON.parse(jsonData)
@@ -694,9 +695,11 @@ Window {
                  slot === "night" ? "Noche de fábrica" :
                  slot.indexOf("library:") === 0 ? "personal guardado" : "Personalizado") +
                 " restaurado. Podés personalizar la barra sin modificar el original."
+            return true
         } catch(e) {
             themeStatus = "No se pudo aplicar el tema guardado: " + e
             console.warn("SmartBar: tema local inválido", e)
+            return false
         }
     }
     property alias currentIslandSubtab: islandSubtabs.currentIndex
@@ -4758,11 +4761,11 @@ Window {
                                                 const originalIndex = settings.otherNamedThemeOriginalIndex(selectedIndex - 3)
                                                 if (originalIndex >= 0) slot = "library:" + originalIndex
                                             }
-                                            if (slot.length) {
-                                                settings.activateTheme(slot)
-                                                // La vista previa lee la apariencia activa y el GIF
-                                                // recién restaurados; no reutiliza la imagen anterior.
+                                            if (slot.length && settings.activateTheme(slot)) {
                                                 settings.previewFactorySlot = ""
+                                                if (selectedIndex === 0) settings.wallpaperThemeSelected("sunset")
+                                                else if (selectedIndex === 1) settings.wallpaperThemeSelected("night")
+                                                else if (selectedIndex === 2) settings.wallpaperThemeSelected("day")
                                             } else {
                                                 settings.themeStatus = selectedIndex === 0
                                                     ? "No se encuentra el Atardecer guardado."
