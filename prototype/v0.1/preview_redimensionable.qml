@@ -40,6 +40,9 @@ Window {
     // Preferencias HORARIAS locales, no incluidas en las instantáneas de los temas.
     property bool demoThemeScheduleEnabled:
         String(localPreviewSettings.value("themeScheduleEnabled", true)).toLowerCase() !== "false"
+    // Encendido por defecto. Una decisión de apagarlo se recuerda.
+    property bool demoBarThemeTransitionEnabled:
+        String(localPreviewSettings.value("barThemeTransitionEnabled", true)).toLowerCase() !== "false"
     property int demoThemeScheduleSlotCount:
         Number(localPreviewSettings.value("themeScheduleSlotCount", 4)) === 3 ? 3 : 4
     property string demoThemeScheduleSlots3Json:
@@ -184,9 +187,11 @@ Window {
         if (wallpaperFadeBusy || !simulatedWallpaperEnabled) return
         const order = ["day","sunset","night"]
         const i = order.indexOf(wallpaperShownTheme)
-        // UN solo cambio por clic. La siguiente foto necesita otro clic.
-        // No guarda ni aplica temas; solo cambia la imagen del visor.
-        changeSimulatedWallpaper(order[(i + 1) % order.length], false)
+        const next = order[(i + 1) % order.length]
+        // Un clic = una transición de wallpaper Y colores de las islas.
+        // Solo lectura de paletas: jamás activateTheme ni escritura de temas.
+        bar.previewBarThemeColors(next)
+        changeSimulatedWallpaper(next, false)
     }
     onSimulatedWallpaperEnabledChanged: {
         if (!simulatedWallpaperEnabled && wallpaperFadeBusy) {
@@ -622,6 +627,7 @@ Window {
         themeScheduleSlotCount: previewWindow.demoThemeScheduleSlotCount
         themeScheduleSlots3Json: previewWindow.demoThemeScheduleSlots3Json
         themeScheduleSlots4Json: previewWindow.demoThemeScheduleSlots4Json
+        barThemeTransitionEnabled: previewWindow.demoBarThemeTransitionEnabled
         wallpaperFadeAmount: previewWindow.demoWallpaperFadeAmount
         wallpaperFadeUnit: previewWindow.demoWallpaperFadeUnit
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
@@ -754,6 +760,11 @@ Window {
             previewWindow.demoWallpaperFadeAmount = amount
             localPreviewSettings.setValue("wallpaperFadeAmount",amount)
             localPreviewSettings.setValue("wallpaperFadeUnit",unit)
+            localPreviewSettings.sync()
+        }
+        onRequestBarThemeTransitionChange: function(enabled) {
+            previewWindow.demoBarThemeTransitionEnabled = enabled
+            localPreviewSettings.setValue("barThemeTransitionEnabled",enabled)
             localPreviewSettings.sync()
         }
         onRequestWallpaperThemeChange: function(themeName) {
