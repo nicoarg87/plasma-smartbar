@@ -999,3 +999,25 @@ Comprobar inicialmente solo «Seleccionar tema ▾», abrir la lista desplazable
 **Estado:** implementación [2f77b88](https://github.com/nicoarg87/plasma-smartbar/commit/2f77b88e343b38e7ed39c5bcff96a41ebb82ec0a), biblioteca [eb90097](https://github.com/nicoarg87/plasma-smartbar/commit/eb900979b96e33c76b5bb0694a386eb745991d04), prueba [c9ccd0c](https://github.com/nicoarg87/plasma-smartbar/commit/c9ccd0cb5d30ecfa635be25715b8c324dd21524e); **631 comprobaciones estáticas/JS aislado positivas**, Qt/CachyOS aún no confirmado. Panel KDE instalado intacto, PR #3 borrador.
 
 **Nota de interfaz:** los comandos técnicos para empaquetar los originales quedaron dentro de «Herramientas de fábrica (avanzado)», también **contraído por defecto**, para no mezclar la lista de temas con opciones de desarrollo.
+
+
+## Diagnóstico de streams de audio (solo lectura) — 20/11/2026
+
+Este ensayo prepara la integración de volumen por aplicación **para la versión posterior a v0.1**. El deslizador ubicado debajo de cada vista previa sigue siendo **simulado**; el diagnóstico no vincula todavía KDE TasksModel con PipeWire.
+
+1. Abrir Brave y reproducir audio (por ejemplo, un video) mientras se hace la prueba.
+2. En otra Konsole, desde la raíz del repositorio ejecutar:
+
+```bash
+python3 prototype/v0.1/scripts/diagnosticar_streams_audio.py
+```
+
+El programa usa `pw-dump` **solo para consultar** el estado actual: filtra objetos Node que declaran `media.class = Stream/Output/Audio`. Muestra exclusivamente nombre de aplicación, identificador declarado, binario, PID informado y número de nodo **efímero**; no muestra títulos de medios, URLs ni rutas personales. Cuando falten datos de identidad, los deja vacíos; nunca inventa el vínculo con KDE. No ejecuta `wpctl set-mute`, `set-volume` ni acciones de KWin. **No copiar identificadores de esta salida para alterar audio**: un stream puede desaparecer o cambiar de tipo.
+
+Para ejecutar pruebas del diagnóstico con ejemplos ficticios **sin tocar PipeWire**:
+
+```bash
+python3 -m unittest discover -s prototype/v0.1/tests -p 'test_diagnosticar_streams_audio.py' -v
+```
+
+**Estado:** herramienta y tests publicados en rama experimental; aún sin ejecutar en CachyOS del mantenedor. Para diagnosticar casos nuevos guardar la salida de la consola si hace falta, revisando que los nombres/PIDs no contengan información que no se quiera compartir. No modifica el panel Plasma instalado.
