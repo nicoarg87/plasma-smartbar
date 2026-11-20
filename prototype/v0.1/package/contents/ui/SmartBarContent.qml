@@ -821,6 +821,9 @@ Item {
     property var demoOpenedApps: demoApps.slice()
     // Estado efímero de ventanas ficticias; dos Dolphin simuladas para ensayo.
     property var demoWindowInstances: DemoWindowInstances.initial()
+    // Cada aplicación FICTICIA tiene su silencio independiente. No representa
+    // flujos reales de PipeWire: no mutear dispositivos globales del usuario.
+    property var demoMutedApps: ({})
     // Historial de cierres SOLO del simulador; no implica reabrir programas
     // reales ni recuperar documentos de aplicaciones externas.
     property var demoClosedHistory: []
@@ -935,12 +938,28 @@ Item {
     function demoInstancesForApp(appName) {
         return DemoWindowInstances.forApp(demoWindowInstances, appName)
     }
+    function demoAppIsMuted(appName) {
+        return demoMutedApps[appName] === true
+    }
+    function toggleDemoAppMute(appName) {
+        if (!demoWindowControlsEnabled || usingRealTasks ||
+            !demoHasRunningWindows || demoOpenedApps.indexOf(appName) < 0)
+            return false
+        const updated = Object.assign({}, demoMutedApps)
+        updated[appName] = !demoAppIsMuted(appName)
+        demoMutedApps = updated
+        return true
+    }
     function openDemoWindow(appName) {
         if (!demoWindowControlsEnabled || usingRealTasks) return false
         const updated = DemoWindows.open(demoOpenedApps, demoApps, appName)
         if (updated.length === demoOpenedApps.length && demoHasRunningWindows)
             return false
         demoWindowInstances = DemoWindowInstances.reopen(demoWindowInstances, appName)
+        // Una nueva app ficticia comienza con sonido simulado habilitado.
+        const muted = Object.assign({}, demoMutedApps)
+        delete muted[appName]
+        demoMutedApps = muted
         demoOpenedApps = updated
         demoHasRunningWindows = true
         return true
@@ -953,6 +972,9 @@ Item {
         const record = DemoWindowInstances.snapshot(demoWindowInstances, appName)
         if (record) demoClosedHistory = demoClosedHistory.concat([record])
         demoWindowInstances = DemoWindowInstances.withoutApp(demoWindowInstances, appName)
+        const muted = Object.assign({}, demoMutedApps)
+        delete muted[appName]
+        demoMutedApps = muted
         demoOpenedApps = updated
         if (lastDemoSelection === appName) lastDemoSelection = ""
         return true
@@ -974,6 +996,7 @@ Item {
         if (!demoWindowControlsEnabled || usingRealTasks) return false
         if (!demoHasRunningWindows) {
             demoClosedHistory = []
+            demoMutedApps = ({})
             demoWindowInstances = DemoWindowInstances.initial()
             demoOpenedApps = demoApps.slice()
             demoHasRunningWindows = true
@@ -2775,7 +2798,8 @@ Item {
                                     root.demoHasRunningWindows = false
                                 } else {
                                     root.demoClosedHistory = []
-                                     root.demoWindowInstances = DemoWindowInstances.initial()
+                                    root.demoMutedApps = ({})
+                                    root.demoWindowInstances = DemoWindowInstances.initial()
                                      root.demoOpenedApps = root.demoApps.slice()
                                     root.demoHasRunningWindows = true
                                 }
