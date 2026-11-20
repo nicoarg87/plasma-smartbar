@@ -128,6 +128,7 @@ Window {
                index === 1 ? (base.soledadGradientEnd || base.soledadColor || "#46516a") :
                (base.soledadGradientThird || base.soledadGradientEnd || "#46516a")
     }
+    property bool thematicWallpaperEnabled: true
     property bool themeChooserExpanded: false
     property bool factoryToolsExpanded: false
     property string newThemeName: ""
@@ -275,6 +276,8 @@ Window {
     property string themeStatus: "Atardecer y Noche de fábrica conservan sus originales; los cambios van por separado."
     signal saveThemeSlotRequested(string slot, string jsonData)
     signal wallpaperThemeSelected(string themeName)
+    // Ajuste personal, no forma parte de los temas oficiales inmutables.
+    signal thematicWallpaperVisibilityRequested(bool enabled)
     QQC2.Dialog {
         id: factoryNightExportDialog
         title: "Copiar apariencia exacta para " + (settings.factoryExportTarget === "sunset" ? "Atardecer" : "Noche") + " de fábrica"
@@ -4569,6 +4572,17 @@ Window {
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
                         text: "Elegí Atardecer o Noche con un clic. Los temas nuevos se suman al mismo desplegable."
+                    }
+                    // Control de visibilidad del wallpaper del escritorio simulado.
+                    // No se mezcla con la biblioteca ni agrega botones de guardado.
+                    QQC2.CheckBox {
+                        Layout.fillWidth: true
+                        text: "Activar wallpaper temático"
+                        checked: settings.thematicWallpaperEnabled
+                        onClicked: {
+                            settings.thematicWallpaperEnabled = checked
+                            settings.thematicWallpaperVisibilityRequested(checked)
+                        }
                     }
                     // Vista previa principal del tema seleccionado, independiente de la lista.
                     QQC2.Label {
