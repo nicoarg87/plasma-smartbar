@@ -490,10 +490,10 @@ QQC2.Button {
             id: taskIconLoader
             active: control.taskUsesIcon
             anchors.left: parent.left
-            anchors.leftMargin: control.taskDisplayMode === "icon" ? 0 : 6
+            anchors.leftMargin: control.taskDisplayMode === "icon" ? 0 : 5
             anchors.verticalCenter: parent.verticalCenter
-            width: control.taskDisplayMode === "icon" ? parent.width : 23
-            height: 23
+            width: control.taskDisplayMode === "icon" ? parent.width : 28
+            height: 28
             sourceComponent: Component {
                 TaskAppIcon {
                     width: taskIconLoader.width
@@ -508,7 +508,7 @@ QQC2.Button {
             id: label
             anchors.fill: parent
             anchors.leftMargin: control.taskUsesIcon &&
-                control.taskDisplayMode === "both" ? 31 : 0
+                control.taskDisplayMode === "both" ? 35 : 0
             anchors.rightMargin: control.taskUsesIcon &&
                 control.taskDisplayMode === "both" ? 5 : 0
             text: control.text
