@@ -37,6 +37,14 @@ Window {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
     }
+    // Canal de eventos independiente del aspecto y las ranuras personales.
+    // El supervisor seguro de probar_ancho.sh observa únicamente este archivo.
+    QtCore.Settings {
+        id: wallpaperSignal
+        location: QtCore.StandardPaths.writableLocation(QtCore.StandardPaths.ConfigLocation)
+                  + "/plasma-smartbar-wallpapers.ini"
+        category: "ThemeWallpaper"
+    }
     Timer {
         id: saveAppearanceTimer
         interval: 180
@@ -419,6 +427,13 @@ Window {
         // Aplicar solicita guardado inmediato de TODOS los valores, no solo
         // los que tenían on...Changed histórico.
         onRequestPersistCurrentSettings: previewWindow.saveAppearancePreset()
+        onRequestWallpaperThemeChange: function(themeName) {
+            if (["day", "sunset", "night"].indexOf(themeName) < 0) return
+            wallpaperSignal.setValue("theme", themeName)
+            wallpaperSignal.setValue("revision",
+                Number(wallpaperSignal.value("revision", 0)) + 1)
+            wallpaperSignal.sync()
+        }
         onRequestMalvinaButtonShapesChange: function(gearShape, searchShape) {
             previewWindow.demoMalvinaGearButtonShape = gearShape
             previewWindow.demoMalvinaSearchButtonShape = searchShape
