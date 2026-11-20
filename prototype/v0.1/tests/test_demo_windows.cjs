@@ -90,33 +90,37 @@ vm.runInNewContext([
 ].join("\n"),emptyState);
 assert.equal(emptyState.soExpanded,false);
 
-// Regresión del problema visual observado en CachyOS: tres fichas con
-// iconos ilegibles y ningún nombre en modo "Solo icono" persistido.
+// Regresión del visor: la preferencia de fichas SO debe surtir
+// efecto al pulsar Aplicar, incluso si el visor tenía un modo forzado.
 const taskIcon=fs.readFileSync(path.join(uiDir,"TaskAppIcon.qml"),"utf8");
 const islandButton=fs.readFileSync(path.join(uiDir,"IslandButton.qml"),"utf8");
-assert(bar.includes("property bool previewShowTaskIdentity: false"));
-assert(bar.includes('previewShowTaskIdentity ? "both" : taskDisplayMode'));
-assert(viewer.includes("previewShowTaskIdentity: true"));
-assert(chip.includes("taskDisplayMode: chip.host.effectiveTaskDisplayMode"));
-assert.equal((bar.match(/taskDisplayMode: root.effectiveTaskDisplayMode/g)||[]).length,2,
-             "Real y simulado deben mostrar nombres en el visor de diagnóstico");
+assert(!bar.includes("previewShowTaskIdentity"), "No forzar una presentación distinta a la elegida");
+assert(!viewer.includes("previewShowTaskIdentity"), "El visor debe usar el modo guardado");
+assert(viewer.includes('property string demoTaskDisplayMode: "both"'),
+       "Un perfil nuevo debe identificar la aplicación con ícono y nombre");
+assert(chip.includes("taskDisplayMode: chip.host.taskDisplayMode"));
+assert.equal((bar.match(/taskDisplayMode: root.taskDisplayMode/g)||[]).length,2,
+             "Fichas reales y simuladas deben respetar la preferencia");
+assert(viewer.includes("previewWindow.demoTaskDisplayMode = mode"),
+       "Aplicar debe enviar los cambios al visor");
+assert(viewer.includes('bar.taskDisplayMode === "both"'),
+       "El diagnóstico visible debe confirmar el modo efectivo");
 assert(bar.includes('return "org.kde.dolphin"'));
 assert(bar.includes('return "org.kde.konsole"'));
 assert(bar.includes('return "brave-browser"'));
 assert(taskIcon.includes("visible: !appIcon.valid") &&
        taskIcon.includes("fallbackLabel") &&
        taskIcon.includes('fallback: ""'),
-       "No se debe mostrar un glifo roto si KDE carece del ícono");
-assert(islandButton.includes("fallbackLabel: control.text"),
-       "El respaldo del ícono debe usar el nombre visible de la aplicación");
+       "Usar inicial legible si el tema KDE no contiene el ícono");
+assert(islandButton.includes("fallbackLabel: control.text"));
+assert(islandButton.includes("control.inheritIslandFill ||"),
+       "No esconder nombres de fichas porque falte una imagen de logo");
+assert(islandButton.includes("Math.max(72, label.implicitWidth"),
+       "Reservar espacio para los nombres en la fila de SO");
 assert(!viewer.includes('localPreviewSettings.setValue("demoTaskDisplayMode", "both")'),
-       "La prueba no debe sobrescribir el modo de fichas guardado");
-
-// La simulación respeta la configuración pública: no la guarda ni migra.
-function identity(mode,diagnostic) { return diagnostic ? "both" : mode }
+       "No sobrescribir la preferencia existente al cargar el visor");
 for(const mode of ["icon","both","text"]) {
-    assert.equal(identity(mode,true),"both");
-    assert.equal(identity(mode,false),mode);
+    assert.equal(mode,["icon","both","text"].find(x=>x===mode));
 }
 
 console.log("OK: fichas ficticias SO abren y cierran; TaskManager real sigue solo lectura.");
