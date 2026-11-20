@@ -2094,3 +2094,14 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 - **LIMITACIÓN:** todavía NO se comprobó que KDE TasksModel devuelva `AppId = com.brave.Browser` para la ficha de Brave. Un match de nombres no prueba por sí solo propiedad de ventana/audio. ID 119 y PID 350 no se guardan ni se usan para acciones: pueden cambiar.
 
 **SIGUIENTE PRUEBA SEGURA SIN CÓDIGO NUEVO:** utilizar el diagnóstico de KDE ya existente `bash prototype/v0.1/probar_ventanas.sh` desde Fish (scripts Bash se invocan desde Fish sin cambiar shell), abrir Brave con sonido y comparar el renglón **ID:** de su ficha contra `com.brave.Browser`. Conservar discrepancias de AppId y resultado visual; es solo lectura. No instalar panel ni ejecutar `wpctl set-mute`/`set-volume`. [Issue #16](https://github.com/nicoarg87/plasma-smartbar/issues/16) abierto; audio real para versión siguiente a v0.1.
+
+## 20/11/2026 — Correlación real KDE TasksModel ↔ PipeWire de Brave: AppId coincidente
+
+**PROBADO CON CAPTURA DEL MANTENEDOR EN CACHYOS:** `bash prototype/v0.1/probar_ventanas.sh` abrió correctamente el visor independiente KDE de solo lectura. Mostró **3 entradas** agrupadas por aplicación:
+- `Alacritty`: ID `Alacritty`, **2 ventanas**, inactiva/normal.
+- `Brave`: ID `com.brave.Browser`, **1 ventana**, inactiva/maximizada.
+- `qml6`: ID `org.qt-project.qml6`, **2 ventanas**, activa/normal.
+
+**CORRELACIÓN POSITIVA DE ESTE CASO:** el rol `TasksModel.AppId` de Brave es `com.brave.Browser`, exactamente igual al `application.id` del nodo de salida PipeWire observado en la prueba inmediatamente anterior (en ese momento: nodo temporal 119, PID declarado 350, `running`). Esto establece compatibilidad **de identidad declarada para Brave en esta configuración**, **no** una relación segura universal ni garantía de que el flujo siga existiendo al accionar el control. Los dos diagnósticos no capturaron un snapshot atómico conjunto.
+
+**IMPLEMENTADO:** no se modificó la interfaz por esta prueba; el diseño previo aprobado del volumen sigue **simulado**. **PROBADO:** lectura y agrupación de tres aplicaciones y coincidencia puntual de AppId Brave. **PENDIENTE:** validar apps que no emiten audio, múltiples nodos de una misma app, Flatpak/nombres alternativos, cambios de ciclo de vida de los streams y revalidación antes de escribir. No ligar acciones reales a ID numérico efímero; no tocar panel Plasma, temas o recursos locales. Ver [issue #16](https://github.com/nicoarg87/plasma-smartbar/issues/16).
