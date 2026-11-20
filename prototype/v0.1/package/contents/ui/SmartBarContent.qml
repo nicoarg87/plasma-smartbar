@@ -1881,7 +1881,7 @@ Item {
                     // temporizadores, lógica ni botones en la barra.
                     QQC2.MenuItem {
                         visible: root.themeScheduleRuntimeEnabled
-                        text: "Probar transición de tema y wallpaper"
+                        text: "siguiente tema y wallpaper"
                         enabled: root.themeWallpaperPreviewAvailable
                         onTriggered: root.triggerThemeWallpaperPreview()
                     }
@@ -2654,7 +2654,7 @@ Item {
                         // avanza una sola franja, sin guardar temas ni wallpaper.
                         QQC2.MenuItem {
                             visible: root.themeScheduleRuntimeEnabled
-                            text: "Probar transición de tema y wallpaper"
+                            text: "siguiente tema y wallpaper"
                             enabled: root.themeWallpaperPreviewAvailable
                             onTriggered: root.triggerThemeWallpaperPreview()
                         }
