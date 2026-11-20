@@ -1,110 +1,94 @@
 "use strict";
-// Ejercicio sin KDE ni motor QML: el botón de prueba debe mover SOLO las
-// dos capas PNG, no escribir biblioteca, GIF, apariencia ni presets originales.
+// Un clic = un fundido. Simulación aislada: sin modificar perfil, GIF ni KDE.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-const root = path.resolve(__dirname, "..");
-const viewer = fs.readFileSync(path.join(root,"preview_redimensionable.qml"),"utf8");
-const settings = fs.readFileSync(path.join(root,"package/contents/ui/SoledadSettings.qml"),"utf8");
-const defaults = fs.readFileSync(path.join(root,"package/contents/config/main.xml"),"utf8");
-const funcs = ["changeSimulatedWallpaper","finishWallpaperFade","previewNextWallpaper",
-               "wallpaperForTheme","startWallpaperFadeIfReady","abortWallpaperFade"];
+const root = path.resolve(__dirname,"..");
+const read = p => fs.readFileSync(path.join(root,p),"utf8");
+const viewer = read("preview_redimensionable.qml");
+const settings = read("package/contents/ui/SoledadSettings.qml");
+const bar = read("package/contents/ui/SmartBarContent.qml");
+const cfg = read("package/contents/config/main.xml");
+const raw = read("package/contents/ui/WallpaperFadeDuration.js")
+  .replace(/^\.pragma library\s*/, "");
+const duration = vm.createContext({});
+vm.runInContext(raw,duration);
+assert.equal(duration.durationMs(3,"seconds"),3000);
+assert.equal(duration.durationMs(2,"minutes"),120000);
+assert.equal(duration.durationMs(1,"hours"),3600000);
+assert.equal(duration.durationMs(24,"hours"),86400000);
+for(const [count,unit] of [[0,"seconds"],[25,"hours"],[241,"minutes"],[3601,"seconds"],[1.5,"seconds"],[-1,"hours"]])
+  assert.equal(duration.valid(count,unit),false,count+" "+unit);
+assert(settings.includes('text: "Fundido del wallpaper"'));
+assert(settings.includes('model: ["Segundos", "Minutos", "Horas"]'));
+assert(settings.includes('settings.setWallpaperFade(amount,settings.wallpaperFadeUnit)'));
+assert(settings.includes('saveWallpaperFadeRequested(amount,unit)'));
+assert(bar.includes("onSaveWallpaperFadeRequested: function(amount, unit)"));
+assert(viewer.includes('onRequestWallpaperFadeChange: function(amount, unit)'));
+assert(viewer.includes('localPreviewSettings.setValue("wallpaperFadeAmount",amount)'));
+assert(viewer.includes('localPreviewSettings.setValue("wallpaperFadeUnit",unit)'));
+assert(viewer.includes('WallpaperFadeDuration.durationMs(demoWallpaperFadeAmount,demoWallpaperFadeUnit)'));
+assert(cfg.includes('name="wallpaperFadeAmount" type="Int"><default>3</default>'));
+assert(cfg.includes('name="wallpaperFadeUnit" type="String"><default>seconds</default>'));
+assert(!viewer.includes("wallpaperDemoHoldTimer"),"No debe haber recorrido automático");
+assert(!viewer.includes("wallpaperDemoRemaining"),"Un clic no inicia una cadena");
+
 function extract(name) {
-    const start=viewer.indexOf("    function "+name+"(");
-    assert(start>=0,"No existe "+name);
-    const brace=viewer.indexOf("{",start);
-    let depth=0;
-    for(let i=brace;i<viewer.length;i++){
-        if(viewer[i]==="{")depth++;
-        if(viewer[i]==="}"&&--depth===0)return viewer.slice(start,i+1);
-    }
-    throw Error("Llaves inválidas en "+name);
+  const start=viewer.indexOf("    function "+name+"(");
+  assert(start>=0,name+" no existe");
+  const brace=viewer.indexOf("{",start);
+  let depth=0;
+  for(let i=brace;i<viewer.length;i++) {
+    if(viewer[i]==="{")depth++;
+    if(viewer[i]==="}"&&--depth===0) return viewer.slice(start,i+1);
+  }
+  throw Error("Cierre de función ausente "+name);
 }
-const writes=[];
-const delayed=[];
-const ctx = {
-    wallpaperShownTheme:"day",
-    simulatedWallpaperTheme:"day",
-    wallpaperPrimaryTheme:"day",
-    wallpaperSecondaryTheme:"",
-    wallpaperIncomingTheme:"",
-    wallpaperIncomingLayer:"",
-    wallpaperQueuedTheme:"",
-    wallpaperActiveLayer:"primary",
-    simulatedWallpaperEnabled:true,
-    wallpaperFadeBusy:false,
-    wallpaperDemoRemaining:0,
-    wallpaperDemoHoldTimer:{stop(){},restart(){}},
-    localPreviewSettings:{setValue:(k,v)=>writes.push([k,v]),sync:()=>writes.push(["sync"])},
-    simulatedDesktopWallpaper:{opacity:1,status:1},
-    incomingWallpaper:{opacity:0,status:1},
-    wallpaperFade:{running:false,target:null,stop(){},start(){}},
-    Image:{Ready:1},
-    Qt:{callLater:fn=>delayed.push(fn),resolvedUrl:x=>x},
-    console,
+const funcs=["changeSimulatedWallpaper","finishWallpaperFade","previewNextWallpaper",
+             "abortWallpaperFade","wallpaperForTheme","startWallpaperFadeIfReady"];
+const writes=[],later=[];
+const ctx={
+  simulatedWallpaperTheme:"day", wallpaperShownTheme:"day",
+  wallpaperPrimaryTheme:"day",wallpaperSecondaryTheme:"",
+  wallpaperIncomingTheme:"", wallpaperIncomingLayer:"",
+  wallpaperQueuedTheme:"",wallpaperActiveLayer:"primary",
+  wallpaperFadeBusy:false,simulatedWallpaperEnabled:true,
+  wallpaperFade:{running:false,target:null,stop(){},start(){}},
+  simulatedDesktopWallpaper:{opacity:1,status:1},
+  incomingWallpaper:{opacity:0,status:1},
+  localPreviewSettings:{setValue:(...a)=>writes.push(a),sync:()=>writes.push(["sync"])},
+  Image:{Ready:1},Qt:{callLater:f=>later.push(f),resolvedUrl:x=>x}
 };
 ctx.previewWindow=ctx;
-for(const name of funcs)vm.runInNewContext(extract(name),ctx);
-// Un clic solicita tres fundidos y el retorno al wallpaper del tema activo.
-ctx.previewNextWallpaper();
-assert.equal(ctx.wallpaperDemoRemaining,3);
-for(const [i,expected] of ["sunset","night","day"].entries()){
-    // La primera transición la inicia el botón; las siguientes las dispara
-    // wallpaperDemoHoldTimer al terminar cada fundido.
-    if (i>0) ctx.changeSimulatedWallpaper(expected,false);
-    assert.equal(ctx.wallpaperIncomingTheme,expected);
-    assert.equal(ctx.wallpaperFadeBusy,true);
-    assert.equal(ctx.simulatedWallpaperTheme,"day","La demostración cambió el tema");
-    assert.notEqual(ctx.wallpaperShownTheme,expected);
-    ctx.finishWallpaperFade();
-    assert.equal(ctx.wallpaperShownTheme,expected);
-    assert.equal(ctx.wallpaperFadeBusy,false);
-    assert.equal(ctx.wallpaperIncomingTheme,"");
-    assert.equal(ctx.wallpaperDemoRemaining,2-i);
-    const visible=ctx.wallpaperActiveLayer==="primary"
-        ? ctx.simulatedDesktopWallpaper : ctx.incomingWallpaper;
-    const hidden=ctx.wallpaperActiveLayer==="primary"
-        ? ctx.incomingWallpaper : ctx.simulatedDesktopWallpaper;
-    assert.equal(visible.opacity,1);
-    assert.equal(hidden.opacity,0);
-    assert.deepEqual(writes,[],"La prueba escribió preferencias");
+const scope=vm.createContext(ctx);
+for(const f of funcs)vm.runInContext(extract(f),scope);
+for(const next of ["sunset","night","day"]) {
+  ctx.previewNextWallpaper(); // exactamente UN cambio
+  assert.equal(ctx.wallpaperIncomingTheme,next);
+  assert.equal(ctx.wallpaperFadeBusy,true);
+  assert.equal(ctx.simulatedWallpaperTheme,"day");
+  assert.notEqual(ctx.wallpaperShownTheme,next);
+  ctx.finishWallpaperFade();
+  assert.equal(ctx.wallpaperShownTheme,next);
+  assert.equal(ctx.wallpaperFadeBusy,false);
+  assert.equal(ctx.wallpaperIncomingTheme,"");
+  assert.deepEqual(writes,[],"El botón de prueba guardó una preferencia");
 }
-assert.equal(ctx.wallpaperActiveLayer,"secondary");
-assert.equal(ctx.wallpaperShownTheme,ctx.simulatedWallpaperTheme,
-    "La prueba debe devolver el wallpaper correcto al terminar");
-// Un cambio horario/manual real interrumpe cualquier demostración.
-ctx.previewNextWallpaper();
-assert.equal(ctx.wallpaperDemoRemaining,3);
+assert.equal(ctx.wallpaperShownTheme,"day");
+// Con horas de transición, un cambio automático/manual no debe quedar en cola.
+ctx.previewNextWallpaper(); // fundido hacia Atardecer iniciado
+ctx.wallpaperQueuedTheme="sunset"; // solicitud previa obsoleta
 ctx.changeSimulatedWallpaper("night",true);
-assert.equal(ctx.wallpaperDemoRemaining,0);
+assert.equal(ctx.wallpaperQueuedTheme,"");
+assert.equal(ctx.wallpaperIncomingTheme,"night");
+assert.equal(ctx.wallpaperFadeBusy,true);
 assert.deepEqual(writes,[["simulatedWallpaperTheme","night"],["sync"]]);
-assert(!writes.some(([key])=>key.includes("themeLibrary")||key.includes("themeSchedule")));
-
-assert(settings.includes('slot.length && settings.activateTheme(slot)'));
+assert(!writes.some(([key])=>/themeLibrary|themeDay|themeNight|appearanceV1|Schedule|Factory/.test(key)));
 assert(settings.includes("readonly property var factoryDayPreset"));
-assert(!viewer.slice(viewer.indexOf('function previewNextWallpaper()'),
-                      viewer.indexOf('onSimulatedWallpaperEnabledChanged:')).includes('themeSnapshot'));
+assert(settings.includes('slot.length && settings.activateTheme(slot)'));
 assert(viewer.includes('id: wallpaperDemoButton'));
-assert(viewer.includes('readonly property int wallpaperFadeDurationMs: 800'));
-assert(viewer.includes('property int wallpaperDemoRemaining: 0'));
-assert(viewer.includes('id: wallpaperDemoHoldTimer'));
-assert(viewer.includes('wallpaperDemoRemaining = 3'));
-assert(viewer.includes('wallpaperDemoRemaining--'));
-assert(viewer.includes('if (saveSelection && wallpaperDemoRemaining > 0)'));
-
+assert(viewer.includes('duration: previewWindow.wallpaperFadeDurationMs'));
 assert(viewer.includes('fillMode: Image.Stretch'));
-assert(viewer.includes('wallpaperFade.target = target'));
-assert(!viewer.includes('property string wallpaperShownTheme: simulatedWallpaperTheme'),
-    "El tema persistido no puede cambiar wallpaperShownTheme antes del fundido");
-assert(!viewer.includes('property string wallpaperPrimaryTheme: simulatedWallpaperTheme'),
-    "El fondo cargado debe mantenerse hasta que termine la transición");
-assert(viewer.includes('property string wallpaperShownTheme:\\n        String(localPreviewSettings.value("simulatedWallpaperTheme", "day"))'.replace('\\n','\n')));
-
-assert(viewer.includes('wallpaperIncomingLayer === "primary" ? -0.9 : -1'));
-assert(viewer.includes('wallpaperIncomingLayer === "secondary" ? -0.9 : -1'));
-assert(defaults.includes('<entry name="themeScheduleEnabled" type="Bool"><default>true</default></entry>'));
 assert(!viewer.includes("plasma-apply-wallpaperimage"));
-assert(!viewer.includes("wallpaperSignal.setValue("));
-console.log("OK: Día → Atardecer → Noche → Día sin escrituras ni cambios de tema; doble búfer 800ms.");
+console.log("OK: un clic un fundido, 3 s por defecto, minutos/horas, sin alterar temas ni panel KDE.");
