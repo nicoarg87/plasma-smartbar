@@ -48,7 +48,10 @@ const visual=["SoledadColor","MalvinaColor",
 for(const name of visual){
   assert(bar.includes('property color display'+name+':'),"Falta color visual "+name);
   assert(bar.includes('Behavior on display'+name+' {'),"Falta interpolación "+name);
-  assert(bar.includes('root.display'+name),"El color no está conectado a la vista "+name);
+  assert(bar.includes('root.display'+name) ||
+         (name==="TrayButtonColor" && bar.includes('? displayTrayButtonColor : displaySoledadColor')) ||
+         (name==="GripButtonColor" && bar.includes('? displayGripButtonColor : displaySoledadColor')),
+         "El color no está conectado a la vista "+name);
 }
 assert.equal((bar.match(/Behavior on display\w+ \{/g)||[]).length,19);
 assert(bar.includes('onDisplaySoledadColorChanged() { islandSurface.requestPaint() }'));
