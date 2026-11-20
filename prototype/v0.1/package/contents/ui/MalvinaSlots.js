@@ -10,11 +10,13 @@ function extras(section, serialized) {
     try { list = JSON.parse(String(serialized || "[]")) } catch(e) { return [] }
     if (!Array.isArray(list)) return []
     const result = [], used = {}
+    // Expresión invariable por categoría: compilar una vez por lista.
+    const validId = new RegExp("^"+section+"-(?:[1-9]|10)$")
     for (let i=0;i<list.length && result.length<10;i++) {
         const item = list[i]
         if (!item || typeof item !== "object") continue
         const id = String(item.id || "")
-        if (!new RegExp("^"+section+"-(?:[1-9]|10)$").test(id) || used[id]) continue
+        if (!validId.test(id) || used[id]) continue
         const name = String(item.name || "").trim()
         const url = String(item.url || "").trim()
         if (!name || name.length > 48 || url.length > 2048 ||
