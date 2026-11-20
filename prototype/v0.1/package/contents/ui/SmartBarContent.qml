@@ -444,14 +444,22 @@ Item {
     property real taskFrameWidth: 1
     signal requestTaskDisplayModeChange(string mode)
     signal requestTaskFrameChange(string shape, string color, real opacity, real width)
+    // El visor usa el icono instalado que declara el archivo .desktop.
+    // Si no hay icono, TaskAppIcon muestra una inicial legible.
     function demoIconForApp(name) {
-        const label = String(name).toLowerCase()
-        if (label.includes("brave")) return "brave-browser"
-        if (label.includes("dolphin")) return "org.kde.dolphin"
-        if (label.includes("konsole")) return "org.kde.konsole"
-        if (label.includes("plasma")) return "plasma"
-        if (label.includes("qt")) return "qtcreator"
-        return "application-x-executable"
+        const label = String(name || "").trim().toLowerCase()
+        if (!label.length) return ""
+        for (let i = 0; i < localAppCatalog.length; ++i) {
+            const entry = localAppCatalog[i]
+            if (!entry || !entry.name) continue
+            const candidate = String(entry.name).toLowerCase()
+            if (candidate !== label &&
+                !(label === "brave" && candidate.startsWith("brave ")))
+                continue
+            const source = String(entry.iconSource || entry.icon || "")
+            if (source.length) return source
+        }
+        return label === "dolphin" ? "org.kde.dolphin" : ""
     }
     property var outlineConfig: ({"soledad":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"malvina":{"style":"solid","width":1,"color":"#4e8499","opacity":1},"tray":{"style":"solid","width":1,"color":"#45647a","opacity":1},"grip":{"style":"solid","width":1,"color":"#45647a","opacity":1}})
     signal requestOutlineChange(var updated)
