@@ -488,6 +488,7 @@ QQC2.Button {
                     width: taskIconLoader.width
                     height: taskIconLoader.height
                     iconSource: control.taskIconSource
+                    fallbackLabel: control.text
                 }
             }
         }
