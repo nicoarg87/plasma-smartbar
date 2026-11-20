@@ -1577,7 +1577,7 @@ Item {
         maxVisibleSlots: root.launcherMaxSlots
         iconsWithNames: root.launcherIconsWithNames
         switchShape: root.launcherSwitchShape
-        switchCustomColor: root.displayLauncherSwitchColorOverride
+        switchCustomColor: root.launcherSwitchColorOverride
         switchColor: root.displayLauncherSwitchColor
         islandColor: root.displaySoledadColor
         islandGradientEnd: root.displaySoledadGradientEnd
