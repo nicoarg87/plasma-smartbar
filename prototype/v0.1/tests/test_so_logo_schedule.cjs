@@ -30,7 +30,9 @@ assert(btn.includes("model: 2"),"Un GIF saliente y otro entrante");
 assert(btn.includes("animateGif: !!artworkLayer.art.animated"));
 assert(btn.includes("cropShape: artworkLayer.art.shape"));
 assert(btn.includes("artworkLayer.art.textBackgroundImage"));
-assert(bar.includes("soButton.beginArtworkPreview(art,themeColorsDurationMs)"));
+assert(bar.includes("soButton.beginArtworkPreview(art,artDuration)"));
+assert(bar.includes("barThemeTransitionEnabled ? themeColorsDurationMs : 1"),
+       "El apagado del efecto debe afectar también la imagen SO");
 assert(bar.includes("soButton.beginActualArtworkFade(themeColorsDurationMs)"));
 assert(bar.includes("WallpaperFadeDuration.durationMs(wallpaperFadeAmount, wallpaperFadeUnit)"));
 assert(preview.includes("bar.previewThemeAvailable(next)"));
