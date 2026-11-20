@@ -89,3 +89,17 @@ Se recibió **el archivo exacto** `Playa tropical nocturna animada.gif` del mant
 **GIF/imágenes animadas originales del botón SO aportados por el mantenedor y generados a su pedido mediante ChatGPT/OpenAI:** quedan expresamente autorizados por él para la dedicación **Creative Commons CC0 1.0 Universal**, en la medida de los derechos que pueda dedicar. Se incluyen las versiones originales identificadas como **Atardecer / tropical** y **Playa nocturna / Noche** ya inventariadas, sin alterar sus bytes, hashes ni tamaños. Esta ratificación no afirma que los binarios estén incorporados a GitHub: su instalación local mediante los paquetes ZIP anteriores es independiente del código versionado. Cuando se incorporen, verificar archivo exacto, hash y aviso CC0 en su inventario.
 
 **Límite jurídico:** no aplicar MIT o CC0 automáticamente a Golden Dog, logos ajenos, marcas, bibliotecas externas, ni a imágenes que otros usuarios carguen localmente. Ninguna dedicación autoriza ceder derechos de terceros que el mantenedor no posea.
+
+## Wallpapers PNG de los tres temas — recibidos 19/11/2026
+
+El mantenedor entregó tres imágenes completas, distintas de los GIF de los botones SO y destinadas exclusivamente a fondos de pantalla:
+
+| Tema | Archivo previsto | Resolución | SHA-256 |
+|---|---|---|---|
+| Día | `assets/wallpapers/day.png` | 1672×941 | `57c05a589acfc17e8adf9688cce1ee0f69cf585bd407de3c7d4956c4f0b90401` |
+| Atardecer | `assets/wallpapers/sunset.png` | 2048×1143 | `426ad76fdab09aa28feba4d3d4b076c2638ec8ec7df02e743f949c796cf462ea` |
+| Noche | `assets/wallpapers/night.png` | 2048×1143 | `643454f74565e13782a42a0d7c5dc247a3d278f1ca5a1aa7669ecc4c96141633` |
+
+**Uso aprobado:** el proyecto asocia cada wallpaper a su tema y lo estira para cubrir la pantalla. **Licencia de redistribución pendiente de documentar para estos tres PNG exactos**: la autorización previa CC0 para GIFs no se extrapola a estas imágenes estáticas sin verificar. Mantener separados los derechos de estos recursos gráficos y la licencia MIT del código.
+
+Los tres PNG se conservaron sin editar en un ZIP entregado en la conversación. Se publicaron solo los hashes y metadatos en `prototype/v0.1/package/contents/ui/assets/wallpapers/manifest.json`, **no los binarios**. Antes de incorporarlos a GitHub se debe verificar procedencia, permiso de redistribución y aprobar la licencia individual.
