@@ -60,7 +60,11 @@ assert(ui.includes('factoryExportTarget === "sunset" ? "Atardecer" : "Noche"'));
 assert(ui.includes("factoryNightExportText.copy()"));
 assert(ui.includes("settings.factoryNightCandidateJson()"), "Una sola exportación de valores reales");
 assert(ui.includes('filePath = slot === "sunset"'));
-assert(ui.includes("factorySunsetImage.toString() : factoryNightImage.toString()"));
+assert(ui.includes('slot === "sunset"') &&
+       ui.includes('factorySunsetImage.toString()') &&
+       ui.includes('slot === "dayOfficial" ? factoryDayImage.toString()') &&
+       ui.includes('factoryNightImage.toString()'),
+       "Cada fábrica debe conservar su propia ruta, incluido Día oficial");
 assert(popup.includes('settings.otherNamedThemes.length'),
        "Las opciones personales deben mantenerse en la lista");
 assert(popup.includes('settings.dayThemeIndex() >= 0'),
