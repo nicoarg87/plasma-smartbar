@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.taskmanager 0.1 as TaskManager
+import "package/contents/ui/RealTaskStatus.js" as RealTaskStatus
 
 QQC2.ApplicationWindow {
     id: window
@@ -44,7 +45,7 @@ QQC2.ApplicationWindow {
 
         QQC2.Label {
             Layout.fillWidth: true
-            text: "SO todavía NO está conectado: esta lista comprueba primero que KDE nos entrega aplicaciones abiertas. Ninguna fila ejecuta acciones."
+            text: "Este diagnóstico independiente observa ventanas KDE reales. El visor principal usa tareas reales solo en modo de lectura. Aquí no se activa, minimiza ni cierra ninguna ventana."
             wrapMode: Text.WordWrap
             color: "#bdd6e3"
         }
@@ -87,12 +88,14 @@ QQC2.ApplicationWindow {
                     // ofrece a través del objeto "model" de cada delegado.
                     required property var model
                     readonly property string appName: model.AppName || ""
+                    readonly property string appId: String(model.AppId || "")
                     readonly property bool isWindow: model.IsWindow === true
                     readonly property bool isGroupParent: model.IsGroupParent === true
                     readonly property int childCount: model.ChildCount || 0
                     readonly property bool isActive: model.IsActive === true
                     readonly property bool isMaximized: model.IsMaximized === true
                     readonly property bool isMinimized: model.IsMinimized === true
+                    readonly property bool isFullScreen: model.IsFullScreen === true
 
                     width: ListView.view ? ListView.view.width - 12 : 700
                     height: 58
@@ -107,12 +110,24 @@ QQC2.ApplicationWindow {
                         anchors.rightMargin: 12
                         spacing: 12
 
-                        QQC2.Label {
+                        ColumnLayout {
                             Layout.fillWidth: true
-                            text: appName.length > 0 ? appName : "(sin nombre de aplicación)"
-                            color: "#f0f9ff"
-                            font.bold: isActive
-                            elide: Text.ElideRight
+                            spacing: 2
+                            QQC2.Label {
+                                Layout.fillWidth: true
+                                text: appName.length > 0 ? appName : "(sin nombre de aplicación)"
+                                color: "#f0f9ff"
+                                font.bold: isActive
+                                elide: Text.ElideRight
+                            }
+                            QQC2.Label {
+                                Layout.fillWidth: true
+                                visible: appId.length > 0
+                                text: "ID: " + appId
+                                font.pixelSize: 10
+                                color: "#a9c9da"
+                                elide: Text.ElideRight
+                            }
                         }
 
                         QQC2.Label {
@@ -121,7 +136,10 @@ QQC2.ApplicationWindow {
                         }
 
                         QQC2.Label {
-                            text: isActive ? "Activa" : (isMinimized ? "Minimizada" : (isMaximized ? "Maximizada" : "Normal"))
+                            // Foco y estado físico se muestran juntos:
+                            // una aplicación activa también puede estar maximizada.
+                            text: RealTaskStatus.label(isActive, isMinimized,
+                                                       isMaximized, isFullScreen)
                             color: isActive ? "#94ffdd" : "#c1ccd5"
                         }
                     }
@@ -133,7 +151,7 @@ QQC2.ApplicationWindow {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
             color: "#bdd6e3"
-            text: "Prueba: abrí/cerrá una ventana de Dolphin o Konsole de la forma habitual y observá si la lista cambia. Cerrá esta ventana con X cuando termines. NO es un administrador de ventanas funcional."
+            text: "Prueba: abrí Dolphin, Konsole o Brave; activá, maximizá, restaurá o poné en pantalla completa desde la aplicación y observá si cambia su estado e ID. Los roles de un grupo pueden no reflejar cada ventana hija: registrá ese caso. Cerrá el visor con X. NO modifica ventanas."
         }
     }
 }
