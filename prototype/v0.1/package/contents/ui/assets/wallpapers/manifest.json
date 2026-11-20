@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "theme": "day",
+      "file": "prototype/v0.1/package/contents/ui/assets/wallpapers/day.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "57c05a589acfc17e8adf9688cce1ee0f69cf585bd407de3c7d4956c4f0b90401",
+      "bytes": 3389007,
+      "fillMode": "stretch"
+    },
+    {
+      "theme": "sunset",
+      "file": "prototype/v0.1/package/contents/ui/assets/wallpapers/sunset.png",
+      "width": 2048,
+      "height": 1143,
+      "sha256": "426ad76fdab09aa28feba4d3d4b076c2638ec8ec7df02e743f949c796cf462ea",
+      "bytes": 5014138,
+      "fillMode": "stretch"
+    },
+    {
+      "theme": "night",
+      "file": "prototype/v0.1/package/contents/ui/assets/wallpapers/night.png",
+      "width": 2048,
+      "height": 1143,
+      "sha256": "643454f74565e13782a42a0d7c5dc247a3d278f1ca5a1aa7669ecc4c96141633",
+      "bytes": 4701188,
+      "fillMode": "stretch"
+    }
+  ]
+}
