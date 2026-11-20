@@ -24,6 +24,11 @@
     <entry name="themeLibraryJson" type="String"><default>[]</default></entry>
     <!-- Preferencia de la interfaz; no cambia el wallpaper real desde el plasmoide. -->
     <entry name="thematicWallpaperEnabled" type="Bool"><default>true</default></entry>
+    <!-- Plan horario personal: almacenado fuera de los presets oficiales. -->
+    <entry name="themeScheduleEnabled" type="Bool"><default>true</default></entry>
+    <entry name="themeScheduleSlotCount" type="Int"><default>4</default></entry>
+    <entry name="themeScheduleSlots3Json" type="String"><default>[{"start":"08:00","theme":"day"},{"start":"18:00","theme":"sunset"},{"start":"21:00","theme":"night"}]</default></entry>
+    <entry name="themeScheduleSlots4Json" type="String"><default>[{"start":"06:00","theme":"sunset"},{"start":"08:00","theme":"day"},{"start":"18:00","theme":"sunset"},{"start":"21:00","theme":"night"}]</default></entry>
     <entry name="launcherCategoryLayout" type="Int"><default>0</default></entry>
     <entry name="launcherSwitchShape" type="String"><default>capsule</default></entry>
     <entry name="launcherSwitchColorOverride" type="Bool"><default>false</default></entry>
