@@ -1781,3 +1781,30 @@ Esperado: 19/19 tests; comprobar que se ven los temas previos y que no aparece a
 **Inspección del cableado vigente, sin cambios de código:** `SoledadSettings.qml` y `SmartBarContent.qml` definen `barThemeTransitionEnabled: true`; KConfig `main.xml` usa `<default>true</default>`. En el visor, `demoBarThemeTransitionEnabled` se obtiene de `localPreviewSettings.value("barThemeTransitionEnabled", true)`, por lo que un **`false` persistido** prevalece sobre el predeterminado `true`. La casilla escribe el valor seleccionado en `onToggled` mediante `requestBarThemeTransitionChange` y `localPreviewSettings.setValue("barThemeTransitionEnabled",enabled)`. La biblioteca de temas modular `ThemeLibrary.js` solo parsea JSON y no accede a esta preferencia. La duración de los colores y el wallpaper utiliza el mismo `WallpaperFadeDuration`, pero permitir la animación de las islas es independiente del fundido del wallpaper.
 
 **Decisión:** respetar el valor que dejó el mantenedor y no forzar `true`, restablecer preferencias ni modificar temas. **Pendiente:** comprobar, cuando se vuelva a abrir el visor, que la casilla continúe activada y que el cambio horario siga siendo suave. Si se desmarca sola, capturar pasos de reproducción y salida QML antes de editar la lógica. Aún falta el resultado explícito de la batería **19/19 Node nativa** del hito de `ThemeLibrary.js` (el usuario dijo que hizo pruebas, no adjuntó el resumen `Resultado:`). PR #3 sigue borrador, panel KDE intacto.
+
+
+## 20/11/2026 — Prueba interactiva de ventanas SIMULADAS en el cajón SO; audio postergado
+
+**Decisión funcional vigente:** el mantenedor prioriza ensayar cómo se **abren y cierran** las aplicaciones/ventanas del cajón de SO dentro del visor. Los indicadores y controles de **audio/silencio, volumen y MPRIS** solicitados previamente pasan **a la versión posterior a v0.1**; se conservan pendientes en [issue #16](https://github.com/nicoarg87/plasma-smartbar/issues/16). No se implementan controles de audio en esta etapa.
+
+**Implementado exclusivamente en la rama experimental `prototype/v0.1-islas-so`, para el visor Qt de prueba:**
+
+- [2a6765a](https://github.com/nicoarg87/plasma-smartbar/commit/2a6765a30cac869a23c2322890d88d81e0d8ca82): `DemoWindows.js`, lógica pura que abre/cierra/reabre fichas ficticias entre `Dolphin`, `Konsole`, `Brave`, con nuevos arreglos en cada modificación, sin comandos externos, Qt TasksModel ni acceso a ventanas reales.
+- [3a867d3](https://github.com/nicoarg87/plasma-smartbar/commit/3a867d323c87975a728625c8b01038c5e6ef24d3): `DemoTaskChip.qml`, misma ficha visual de SO (selección, luces e icono) con **×** independiente para cerrar únicamente la ficha de prueba. No se crea un botón de guardado ni nueva sección principal.
+- [5524755](https://github.com/nicoarg87/plasma-smartbar/commit/5524755434a4742cf3741371a6dc7cacdba77ed2): `SmartBarContent.qml` usa el nuevo módulo y estado temporal `demoOpenedApps`, habilita **+** en la propia fila SO (derecha/centro) para reabrir una ficha cerrada; conserva modo real `TasksModel` exclusivamente de lectura. Si las tres ficticias se cierran, el gesto explícito del cajón de ventanas puede abrir la fila vacía con **+**, solo en el visor, para reabrirlas. No se altera el gesto predeterminado de launcher de apps, la bandeja, el comportamiento normal de cero tareas ni los requisitos de altura/espaciado para el plasmoide.
+- [5381fa3](https://github.com/nicoarg87/plasma-smartbar/commit/5381fa3d54c375121d209ae646790b28c2403477): `preview_redimensionable.qml` habilita `demoWindowControlsEnabled: true`, que permanece **false por defecto** en `SmartBarContent.qml`. Nunca se habilita en `main.qml` ni se instalan widgets ni se sustituyen paneles KDE.
+- [d5e53f2](https://github.com/nicoarg87/plasma-smartbar/commit/d5e53f2bdf2b65fa0ae03fc7613e0ac2e8acc896) + [75b3404](https://github.com/nicoarg87/plasma-smartbar/commit/75b3404ad93e03477f5175f37b7f3d30555909f3): `tests/test_demo_windows.cjs`, cubre aperturas/cierres, duplicados, fichas desconocidas, selección huérfana, protección real, cajón vacío y aislamiento de panel.
+
+**Verificado aquí:** la prueba completa `test_demo_windows.cjs` **PASS en V8 con FS/VM simulados contra fuentes vigentes del repositorio**. **NO probado todavía**: suite completa **20/20** en Node nativo ni render, accesibilidad, disposición horizontal de fichas con +/× y modo centrado en CachyOS. El usuario debe revisar que el cajón expanda sin recortes con distintas anchuras. Las preferencias, paletas, fondo, horario, temas personales e inmutables **no se modifican**. No presentar las «fichas ficticias» como ventanas gráficas independientes ni acciones sobre tareas reales.
+
+**Prueba segura en Fish:**
+
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/ejecutar_todos.cjs
+and bash prototype/v0.1/probar_ancho.sh
+```
+
+Esperado: `20/20 pruebas sin fallos`; en el visor activar el gesto de cajón SO, cerrar una ficha ficticia con **×**, recuperarla con **+**, cerrar las tres y recuperarlas desde el cajón vacío, ensayar derecha/centro. Con `TasksModel` real no debe haber acciones de cierre. Cerrar el visor con X. PR #3 continúa en borrador, `main` y panel KDE intactos, licencia del código propio MIT y recursos gráficos por separado.
