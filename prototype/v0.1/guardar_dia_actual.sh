@@ -19,7 +19,13 @@ if ! command -v node >/dev/null 2>&1; then
     exit 1
 fi
 LOG="$(mktemp)"
-trap 'rm -f -- "$LOG"' EXIT
+# Si Qt falla antes de consumir la solicitud, jamás dejar una captura
+# pendiente para una ejecución normal posterior del visor.
+cleanup_day_capture() {
+    "$RUNNER" "$HERE/scripts/desmarcar_guardado_dia.qml" >/dev/null 2>&1 || true
+    rm -f -- "$LOG"
+}
+trap cleanup_day_capture EXIT
 export QML_XHR_ALLOW_FILE_READ=1
 
 # La bandera se consume al siguiente arranque del visor. La captura se
