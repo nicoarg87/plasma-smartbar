@@ -115,8 +115,10 @@ assert(taskIcon.includes("visible: !appIcon.valid") &&
 assert(islandButton.includes("fallbackLabel: control.text"));
 assert(islandButton.includes("control.inheritIslandFill ||"),
        "No esconder nombres de fichas porque falte una imagen de logo");
-assert(islandButton.includes("Math.max(72, label.implicitWidth"),
-       "Reservar espacio para los nombres en la fila de SO");
+assert(islandButton.includes("Math.ceil(taskLabelMetrics.advanceWidth)"),
+       "Reservar ancho medido, sin dependencia circular de Text.Fit");
+assert(islandButton.includes("TextMetrics {") && islandButton.includes("text: control.text"),
+       "Medir de forma independiente el nombre de la tarea");
 assert(!viewer.includes('localPreviewSettings.setValue("demoTaskDisplayMode", "both")'),
        "No sobrescribir la preferencia existente al cargar el visor");
 for(const mode of ["icon","both","text"]) {
