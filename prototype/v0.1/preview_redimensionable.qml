@@ -657,6 +657,8 @@ Window {
                                       !previewWindow.wallpaperFadeBusy
         onRequestThemeWallpaperPreview: previewWindow.previewNextWallpaper()
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
+        // Abrir/cerrar fichas ficticias solo en esta ventana de ensayo.
+        demoWindowControlsEnabled: true
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
