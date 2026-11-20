@@ -1683,3 +1683,22 @@ and bash prototype/v0.1/probar_ancho.sh
 ```
 
 **Seguimiento:** issue #11 para calidad/arquitectura; issue #13 para fábricas; PR #3 continúa borrador. Los recursos originales de fábrica Día/Atardecer/Noche que falten siguen pendientes y no se sustituyeron por otros.
+
+
+## 20/11/2026 — Segundo resultado Node REAL: 17/18; reparado callback VM de la última prueba
+
+El mantenedor volvió a ejecutar la batería con Node.js v22.23.1 en CachyOS, luego de actualizar la rama: **17 de 18 pruebas PASS**. La única falla fue `test_breathing_menu.cjs:213`: `refreshOutlinePreview()` invocaba un callback de prueba que incrementaba `this.previewRefreshes`, pero al evaluarse como función global de un contexto `vm.runInNewContext`, `this` resultaba `undefined`. Se identificó el mismo defecto latente en un segundo callback del test (línea ~275).
+
+**Corregido solo el archivo de prueba** `prototype/v0.1/tests/test_breathing_menu.cjs`, usando los objetos de estado explícitos `interactiveState.previewRefreshes` y `state.previewRefreshes` en lugar de `this`. Commit [a7b22d7](https://github.com/nicoarg87/plasma-smartbar/commit/a7b22d7f47a18686de232b5d1e72d054dfe2f2a6). **Validación:** test completo PASS en simulación V8 con los archivos vigentes de GitHub y comprobación aislada de ambos callbacks en Node.js real v22.16.0 (2+1 invocaciones con `vm.runInNewContext`). **No se ejecutó todavía la batería completa 18/18 en el equipo del mantenedor** después de este último cambio, ni el visor Qt. No confundir test de código con validación funcional visual.
+
+Comando Fish sin instalar ni reemplazar panel KDE:
+
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/ejecutar_todos.cjs
+and bash prototype/v0.1/probar_ancho.sh
+```
+
+Si los 18 tests pasan, Fish iniciará el visor. Registrar el resultado real de CachyOS. PR #3 sigue borrador, licencia del software MIT.
