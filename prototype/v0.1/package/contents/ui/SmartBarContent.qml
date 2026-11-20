@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
+import "ThemeSchedule.js" as ThemeSchedule
 
 Item {
     id: root
@@ -96,6 +97,69 @@ Item {
     signal requestRestorePersonalDefault()
     signal requestRestoreFavoriteAppearance()
     signal requestThemeSlotChange(string slot, string jsonData)
+    // Programación diaria de temas. Valores personales y perfiles de 3/4 slots
+    // independientes de los tres originales de fábrica inmutables.
+    property bool themeScheduleRuntimeEnabled: false  // solo habilitado en el visor seguro
+    property bool themeScheduleEnabled: true
+    property int themeScheduleSlotCount: 4
+    property string themeScheduleSlots3Json:
+        ThemeSchedule.serialize(ThemeSchedule.defaults(3),3)
+    property string themeScheduleSlots4Json:
+        ThemeSchedule.serialize(ThemeSchedule.defaults(4),4)
+    property string lastScheduledSlotKey: ""
+    signal requestThemeScheduleChange(bool enabled, int count, string slots3Json, string slots4Json)
+    onThemeScheduleEnabledChanged: lastScheduledSlotKey = ""
+    onThemeScheduleSlotCountChanged: lastScheduledSlotKey = ""
+    onThemeScheduleSlots3JsonChanged: lastScheduledSlotKey = ""
+    onThemeScheduleSlots4JsonChanged: lastScheduledSlotKey = ""
+
+    // El fin de cada franja coincide con el comienzo de la siguiente.
+    // La hora siempre es local; al recuperar suspensión recalcular sin colas.
+    Timer {
+        interval: 15000
+        running: root.themeScheduleRuntimeEnabled && root.themeScheduleEnabled
+        triggeredOnStart: true
+        repeat: true
+        onTriggered: root.checkThemeSchedule()
+    }
+    function scheduledThemeSlot(theme) {
+        if (theme === "day") {
+            return soledadSettings.factoryDayAvailable ? "dayOfficial" :
+                soledadSettings.dayThemeIndex() >= 0 ?
+                "library:" + soledadSettings.dayThemeIndex() : ""
+        }
+        if (theme === "sunset")
+            return soledadSettings.factorySunsetAvailable ? "sunset" :
+                (soledadSettings.themeDayJson.length ? "day" : "")
+        if (theme === "night")
+            return soledadSettings.factoryNightAvailable ? "night" :
+                (soledadSettings.themeNightJson.length ? "nightLegacy" : "")
+        return ""
+    }
+    function checkThemeSchedule() {
+        if (!themeScheduleRuntimeEnabled || !themeScheduleEnabled ||
+            soledadSettings.visible) return
+        const json = themeScheduleSlotCount === 3 ?
+            themeScheduleSlots3Json : themeScheduleSlots4Json
+        const now = new Date()
+        const selected = ThemeSchedule.activeNow(json,themeScheduleSlotCount,now)
+        if (!selected) return
+        const key = themeScheduleSlotCount + ":" + selected.index + ":" +
+                    selected.start + ":" + selected.theme
+        if (key === lastScheduledSlotKey) return
+        // Restaurar los valores VIGENTES (no una copia obsoleta del diálogo).
+        syncSettingsFromRoot()
+        const slot = scheduledThemeSlot(selected.theme)
+        if (!slot) {
+            // Si todavía falta incorporar un preset exacto, no aplicar otro tema.
+            return
+        }
+        if (soledadSettings.activateTheme(slot)) {
+            lastScheduledSlotKey = key
+            requestWallpaperThemeChange(selected.theme)
+        }
+    }
+
     signal requestWallpaperThemeChange(string themeName)
     signal requestThematicWallpaperVisibilityChange(bool enabled)
     property bool thematicWallpaperEnabled: true
@@ -868,153 +932,163 @@ Item {
 
     onMaxIslandOffsetChanged: setIslandOffset(islandOffset)
 
+    // Mismo mapeo de preferencias que el diálogo de configuración.
+    // Reutilizado por el reloj sin abrir nuevas ventanas ni tocar panel KDE.
+    function syncSettingsFromRoot() {
+        soledadSettings.logoMode = root.soLogoMode
+        soledadSettings.themeDayJson = root.themeDayJson
+        soledadSettings.themeDayPreviousJson = root.themeDayPreviousJson
+        soledadSettings.themeNightJson = root.themeNightJson
+        soledadSettings.themeCustomJson = root.themeCustomJson
+        soledadSettings.themeLibraryJson = root.themeLibraryJson
+            soledadSettings.themeScheduleEnabled = root.themeScheduleEnabled
+            soledadSettings.themeScheduleSlotCount = root.themeScheduleSlotCount
+            soledadSettings.themeScheduleSlots3Json = root.themeScheduleSlots3Json
+            soledadSettings.themeScheduleSlots4Json = root.themeScheduleSlots4Json
+        soledadSettings.thematicWallpaperEnabled = root.thematicWallpaperEnabled
+        soledadSettings.personalDefaultAvailable = root.personalDefaultAvailable
+        soledadSettings.favoriteAppearanceAvailable = root.favoriteAppearanceAvailable
+        soledadSettings.filePath = root.soLogoPath
+        soledadSettings.shape = root.soLogoShape
+        soledadSettings.cropFitMode = root.soLogoFitMode
+        soledadSettings.cropZoom = root.soLogoZoom
+        soledadSettings.cropPanX = root.soLogoPanX
+        soledadSettings.cropPanY = root.soLogoPanY
+        soledadSettings.cropRotation = root.soLogoRotation
+        soledadSettings.enableGif = root.soLogoAnimate
+        soledadSettings.clockFontFamily = root.soClockFontFamily
+        soledadSettings.clockFontSize = root.soClockFontSize
+        soledadSettings.clockTextColor = root.soClockTextColor
+        soledadSettings.panelHeight = root.fixedHeight
+        soledadSettings.soledadHeight = root.soledadHeight
+        soledadSettings.malvinaHeight = root.malvinaHeight
+        soledadSettings.soledadRadius = root.soledadRadius
+        soledadSettings.malvinaRadius = root.malvinaRadius
+        soledadSettings.soledadMinWidth = root.soledadMinWidth
+        soledadSettings.malvinaWidth = root.malvinaWidth
+        soledadSettings.malvinaGoogleUrl = root.malvinaGoogleUrl
+        soledadSettings.malvinaDuckUrl = root.malvinaDuckUrl
+        soledadSettings.malvinaYahooUrl = root.malvinaYahooUrl
+        soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
+        soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
+        soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
+        soledadSettings.malvinaWebFirst = root.malvinaWebFirst
+        soledadSettings.malvinaWebOrder = root.malvinaWebOrder
+        soledadSettings.malvinaAiOrder = root.malvinaAiOrder
+        soledadSettings.malvinaExtraWeb = root.malvinaExtraWeb
+        soledadSettings.malvinaExtraAi = root.malvinaExtraAi
+        soledadSettings.malvinaHiddenWeb = root.malvinaHiddenWeb
+        soledadSettings.malvinaHiddenAi = root.malvinaHiddenAi
+        soledadSettings.malvinaCompactAi = root.malvinaCompactAi
+        soledadSettings.malvinaGoogleName = root.malvinaGoogleName
+        soledadSettings.malvinaDuckName = root.malvinaDuckName
+        soledadSettings.malvinaYahooName = root.malvinaYahooName
+        soledadSettings.malvinaChatGptName = root.malvinaChatGptName
+        soledadSettings.malvinaGeminiName = root.malvinaGeminiName
+        soledadSettings.malvinaClaudeName = root.malvinaClaudeName
+        soledadSettings.malvinaWebGoogleEnabled = root.malvinaWebGoogleEnabled
+        soledadSettings.malvinaWebDuckEnabled = root.malvinaWebDuckEnabled
+        soledadSettings.malvinaWebYahooEnabled = root.malvinaWebYahooEnabled
+        soledadSettings.malvinaAllowChatGpt = root.malvinaAllowChatGpt
+        soledadSettings.malvinaAllowGemini = root.malvinaAllowGemini
+        soledadSettings.malvinaAllowClaude = root.malvinaAllowClaude
+        soledadSettings.soledadShape = root.soledadShape
+        soledadSettings.malvinaShape = root.malvinaShape
+        soledadSettings.malvinaGearButtonShape = root.malvinaGearButtonShape
+        soledadSettings.malvinaSearchButtonShape = root.malvinaSearchButtonShape
+        soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
+        soledadSettings.taskActiveGlowEnabled = root.taskActiveGlowEnabled
+        soledadSettings.taskActiveDoubleBorderEnabled = root.taskActiveDoubleBorderEnabled
+        soledadSettings.taskDisplayMode = root.taskDisplayMode
+        soledadSettings.taskFrameShape = root.taskFrameShape
+        soledadSettings.taskFrameColor = root.taskFrameColor
+        soledadSettings.taskFrameOpacity = root.taskFrameOpacity
+        soledadSettings.taskFrameWidth = root.taskFrameWidth
+        soledadSettings.gripShape = root.gripShape
+        soledadSettings.trayButtonShape = root.trayButtonShape
+        soledadSettings.soButtonFrameShape = root.soButtonFrameShape
+        soledadSettings.soButtonWidth = root.soButtonWidth
+        soledadSettings.soTextLabel = root.soTextLabel
+        soledadSettings.soTextColor = root.soTextColor
+        soledadSettings.soTextBackground = root.soTextBackground
+        soledadSettings.soTextBackgroundOpacity = root.soTextBackgroundOpacity
+        soledadSettings.soTextFontFamily = root.soTextFontFamily
+        soledadSettings.soTextFontSize = root.soTextFontSize
+        soledadSettings.soTextBold = root.soTextBold
+        soledadSettings.soTextBackgroundImage = root.soTextBackgroundImage
+        soledadSettings.soledadColor = root.soledadColor
+        soledadSettings.malvinaColor = root.malvinaColor
+        soledadSettings.soledadGradientEnabled = root.soledadGradientEnabled
+        soledadSettings.soledadGradientEnd = root.soledadGradientEnd
+        soledadSettings.soledadGradientThird = root.soledadGradientThird
+        soledadSettings.soledadGradientColorCount = root.soledadGradientColorCount
+        soledadSettings.soledadGradientDirection = root.soledadGradientDirection
+        soledadSettings.soledadGradientSyncBreathing = root.soledadGradientSyncBreathing
+        soledadSettings.soledadGradientSyncIntensity = root.soledadGradientSyncIntensity
+        soledadSettings.soledadGradientBreathingEnabled = root.soledadGradientBreathingEnabled
+        soledadSettings.soledadGradientBreathingIntensity = root.soledadGradientBreathingIntensity
+        soledadSettings.soledadGradientBreathingSpeed = root.soledadGradientBreathingSpeed
+        soledadSettings.malvinaGradientSyncBreathing = root.malvinaGradientSyncBreathing
+        soledadSettings.malvinaGradientBreathingEnabled = root.malvinaGradientBreathingEnabled
+        soledadSettings.malvinaGradientBreathingIntensity = root.malvinaGradientBreathingIntensity
+        soledadSettings.malvinaGradientBreathingSpeed = root.malvinaGradientBreathingSpeed
+        soledadSettings.malvinaGradientEnabled = root.malvinaGradientEnabled
+        soledadSettings.malvinaGradientEnd = root.malvinaGradientEnd
+        soledadSettings.malvinaGradientThird = root.malvinaGradientThird
+        soledadSettings.malvinaGradientColorCount = root.malvinaGradientColorCount
+        soledadSettings.malvinaGradientDirection = root.malvinaGradientDirection
+        soledadSettings.backgroundColor = root.backgroundColor
+        soledadSettings.soledadOpacity = root.soledadOpacity
+        soledadSettings.malvinaOpacity = root.malvinaOpacity
+        soledadSettings.backgroundOpacity = root.backgroundOpacity
+        soledadSettings.showBackground = root.showBackground
+        soledadSettings.trayButtonColorOverride = root.trayButtonColorOverride
+        soledadSettings.trayButtonColor = root.trayButtonColor
+        soledadSettings.trayButtonOpacity = root.trayButtonOpacity
+        soledadSettings.gripButtonColorOverride = root.gripButtonColorOverride
+        soledadSettings.gripButtonColor = root.gripButtonColor
+        soledadSettings.gripButtonOpacity = root.gripButtonOpacity
+        soledadSettings.effectStyle = root.soActivityStyle
+        soledadSettings.accentColor = root.soActivityColor
+        soledadSettings.strokeSize = root.soActivityStroke
+        soledadSettings.allowMotion = root.soActivityMotion
+        soledadSettings.orbitSpeed = root.soActivityOrbitSpeed
+        soledadSettings.trailPercent = root.soActivityTrailPercent
+        soledadSettings.trailStyle = root.soActivityTrailStyle
+        soledadSettings.glowColor = root.soActivityGlowColor
+        soledadSettings.glowIntensity = root.soActivityGlowIntensity
+        soledadSettings.glowSpread = root.soActivityGlowSpread
+        soledadSettings.pulseSpeed = root.soActivityPulseSpeed
+        soledadSettings.pulseDepth = root.soActivityPulseDepth
+        soledadSettings.glowGradient = root.soActivityGlowGradient
+        soledadSettings.showOutlineWhenEmpty = root.soActivityShowWhenEmpty
+        soledadSettings.showOutlineWhenOpen = root.soActivityShowWhenOpen
+        soledadSettings.autoCollapseSO = root.autoCollapseSO
+        soledadSettings.soLeftClickOpensLauncher = root.soLeftClickOpensLauncher
+        soledadSettings.launcherCategoryLayout = root.launcherCategoryLayout
+        soledadSettings.launcherSwitchShape = root.launcherSwitchShape
+        soledadSettings.launcherSwitchColorOverride = root.launcherSwitchColorOverride
+        soledadSettings.launcherSwitchColor = root.launcherSwitchColor
+        soledadSettings.launcherMaxSlots = root.launcherMaxSlots
+        soledadSettings.launcherOpacityOverride = root.launcherOpacityOverride
+        soledadSettings.launcherOpacity = root.launcherOpacity
+        soledadSettings.launcherIconsWithNames = root.launcherIconsWithNames
+        soledadSettings.malvinaOptionsOpacityOverride = root.malvinaOptionsOpacityOverride
+        soledadSettings.malvinaOptionsOpacity = root.malvinaOptionsOpacity
+        soledadSettings.autoCollapseTray = root.autoCollapseTray
+        soledadSettings.autoReturnRight = root.autoReturnRight
+        soledadSettings.launcherIslandVisible = root.launcherIslandVisible
+        soledadSettings.autoHideMalvina = root.autoHideMalvina
+        soledadSettings.alignedRight = root.alignRightSelected
+        soledadSettings.positionMode = root.positionMode
+        soledadSettings.alignmentEdited = false
+    }
+
     function openSoledadSettings(tabIndex, islandSubtabIndex) {
         // Un solo centro. Leer valores guardados al abrir, no al cambiar
         // pestaña ni al pulsar Aplicar: la ventana permanece visible.
         if (!soledadSettings.visible) {
-            soledadSettings.logoMode = root.soLogoMode
-            soledadSettings.themeDayJson = root.themeDayJson
-            soledadSettings.themeDayPreviousJson = root.themeDayPreviousJson
-            soledadSettings.themeNightJson = root.themeNightJson
-            soledadSettings.themeCustomJson = root.themeCustomJson
-            soledadSettings.themeLibraryJson = root.themeLibraryJson
-            soledadSettings.thematicWallpaperEnabled = root.thematicWallpaperEnabled
-            soledadSettings.personalDefaultAvailable = root.personalDefaultAvailable
-            soledadSettings.favoriteAppearanceAvailable = root.favoriteAppearanceAvailable
-            soledadSettings.filePath = root.soLogoPath
-            soledadSettings.shape = root.soLogoShape
-            soledadSettings.cropFitMode = root.soLogoFitMode
-            soledadSettings.cropZoom = root.soLogoZoom
-            soledadSettings.cropPanX = root.soLogoPanX
-            soledadSettings.cropPanY = root.soLogoPanY
-            soledadSettings.cropRotation = root.soLogoRotation
-            soledadSettings.enableGif = root.soLogoAnimate
-            soledadSettings.clockFontFamily = root.soClockFontFamily
-            soledadSettings.clockFontSize = root.soClockFontSize
-            soledadSettings.clockTextColor = root.soClockTextColor
-            soledadSettings.panelHeight = root.fixedHeight
-            soledadSettings.soledadHeight = root.soledadHeight
-            soledadSettings.malvinaHeight = root.malvinaHeight
-            soledadSettings.soledadRadius = root.soledadRadius
-            soledadSettings.malvinaRadius = root.malvinaRadius
-            soledadSettings.soledadMinWidth = root.soledadMinWidth
-            soledadSettings.malvinaWidth = root.malvinaWidth
-            soledadSettings.malvinaGoogleUrl = root.malvinaGoogleUrl
-            soledadSettings.malvinaDuckUrl = root.malvinaDuckUrl
-            soledadSettings.malvinaYahooUrl = root.malvinaYahooUrl
-            soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
-            soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
-            soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
-            soledadSettings.malvinaWebFirst = root.malvinaWebFirst
-            soledadSettings.malvinaWebOrder = root.malvinaWebOrder
-            soledadSettings.malvinaAiOrder = root.malvinaAiOrder
-            soledadSettings.malvinaExtraWeb = root.malvinaExtraWeb
-            soledadSettings.malvinaExtraAi = root.malvinaExtraAi
-            soledadSettings.malvinaHiddenWeb = root.malvinaHiddenWeb
-            soledadSettings.malvinaHiddenAi = root.malvinaHiddenAi
-            soledadSettings.malvinaCompactAi = root.malvinaCompactAi
-            soledadSettings.malvinaGoogleName = root.malvinaGoogleName
-            soledadSettings.malvinaDuckName = root.malvinaDuckName
-            soledadSettings.malvinaYahooName = root.malvinaYahooName
-            soledadSettings.malvinaChatGptName = root.malvinaChatGptName
-            soledadSettings.malvinaGeminiName = root.malvinaGeminiName
-            soledadSettings.malvinaClaudeName = root.malvinaClaudeName
-            soledadSettings.malvinaWebGoogleEnabled = root.malvinaWebGoogleEnabled
-            soledadSettings.malvinaWebDuckEnabled = root.malvinaWebDuckEnabled
-            soledadSettings.malvinaWebYahooEnabled = root.malvinaWebYahooEnabled
-            soledadSettings.malvinaAllowChatGpt = root.malvinaAllowChatGpt
-            soledadSettings.malvinaAllowGemini = root.malvinaAllowGemini
-            soledadSettings.malvinaAllowClaude = root.malvinaAllowClaude
-            soledadSettings.soledadShape = root.soledadShape
-            soledadSettings.malvinaShape = root.malvinaShape
-            soledadSettings.malvinaGearButtonShape = root.malvinaGearButtonShape
-            soledadSettings.malvinaSearchButtonShape = root.malvinaSearchButtonShape
-            soledadSettings.outlineConfig = JSON.parse(JSON.stringify(root.outlineConfig))
-            soledadSettings.taskActiveGlowEnabled = root.taskActiveGlowEnabled
-            soledadSettings.taskActiveDoubleBorderEnabled = root.taskActiveDoubleBorderEnabled
-            soledadSettings.taskDisplayMode = root.taskDisplayMode
-            soledadSettings.taskFrameShape = root.taskFrameShape
-            soledadSettings.taskFrameColor = root.taskFrameColor
-            soledadSettings.taskFrameOpacity = root.taskFrameOpacity
-            soledadSettings.taskFrameWidth = root.taskFrameWidth
-            soledadSettings.gripShape = root.gripShape
-            soledadSettings.trayButtonShape = root.trayButtonShape
-            soledadSettings.soButtonFrameShape = root.soButtonFrameShape
-            soledadSettings.soButtonWidth = root.soButtonWidth
-            soledadSettings.soTextLabel = root.soTextLabel
-            soledadSettings.soTextColor = root.soTextColor
-            soledadSettings.soTextBackground = root.soTextBackground
-            soledadSettings.soTextBackgroundOpacity = root.soTextBackgroundOpacity
-            soledadSettings.soTextFontFamily = root.soTextFontFamily
-            soledadSettings.soTextFontSize = root.soTextFontSize
-            soledadSettings.soTextBold = root.soTextBold
-            soledadSettings.soTextBackgroundImage = root.soTextBackgroundImage
-            soledadSettings.soledadColor = root.soledadColor
-            soledadSettings.malvinaColor = root.malvinaColor
-            soledadSettings.soledadGradientEnabled = root.soledadGradientEnabled
-            soledadSettings.soledadGradientEnd = root.soledadGradientEnd
-            soledadSettings.soledadGradientThird = root.soledadGradientThird
-            soledadSettings.soledadGradientColorCount = root.soledadGradientColorCount
-            soledadSettings.soledadGradientDirection = root.soledadGradientDirection
-            soledadSettings.soledadGradientSyncBreathing = root.soledadGradientSyncBreathing
-            soledadSettings.soledadGradientSyncIntensity = root.soledadGradientSyncIntensity
-            soledadSettings.soledadGradientBreathingEnabled = root.soledadGradientBreathingEnabled
-            soledadSettings.soledadGradientBreathingIntensity = root.soledadGradientBreathingIntensity
-            soledadSettings.soledadGradientBreathingSpeed = root.soledadGradientBreathingSpeed
-            soledadSettings.malvinaGradientSyncBreathing = root.malvinaGradientSyncBreathing
-            soledadSettings.malvinaGradientBreathingEnabled = root.malvinaGradientBreathingEnabled
-            soledadSettings.malvinaGradientBreathingIntensity = root.malvinaGradientBreathingIntensity
-            soledadSettings.malvinaGradientBreathingSpeed = root.malvinaGradientBreathingSpeed
-            soledadSettings.malvinaGradientEnabled = root.malvinaGradientEnabled
-            soledadSettings.malvinaGradientEnd = root.malvinaGradientEnd
-            soledadSettings.malvinaGradientThird = root.malvinaGradientThird
-            soledadSettings.malvinaGradientColorCount = root.malvinaGradientColorCount
-            soledadSettings.malvinaGradientDirection = root.malvinaGradientDirection
-            soledadSettings.backgroundColor = root.backgroundColor
-            soledadSettings.soledadOpacity = root.soledadOpacity
-            soledadSettings.malvinaOpacity = root.malvinaOpacity
-            soledadSettings.backgroundOpacity = root.backgroundOpacity
-            soledadSettings.showBackground = root.showBackground
-            soledadSettings.trayButtonColorOverride = root.trayButtonColorOverride
-            soledadSettings.trayButtonColor = root.trayButtonColor
-            soledadSettings.trayButtonOpacity = root.trayButtonOpacity
-            soledadSettings.gripButtonColorOverride = root.gripButtonColorOverride
-            soledadSettings.gripButtonColor = root.gripButtonColor
-            soledadSettings.gripButtonOpacity = root.gripButtonOpacity
-            soledadSettings.effectStyle = root.soActivityStyle
-            soledadSettings.accentColor = root.soActivityColor
-            soledadSettings.strokeSize = root.soActivityStroke
-            soledadSettings.allowMotion = root.soActivityMotion
-            soledadSettings.orbitSpeed = root.soActivityOrbitSpeed
-            soledadSettings.trailPercent = root.soActivityTrailPercent
-            soledadSettings.trailStyle = root.soActivityTrailStyle
-            soledadSettings.glowColor = root.soActivityGlowColor
-            soledadSettings.glowIntensity = root.soActivityGlowIntensity
-            soledadSettings.glowSpread = root.soActivityGlowSpread
-            soledadSettings.pulseSpeed = root.soActivityPulseSpeed
-            soledadSettings.pulseDepth = root.soActivityPulseDepth
-            soledadSettings.glowGradient = root.soActivityGlowGradient
-            soledadSettings.showOutlineWhenEmpty = root.soActivityShowWhenEmpty
-            soledadSettings.showOutlineWhenOpen = root.soActivityShowWhenOpen
-            soledadSettings.autoCollapseSO = root.autoCollapseSO
-            soledadSettings.soLeftClickOpensLauncher = root.soLeftClickOpensLauncher
-            soledadSettings.launcherCategoryLayout = root.launcherCategoryLayout
-            soledadSettings.launcherSwitchShape = root.launcherSwitchShape
-            soledadSettings.launcherSwitchColorOverride = root.launcherSwitchColorOverride
-            soledadSettings.launcherSwitchColor = root.launcherSwitchColor
-            soledadSettings.launcherMaxSlots = root.launcherMaxSlots
-            soledadSettings.launcherOpacityOverride = root.launcherOpacityOverride
-            soledadSettings.launcherOpacity = root.launcherOpacity
-            soledadSettings.launcherIconsWithNames = root.launcherIconsWithNames
-            soledadSettings.malvinaOptionsOpacityOverride = root.malvinaOptionsOpacityOverride
-            soledadSettings.malvinaOptionsOpacity = root.malvinaOptionsOpacity
-            soledadSettings.autoCollapseTray = root.autoCollapseTray
-            soledadSettings.autoReturnRight = root.autoReturnRight
-            soledadSettings.launcherIslandVisible = root.launcherIslandVisible
-            soledadSettings.autoHideMalvina = root.autoHideMalvina
-            soledadSettings.alignedRight = root.alignRightSelected
-            soledadSettings.positionMode = root.positionMode
-            soledadSettings.alignmentEdited = false
+            root.syncSettingsFromRoot()
             soledadSettings.currentTab = tabIndex
             soledadSettings.refreshOutlinePreview()
             // Leer el estado completo SOLO tras cargar las 139 preferencias del
@@ -1044,6 +1118,9 @@ Item {
         }
         onWallpaperThemeSelected: function(themeName) {
             root.requestWallpaperThemeChange(themeName)
+        }
+        onSaveThemeScheduleRequested: function(enabled, count, slots3Json, slots4Json) {
+            root.requestThemeScheduleChange(enabled, count, slots3Json, slots4Json)
         }
         onThematicWallpaperVisibilityRequested: function(enabled) {
             root.requestThematicWallpaperVisibilityChange(enabled)
