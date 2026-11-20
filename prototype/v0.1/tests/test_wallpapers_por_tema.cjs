@@ -31,7 +31,8 @@ assert(viewer.includes('localPreviewSettings.setValue("simulatedWallpaperEnabled
 assert(viewer.includes('localPreviewSettings.setValue("simulatedWallpaperTheme", theme)'));
 assert(viewer.includes('previewWindow.changeSimulatedWallpaper(themeName, true)'));
 assert(viewer.includes('changeSimulatedWallpaper(next, false)'));
-assert(viewer.includes('bar.previewBarThemeColors(next)'));
+assert(viewer.includes('bar.previewBarThemeColors(wallpaperIncomingTheme)'));
+assert(viewer.includes('wallpaperDemoPendingTheme = next'));
 assert(viewer.includes('id: wallpaperDemoButton'));
 assert(viewer.includes('duration: previewWindow.wallpaperFadeDurationMs'));
 assert(viewer.includes('WallpaperFadeDuration.durationMs(demoWallpaperFadeAmount,demoWallpaperFadeUnit)'));
