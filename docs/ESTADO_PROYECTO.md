@@ -1749,3 +1749,26 @@ Cerrar con X para terminar visor; examinar advertencias antes y después del arr
 **Dato central:** la salida **no contiene advertencias de `Binding loop detected`, `Unable to assign [undefined]` ni errores de carga QML**, en contraste con los registros anteriores. Así queda validada **en el equipo del mantenedor** la desaparición de los avisos anteriores tras fijar el ancho `16` en las nueve barras verticales de `SoledadSettings.qml`; los tests regresivos siguen pasando. Esto no demuestra todavía que todos los recorridos visuales (especialmente scroll en pantalla reducida) sean correctos ni acredita prestaciones de producción o viabilidad de solapar controles sobre pestañas maximizadas en KWin/Wayland.
 
 **Próximo hito recomendado:** iniciar **modularización interna y gradual** de `SoledadSettings.qml` y `SmartBarContent.qml` bajo issue #11, conservando las interfaces públicas QML, nombres de señales, claves de preferencias y el esquema de los temas; establecer un cambio reversible por commit, suite Node antes/después y prueba gráfica en CachyOS. Antes de alterar cualquier función o comportamiento confirmado, presentar la propuesta y pedir aprobación del mantenedor. PR #3 permanece borrador, `main` y panel KDE intactos; licencia del software propio MIT, gráficos con licencias independientes.
+
+
+## 20/11/2026 — Modularización segura, etapa 1: lectura pura de biblioteca de temas
+
+**Objetivo aprobado:** iniciar extracción interna y progresiva según [issue #11](https://github.com/nicoarg87/plasma-smartbar/issues/11), sin cambios funcionales. **Alcance puntual:** solo la lectura del JSON de temas personales; no se ha tocado guardado, restauración, selector, originales inmutables, KConfig, imágenes, wallpapers ni panel del sistema.
+
+**Implementado en la rama experimental:**
+- [976a2b6](https://github.com/nicoarg87/plasma-smartbar/commit/976a2b6a885a015f41a5fb505adba191cc26a23f) nuevo `prototype/v0.1/package/contents/ui/ThemeLibrary.js`, módulo QML `.pragma library` con función pura `parse(json)`. Preserva el contrato anterior: JSON vacío o de tipo incorrecto devuelve `[]`; solo conserva entradas con `name` y `jsonData` de tipo string y `jsonData` no vacío; no elimina duplicados, no transforma datos y no escribe en preferencias. JSON malformado propaga error al llamador.
+- [c574bb1](https://github.com/nicoarg87/plasma-smartbar/commit/c574bb15c44585cf5d2eeb944914680fe29995b1) `SoledadSettings.qml` importa el módulo pero conserva `function parseThemeLibrary(json)` con idéntico `catch`, mensaje de advertencia y retorno `[]`; `savedThemeLibrary`, `saveNamedTheme()`, `themeLibraryJson`, funciones de selección, perfiles del usuario y scripts de fábrica permanecen iguales.
+- [0de272e](https://github.com/nicoarg87/plasma-smartbar/commit/0de272e8134113bb87a76b92056c039ec917db2a) + [54c6ccd](https://github.com/nicoarg87/plasma-smartbar/commit/54c6ccd474142098617d3194afbc738234125619) adaptan exclusivamente el arnés de `test_theme_selector.cjs` para cargar el archivo JS en VM.
+- [69ef810](https://github.com/nicoarg87/plasma-smartbar/commit/69ef81031eb3f3afa0f2b184987675ec9f073421) + [abfca26](https://github.com/nicoarg87/plasma-smartbar/commit/abfca2686f4ad94080d7aa4e86c7a919335611f1) añaden `test_theme_library_module.cjs`: ausencia de escrituras, filtros, duplicados históricos, nombres vacíos permitidos, JSON roto y continuidad de lectura. El agregador `ejecutar_todos.cjs` reconoce automáticamente el nuevo test: son **19 tests** a ejecutar.
+
+**Pruebas realizadas aquí:** en V8, comparativa de **360 entradas** entre implementación anterior y módulo nuevo, sin divergencias de salida ni advertencias; `test_theme_selector.cjs` y `test_theme_library_module.cjs` ejecutaron **PASS en sandbox V8 con FS/VM simulados y fuentes GitHub actuales**. **NO se ejecutó todavía 19/19 en Node nativo ni se abrió el visor Qt después del cambio.** La última validación completa real previa fue 18/18 con Breeze limpio.
+
+**PENDIENTE validación del mantenedor en CachyOS:**
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/ejecutar_todos.cjs
+and bash prototype/v0.1/probar_ancho.sh
+```
+Esperado: 19/19 tests; comprobar que se ven los temas previos y que no aparece aviso de importación del módulo. No borrar/regrabar temas para probar; basta abrir el selector y observar la lista, cerrando con X. PR #3 permanece borrador, `main` y panel KDE existentes intactos. Software propio MIT, recursos gráficos con licencias independientes.
