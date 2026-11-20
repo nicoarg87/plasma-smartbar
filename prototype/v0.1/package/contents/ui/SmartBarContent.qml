@@ -1252,14 +1252,8 @@ Item {
     Item {
         anchors.fill: parent
 
-        // Capa decorativa opcional, siempre detrás de las islas.
-        // No crea una nueva fila ni modifica su grosor constante.
-        Rectangle {
-            anchors.fill: parent
-            visible: root.showBackground
-            color: Qt.rgba(root.backgroundColor.r, root.backgroundColor.g,
-                           root.backgroundColor.b, root.backgroundOpacity)
-        }
+        // Sin barra continua: solo se dibujan las islas flotantes.
+        // Este Item no tiene MouseArea y deja pasar los clics fuera de ellas.
 
         // Zona pasiva de hover: no captura clics ni modifica el grosor.
         // Esta zona siempre existe para detectar la posición de Malvina.
