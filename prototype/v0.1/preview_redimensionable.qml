@@ -106,7 +106,12 @@ Window {
             // Coordinación del ensayo: ambas animaciones arrancan recién
             // cuando el PNG entrante está cargado, no antes.
             if (wallpaperDemoPendingTheme === wallpaperIncomingTheme) {
-                bar.previewBarThemeColors(wallpaperIncomingTheme)
+                if (!bar.previewBarThemeColors(wallpaperIncomingTheme)) {
+                    console.warn("SmartBar: falta un tema con imagen SO válida para " +
+                                 wallpaperIncomingTheme + "; no se funde wallpaper solo")
+                    abortWallpaperFade()
+                    return
+                }
                 wallpaperDemoPendingTheme = ""
             }
             wallpaperFade.target = target
@@ -197,8 +202,15 @@ Window {
         const order = ["day","sunset","night"]
         const i = order.indexOf(wallpaperShownTheme)
         const next = order[(i + 1) % order.length]
-        // Un clic = una transición de wallpaper Y colores de las islas.
-        // Esperar a que el nuevo PNG esté listo para arrancar ambas a la vez.
+        // Requerir el perfil exacto de ese horario para no mostrar una foto
+        // de Atardecer con el logo de Noche. Los originales nunca se inventan.
+        if (!bar.previewThemeAvailable(next)) {
+            console.warn("SmartBar: guardá primero el tema " + next +
+                         " con su imagen/GIF SO para probar la transición conjunta")
+            return
+        }
+        // Un clic = un fundido de wallpaper + paleta + imagen/GIF de SO.
+        // Esperar el PNG entrante para iniciar los efectos simultáneamente.
         wallpaperDemoPendingTheme = next
         changeSimulatedWallpaper(next, false)
     }
