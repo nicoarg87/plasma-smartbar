@@ -17,6 +17,8 @@ assert.equal(sandbox.enterAction(2),"confirm");
 assert(qml.includes('import "MalvinaKeyboard.js" as Keyboard'));
 assert(qml.includes('Keyboard.enterAction(navigationSection) === "confirm"'));
 assert(qml.includes("confirmCandidate()") && qml.includes("openSelected()"));
+assert(qml.includes("if (!event.isAutoRepeat)"),
+       "Mantener Enter apretado no debe confirmar y buscar por autorrepetición");
 assert(qml.includes("navigationSection = 0") &&
        qml.includes("function chooseProvider(section, index)"),
        "Confirmar proveedor debe devolver el foco al campo");
