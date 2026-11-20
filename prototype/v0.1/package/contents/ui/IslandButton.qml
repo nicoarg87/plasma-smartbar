@@ -33,6 +33,14 @@ QQC2.Button {
     property var taskIconSource: ""
     readonly property bool taskUsesIcon: inheritIslandFill && taskDisplayMode !== "text"
     readonly property bool taskUsesText: !inheritIslandFill || taskDisplayMode !== "icon"
+    // Medir el texto independientemente del tamaño calculado del Button:
+    // evita un ciclo entre ancho implícito, Text.Fit y anchors.fill.
+    TextMetrics {
+        id: taskLabelMetrics
+        font.family: "Sans Serif"
+        font.pixelSize: 13
+        text: control.text
+    }
     property string taskFrameShape: "rounded" // rounded, square, none
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
@@ -181,7 +189,7 @@ QQC2.Button {
     implicitWidth: preferredButtonWidth > 0 ? preferredButtonWidth :
         (inheritIslandFill
             ? (taskDisplayMode === "icon" ? 38 :
-                Math.max(72, label.implicitWidth + (taskUsesIcon ? 44 : 18)))
+                Math.max(72, Math.ceil(taskLabelMetrics.advanceWidth) + (taskUsesIcon ? 44 : 18)))
             : (iconSource.toString().length > 0 ? 40 :
                 Math.max(40, label.implicitWidth + 18)))
     // Evitar que el contenido temporal modifique el área útil del botón.
