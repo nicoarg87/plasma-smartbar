@@ -37,3 +37,33 @@ function close(state, appName, windowId) {
     next[appName] = after
     return next
 }
+
+// Guardar SOLO datos ficticios para deshacer el último cierre. Para una
+// ventana individual se conserva también su posición en la fila del grupo.
+// No contiene identificadores ni datos reales de KWin/TasksModel.
+function snapshot(state, appName, windowId) {
+    const items = forApp(state, appName)
+    const saved = []
+    for (let index = 0; index < items.length; ++index) {
+        if (windowId === undefined || items[index].id === windowId)
+            saved.push({index: index, item: items[index]})
+    }
+    return saved.length ? {appName: appName, items: saved} : null
+}
+
+// Reconstruir una o más tarjetas FICTICIAS sin duplicar las que siguen
+// abiertas y respetando, si es posible, el orden de aparición anterior.
+function restore(state, record) {
+    if (!record || !record.appName || !Array.isArray(record.items) ||
+        record.items.length === 0) return state
+    const next = Object.assign({}, state || {})
+    const items = forApp(next, record.appName)
+    for (const saved of record.items) {
+        if (!saved || !saved.item ||
+            items.some(item => item.id === saved.item.id)) continue
+        const index = Math.max(0, Math.min(items.length, saved.index))
+        items.splice(index, 0, saved.item)
+    }
+    if (items.length) next[record.appName] = items
+    return next
+}
