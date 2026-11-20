@@ -601,3 +601,10 @@ and bash prototype/v0.1/probar_ancho.sh
 ```
 
 La batería Node y la revisión gráfica siguen pendientes de ejecución en el CachyOS del mantenedor; no informar éxito sin salida real de Konsole. El informe de auditoría del 20/11 se corrigió para reflejar la licencia MIT ya ratificada.
+
+
+## 75. Primera ejecución Node real en CachyOS y reparación de 5 tests — 20/11/2026
+
+El mantenedor ejecutó `node prototype/v0.1/tests/ejecutar_todos.cjs` después de actualizar la rama: **13/18 PASS** con Node 22.23.1. Fallaron únicamente tests por expectativas antiguas/defectos de harness: `test_breathing_menu` (scrollbars, selector antiguo, nombre de sección, opacidad 70 vs **90 % real**, onClosing), `test_context_theme_wallpaper` (this indefinido en VM), `test_factory_night`, `test_factory_sunset`, `test_theme_persistence` (tarjetas viejas, botones de captura retirados, Día oficial faltante). Al usar `and`, el visor **no se abrió** tras un fallo de la suite. No inferir problema gráfico Qt por esta salida.
+
+**Solo se editaron los cinco archivos `test_*.cjs`** y se los validó en V8/FS simulado contra fuentes actualizadas de GitHub: cinco PASS. **Pendiente nueva suite nativa Node 18/18** y prueba visual en CachyOS. Comando Fish: `cd ~/plasma-smartbar; and git switch prototype/v0.1-islas-so; and git pull --ff-only; and node prototype/v0.1/tests/ejecutar_todos.cjs; and bash prototype/v0.1/probar_ancho.sh`. No cambiar valores del usuario ni la configuración de 90 % por exigencias de tests viejos. Licencia software MIT, imágenes separadas. PR #3 continúa borrador.
