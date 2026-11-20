@@ -109,8 +109,12 @@ Window {
         if (["day","sunset","night"].indexOf(theme) < 0) return
         // Ante un nuevo tema real, la selección tiene prioridad aun cuando
         // el fundido anterior dure minutos u horas. No dejarlo en cola.
-        if (saveSelection && wallpaperFadeBusy)
+        if (saveSelection && wallpaperFadeBusy) {
+            // Descartar cualquier solicitud obsoleta, no iniciar un
+            // segundo fundido al abortar el anterior.
+            wallpaperQueuedTheme = ""
             abortWallpaperFade()
+        }
         if (saveSelection) {
             simulatedWallpaperTheme = theme
             localPreviewSettings.setValue("simulatedWallpaperTheme", theme)
