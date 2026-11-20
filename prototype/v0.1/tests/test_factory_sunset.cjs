@@ -34,20 +34,24 @@ assert(!ui.includes("restoreSunsetConfirmation.open()"));
 assert(!ui.includes("function updateSunsetFromCurrent()"));
 assert(!ui.includes("function restorePreviousSunset()"));
 
-const cardStart = ui.indexOf('Image {\n                                    visible: settings.factorySunsetAvailable &&', ui.indexOf("id: themeListScroll"));
-const nightCardStart = ui.indexOf('Image {\n                                    visible: settings.factoryNightAvailable &&', cardStart);
-assert(cardStart >= 0 && nightCardStart > cardStart);
-const sunsetRowEnd = nightCardStart;
-assert(sunsetRowEnd > cardStart && nightCardStart === sunsetRowEnd);
-const sunsetCard = ui.substring(cardStart, sunsetRowEnd);
-assert(sunsetCard.includes("settings.factorySunsetImage"));
-assert(!sunsetCard.includes("settings.factoryNightImage"));
-assert(!sunsetCard.includes("settings.themeDayJson"));
-assert(!sunsetCard.includes("settings.selectedImage"));
-assert(!sunsetCard.includes("settings.defaultImage"));
-assert(sunsetCard.includes('text: "Restaurar"'));
-assert(sunsetCard.includes('enabled: settings.factorySunsetAvailable'));
-assert(sunsetCard.includes('onClicked: settings.activateTheme("sunset")'));
+// Tras la sustitución de tarjetas por un desplegable con scroll, el
+// selector mantiene los tres temas centrales y las copias personales.
+const popupStart = ui.indexOf("id: themeOptionsPopup");
+const popupEnd = ui.indexOf('text: "Crear tema nuevo"', popupStart);
+assert(popupStart >= 0 && popupEnd > popupStart, "Falta desplegable de temas");
+const popup = ui.slice(popupStart, popupEnd);
+assert(popup.includes('model: 3 + settings.otherNamedThemes.length'));
+assert(popup.includes('index === 0 ? "Atardecer"'), "Atardecer debe ser primera opción");
+assert(popup.includes('settings.factorySunsetImage'), "Falta imagen original Atardecer");
+assert(popup.includes('settings.themeImageSource(settings.themeDayJson)'),
+       "La copia personal histórica conserva su propia imagen");
+assert(popup.includes('settings.themeDayJson.length ? "day"'),
+       "Priorizar copia histórica de Atardecer sin sobrescribir fábrica");
+assert(popup.includes('(settings.factorySunsetAvailable ? "sunset" : "")'),
+       "No restaurar fábrica sin su preset e imagen");
+assert(popup.includes('settings.activateTheme(slot)'));
+assert(!popup.includes('settings.selectedImage'), "No usar logo actual como miniatura");
+assert(!popup.includes('text: "Restaurar"'), "No reintroducir botones de tarjetas");
 assert(ui.includes('text: "Exportar aspecto actual para fijar Atardecer de fábrica…"'));
 assert(ui.includes('onClicked: settings.showFactoryCapture("sunset")'));
 assert(ui.includes('onClicked: settings.showFactoryCapture("night")'));
@@ -56,8 +60,12 @@ assert(ui.includes("factoryNightExportText.copy()"));
 assert(ui.includes("settings.factoryNightCandidateJson()"), "Una sola exportación de valores reales");
 assert(ui.includes('filePath = slot === "sunset"'));
 assert(ui.includes("factorySunsetImage.toString() : factoryNightImage.toString()"));
-assert(ui.includes('text: "TUS TEMAS GUARDADOS"'));
-assert(ui.includes("Día · tema de fábrica todavía no definido"));
+assert(popup.includes('settings.otherNamedThemes.length'),
+       "Las opciones personales deben mantenerse en la lista");
+assert(popup.includes('settings.dayThemeIndex() >= 0'),
+       "Si no hay fábrica Día, conservar alternativa personal guardada");
+assert(popup.includes('if (settings.factoryDayAvailable) slot = "dayOfficial"'),
+       "Día oficial no debe suplantarse con datos personales");
 assert(!ui.includes('text: "Aplicar Atardecer"'), "Atardecer personal no debe suplantar la fábrica");
 assert(bar.includes("themeDayJson") && preview.includes("demoThemeDayJson"), "No perder copia anterior");
 assert(script.includes("FactorySunsetTheme.js"));
