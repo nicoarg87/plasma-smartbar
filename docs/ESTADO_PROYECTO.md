@@ -1702,3 +1702,18 @@ and bash prototype/v0.1/probar_ancho.sh
 ```
 
 Si los 18 tests pasan, Fish iniciará el visor. Registrar el resultado real de CachyOS. PR #3 sigue borrador, licencia del software MIT.
+
+
+## 20/11/2026 — Suite nativa 18/18 PASS, visor Qt abre y advertencias QML detectadas
+
+**PROBADO por el mantenedor en CachyOS:** ejecutó `node prototype/v0.1/tests/ejecutar_todos.cjs` después de actualizar la rama. **18 de 18 pruebas sin fallos** en Node.js v22.23.1. El script prosiguió a `bash prototype/v0.1/probar_ancho.sh`, detectó **270 aplicaciones .desktop** sin modificarlas, encontró el GIF predeterminado `so-tropical.gif`, abrió la ventana de Qt Quick y recuperó la apariencia local. El mantenedor **cerró la ventana voluntariamente para terminar el comando**: esto es el comportamiento esperado de un visor interactivo, no un cuelgue de los tests. Mensaje final registrado: «SmartBar: configuración actual sincronizada al cerrar el visor». No se instaló un plasmoide ni se alteró el panel KDE del sistema.
+
+**Advertencias reales de QML capturadas durante la apertura**, que no fueron cubiertas por la suite Node:
+- `SoledadSettings.qml:1901,1905–1907` y `:3600,3604–3606`: ciclos de enlace `width` / `implicitWidth` en barras de pestañas **ocultas** (`TabBar`, `SettingsPageTab`).
+- `SoledadSettings.qml:3051–3076`: asignaciones `[undefined]` a tipos QML de una vista previa interna; el objeto `appliedOutlinePreview` comenzaba como `({})` y la vista intentaba leer sus 28 campos tipados antes de actualizarlo.
+- `SmartBarContent.qml:1580`: `switchCustomColor` recibía `root.displayLauncherSwitchColorOverride`, propiedad inexistente; la opción existente se llama `launcherSwitchColorOverride`.
+- Repetidos `QML ScrollBar: Binding loop detected for property "x"`, `QML Separator: ... "thickness"` y `SoledadSettings.qml:1743` `rightPadding`, en componentes de estilo KDE Breeze. **Siguen pendientes de diagnóstico visual/Qt, no se modificó la distribución de los nueve ScrollView.**
+
+**Corregido por inspección en la rama experimental:** [51c7a7e](https://github.com/nicoarg87/plasma-smartbar/commit/51c7a7e3c4f5b3e4b1537f09d5582e6c80047b97) usa el booleano real del launcher; [6a45948](https://github.com/nicoarg87/plasma-smartbar/commit/6a45948c22028b0c4a360adbbeed0143c8b8c4cf) inicializa la muestra de SO con todos los datos mediante `outlinePreviewSnapshot()` compartido con `refreshOutlinePreview()` y quita seis anchos autorreferenciales de pestañas ocultas; [d0c51a5](https://github.com/nicoarg87/plasma-smartbar/commit/d0c51a56417e23e0bacf1bc339b3cfaada441c0a) añade regresión de esos tres defectos a `test_breathing_menu.cjs`. La prueba modificada pasó contra archivos actuales de GitHub en **V8/FS simulado**.
+
+**PENDIENTE:** nueva apertura real en Qt/CachyOS después de estos ajustes, verificar si desaparecieron los avisos respectivos y si los repetidos de ScrollView/Breeze permanecen. No se tocó la interfaz aprobada, configuración persistente, imágenes ni temas de usuario. PR #3 continúa borrador, licencia del software MIT.
