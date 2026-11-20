@@ -72,7 +72,7 @@ assert(bar.includes("interval: 15000"));
 assert(bar.includes("syncSettingsFromRoot()"));
 assert(bar.includes("soledadSettings.activateTheme(slot)"));
 assert(bar.includes("requestWallpaperThemeChange(selected.theme)"));
-assert(preview.includes("themeScheduleRuntimeEnabled: true"));
+assert(preview.includes("themeScheduleRuntimeEnabled: !previewWindow.captureDayOnce"));
 assert(preview.includes('localPreviewSettings.setValue("themeScheduleSlots4Json", slots4Json)'));
 assert(preview.includes('localPreviewSettings.setValue("themeScheduleSlots3Json", slots3Json)'));
 assert(main.includes("themeScheduleRuntimeEnabled: false"));
