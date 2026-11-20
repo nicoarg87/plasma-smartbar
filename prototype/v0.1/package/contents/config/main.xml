@@ -26,6 +26,8 @@
     <entry name="thematicWallpaperEnabled" type="Bool"><default>true</default></entry>
     <!-- Plan horario personal: almacenado fuera de los presets oficiales. -->
     <entry name="themeScheduleEnabled" type="Bool"><default>true</default></entry>
+    <!-- Interpolación solo visual de paletas en la maqueta. -->
+    <entry name="barThemeTransitionEnabled" type="Bool"><default>true</default></entry>
     <entry name="themeScheduleSlotCount" type="Int"><default>4</default></entry>
     <!-- Duración del fundido del wallpaper; independiente de cada tema. -->
     <entry name="wallpaperFadeAmount" type="Int"><default>3</default></entry>
