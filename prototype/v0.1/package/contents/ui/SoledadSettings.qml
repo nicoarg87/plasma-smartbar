@@ -4571,7 +4571,7 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "Elegí Atardecer o Noche con un clic. Los temas nuevos se suman al mismo desplegable."
+                        text: "Elegí Día, Atardecer o Noche. Los temas nuevos se suman al mismo desplegable."
                     }
                     // Control de visibilidad del wallpaper del escritorio simulado.
                     // No se mezcla con la biblioteca ni agrega botones de guardado.
@@ -4785,7 +4785,7 @@ Window {
                                                     ? "No se encuentra el Atardecer guardado."
                                                     : selectedIndex === 1
                                                       ? "No se encuentra la Noche guardada."
-                                                      : "Guardá primero el Día actual desde el botón inferior."
+                                                       : "El tema Día todavía no tiene una configuración disponible."
                                             }
                                         }
                                     }
