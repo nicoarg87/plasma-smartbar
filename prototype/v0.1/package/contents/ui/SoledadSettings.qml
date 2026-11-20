@@ -8,6 +8,7 @@ import QtQuick.Controls as QQC2
 import QtQuick.Dialogs
 import "PaletteExtractor.js" as PaletteExtractor
 import "ThemeSchedule.js" as ThemeSchedule
+import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "assets/FactoryNightTheme.js" as FactoryNightTheme
 import "assets/FactorySunsetTheme.js" as FactorySunsetTheme
 import "assets/FactoryDayTheme.js" as FactoryDayTheme
@@ -131,6 +132,20 @@ Window {
     }
     // Programación diaria: opción personal, independiente de los temas inmutables.
     property bool scheduleMenuExpanded: false
+    property int wallpaperFadeAmount: 3
+    property string wallpaperFadeUnit: "seconds"
+    property string wallpaperFadeError: ""
+    function setWallpaperFade(amount, unit) {
+        if (!WallpaperFadeDuration.valid(amount,unit)) {
+            wallpaperFadeError = "Duración inválida. Segundos: 1–3600, minutos: 1–240, horas: 1–24."
+            return false
+        }
+        wallpaperFadeAmount = amount
+        wallpaperFadeUnit = unit
+        wallpaperFadeError = ""
+        saveWallpaperFadeRequested(amount,unit)
+        return true
+    }
     property bool themeScheduleEnabled: true
     property int themeScheduleSlotCount: 4
     property string themeScheduleSlots3Json:
@@ -338,6 +353,7 @@ Window {
     signal saveThemeSlotRequested(string slot, string jsonData)
     signal wallpaperThemeSelected(string themeName)
     signal saveThemeScheduleRequested(bool enabled, int count, string slots3Json, string slots4Json)
+    signal saveWallpaperFadeRequested(int amount, string unit)
     // Ajuste personal, no forma parte de los temas oficiales inmutables.
     signal thematicWallpaperVisibilityRequested(bool enabled)
     QQC2.Dialog {
@@ -4662,6 +4678,61 @@ Window {
                         Layout.fillWidth: true
                         visible: settings.scheduleMenuExpanded
                         spacing: 10
+                        // Duración independiente de las franjas horarias.
+                        // El fundido también se usa al elegir un tema a mano.
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            QQC2.Label {
+                                text: "Fundido del wallpaper"
+                                color: "#cdd8e8"
+                                Layout.fillWidth: true
+                            }
+                            QQC2.TextField {
+                                id: wallpaperFadeAmountField
+                                Layout.preferredWidth: 76
+                                maximumLength: 4
+                                horizontalAlignment: Text.AlignHCenter
+                                validator: IntValidator { bottom: 1; top: 3600 }
+                                text: String(settings.wallpaperFadeAmount)
+                                onEditingFinished: {
+                                    const amount = Number(text)
+                                    if (!settings.setWallpaperFade(amount,settings.wallpaperFadeUnit))
+                                        text = String(settings.wallpaperFadeAmount)
+                                }
+                            }
+                            QQC2.ComboBox {
+                                id: wallpaperFadeUnitSelector
+                                Layout.preferredWidth: 128
+                                model: ["Segundos", "Minutos", "Horas"]
+                                currentIndex: settings.wallpaperFadeUnit === "minutes" ? 1
+                                    : settings.wallpaperFadeUnit === "hours" ? 2 : 0
+                                onActivated: function(index) {
+                                    const unit = ["seconds", "minutes", "hours"][index]
+                                    const amount = Number(wallpaperFadeAmountField.text)
+                                    if (!settings.setWallpaperFade(amount, unit)) {
+                                        // Ante un número fuera del rango de la nueva unidad,
+                                        // ajustar al límite permitido sin borrar preferencias previas.
+                                        const limit = WallpaperFadeDuration.limits[unit]
+                                        settings.setWallpaperFade(Math.max(1, Math.min(limit, settings.wallpaperFadeAmount)),unit)
+                                    }
+                                    wallpaperFadeAmountField.text = String(settings.wallpaperFadeAmount)
+                                }
+                            }
+                        }
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            color: "#b7c7d9"
+                            text: "Duración por transición (3 segundos inicialmente), tanto en horario automático como al elegir un tema o probar el fondo."
+                        }
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            visible: settings.wallpaperFadeError.length > 0
+                            color: "#ffbba5"
+                            text: settings.wallpaperFadeError
+                        }
                         // Cuatro franjas diarias de fábrica; tres como alternativa.
                         // No hay botones para aplicar/guardar horarios: cada valor válido persiste.
                         QQC2.Label {
