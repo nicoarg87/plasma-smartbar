@@ -653,6 +653,9 @@ Window {
         barThemeTransitionEnabled: previewWindow.demoBarThemeTransitionEnabled
         wallpaperFadeAmount: previewWindow.demoWallpaperFadeAmount
         wallpaperFadeUnit: previewWindow.demoWallpaperFadeUnit
+        themeWallpaperPreviewAvailable: previewWindow.simulatedWallpaperEnabled &&
+                                      !previewWindow.wallpaperFadeBusy
+        onRequestThemeWallpaperPreview: previewWindow.previewNextWallpaper()
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         anchors.left: parent.left
         anchors.right: parent.right
@@ -1138,9 +1141,10 @@ Window {
         anchors.leftMargin: 18
         anchors.bottomMargin: 48
         text: "Probar transición de tema y wallpaper"
-        enabled: previewWindow.simulatedWallpaperEnabled &&
-                 !previewWindow.wallpaperFadeBusy
-        onClicked: previewWindow.previewNextWallpaper()
+        enabled: bar.themeScheduleRuntimeEnabled &&
+                 bar.themeWallpaperPreviewAvailable
+        // Misma entrada que los menús contextuales de Soledad y Malvina.
+        onClicked: bar.triggerThemeWallpaperPreview()
         QQC2.ToolTip.visible: hovered
         QQC2.ToolTip.text: "Un fundido por clic. Duración: " +
             previewWindow.demoWallpaperFadeAmount + " " +
