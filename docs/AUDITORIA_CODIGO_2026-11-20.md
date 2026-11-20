@@ -18,7 +18,7 @@ El visor está avanzando funcionalmente y el mantenedor reporta pocos errores de
 | Verificación | 18 pruebas Node, sin ejecución automática de GitHub Actions verificada | Ejecutar la suite completa en CachyOS; después evaluar CI read-only | Bajo para ejecutar pruebas; medio para implantar CI sin verificar |
 | Renderizado | Temporizador compartido de respiración de 50 ms en `SmartBarContent.qml`; temporizador de contorno de 50 ms en `SoActivityOutline.qml`; 19 interpolaciones de color; varios Canvas | Medir CPU/GPU, repintados y temporizadores activos antes de modificar frecuencias | Medio/alto sin perfilado |
 | Documentación | Constitución/Manual/Estado/Continuidad/ROADMAP acumulativos; encabezados desfasados respecto de actualizaciones | Crear resúmenes/indexación y conservar historial, nunca sobreescribir reglas rectoras sin aprobación | Medio |
-| Licencia | `LICENSE`, README y `metadata.json` del GitHub vigente indican MIT; algunas instrucciones de trabajo señalan GPL-3.0 | Solicitar aclaración expresa del mantenedor; **no modificar ni relicenciar** en limpieza | Alto/legal |
+| Licencia | `LICENSE`, README y `metadata.json` indican MIT. El mantenedor **confirmó expresamente el 20/11/2026** que la licencia del software/código propio es MIT. Algunas instrucciones previas mencionaban GPL-3.0 y quedan desactualizadas | Mantener MIT en software propio; inventariar por separado imágenes y dependencias de terceros. No relicenciar material ajeno | Alto/legal |
 
 ## Candidatos a código antiguo o no instanciado (NO confirmado como eliminable)
 
