@@ -60,6 +60,76 @@ Window {
         String(localPreviewSettings.value("simulatedWallpaperTheme", "day"))
     property bool simulatedWallpaperEnabled:
         String(localPreviewSettings.value("simulatedWallpaperEnabled", true)).toLowerCase() !== "false"
+    // Solo la ventana de simulación posee transición de imagen.
+    // El tema activo y las preferencias Qt siguen siendo independientes
+    // del botón de demostración (no se guardan cambios al probar).
+    readonly property int wallpaperFadeDurationMs: 800
+    property string wallpaperShownTheme: simulatedWallpaperTheme
+    property string wallpaperIncomingTheme: ""
+    property string wallpaperQueuedTheme: ""
+    property bool wallpaperFadeBusy: false
+
+    function wallpaperForTheme(theme) {
+        const name = theme === "night" ? "night.png" :
+                     theme === "sunset" ? "sunset.png" : "day.png"
+        return Qt.resolvedUrl("package/contents/ui/assets/wallpapers/" + name)
+    }
+    function startWallpaperFadeIfReady() {
+        if (wallpaperFadeBusy && wallpaperIncomingTheme.length &&
+            incomingWallpaper.status === Image.Ready && !wallpaperFade.running)
+            wallpaperFade.start()
+    }
+    function changeSimulatedWallpaper(theme, saveSelection) {
+        if (["day","sunset","night"].indexOf(theme) < 0) return
+        // Un cambio real por tema/hora actualiza la selección persistente.
+        // La prueba visual NO escribe QSettings ni modifica el tema.
+        if (saveSelection) {
+            simulatedWallpaperTheme = theme
+            localPreviewSettings.setValue("simulatedWallpaperTheme", theme)
+            localPreviewSettings.sync()
+        }
+        if (wallpaperFadeBusy) {
+            wallpaperQueuedTheme = theme // último evento gana
+            return
+        }
+        if (wallpaperShownTheme === theme) return
+        if (!simulatedWallpaperEnabled) {
+            wallpaperShownTheme = theme
+            return
+        }
+        wallpaperFadeBusy = true
+        wallpaperIncomingTheme = theme
+        incomingWallpaper.opacity = 0
+        // Incluye el caso en que Qt recupera inmediatamente una imagen en cache.
+        Qt.callLater(function() { previewWindow.startWallpaperFadeIfReady() })
+    }
+    function finishWallpaperFade() {
+        if (!wallpaperFadeBusy) return
+        wallpaperShownTheme = wallpaperIncomingTheme
+        wallpaperFadeBusy = false
+        wallpaperIncomingTheme = ""
+        incomingWallpaper.opacity = 0
+        if (wallpaperQueuedTheme.length) {
+            const next = wallpaperQueuedTheme
+            wallpaperQueuedTheme = ""
+            Qt.callLater(function() { previewWindow.changeSimulatedWallpaper(next,false) })
+        }
+    }
+    function previewNextWallpaper() {
+        if (wallpaperFadeBusy || !simulatedWallpaperEnabled) return
+        const order = ["day","sunset","night"]
+        const i = order.indexOf(wallpaperShownTheme)
+        changeSimulatedWallpaper(order[(i + 1) % order.length], false)
+    }
+    onSimulatedWallpaperEnabledChanged: {
+        if (!simulatedWallpaperEnabled && wallpaperFadeBusy) {
+            wallpaperFade.stop()
+            finishWallpaperFade()
+        }
+        if (simulatedWallpaperEnabled && wallpaperShownTheme !== simulatedWallpaperTheme &&
+            !wallpaperFadeBusy) changeSimulatedWallpaper(simulatedWallpaperTheme,false)
+    }
+
     Timer {
         id: saveAppearanceTimer
         interval: 180
@@ -425,16 +495,14 @@ Window {
     property bool demoSoActivityShowWhenEmpty: true
     property bool demoSoActivityShowWhenOpen: false
 
-    // Fondo completo de esta ventana de prueba, detrás de ambas islas.
-    // Image.Stretch llena exactamente el tamaño disponible sin recortar.
-    // Los PNG son originales y se suministran separados por ZIP.
+    // Dos imágenes sin MouseArea: el wallpaper es puramente decorativo,
+    // no intercepta clics y se estira detrás de Soledad y Malvina.
+    // La imagen anterior queda visible hasta que el nuevo PNG termine de cargar.
     Image {
         id: simulatedDesktopWallpaper
         anchors.fill: parent
         z: -1
-        source: Qt.resolvedUrl("package/contents/ui/assets/wallpapers/" +
-            (previewWindow.simulatedWallpaperTheme === "night" ? "night.png" :
-             previewWindow.simulatedWallpaperTheme === "sunset" ? "sunset.png" : "day.png"))
+        source: previewWindow.wallpaperForTheme(previewWindow.wallpaperShownTheme)
         fillMode: Image.Stretch
         asynchronous: true
         cache: true
@@ -442,8 +510,42 @@ Window {
         visible: previewWindow.simulatedWallpaperEnabled && status === Image.Ready
         onStatusChanged: {
             if (status === Image.Error)
-                console.warn("SmartBar: falta el wallpaper original del escritorio simulado:", source)
+                console.warn("SmartBar: falta el wallpaper actual del visor:", source)
         }
+    }
+    Image {
+        id: incomingWallpaper
+        anchors.fill: parent
+        z: -1
+        source: previewWindow.wallpaperIncomingTheme.length
+            ? previewWindow.wallpaperForTheme(previewWindow.wallpaperIncomingTheme) : ""
+        opacity: 0
+        fillMode: Image.Stretch
+        asynchronous: true
+        cache: true
+        smooth: true
+        visible: previewWindow.simulatedWallpaperEnabled &&
+                 previewWindow.wallpaperFadeBusy && status === Image.Ready
+        onStatusChanged: {
+            if (status === Image.Ready)
+                previewWindow.startWallpaperFadeIfReady()
+            if (status === Image.Error && previewWindow.wallpaperFadeBusy) {
+                console.warn("SmartBar: no se pudo cargar nuevo wallpaper:", source)
+                previewWindow.wallpaperFadeBusy = false
+                previewWindow.wallpaperIncomingTheme = ""
+                previewWindow.wallpaperQueuedTheme = ""
+            }
+        }
+    }
+    NumberAnimation {
+        id: wallpaperFade
+        target: incomingWallpaper
+        property: "opacity"
+        from: 0
+        to: 1
+        duration: previewWindow.wallpaperFadeDurationMs
+        easing.type: Easing.InOutCubic
+        onFinished: previewWindow.finishWallpaperFade()
     }
 
     SmartBarContent {
@@ -578,10 +680,7 @@ Window {
             localPreviewSettings.sync()
         }
         onRequestWallpaperThemeChange: function(themeName) {
-            if (["day", "sunset", "night"].indexOf(themeName) < 0) return
-            previewWindow.simulatedWallpaperTheme = themeName
-            localPreviewSettings.setValue("simulatedWallpaperTheme", themeName)
-            localPreviewSettings.sync()
+            previewWindow.changeSimulatedWallpaper(themeName, true)
         }
         onRequestMalvinaButtonShapesChange: function(gearShape, searchShape) {
             previewWindow.demoMalvinaGearButtonShape = gearShape
@@ -917,6 +1016,22 @@ Window {
               "\nAncho Soledad: " + Math.round(bar.actualIslandWidth) +
               " / espacio disponible: " + Math.round(bar.availableIslandWidth) +
               " px lógicos · prioridad: " + (bar.lastExpandedMode === "so" ? "SO" : "bandeja")
+    }
+
+    // Único botón de demostración solicitado: cicla las fotos sin alterar
+    // los temas, la programación horaria ni el panel KDE.
+    QQC2.Button {
+        id: wallpaperDemoButton
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: 18
+        anchors.bottomMargin: 48
+        text: "Probar transición de wallpaper"
+        enabled: previewWindow.simulatedWallpaperEnabled &&
+                 !previewWindow.wallpaperFadeBusy
+        onClicked: previewWindow.previewNextWallpaper()
+        QQC2.ToolTip.visible: hovered
+        QQC2.ToolTip.text: "Día → Atardecer → Noche → Día (0,8 segundos). Solo simulación."
     }
 
     Row {
