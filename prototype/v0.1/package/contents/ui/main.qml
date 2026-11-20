@@ -21,6 +21,11 @@ PlasmoidItem {
     onWidthChanged: console.log("SmartBar v0.1: ancho del applet Plasma =", width)
     SmartBarContent {
         id: demo
+        thematicWallpaperEnabled: Plasmoid.configuration.thematicWallpaperEnabled
+        // Guarda solo la preferencia. El plasmoide NO cambia el escritorio KDE.
+        onRequestThematicWallpaperVisibilityChange: function(enabled) {
+            Plasmoid.configuration.thematicWallpaperEnabled = enabled
+        }
         anchors.fill: parent
         panelHeight: Plasmoid.configuration.panelHeight
         soledadHeight: Plasmoid.configuration.soledadHeight
