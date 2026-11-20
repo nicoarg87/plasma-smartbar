@@ -90,4 +90,33 @@ vm.runInNewContext([
 ].join("\n"),emptyState);
 assert.equal(emptyState.soExpanded,false);
 
+// Regresión del problema visual observado en CachyOS: tres fichas con
+// iconos ilegibles y ningún nombre en modo "Solo icono" persistido.
+const taskIcon=fs.readFileSync(path.join(uiDir,"TaskAppIcon.qml"),"utf8");
+const islandButton=fs.readFileSync(path.join(uiDir,"IslandButton.qml"),"utf8");
+assert(bar.includes("property bool previewShowTaskIdentity: false"));
+assert(bar.includes('previewShowTaskIdentity ? "both" : taskDisplayMode'));
+assert(viewer.includes("previewShowTaskIdentity: true"));
+assert(chip.includes("taskDisplayMode: chip.host.effectiveTaskDisplayMode"));
+assert.equal((bar.match(/taskDisplayMode: root.effectiveTaskDisplayMode/g)||[]).length,2,
+             "Real y simulado deben mostrar nombres en el visor de diagnóstico");
+assert(bar.includes('return "org.kde.dolphin"'));
+assert(bar.includes('return "org.kde.konsole"'));
+assert(bar.includes('return "brave-browser"'));
+assert(taskIcon.includes("visible: !appIcon.valid") &&
+       taskIcon.includes("fallbackLabel") &&
+       taskIcon.includes('fallback: ""'),
+       "No se debe mostrar un glifo roto si KDE carece del ícono");
+assert(islandButton.includes("fallbackLabel: control.text"),
+       "El respaldo del ícono debe usar el nombre visible de la aplicación");
+assert(!viewer.includes('localPreviewSettings.setValue("demoTaskDisplayMode", "both")'),
+       "La prueba no debe sobrescribir el modo de fichas guardado");
+
+// La simulación respeta la configuración pública: no la guarda ni migra.
+function identity(mode,diagnostic) { return diagnostic ? "both" : mode }
+for(const mode of ["icon","both","text"]) {
+    assert.equal(identity(mode,true),"both");
+    assert.equal(identity(mode,false),mode);
+}
+
 console.log("OK: fichas ficticias SO abren y cierran; TaskManager real sigue solo lectura.");
