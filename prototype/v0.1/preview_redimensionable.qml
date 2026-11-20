@@ -207,13 +207,24 @@ Window {
         demoTrayButtonOpacity = 0.9
         demoGripButtonOpacity = 0.9
         demoBackgroundOpacity = 0.9
-        const snapshot = bar.snapshotFromLiveAppearance()
+        let snapshot = ""
         let captured
         try {
+            snapshot = bar.snapshotFromLiveAppearance()
             captured = JSON.parse(snapshot)
-            if (captured.version !== 1 || !captured.filePath && captured.logoMode === "custom")
+            if (captured.version !== 1 ||
+                (captured.logoMode === "custom" && !captured.filePath))
                 throw new Error("snapshot incompleto")
         } catch (error) {
+            // Restaurar la vista original si la captura falla:
+            // no transformar el Día activo en un estado parcial.
+            const before = JSON.parse(originalAppearance)
+            for (const key of ["demoSoledadOpacity","demoMalvinaOpacity",
+                               "demoLauncherOpacity","demoMalvinaOptionsOpacity",
+                               "demoTrayButtonOpacity","demoGripButtonOpacity",
+                               "demoBackgroundOpacity"]) {
+                if (before[key] !== undefined) previewWindow[key] = before[key]
+            }
             console.warn("SMARTBAR_DAY_CAPTURE_ERROR=No se escribió Día: " + error)
             localPreviewSettings.setValue("captureDayOnce", false)
             localPreviewSettings.sync()
