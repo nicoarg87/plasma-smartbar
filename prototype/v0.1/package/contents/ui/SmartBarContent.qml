@@ -817,6 +817,9 @@ Item {
     property var demoOpenedApps: demoApps.slice()
     // Estado efímero de ventanas ficticias; dos Dolphin simuladas para ensayo.
     property var demoWindowInstances: DemoWindowInstances.initial()
+    // Historial de cierres SOLO del simulador; no implica reabrir programas
+    // reales ni recuperar documentos de aplicaciones externas.
+    property var demoClosedHistory: []
     readonly property int soWindowCount: usingRealTasks
         ? realTaskModel.count
         : (demoHasRunningWindows ? demoOpenedApps.length : 0)
@@ -943,6 +946,8 @@ Item {
             !demoHasRunningWindows) return false
         const updated = DemoWindows.close(demoOpenedApps, appName)
         if (updated.length === demoOpenedApps.length) return false
+        const record = DemoWindowInstances.snapshot(demoWindowInstances, appName)
+        if (record) demoClosedHistory = demoClosedHistory.concat([record])
         demoWindowInstances = DemoWindowInstances.withoutApp(demoWindowInstances, appName)
         demoOpenedApps = updated
         if (lastDemoSelection === appName) lastDemoSelection = ""
@@ -956,14 +961,28 @@ Item {
         const current = demoInstancesForApp(appName)
         if (!current.some(item => item.id === windowId)) return false
         if (current.length === 1) return closeDemoWindow(appName)
+        const record = DemoWindowInstances.snapshot(demoWindowInstances, appName, windowId)
+        if (record) demoClosedHistory = demoClosedHistory.concat([record])
         demoWindowInstances = DemoWindowInstances.close(demoWindowInstances, appName, windowId)
         return true
     }
     function reopenNextDemoWindow() {
         if (!demoWindowControlsEnabled || usingRealTasks) return false
         if (!demoHasRunningWindows) {
+            demoClosedHistory = []
             demoWindowInstances = DemoWindowInstances.initial()
             demoOpenedApps = demoApps.slice()
+            demoHasRunningWindows = true
+            return true
+        }
+        // Prioridad: deshacer el ÚLTIMO cierre individual. Una app con otra
+        // ventana abierta (Dolphin) debe poder recuperar la segunda tarjeta.
+        if (demoClosedHistory.length > 0) {
+            const record = demoClosedHistory[demoClosedHistory.length - 1]
+            demoWindowInstances = DemoWindowInstances.restore(demoWindowInstances, record)
+            if (demoOpenedApps.indexOf(record.appName) < 0)
+                demoOpenedApps = DemoWindows.open(demoOpenedApps, demoApps, record.appName)
+            demoClosedHistory = demoClosedHistory.slice(0, -1)
             demoHasRunningWindows = true
             return true
         }
@@ -2281,9 +2300,9 @@ Item {
                     implicitWidth: 26
                     implicitHeight: 34
                     focusPolicy: Qt.StrongFocus
-                    enabled: !root.demoHasRunningWindows ||
+                    enabled: !root.demoHasRunningWindows || root.demoClosedHistory.length > 0 ||
                              DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
-                    Accessible.name: enabled ? "Abrir ventana simulada" :
+                    Accessible.name: enabled ? "Recuperar última ventana simulada cerrada" :
                                      "Todas las ventanas simuladas están abiertas"
                     // El + no depende del texto del ToolButton, que el estilo
                     // Qt puede dejar invisible. Se reutiliza el botón existente.
@@ -2307,8 +2326,8 @@ Item {
                     }
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: enabled
-                        ? "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
-                        : "Las tres fichas simuladas están abiertas"
+                        ? "Deshacer último cierre de ventana simulada"
+                        : "Todas las ventanas simuladas están abiertas"
                     onClicked: root.reopenNextDemoWindow()
                 }
 
@@ -2747,7 +2766,8 @@ Item {
                                 if (root.demoHasRunningWindows) {
                                     root.demoHasRunningWindows = false
                                 } else {
-                                    root.demoWindowInstances = DemoWindowInstances.initial()
+                                    root.demoClosedHistory = []
+                                     root.demoWindowInstances = DemoWindowInstances.initial()
                                      root.demoOpenedApps = root.demoApps.slice()
                                     root.demoHasRunningWindows = true
                                 }
@@ -2813,9 +2833,9 @@ Item {
                     implicitWidth: 26
                     implicitHeight: 34
                     focusPolicy: Qt.StrongFocus
-                    enabled: !root.demoHasRunningWindows ||
+                    enabled: !root.demoHasRunningWindows || root.demoClosedHistory.length > 0 ||
                              DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
-                    Accessible.name: enabled ? "Abrir ventana simulada" :
+                    Accessible.name: enabled ? "Recuperar última ventana simulada cerrada" :
                                      "Todas las ventanas simuladas están abiertas"
                     // El + no depende del texto del ToolButton, que el estilo
                     // Qt puede dejar invisible. Se reutiliza el botón existente.
@@ -2839,8 +2859,8 @@ Item {
                     }
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: enabled
-                        ? "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
-                        : "Las tres fichas simuladas están abiertas"
+                        ? "Deshacer último cierre de ventana simulada"
+                        : "Todas las ventanas simuladas están abiertas"
                     onClicked: root.reopenNextDemoWindow()
                 }
 
