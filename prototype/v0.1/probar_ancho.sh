@@ -46,8 +46,31 @@ cleanup_catalog() {
         rm -f -- "$LOCAL_CATALOG"
     fi
 }
-trap cleanup_catalog EXIT
+WALLPAPER_WATCH_PID=""
+cleanup_preview() {
+    if [ -n "$WALLPAPER_WATCH_PID" ]; then
+        kill "$WALLPAPER_WATCH_PID" 2>/dev/null || true
+        wait "$WALLPAPER_WATCH_PID" 2>/dev/null || true
+    fi
+    cleanup_catalog
+}
+trap cleanup_preview EXIT
+
 export QML_XHR_ALLOW_FILE_READ=1
+
+# El monitor solo cambia el fondo después de seleccionar Día/Atardecer/Noche.
+# Los tres PNG originales se entregan por ZIP; si faltan, no afecta al visor.
+WALLPAPER_ASSETS="$HERE/package/contents/ui/assets/wallpapers"
+if command -v python3 >/dev/null 2>&1 &&
+   [ -f "$WALLPAPER_ASSETS/manifest.json" ] &&
+   python3 "$HERE/scripts/vigilar_wallpaper.py" --check >/dev/null 2>&1; then
+    python3 -u "$HERE/scripts/vigilar_wallpaper.py" &
+    WALLPAPER_WATCH_PID=$!
+    echo "Fondos por tema habilitados: Día, Atardecer y Noche, modo Estirar."
+else
+    echo "AVISO: los wallpapers aún no están completos. Extraé el ZIP de wallpapers en la raíz del repositorio."
+    echo "La maqueta sigue funcionando sin modificar el fondo del escritorio."
+fi
 
 echo "Abriendo la vista de geometría Qt Quick de Plasma SmartBar Islands…"
 echo "Esta ventana usa SmartBarContent.qml, igual que el plasmoide."
