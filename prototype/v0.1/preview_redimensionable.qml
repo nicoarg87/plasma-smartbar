@@ -77,6 +77,7 @@ Window {
     property string wallpaperActiveLayer: "primary"
     property string wallpaperIncomingLayer: ""
     property bool wallpaperFadeBusy: false
+    property int wallpaperDemoRemaining: 0
 
     function wallpaperForTheme(theme) {
         const name = theme === "night" ? "night.png" :
@@ -97,6 +98,11 @@ Window {
     // presets, instantáneas, GIF, colores ni el estado del reloj.
     function changeSimulatedWallpaper(theme, saveSelection) {
         if (["day","sunset","night"].indexOf(theme) < 0) return
+        if (saveSelection && wallpaperDemoRemaining > 0) {
+            // El tema horario/manual tiene prioridad sobre la demostración.
+            wallpaperDemoRemaining = 0
+            wallpaperDemoHoldTimer.stop()
+        }
         if (saveSelection) {
             simulatedWallpaperTheme = theme
             localPreviewSettings.setValue("simulatedWallpaperTheme", theme)
@@ -145,10 +151,15 @@ Window {
             const next = wallpaperQueuedTheme
             wallpaperQueuedTheme = ""
             Qt.callLater(function() { previewWindow.changeSimulatedWallpaper(next,false) })
+        } else if (wallpaperDemoRemaining > 0) {
+            wallpaperDemoRemaining--
+            if (wallpaperDemoRemaining > 0) wallpaperDemoHoldTimer.restart()
         }
     }
     function abortWallpaperFade() {
         if (!wallpaperFadeBusy) return
+        wallpaperDemoRemaining = 0
+        wallpaperDemoHoldTimer.stop()
         wallpaperFade.stop()
         const incoming = wallpaperIncomingLayer === "primary"
             ? simulatedDesktopWallpaper : incomingWallpaper
@@ -163,13 +174,26 @@ Window {
         }
     }
     function previewNextWallpaper() {
-        if (wallpaperFadeBusy || !simulatedWallpaperEnabled) return
+        if (wallpaperFadeBusy || !simulatedWallpaperEnabled ||
+            wallpaperDemoRemaining > 0) return
+        // Si una prueba previa fue interrumpida, recuperar la foto del
+        // tema actual antes de iniciar otra demostración.
+        if (wallpaperShownTheme !== simulatedWallpaperTheme) {
+            changeSimulatedWallpaper(simulatedWallpaperTheme, false)
+            return
+        }
         const order = ["day","sunset","night"]
         const i = order.indexOf(wallpaperShownTheme)
+        wallpaperDemoRemaining = 3
+        // Una sola pulsación: tres fundidos y vuelta al wallpaper inicial.
         // false = no grabar nada, solamente mostrar el efecto.
         changeSimulatedWallpaper(order[(i + 1) % order.length], false)
     }
     onSimulatedWallpaperEnabledChanged: {
+        if (!simulatedWallpaperEnabled) {
+            wallpaperDemoRemaining = 0
+            wallpaperDemoHoldTimer.stop()
+        }
         if (!simulatedWallpaperEnabled && wallpaperFadeBusy) {
             wallpaperFade.stop()
             finishWallpaperFade()
@@ -178,6 +202,20 @@ Window {
             !wallpaperFadeBusy) changeSimulatedWallpaper(simulatedWallpaperTheme,false)
     }
 
+    // Intervalo de lectura entre cada fundido: no modifica el escritorio.
+    Timer {
+        id: wallpaperDemoHoldTimer
+        interval: 350
+        repeat: false
+        onTriggered: {
+            if (previewWindow.wallpaperDemoRemaining <= 0 ||
+                previewWindow.wallpaperFadeBusy ||
+                !previewWindow.simulatedWallpaperEnabled) return
+            const order = ["day","sunset","night"]
+            const i = order.indexOf(previewWindow.wallpaperShownTheme)
+            previewWindow.changeSimulatedWallpaper(order[(i+1)%order.length], false)
+        }
+    }
     Timer {
         id: saveAppearanceTimer
         interval: 180
@@ -1076,10 +1114,11 @@ Window {
         anchors.bottomMargin: 48
         text: "Probar transición de wallpaper"
         enabled: previewWindow.simulatedWallpaperEnabled &&
-                 !previewWindow.wallpaperFadeBusy
+                 !previewWindow.wallpaperFadeBusy &&
+                 previewWindow.wallpaperDemoRemaining === 0
         onClicked: previewWindow.previewNextWallpaper()
         QQC2.ToolTip.visible: hovered
-        QQC2.ToolTip.text: "Día → Atardecer → Noche → Día (0,8 segundos). Solo simulación."
+        QQC2.ToolTip.text: "Tres fundidos de 0,8 segundos y vuelta al fondo original. Solo simulación."
     }
 
     Row {
