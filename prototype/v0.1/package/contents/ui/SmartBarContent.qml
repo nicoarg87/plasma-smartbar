@@ -716,11 +716,11 @@ Item {
     property color gripButtonColor: "#010111"
     property real gripButtonOpacity: 0.9
     readonly property color effectiveTrayButtonColor: trayButtonColorOverride
-        ? trayButtonColor : soledadColor
+        ? displayTrayButtonColor : displaySoledadColor
     readonly property real effectiveTrayButtonOpacity: trayButtonColorOverride
         ? trayButtonOpacity : soledadOpacity
     readonly property color effectiveGripButtonColor: gripButtonColorOverride
-        ? gripButtonColor : soledadColor
+        ? displayGripButtonColor : displaySoledadColor
     readonly property real effectiveGripButtonOpacity: gripButtonColorOverride
         ? gripButtonOpacity : soledadOpacity
 
