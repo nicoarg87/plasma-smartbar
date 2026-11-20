@@ -632,7 +632,8 @@ Window {
 
     SmartBarContent {
         id: bar
-        themeScheduleRuntimeEnabled: !previewWindow.captureDayOnce
+        // No empezar el reloj antes de restaurar los ajustes locales.
+        themeScheduleRuntimeEnabled: previewWindow.appearanceRestored && !previewWindow.captureDayOnce
         themeScheduleEnabled: previewWindow.demoThemeScheduleEnabled
         themeScheduleSlotCount: previewWindow.demoThemeScheduleSlotCount
         themeScheduleSlots3Json: previewWindow.demoThemeScheduleSlots3Json
