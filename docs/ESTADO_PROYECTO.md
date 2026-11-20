@@ -1519,3 +1519,13 @@ Esos nombres describen fuentes disponibles; **no prueban por sí solos que las t
 - **Retirada de código anterior:** el monitor `vigilar_wallpaper.py` que podía ejecutar `plasma-apply-wallpaperimage` se eliminó del repositorio y de `probar_ancho.sh`. El envoltorio `main.qml` ya no transmite eventos de selección a KDE. Así el prototipo y la casilla **no modifican el escritorio real**.
 - **Sin botones nuevos:** solamente casilla de verificación y el desplegable ya confirmado.
 - **Prueba automatizada pendiente de ejecución en CachyOS:** `node prototype/v0.1/tests/test_wallpapers_por_tema.cjs`; verificar visualmente los tres fondos, ajuste Stretch, estado de casilla, cierre y reapertura, y que los perfiles personales sigan intactos. No afirmar validación gráfica hasta comprobarla.
+
+## 19/11/2026 — Eliminación de franja continua que tapaba el wallpaper simulado
+
+**Confirmado por el mantenedor con captura:** la franja horizontal de ancho completo detrás de SO/Malvina en el visor QML **no debe verse ni existir como superficie interactiva**. El espacio libre debe mostrar directamente el wallpaper del escritorio simulado y permitir interacción con los controles correspondientes. No agregar barra, fondo, botones ni capturadores de clic superpuestos.
+
+**Causa verificada en código:** `SmartBarContent.qml` todavía renderizaba un `Rectangle` con `anchors.fill: parent` y `visible: root.showBackground`; el valor `showBackground=true` podía venir de ajustes visuales locales ya guardados. El rectángulo atravesaba todo el ancho del componente compartido (aunque no tenía `MouseArea`).
+
+**Implementado en rama experimental:** eliminado el rectángulo de `SmartBarContent.qml`, por lo que no se dibuja en el visor ni en el componente compartido. Retirada la casilla «Mostrar fondo continuo opcional» y la opción «Fondo opcional» de la lista visible de colores compartidos. El selector mantiene sus índices internos históricos para no reinterpretar preferencias previas, pero omite el índice 2 descontinuado. Las propiedades heredadas permanecen serializables para no destruir temas ni perfiles del usuario; ya no tienen efecto visual. Preservados Soledad, Malvina, sus áreas propias de interacción y el PNG temático estirado detrás.
+
+**Verificación:** inspección estática positiva: no existe `visible: root.showBackground` ni `MouseArea` en la región de fondo de ancho completo; isla SO, hotspot de Malvina y `Image.Stretch` siguen presentes. Se agregó `tests/test_sin_barra_continua.cjs` para prevenir regresiones. **Pendiente de probar visualmente en CachyOS** y comprobar que desaparece la franja en perfiles guardados con `showBackground=true`. No modificar el panel real.
