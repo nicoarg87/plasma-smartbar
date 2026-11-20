@@ -75,7 +75,11 @@ assert(ui.includes('GridLayout {'));
 assert(ui.includes('columns: appearanceScroll.availableWidth >= 740 ? 3'));
 assert(ui.includes('Layout.minimumWidth: 0'));
 const fixedScrolls = (ui.match(/QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn/g) || []).length;
-assert(fixedScrolls >= 9, "Las páginas principales deben conservar scrollbar visible");
+assert.equal(fixedScrolls, 9, "Conservar las nueve zonas de desplazamiento existentes");
+assert.equal((ui.match(/QQC2.ScrollBar.vertical.width: 16/g) || []).length, fixedScrolls,
+             "Breeze necesita ancho estable en cada scroll vertical sin cambiar su política");
+assert(!ui.includes("QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOff"),
+       "No deshabilitar el desplazamiento vertical de las páginas");
 assert(ui.includes("id: themesScroll"), "La página Temas debe conservar su scroll");
 // Regresión Qt observada el 20/11 en CachyOS: no enlazar el ancho de
 // TabBar a sus propios hijos ocultos y no inicializar la muestra como {}.
