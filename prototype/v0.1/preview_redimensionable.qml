@@ -1140,7 +1140,7 @@ Window {
         anchors.bottom: parent.bottom
         anchors.leftMargin: 18
         anchors.bottomMargin: 48
-        text: "Probar transición de tema y wallpaper"
+        text: "siguiente tema y wallpaper"
         enabled: bar.themeScheduleRuntimeEnabled &&
                  bar.themeWallpaperPreviewAvailable
         // Misma entrada que los menús contextuales de Soledad y Malvina.
