@@ -70,8 +70,13 @@ for (const pos of ["Right", "Center"]) {
     assert(snippet.includes('"#ffffff" : "#a1b1c0"'),
            "Diferenciar visualmente el botón habilitado y deshabilitado");
 }
-assert(chip.includes("onClicked: chip.host.closeDemoWindow(chip.appName)"));
+assert(chip.includes("chip.closePreview()\n            chip.host.closeDemoWindow(chip.appName)"));
 assert(chip.includes("chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks"));
+// La X de ficha primero cierra el popup para evitar que quede flotando y
+// luego quita la aplicación ficticia, sin accionar ventanas KDE.
+assert(chip.includes("id: closeDemoChip") &&
+       chip.includes("onClicked: {\n            chip.closePreview()\n            chip.host.closeDemoWindow(chip.appName)\n        }"),
+       "La X debe cerrar la vista previa ANTES de cerrar la ficha simulada");
 assert(!/requestClose|requestActivate|requestToggleMinimized|Process|execute/.test(src));
 function extract(name) {
   const index=bar.indexOf("    function "+name+"(");
@@ -171,7 +176,7 @@ assert(chip.includes("contentItem: Item {") &&
        chip.includes("id: closeDemoChip") &&
        chip.includes("rotation: 45") &&
        chip.includes("rotation: -45") &&
-       chip.includes("onClicked: chip.host.closeDemoWindow(chip.appName)"),
+       chip.includes("chip.closePreview()\n            chip.host.closeDemoWindow(chip.appName)"),
        "La X debe dibujarse con dos trazos dentro del botón existente");
 assert(islandButton.includes("fallbackLabel: control.text"));
 assert(islandButton.includes("control.inheritIslandFill ||"),
