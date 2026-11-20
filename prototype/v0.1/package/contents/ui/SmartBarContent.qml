@@ -2251,6 +2251,7 @@ Item {
                 // Único control de reapertura en el mismo cajón de fichas SO.
                 // Nunca se muestra con TasksModel real ni modifica KDE.
                 QQC2.ToolButton {
+                    id: reopenDemoRight
                     visible: root.positionMode === "right" && root.soExpanded &&
                              root.demoWindowControlsEnabled && !root.usingRealTasks
                     text: "+"
@@ -2259,9 +2260,32 @@ Item {
                     focusPolicy: Qt.StrongFocus
                     enabled: !root.demoHasRunningWindows ||
                              DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
-                    Accessible.name: "Abrir ventana simulada"
+                    Accessible.name: enabled ? "Abrir ventana simulada" :
+                                     "Todas las ventanas simuladas están abiertas"
+                    // El + no depende del texto del ToolButton, que el estilo
+                    // Qt puede dejar invisible. Se reutiliza el botón existente.
+                    contentItem: Item {
+                        implicitWidth: 18
+                        implicitHeight: 18
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 14
+                            height: 2
+                            radius: 1
+                            color: reopenDemoRight.enabled ? "#ffffff" : "#a1b1c0"
+                        }
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 2
+                            height: 14
+                            radius: 1
+                            color: reopenDemoRight.enabled ? "#ffffff" : "#a1b1c0"
+                        }
+                    }
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
+                    QQC2.ToolTip.text: enabled
+                        ? "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
+                        : "Las tres fichas simuladas están abiertas"
                     onClicked: root.reopenNextDemoWindow()
                 }
 
@@ -2758,6 +2782,7 @@ Item {
                 // Único control de reapertura en el mismo cajón de fichas SO.
                 // Nunca se muestra con TasksModel real ni modifica KDE.
                 QQC2.ToolButton {
+                    id: reopenDemoCenter
                     visible: root.positionMode === "center" && root.soExpanded &&
                              root.demoWindowControlsEnabled && !root.usingRealTasks
                     text: "+"
@@ -2766,9 +2791,32 @@ Item {
                     focusPolicy: Qt.StrongFocus
                     enabled: !root.demoHasRunningWindows ||
                              DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
-                    Accessible.name: "Abrir ventana simulada"
+                    Accessible.name: enabled ? "Abrir ventana simulada" :
+                                     "Todas las ventanas simuladas están abiertas"
+                    // El + no depende del texto del ToolButton, que el estilo
+                    // Qt puede dejar invisible. Se reutiliza el botón existente.
+                    contentItem: Item {
+                        implicitWidth: 18
+                        implicitHeight: 18
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 14
+                            height: 2
+                            radius: 1
+                            color: reopenDemoCenter.enabled ? "#ffffff" : "#a1b1c0"
+                        }
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 2
+                            height: 14
+                            radius: 1
+                            color: reopenDemoCenter.enabled ? "#ffffff" : "#a1b1c0"
+                        }
+                    }
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
+                    QQC2.ToolTip.text: enabled
+                        ? "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
+                        : "Las tres fichas simuladas están abiertas"
                     onClicked: root.reopenNextDemoWindow()
                 }
 
