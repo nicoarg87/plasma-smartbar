@@ -43,7 +43,7 @@ const context={
   themeScheduleRuntimeEnabled:true,
   themeWallpaperPreviewAvailable:true,
   calls:0,
-  requestThemeWallpaperPreview(){this.calls++}
+  requestThemeWallpaperPreview: () => { context.calls++ }
 };
 context.root=context;
 vm.runInNewContext(bar.slice(start,end+6)+";triggerThemeWallpaperPreview()",context);
