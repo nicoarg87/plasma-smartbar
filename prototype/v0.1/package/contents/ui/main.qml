@@ -2,6 +2,7 @@
 // El tamaño del contenido depende de lo que entregue el contenedor de KDE.
 import QtQuick
 import QtQuick.Layouts
+import QtCore as QtCore
 import org.kde.plasma.plasmoid
 
 PlasmoidItem {
@@ -19,9 +20,23 @@ PlasmoidItem {
     implicitHeight: Plasmoid.configuration.panelHeight
 
     onWidthChanged: console.log("SmartBar v0.1: ancho del applet Plasma =", width)
+    // El paquete real también registra qué wallpaper corresponde al tema.
+    // El servicio externo se integra en una etapa instalable futura.
+    QtCore.Settings {
+        id: wallpaperSignal
+        location: QtCore.StandardPaths.writableLocation(QtCore.StandardPaths.ConfigLocation)
+                  + "/plasma-smartbar-wallpapers.ini"
+        category: "ThemeWallpaper"
+    }
 
     SmartBarContent {
         id: demo
+        onRequestWallpaperThemeChange: function(themeName) {
+            if (["day", "sunset", "night"].indexOf(themeName) < 0) return
+            wallpaperSignal.setValue("theme", themeName)
+            wallpaperSignal.setValue("revision", Number(wallpaperSignal.value("revision", 0)) + 1)
+            wallpaperSignal.sync()
+        }
         anchors.fill: parent
         panelHeight: Plasmoid.configuration.panelHeight
         soledadHeight: Plasmoid.configuration.soledadHeight
