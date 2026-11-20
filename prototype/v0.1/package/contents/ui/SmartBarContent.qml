@@ -934,6 +934,13 @@ Item {
 
     // Mismo mapeo de preferencias que el diálogo de configuración.
     // Reutilizado por el reloj sin abrir nuevas ventanas ni tocar panel KDE.
+    // Captura local sin controles en la UI: se usa únicamente desde el
+    // comando de mantenimiento, antes de sellar el Día oficial.
+    function snapshotFromLiveAppearance() {
+        syncSettingsFromRoot()
+        return soledadSettings.themeSnapshot()
+    }
+
     function syncSettingsFromRoot() {
         soledadSettings.logoMode = root.soLogoMode
         soledadSettings.themeDayJson = root.themeDayJson
