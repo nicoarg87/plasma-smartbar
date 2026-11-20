@@ -12,6 +12,16 @@ const bar=fs.readFileSync(path.join(base,"package/contents/ui/SmartBarContent.qm
 const preview=fs.readFileSync(path.join(base,"preview_redimensionable.qml"),"utf8");
 const main=fs.readFileSync(path.join(base,"package/contents/ui/main.qml"),"utf8");
 const config=fs.readFileSync(path.join(base,"package/contents/config/main.xml"),"utf8");
+// El método público QML mantiene el mismo contrato; la implementación pura
+// ahora reside en ThemeLibrary.js. Cargar su función como haría el motor QML.
+const themeLibrarySource=fs.readFileSync(
+    path.join(base,"package/contents/ui/ThemeLibrary.js"),"utf8");
+const themeLibraryContext={};
+vm.runInNewContext(themeLibrarySource.replace(/^\\s*\\.pragma library\\s*/, ""),themeLibraryContext);
+assert.equal(typeof themeLibraryContext.parse,"function");
+assert(ui.includes('import "ThemeLibrary.js" as ThemeLibrary'));
+assert(ui.includes('return ThemeLibrary.parse(json)'));
+
 assert(ui.includes("id: themeSelectorButton"));
 assert(ui.includes("id: themeOptionsPopup"));
 assert(ui.includes("id: themeOptionsColumn"));
@@ -56,6 +66,7 @@ const state={
     appliedCount:0
 };
 state.settings=state;
+state.ThemeLibrary=themeLibraryContext;
 const script=[
     extract("preferenceCopy"),extract("captureSettingsBaseline"),
     extract("stageThemeSlot"),extract("parseThemeLibrary"),
