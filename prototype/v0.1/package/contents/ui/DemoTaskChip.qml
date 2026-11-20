@@ -11,12 +11,14 @@ Row {
     // Referir modelData desde el padre no funciona en este contexto.
     required property string modelData
     readonly property string appName: modelData
+    readonly property bool previewAllowed: chip.host.taskCloseMode !== "chip"
+    readonly property bool chipCloseAllowed: chip.host.taskCloseMode !== "preview"
     spacing: 1
 
     // La vista previa permanece abierta solo mientras el cursor está sobre
     // la ficha o sobre el popup; una breve gracia permite alcanzar su X.
     function openPreview() {
-        if (!chip.host.demoWindowControlsEnabled ||
+        if (!previewAllowed || !chip.host.demoWindowControlsEnabled ||
             chip.host.usingRealTasks || !chip.host.demoHasRunningWindows)
             return
         previewDismissDelay.stop()
@@ -32,6 +34,10 @@ Row {
     // superpuestos de Dolphin/Konsole/Brave.
     Connections {
         target: chip.host
+        function onTaskCloseModeChanged() {
+            // Si se desactiva el popup con Configuración → Aplicar, cerrarlo.
+            if (!chip.previewAllowed) chip.closePreview()
+        }
         function onActiveDemoPreviewAppChanged() {
             if (chip.host.activeDemoPreviewApp !== chip.appName &&
                 previewPopup.visible)
@@ -62,7 +68,8 @@ Row {
         interval: 450
         repeat: false
         onTriggered: {
-            if (taskButton.hovered && chip.host.demoWindowControlsEnabled &&
+            if (chip.previewAllowed && taskButton.hovered &&
+                chip.host.demoWindowControlsEnabled &&
                 !chip.host.usingRealTasks && chip.host.demoHasRunningWindows)
                 chip.openPreview()
         }
@@ -105,7 +112,8 @@ Row {
             chip.host.selectDemoApp(chip.appName)
         }
         onHoveredChanged: {
-            if (hovered && chip.host.demoWindowControlsEnabled &&
+            if (hovered && chip.previewAllowed &&
+                chip.host.demoWindowControlsEnabled &&
                 !chip.host.usingRealTasks && !previewPopup.visible)
                 previewHoverDelay.restart()
             else
@@ -115,6 +123,8 @@ Row {
         }
         MouseArea {
             anchors.fill: parent
+            enabled: chip.previewAllowed && chip.host.demoWindowControlsEnabled &&
+                     !chip.host.usingRealTasks
             acceptedButtons: Qt.RightButton
             onClicked: {
                 previewHoverDelay.stop()
@@ -128,7 +138,8 @@ Row {
 
     QQC2.ToolButton {
         id: closeDemoChip
-        visible: chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks
+        visible: chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks &&
+                 chip.chipCloseAllowed
         text: "×"
         implicitWidth: 26
         implicitHeight: 34
