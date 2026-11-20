@@ -146,6 +146,7 @@ Window {
         saveWallpaperFadeRequested(amount,unit)
         return true
     }
+    property bool barThemeTransitionEnabled: true
     property bool themeScheduleEnabled: true
     property int themeScheduleSlotCount: 4
     property string themeScheduleSlots3Json:
@@ -354,6 +355,8 @@ Window {
     signal wallpaperThemeSelected(string themeName)
     signal saveThemeScheduleRequested(bool enabled, int count, string slots3Json, string slots4Json)
     signal saveWallpaperFadeRequested(int amount, string unit)
+    signal saveBarThemeTransitionRequested(bool enabled)
+    signal themeVisualTransitionRequested()
     // Ajuste personal, no forma parte de los temas oficiales inmutables.
     signal thematicWallpaperVisibilityRequested(bool enabled)
     QQC2.Dialog {
@@ -716,6 +719,9 @@ Window {
         try {
             const info = JSON.parse(jsonData)
             if (info.version !== 1) throw new Error("Versión de tema desconocida")
+            // Activar el fundido únicamente al cargar un tema válido.
+            // La demostración del wallpaper usa otra ruta, sin guardar temas.
+            themeVisualTransitionRequested()
             const fields = [
                 "effectStyle","allowMotion","strokeSize","orbitSpeed",
                 "trailPercent","trailStyle","showOutlineWhenEmpty",
@@ -4732,6 +4738,21 @@ Window {
                             visible: settings.wallpaperFadeError.length > 0
                             color: "#ffbba5"
                             text: settings.wallpaperFadeError
+                        }
+                        QQC2.CheckBox {
+                            Layout.fillWidth: true
+                            text: "Transición suave de las islas"
+                            checked: settings.barThemeTransitionEnabled
+                            onToggled: {
+                                settings.barThemeTransitionEnabled = checked
+                                settings.saveBarThemeTransitionRequested(checked)
+                            }
+                        }
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            color: "#b7c7d9"
+                            text: "Usa el mismo tiempo del fundido del wallpaper para los colores y contornos de Soledad y Malvina. Se puede desactivar sin modificar los temas."
                         }
                         // Cuatro franjas diarias de fábrica; tres como alternativa.
                         // No hay botones para aplicar/guardar horarios: cada valor válido persiste.
