@@ -136,6 +136,13 @@ Row {
         QQC2.ToolTip.text: "Ventana simulada: " + chip.appName
     }
 
+    // El parlante corresponde a la APLICACIÓN agrupada. En este prototipo
+    // solo cambia el estado gráfico de la simulación, nunca el audio real.
+    DemoAudioButton {
+        host: chip.host
+        appName: chip.appName
+    }
+
     QQC2.ToolButton {
         id: closeDemoChip
         visible: chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks &&
