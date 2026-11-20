@@ -210,7 +210,7 @@ const interactiveState = {
     malvinaGradientBreathingEnabled: false, malvinaGradientBreathingSpeed: 0.7,
     effectStyle: "orbit", allowMotion: false, pulseSpeed: 0.2, pulseDepth: 0.7,
     previewRefreshes: 0,
-    refreshOutlinePreview: function() { this.previewRefreshes++ }
+    refreshOutlinePreview: function() { interactiveState.previewRefreshes++ }
 };
 vm.runInNewContext([
     qmlFunction("setIndependentGradientSpeed"),
@@ -272,7 +272,7 @@ const state = {
     pulseSpeed: 0.2, soledadColor: "#112233",
     outlineConfig: {soledad:{width:1}}, themeDayJson: "tema anterior",
     appliedLabel: {text:""}, previewRefreshes:0,
-    refreshOutlinePreview: function(){this.previewRefreshes++}
+    refreshOutlinePreview: function(){state.previewRefreshes++}
 };
 state.settings = state;
 vm.runInNewContext([
