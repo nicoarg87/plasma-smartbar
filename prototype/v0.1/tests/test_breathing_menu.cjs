@@ -336,4 +336,5 @@ vm.runInNewContext([
     "pulseSpeed = 2.1", "discardPendingEdits()"
 ].join("\n"), state);
 assert.equal(state.pulseSpeed, 0.6);
-console.log("OK: logo/texto/luz juntos, Cancelar/Aplicar, 139 ajustes reversibles y respiración independiente.");
+console.log("OK: logo/texto/luz juntos, Cancelar/Aplicar, " +
+            transactionKeys.length + " ajustes reversibles y respiración independiente.");
