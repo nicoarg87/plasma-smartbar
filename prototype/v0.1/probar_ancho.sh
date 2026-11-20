@@ -46,30 +46,18 @@ cleanup_catalog() {
         rm -f -- "$LOCAL_CATALOG"
     fi
 }
-WALLPAPER_WATCH_PID=""
-cleanup_preview() {
-    if [ -n "$WALLPAPER_WATCH_PID" ]; then
-        kill "$WALLPAPER_WATCH_PID" 2>/dev/null || true
-        wait "$WALLPAPER_WATCH_PID" 2>/dev/null || true
-    fi
-    cleanup_catalog
-}
-trap cleanup_preview EXIT
+trap cleanup_catalog EXIT
 
 export QML_XHR_ALLOW_FILE_READ=1
 
-# El monitor solo cambia el fondo después de seleccionar Día/Atardecer/Noche.
-# Los tres PNG originales se entregan por ZIP; si faltan, no afecta al visor.
+# Solo simulación: la foto se dibuja en preview_redimensionable.qml.
+# No se ejecutan monitores externos ni comandos que cambien el wallpaper KDE.
 WALLPAPER_ASSETS="$HERE/package/contents/ui/assets/wallpapers"
-if command -v python3 >/dev/null 2>&1 &&
-   [ -f "$WALLPAPER_ASSETS/manifest.json" ] &&
-   python3 "$HERE/scripts/vigilar_wallpaper.py" --check >/dev/null 2>&1; then
-    python3 -u "$HERE/scripts/vigilar_wallpaper.py" &
-    WALLPAPER_WATCH_PID=$!
-    echo "Fondos por tema habilitados: Día, Atardecer y Noche, modo Estirar."
-else
-    echo "AVISO: los wallpapers aún no están completos. Extraé el ZIP de wallpapers en la raíz del repositorio."
-    echo "La maqueta sigue funcionando sin modificar el fondo del escritorio."
+if [ ! -f "$WALLPAPER_ASSETS/day.png" ] ||
+   [ ! -f "$WALLPAPER_ASSETS/sunset.png" ] ||
+   [ ! -f "$WALLPAPER_ASSETS/night.png" ]; then
+    echo "AVISO: faltan wallpapers del escritorio simulado. Extraé el ZIP de wallpapers en la raíz del repositorio."
+    echo "El visor abrirá con el fondo liso si no están instaladas las imágenes."
 fi
 
 echo "Abriendo la vista de geometría Qt Quick de Plasma SmartBar Islands…"
