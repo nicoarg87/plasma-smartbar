@@ -1106,15 +1106,15 @@ Window {
               " px lógicos · prioridad: " + (bar.lastExpandedMode === "so" ? "SO" : "bandeja")
     }
 
-    // Único botón de demostración solicitado: cicla las fotos sin alterar
-    // los temas, la programación horaria ni el panel KDE.
+    // Una prueba por clic: funde la foto y los colores VISUALES de la barra,
+    // sin aplicar ni guardar temas, tocar horarios o el escritorio KDE.
     QQC2.Button {
         id: wallpaperDemoButton
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.leftMargin: 18
         anchors.bottomMargin: 48
-        text: "Probar transición de wallpaper"
+        text: "Probar transición de tema y wallpaper"
         enabled: previewWindow.simulatedWallpaperEnabled &&
                  !previewWindow.wallpaperFadeBusy
         onClicked: previewWindow.previewNextWallpaper()
