@@ -46,6 +46,26 @@ assert(!/appName:\s*modelData/.test(bar),
 assert.equal((bar.match(/delegate: DemoTaskChip \{\s*\/\/[\s\S]*?host: root\s*\}/g)||[]).length,2,
        "Derecha y centro deben pasar el host y dejar que Qt inyecte modelData");
 assert.equal((bar.match(/onClicked: root.reopenNextDemoWindow\(\)/g)||[]).length,2);
+// Bug observado por el mantenedor: el botón "+" ocupaba lugar pero su
+// glifo no era visible. El mismo ToolButton se dibuja con dos trazos.
+for (const pos of ["Right", "Center"]) {
+    const start=bar.indexOf("id: reopenDemo" + pos);
+    assert(start !== -1, "Falta el botón + de SO " + pos);
+    const end=bar.indexOf("onClicked: root.reopenNextDemoWindow()", start);
+    assert(end > start, "La reapertura debe conservar el mismo clic");
+    const snippet=bar.slice(start, end);
+    assert(snippet.includes("contentItem: Item {"),
+           "La ficha + debe dibujar su contenido sin tipografía Qt");
+    assert(snippet.includes("width: 14") && snippet.includes("height: 2") &&
+           snippet.includes("width: 2") && snippet.includes("height: 14"),
+           "Deben existir trazos horizontal y vertical del +");
+    assert(snippet.includes('text: "+"') && snippet.includes("!root.usingRealTasks"),
+           "Debe seguir siendo solo un control ficticio, no KDE real");
+    assert(snippet.includes("enabled: !root.demoHasRunningWindows ||"),
+           "Deshabilitar + cuando las tres fichas están abiertas");
+    assert(snippet.includes('"#ffffff" : "#a1b1c0"'),
+           "Diferenciar visualmente el botón habilitado y deshabilitado");
+}
 assert(chip.includes("onClicked: chip.host.closeDemoWindow(chip.appName)"));
 assert(chip.includes("chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks"));
 assert(!/requestClose|requestActivate|requestToggleMinimized|Process|execute/.test(src));
