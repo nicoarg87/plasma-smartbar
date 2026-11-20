@@ -12,6 +12,7 @@ const viewer=read("preview_redimensionable.qml");
 const config=read("package/contents/config/main.xml");
 const main=read("package/contents/ui/main.qml");
 const duration=read("package/contents/ui/WallpaperFadeDuration.js");
+const button=read("package/contents/ui/IslandButton.qml");
 assert(ui.includes('text: "Transición suave de las islas"'));
 assert(ui.includes('checked: settings.barThemeTransitionEnabled'));
 assert(ui.includes('saveBarThemeTransitionRequested(checked)'));
@@ -23,6 +24,16 @@ assert(bar.includes('onSaveBarThemeTransitionRequested: function(enabled)'));
 assert(bar.includes('WallpaperFadeDuration.durationMs(wallpaperFadeAmount, wallpaperFadeUnit)'));
 assert(bar.includes('themeColorsTransitionActive = themeScheduleRuntimeEnabled && barThemeTransitionEnabled'));
 assert(bar.includes('function previewBarThemeColors(theme)'));
+assert(bar.includes('function previewArtworkFromTheme(info)'));
+assert(bar.includes('function previewThemeAvailable(theme)'));
+assert(bar.includes('soButton.beginArtworkPreview(art,themeColorsDurationMs)'));
+assert(bar.includes('soButton.beginActualArtworkFade(themeColorsDurationMs)'));
+assert(button.includes('function beginArtworkPreview(art, durationMs)'));
+assert(button.includes('function beginActualArtworkFade(durationMs)'));
+assert(button.includes('function clearArtworkPreview()'));
+assert(button.includes('active: control.previewArtworkEnabled'));
+assert(button.includes('model: 2'));
+assert(!button.includes('QQC2.Button {'),"El fundido no debe agregar botones extra");
 assert(bar.includes('themeScheduleRuntimeEnabled || soledadSettings.visible'));
 assert(bar.includes('if (info.accentColor) palette.soActivityColor'));
 assert(bar.includes('if (info.glowColor) palette.soActivityGlowColor'));
@@ -75,6 +86,7 @@ function extract(name) {
     throw Error("Bloque sin cierre "+name);
 }
 let fakeWrites=0, transitionStarts=0, syncs=0;
+let artworkPreviews=0,actualArtworkFades=0,clearedArtwork=0;
 const saved=JSON.stringify({
     version:1,soledadColor:"#112233",malvinaColor:"#445566",
     soledadGradientEnd:"#aa2200",malvinaGradientEnd:"#bb3300",
@@ -87,6 +99,12 @@ const state={
     barColorPreviewActive:false,barPreviewColors:{},themeColorsTransitionActive:false,
     themeColorsTimer:{start(){},stop(){}},themeColorsDurationMs:3000,
     soledadSettings:{visible:false,slotJson:()=>saved},
+    soButton:{
+        beginArtworkPreview:()=>{artworkPreviews++;return true},
+        beginActualArtworkFade:()=>{actualArtworkFades++},
+        clearArtworkPreview:()=>{clearedArtwork++}
+    },
+    previewArtworkFromTheme:()=>({mode:"image",image:"file:///so-original.gif"}),
     syncSettingsFromRoot:()=>syncs++,
     scheduledThemeSlot:()=> "library:0",
     beginThemeColorTransition:()=>transitionStarts++,
@@ -100,6 +118,7 @@ vm.runInContext(functions.map(extract).join("\n"),vm.createContext(state));
 assert.equal(state.previewBarThemeColors("sunset"),true);
 assert.equal(transitionStarts,1);
 assert.equal(syncs,1);
+assert.equal(artworkPreviews,1,"El logo SO debe fundirse con la paleta");
 assert.equal(state.barPreviewColors.soledadColor,"#112233");
 assert.equal(state.barPreviewColors.malvinaColor,"#445566");
 assert.equal(state.barPreviewColors.soActivityColor,"#44ff44");
@@ -110,6 +129,7 @@ assert.equal(fakeWrites,0,"La vista previa tocó temas guardados");
 state.barColorPreviewActive=true;
 state.startActualThemeColorTransition();
 assert.equal(state.barColorPreviewActive,false);
+assert.equal(actualArtworkFades,1,"El cambio de tema real debe fundir SO");
 assert.equal(fakeWrites,0,"El fin de la vista previa escribió temas");
 state.soledadSettings.visible=true;
 assert.equal(state.previewBarThemeColors("night"),false,"No pisar formularios abiertos");
@@ -118,4 +138,4 @@ const ms=new Function(duration.replace(/^\.pragma library/,"")+";return duration
 assert.equal(ms(3,"seconds"),3000);
 assert.equal(ms(2,"minutes"),120000);
 assert.equal(ms(1,"hours"),3600000);
-console.log("OK: 19 colores visuales independientes, horario activo por defecto y mismo tiempo que wallpaper.");
+console.log("OK: 19 colores y GIF/imagen SO sincronizados sin escrituras de temas.");
