@@ -13,6 +13,50 @@ Row {
     readonly property string appName: modelData
     spacing: 1
 
+    // La vista previa permanece abierta solo mientras el cursor está sobre
+    // la ficha o sobre el popup; una breve gracia permite alcanzar su X.
+    function openPreview() {
+        if (!chip.host.demoWindowControlsEnabled ||
+            chip.host.usingRealTasks || !chip.host.demoHasRunningWindows)
+            return
+        previewDismissDelay.stop()
+        chip.host.activeDemoPreviewApp = chip.appName
+        previewPopup.open()
+    }
+    function closePreview() {
+        previewHoverDelay.stop()
+        previewDismissDelay.stop()
+        previewPopup.close()
+    }
+    // Al abrir otra ficha, esta vista previa se cierra: no hay popups
+    // superpuestos de Dolphin/Konsole/Brave.
+    Connections {
+        target: chip.host
+        function onActiveDemoPreviewAppChanged() {
+            if (chip.host.activeDemoPreviewApp !== chip.appName &&
+                previewPopup.visible)
+                chip.closePreview()
+        }
+    }
+    HoverHandler {
+        id: chipHover
+        onHoveredChanged: {
+            if (hovered)
+                previewDismissDelay.stop()
+            else if (previewPopup.visible)
+                previewDismissDelay.restart()
+        }
+    }
+    Timer {
+        id: previewDismissDelay
+        interval: 240
+        repeat: false
+        onTriggered: {
+            if (!chipHover.hovered && !previewPopupHover.hovered)
+                chip.closePreview()
+        }
+    }
+
     Timer {
         id: previewHoverDelay
         interval: 450
@@ -20,7 +64,7 @@ Row {
         onTriggered: {
             if (taskButton.hovered && chip.host.demoWindowControlsEnabled &&
                 !chip.host.usingRealTasks && chip.host.demoHasRunningWindows)
-                previewPopup.open()
+                chip.openPreview()
         }
     }
 
@@ -57,23 +101,25 @@ Row {
             chip.appName === chip.host.lastDemoSelection
         text: chip.appName
         onClicked: {
-            previewHoverDelay.stop()
-            previewPopup.close()
+            chip.closePreview()
             chip.host.selectDemoApp(chip.appName)
         }
         onHoveredChanged: {
-            if (hovered && chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks)
+            if (hovered && chip.host.demoWindowControlsEnabled &&
+                !chip.host.usingRealTasks && !previewPopup.visible)
                 previewHoverDelay.restart()
             else
                 previewHoverDelay.stop()
+            if (hovered) previewDismissDelay.stop()
+            else if (previewPopup.visible) previewDismissDelay.restart()
         }
         MouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.RightButton
             onClicked: {
                 previewHoverDelay.stop()
-                if (previewPopup.visible) previewPopup.close()
-                else previewPopup.open()
+                if (previewPopup.visible) chip.closePreview()
+                else chip.openPreview()
             }
         }
         QQC2.ToolTip.visible: hovered && !previewPopup.visible
@@ -112,7 +158,10 @@ Row {
         }
         QQC2.ToolTip.visible: hovered
         QQC2.ToolTip.text: "Cerrar solo la ficha simulada de " + chip.appName
-        onClicked: chip.host.closeDemoWindow(chip.appName)
+        onClicked: {
+            chip.closePreview()
+            chip.host.closeDemoWindow(chip.appName)
+        }
     }
 
     // Esta ventana flotante no aumenta el grosor ni la fila de SO.
@@ -135,6 +184,11 @@ Row {
                 Math.min(0, chip.host.width - absX - width - 6))
         }
         closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+        onClosed: {
+            previewDismissDelay.stop()
+            if (chip.host.activeDemoPreviewApp === chip.appName)
+                chip.host.activeDemoPreviewApp = ""
+        }
         background: Rectangle {
             color: "#142637"
             radius: 8
@@ -143,6 +197,16 @@ Row {
         }
         contentItem: Column {
             spacing: 7
+            HoverHandler {
+                id: previewPopupHover
+                margin: 8
+                onHoveredChanged: {
+                    if (hovered)
+                        previewDismissDelay.stop()
+                    else if (previewPopup.visible)
+                        previewDismissDelay.restart()
+                }
+            }
             Text {
                 width: parent.width
                 text: chip.appName + " · ventanas abiertas (simulación)"
@@ -202,7 +266,7 @@ Row {
                             }
                             onClicked: {
                                 const last = chip.host.demoInstancesForApp(chip.appName).length === 1
-                                if (last) previewPopup.close()
+                                if (last) chip.closePreview()
                                 chip.host.closeDemoWindowInstance(chip.appName, modelData.id)
                             }
                         }
