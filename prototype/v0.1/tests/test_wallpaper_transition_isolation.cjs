@@ -47,13 +47,14 @@ function extract(name) {
 }
 const funcs=["changeSimulatedWallpaper","finishWallpaperFade","previewNextWallpaper",
              "abortWallpaperFade","wallpaperForTheme","startWallpaperFadeIfReady"];
-const writes=[],later=[];
+const writes=[],later=[],colorPreviewCalls=[];
 const ctx={
   simulatedWallpaperTheme:"day", wallpaperShownTheme:"day",
   wallpaperPrimaryTheme:"day",wallpaperSecondaryTheme:"",
   wallpaperIncomingTheme:"", wallpaperIncomingLayer:"",
   wallpaperQueuedTheme:"",wallpaperActiveLayer:"primary",
   wallpaperFadeBusy:false,simulatedWallpaperEnabled:true,
+  bar:{previewBarThemeColors:theme=>{colorPreviewCalls.push(theme);return true}},
   wallpaperFade:{running:false,target:null,stop(){},start(){}},
   simulatedDesktopWallpaper:{opacity:1,status:1},
   incomingWallpaper:{opacity:0,status:1},
@@ -76,6 +77,8 @@ for(const next of ["sunset","night","day"]) {
   assert.deepEqual(writes,[],"El botón de prueba guardó una preferencia");
 }
 assert.equal(ctx.wallpaperShownTheme,"day");
+assert.deepEqual(colorPreviewCalls,["sunset","night","day"],
+  "Cada clic debe previsualizar también una sola paleta de islas");
 // Con horas de transición, un cambio automático/manual no debe quedar en cola.
 ctx.previewNextWallpaper(); // fundido hacia Atardecer iniciado
 ctx.wallpaperQueuedTheme="sunset"; // solicitud previa obsoleta
@@ -84,6 +87,8 @@ assert.equal(ctx.wallpaperQueuedTheme,"");
 assert.equal(ctx.wallpaperIncomingTheme,"night");
 assert.equal(ctx.wallpaperFadeBusy,true);
 assert.deepEqual(writes,[["simulatedWallpaperTheme","night"],["sync"]]);
+assert.deepEqual(colorPreviewCalls,["sunset","night","day","sunset"],
+  "El evento real no debe disparar una vista previa del siguiente color");
 assert(!writes.some(([key])=>/themeLibrary|themeDay|themeNight|appearanceV1|Schedule|Factory/.test(key)));
 assert(settings.includes("readonly property var factoryDayPreset"));
 assert(settings.includes('slot.length && settings.activateTheme(slot)'));
