@@ -156,3 +156,15 @@ El motor consulta el reloj **local** mientras está abierto el visor (cada 15 se
 **Implementación:** doble búfer de dos imágenes QML con `Image.Stretch`, sin áreas de interacción; precarga el PNG entrante, luego anima su opacidad de 0 a 1 y deja la capa final cargada. El motor conserva por separado el tema persistido, el wallpaper visible y el entrante. Si falta una imagen, se cancela el fundido sin modificar un tema. El código de la animación reside exclusivamente en `prototype/v0.1/preview_redimensionable.qml`.
 
 **Pruebas:** se evaluaron las funciones JS extraídas del visor sobre un contexto simulado: secuencia de tres fundidos con retorno a Día, **0 escrituras** en QSettings de temas, y cancelación al entrar un tema real. Archivos de regresión: `tests/test_wallpaper_transition_isolation.cjs` y `tests/test_wallpapers_por_tema.cjs`. Pendiente ejecutar ambos con Node y comprobar visualmente el efecto en CachyOS. **Transición suave de colores y efectos de las islas:** pendiente de estudio y aprobación técnica; no está implementada.
+
+## Fundido configurable y demostración de un solo paso (19/11/2026)
+
+**Confirmado — reemplaza el fundido fijo anterior de 800 ms y la secuencia de un clic:**
+
+- **Duración inicial:** 3 segundos por wallpaper. Se puede elegir número y unidad: segundos (1–3600), minutos (1–240), horas (1–24). El tiempo describe **cada fundido individual** de una foto a otra, no la distancia entre franjas ni el tiempo de espera entre cambios.
+- **Ajuste:** en **Configuración → Temas → Con horarios → Fundido del wallpaper**. Valor independiente de los tres temas oficiales y guardado automáticamente; no añade botones de guardado ni se incluye en los snapshots de Día, Atardecer o Noche.
+- **Botón «Probar transición de wallpaper» en escritorio simulado:** cada pulsación hace **un único fundido** hacia el siguiente wallpaper en orden Día → Atardecer → Noche → Día. Espera a que concluya para aceptar otro clic. No modifica el tema realmente activo, sus colores, GIF, el horario ni los archivos de usuario. Si después la selección manual o el reloj activa un tema, la foto vinculada tiene prioridad.
+- **Cambios reales:** la misma duración personalizada se utiliza cuando la elección de un tema causa cambio del wallpaper simulado. Una nueva franja horaria puede cancelar un fundido anterior prolongado para no quedar atrasada.
+- **Alcance técnico:** dos capas `Image.Stretch` en el visor QML, sin capturar clics ni usar el escritorio real de KDE. No implementar aún transición suave en paletas, brillo ni el botón SO. **Pendiente comprobar en CachyOS** visualmente tanto el cambio de foto como la protección de los temas.
+
+**Implementado en rama experimental**; las pruebas de lógica y la interfaz necesitan validación final en CachyOS. El original de los temas sigue inmutable.
