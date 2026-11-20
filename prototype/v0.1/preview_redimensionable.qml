@@ -65,8 +65,12 @@ Window {
     // del botón de demostración (no se guardan cambios al probar).
     readonly property int wallpaperFadeDurationMs: 800
     property string wallpaperShownTheme: simulatedWallpaperTheme
+    property string wallpaperPrimaryTheme: simulatedWallpaperTheme
+    property string wallpaperSecondaryTheme: ""
     property string wallpaperIncomingTheme: ""
     property string wallpaperQueuedTheme: ""
+    property string wallpaperActiveLayer: "primary"
+    property string wallpaperIncomingLayer: ""
     property bool wallpaperFadeBusy: false
 
     function wallpaperForTheme(theme) {
@@ -75,40 +79,78 @@ Window {
         return Qt.resolvedUrl("package/contents/ui/assets/wallpapers/" + name)
     }
     function startWallpaperFadeIfReady() {
-        if (wallpaperFadeBusy && wallpaperIncomingTheme.length &&
-            incomingWallpaper.status === Image.Ready && !wallpaperFade.running)
+        if (!wallpaperFadeBusy || !wallpaperIncomingTheme.length ||
+            wallpaperFade.running) return
+        const target = wallpaperIncomingLayer === "primary"
+            ? simulatedDesktopWallpaper : incomingWallpaper
+        if (target.status === Image.Ready) {
+            wallpaperFade.target = target
             wallpaperFade.start()
+        }
     }
+    // Solo se modifica el fondo del visor. Nunca toca QSettings de los
+    // presets, instantáneas, GIF, colores ni el estado del reloj.
     function changeSimulatedWallpaper(theme, saveSelection) {
         if (["day","sunset","night"].indexOf(theme) < 0) return
-        // Un cambio real por tema/hora actualiza la selección persistente.
-        // La prueba visual NO escribe QSettings ni modifica el tema.
         if (saveSelection) {
             simulatedWallpaperTheme = theme
             localPreviewSettings.setValue("simulatedWallpaperTheme", theme)
             localPreviewSettings.sync()
         }
         if (wallpaperFadeBusy) {
-            wallpaperQueuedTheme = theme // último evento gana
+            wallpaperQueuedTheme = theme
             return
         }
         if (wallpaperShownTheme === theme) return
         if (!simulatedWallpaperEnabled) {
             wallpaperShownTheme = theme
+            wallpaperPrimaryTheme = theme
+            wallpaperActiveLayer = "primary"
+            simulatedDesktopWallpaper.opacity = 1
+            incomingWallpaper.opacity = 0
             return
         }
-        wallpaperFadeBusy = true
         wallpaperIncomingTheme = theme
-        incomingWallpaper.opacity = 0
-        // Incluye el caso en que Qt recupera inmediatamente una imagen en cache.
+        wallpaperIncomingLayer = wallpaperActiveLayer === "primary"
+            ? "secondary" : "primary"
+        wallpaperFadeBusy = true
+        const target = wallpaperIncomingLayer === "primary"
+            ? simulatedDesktopWallpaper : incomingWallpaper
+        target.opacity = 0
+        if (wallpaperIncomingLayer === "primary") wallpaperPrimaryTheme = theme
+        else wallpaperSecondaryTheme = theme
         Qt.callLater(function() { previewWindow.startWallpaperFadeIfReady() })
     }
     function finishWallpaperFade() {
         if (!wallpaperFadeBusy) return
+        // Mantener el PNG cargado como capa principal hasta el próximo cambio;
+        // no intercambiar source al terminar (evita flashes negros).
+        const incoming = wallpaperIncomingLayer === "primary"
+            ? simulatedDesktopWallpaper : incomingWallpaper
+        const outgoing = wallpaperIncomingLayer === "primary"
+            ? incomingWallpaper : simulatedDesktopWallpaper
+        incoming.opacity = 1
+        outgoing.opacity = 0
+        wallpaperActiveLayer = wallpaperIncomingLayer
         wallpaperShownTheme = wallpaperIncomingTheme
         wallpaperFadeBusy = false
         wallpaperIncomingTheme = ""
-        incomingWallpaper.opacity = 0
+        wallpaperIncomingLayer = ""
+        if (wallpaperQueuedTheme.length) {
+            const next = wallpaperQueuedTheme
+            wallpaperQueuedTheme = ""
+            Qt.callLater(function() { previewWindow.changeSimulatedWallpaper(next,false) })
+        }
+    }
+    function abortWallpaperFade() {
+        if (!wallpaperFadeBusy) return
+        wallpaperFade.stop()
+        const incoming = wallpaperIncomingLayer === "primary"
+            ? simulatedDesktopWallpaper : incomingWallpaper
+        incoming.opacity = 0
+        wallpaperFadeBusy = false
+        wallpaperIncomingTheme = ""
+        wallpaperIncomingLayer = ""
         if (wallpaperQueuedTheme.length) {
             const next = wallpaperQueuedTheme
             wallpaperQueuedTheme = ""
@@ -119,6 +161,7 @@ Window {
         if (wallpaperFadeBusy || !simulatedWallpaperEnabled) return
         const order = ["day","sunset","night"]
         const i = order.indexOf(wallpaperShownTheme)
+        // false = no grabar nada, solamente mostrar el efecto.
         changeSimulatedWallpaper(order[(i + 1) % order.length], false)
     }
     onSimulatedWallpaperEnabledChanged: {
@@ -495,51 +538,51 @@ Window {
     property bool demoSoActivityShowWhenEmpty: true
     property bool demoSoActivityShowWhenOpen: false
 
-    // Dos imágenes sin MouseArea: el wallpaper es puramente decorativo,
-    // no intercepta clics y se estira detrás de Soledad y Malvina.
-    // La imagen anterior queda visible hasta que el nuevo PNG termine de cargar.
+    // Doble búfer: el anterior sigue cargado mientras el entrante se
+    // desvanece encima; ambos son puramente decorativos y no capturan clics.
     Image {
         id: simulatedDesktopWallpaper
         anchors.fill: parent
-        z: -1
-        source: previewWindow.wallpaperForTheme(previewWindow.wallpaperShownTheme)
+        z: previewWindow.wallpaperIncomingLayer === "primary" ? -0.9 : -1
+        source: previewWindow.wallpaperForTheme(previewWindow.wallpaperPrimaryTheme)
+        opacity: 1
         fillMode: Image.Stretch
         asynchronous: true
         cache: true
         smooth: true
         visible: previewWindow.simulatedWallpaperEnabled && status === Image.Ready
         onStatusChanged: {
-            if (status === Image.Error)
-                console.warn("SmartBar: falta el wallpaper actual del visor:", source)
+            if (status === Image.Ready && previewWindow.wallpaperIncomingLayer === "primary")
+                previewWindow.startWallpaperFadeIfReady()
+            if (status === Image.Error && previewWindow.wallpaperIncomingLayer === "primary") {
+                console.warn("SmartBar: no se pudo cargar nuevo wallpaper:", source)
+                previewWindow.abortWallpaperFade()
+            }
         }
     }
     Image {
         id: incomingWallpaper
         anchors.fill: parent
-        z: -1
-        source: previewWindow.wallpaperIncomingTheme.length
-            ? previewWindow.wallpaperForTheme(previewWindow.wallpaperIncomingTheme) : ""
+        z: previewWindow.wallpaperIncomingLayer === "secondary" ? -0.9 : -1
+        source: previewWindow.wallpaperSecondaryTheme.length
+            ? previewWindow.wallpaperForTheme(previewWindow.wallpaperSecondaryTheme) : ""
         opacity: 0
         fillMode: Image.Stretch
         asynchronous: true
         cache: true
         smooth: true
-        visible: previewWindow.simulatedWallpaperEnabled &&
-                 previewWindow.wallpaperFadeBusy && status === Image.Ready
+        visible: previewWindow.simulatedWallpaperEnabled && status === Image.Ready
         onStatusChanged: {
-            if (status === Image.Ready)
+            if (status === Image.Ready && previewWindow.wallpaperIncomingLayer === "secondary")
                 previewWindow.startWallpaperFadeIfReady()
-            if (status === Image.Error && previewWindow.wallpaperFadeBusy) {
+            if (status === Image.Error && previewWindow.wallpaperIncomingLayer === "secondary") {
                 console.warn("SmartBar: no se pudo cargar nuevo wallpaper:", source)
-                previewWindow.wallpaperFadeBusy = false
-                previewWindow.wallpaperIncomingTheme = ""
-                previewWindow.wallpaperQueuedTheme = ""
+                previewWindow.abortWallpaperFade()
             }
         }
     }
     NumberAnimation {
         id: wallpaperFade
-        target: incomingWallpaper
         property: "opacity"
         from: 0
         to: 1
