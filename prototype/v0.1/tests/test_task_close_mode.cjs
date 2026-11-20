@@ -25,10 +25,12 @@ assert.deepEqual(policy("preview"),{chip:false,preview:true});
 assert.deepEqual(policy("chip"),{chip:true,preview:false});
 assert.deepEqual(policy("valor-antiguo"),{chip:true,preview:true},
                  "Valor inesperado: fallback conservador a ambas entradas");
-for(const file of [bar,settings,viewer]) {
+for(const file of [bar,settings]) {
     assert(file.includes('taskCloseMode: "both"'),
            "El modo anterior debe permanecer como predeterminado");
 }
+assert(viewer.includes('demoTaskCloseMode: "both"'),
+       "El visor conserva ambas formas de cierre en perfiles nuevos");
 assert(xml.includes('<entry name="taskCloseMode" type="String"><default>both</default></entry>'));
 assert(main.includes("taskCloseMode: Plasmoid.configuration.taskCloseMode"));
 assert(main.includes("onRequestTaskCloseModeChange: function(mode)"));
