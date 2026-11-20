@@ -482,7 +482,8 @@ Window {
     property bool demoMalvinaAllowChatGpt: false
     property bool demoMalvinaAllowGemini: false
     property bool demoMalvinaAllowClaude: false
-    property string demoTaskDisplayMode: "icon"
+    // Perfiles nuevos: ícono y nombre. Respetar los perfiles ya guardados.
+    property string demoTaskDisplayMode: "both"
     property string demoTaskFrameShape: "rounded"
     property color demoTaskFrameColor: "#ffffff"
     property real demoTaskFrameOpacity: 0.12
@@ -659,9 +660,6 @@ Window {
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         // Abrir/cerrar fichas ficticias solo en esta ventana de ensayo.
         demoWindowControlsEnabled: true
-        // Identidad legible para verificar la simulación, sin alterar
-        // demoTaskDisplayMode ni la apariencia personal guardada.
-        previewShowTaskIdentity: true
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -1119,6 +1117,9 @@ Window {
         text: (previewWindow.useRealWindowTasks
                 ? "Grupos reales KDE (solo lectura): "
                 : "Ventanas de muestra: ") + bar.soWindowCount +
+              " · fichas: " + (bar.taskDisplayMode === "both"
+                    ? "ícono y nombre" : (bar.taskDisplayMode === "text"
+                        ? "solo nombre" : "solo ícono")) +
               " · efecto SO: " + bar.soActivityStyle +
               " · " + (bar.soExpanded ? "SO abierto" : "SO cerrado") +
               " · " + (bar.trayExpanded ? "bandeja abierta" : "bandeja cerrada") +
