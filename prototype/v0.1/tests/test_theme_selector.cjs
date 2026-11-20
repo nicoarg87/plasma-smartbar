@@ -17,7 +17,7 @@ const config=fs.readFileSync(path.join(base,"package/contents/config/main.xml"),
 const themeLibrarySource=fs.readFileSync(
     path.join(base,"package/contents/ui/ThemeLibrary.js"),"utf8");
 const themeLibraryContext={};
-vm.runInNewContext(themeLibrarySource.replace(/^\\s*\\.pragma library\\s*/, ""),themeLibraryContext);
+vm.runInNewContext(themeLibrarySource.replace(/^\s*\.pragma library\s*/, ""),themeLibraryContext);
 assert.equal(typeof themeLibraryContext.parse,"function");
 assert(ui.includes('import "ThemeLibrary.js" as ThemeLibrary'));
 assert(ui.includes('return ThemeLibrary.parse(json)'));
