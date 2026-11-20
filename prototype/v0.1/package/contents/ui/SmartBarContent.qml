@@ -438,6 +438,12 @@ Item {
     property bool taskActiveDoubleBorderEnabled: false
     signal requestTaskActiveIndicatorChange(bool glowEnabled, bool doubleBorderEnabled)
     property string taskDisplayMode: "icon" // text, both, icon
+    // SOLO en el visor experimental: identificar siempre las tareas en
+    // pruebas aunque la preferencia persistente diga "Solo icono".
+    // Las preferencias guardadas y el plasmoide conservan su modo elegido.
+    property bool previewShowTaskIdentity: false
+    readonly property string effectiveTaskDisplayMode:
+        previewShowTaskIdentity ? "both" : taskDisplayMode
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
@@ -447,8 +453,8 @@ Item {
     function demoIconForApp(name) {
         const label = String(name).toLowerCase()
         if (label.includes("brave")) return "brave-browser"
-        if (label.includes("dolphin")) return "system-file-manager"
-        if (label.includes("konsole")) return "utilities-terminal"
+        if (label.includes("dolphin")) return "org.kde.dolphin"
+        if (label.includes("konsole")) return "org.kde.konsole"
         if (label.includes("plasma")) return "plasma"
         if (label.includes("qt")) return "qtcreator"
         return "application-x-executable"
@@ -2267,7 +2273,7 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
-                        taskDisplayMode: root.taskDisplayMode
+                        taskDisplayMode: root.effectiveTaskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
@@ -2773,7 +2779,7 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
-                        taskDisplayMode: root.taskDisplayMode
+                        taskDisplayMode: root.effectiveTaskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
