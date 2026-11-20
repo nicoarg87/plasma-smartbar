@@ -68,9 +68,16 @@ assert.match(block(settings, "discardPendingEdits"),
              /pendingThemeChanges = \(\{\}\)/);
 assert.match(block(settings, "captureSettingsBaseline"),
              /pendingThemeChanges = \(\{\}\)/);
-assert.match(settings, /text: "Atardecer" \+ \(settings.factorySunsetAvailable/);
-assert.match(settings, /enabled: settings.factorySunsetAvailable/);
-assert.match(settings, /onClicked: settings.activateTheme\("sunset"\)/);
+// Contrato del selector único vigente, sin tarjetas de restauración.
+const popupStart = settings.indexOf("id: themeOptionsPopup");
+const popupEnd = settings.indexOf('text: "Crear tema nuevo"', popupStart);
+assert(popupStart >= 0 && popupEnd > popupStart, "Desplegable de temas ausente");
+const popup = settings.slice(popupStart, popupEnd);
+assert.match(popup, /index === 0 \? "Atardecer"/);
+assert.match(popup, /settings\.themeDayJson\.length \? "day"/);
+assert.match(popup, /settings\.factorySunsetAvailable \? "sunset" : ""/);
+assert.match(popup, /settings\.activateTheme\(slot\)/);
+assert.doesNotMatch(popup, /text: "Restaurar"/);
 assert(!settings.includes('text: "Fijar Atardecer"'));
 assert(!settings.includes('text: "Actualizar Atardecer con estética actual…"'));
 assert(settings.includes("themeDayJson"), "Conservar legado sin borrar preferencias");
