@@ -108,6 +108,9 @@ Item {
         ThemeSchedule.serialize(ThemeSchedule.defaults(4),4)
     property string lastScheduledSlotKey: ""
     signal requestThemeScheduleChange(bool enabled, int count, string slots3Json, string slots4Json)
+    property int wallpaperFadeAmount: 3
+    property string wallpaperFadeUnit: "seconds"
+    signal requestWallpaperFadeChange(int amount, string unit)
     onThemeScheduleEnabledChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlotCountChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlots3JsonChanged: lastScheduledSlotKey = ""
@@ -952,6 +955,8 @@ Item {
             soledadSettings.themeScheduleSlotCount = root.themeScheduleSlotCount
             soledadSettings.themeScheduleSlots3Json = root.themeScheduleSlots3Json
             soledadSettings.themeScheduleSlots4Json = root.themeScheduleSlots4Json
+        soledadSettings.wallpaperFadeAmount = root.wallpaperFadeAmount
+        soledadSettings.wallpaperFadeUnit = root.wallpaperFadeUnit
         soledadSettings.thematicWallpaperEnabled = root.thematicWallpaperEnabled
         soledadSettings.personalDefaultAvailable = root.personalDefaultAvailable
         soledadSettings.favoriteAppearanceAvailable = root.favoriteAppearanceAvailable
@@ -1128,6 +1133,9 @@ Item {
         }
         onSaveThemeScheduleRequested: function(enabled, count, slots3Json, slots4Json) {
             root.requestThemeScheduleChange(enabled, count, slots3Json, slots4Json)
+        }
+        onSaveWallpaperFadeRequested: function(amount, unit) {
+            root.requestWallpaperFadeChange(amount,unit)
         }
         onThematicWallpaperVisibilityRequested: function(enabled) {
             root.requestThematicWallpaperVisibilityChange(enabled)
