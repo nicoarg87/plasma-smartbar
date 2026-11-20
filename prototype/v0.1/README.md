@@ -1021,3 +1021,28 @@ python3 -m unittest discover -s prototype/v0.1/tests -p 'test_diagnosticar_strea
 ```
 
 **Estado:** herramienta y tests publicados en rama experimental; aún sin ejecutar en CachyOS del mantenedor. Para diagnosticar casos nuevos guardar la salida de la consola si hace falta, revisando que los nombres/PIDs no contengan información que no se quiera compartir. No modifica el panel Plasma instalado.
+
+
+## Verificar correspondencia de AppId KDE y streams PipeWire — solo lectura
+
+**Diseño vigente:** el volumen bajo cada tarjeta de vista previa sigue siendo simulado. El control de audio real está reservado para la versión posterior a v0.1. Este paso es un **diagnóstico manual de solo lectura**: la ventana de KDE se consulta en un programa y se copia su AppId al comando; **no hay aún puente automático** entre QML y PipeWire.
+
+Se comprobó en CachyOS que la tarea agrupada **Brave** declara `AppId = com.brave.Browser`; el stream de reproducción PipeWire declaró el mismo `application.id`. Los nodos observados `119` y luego `116` son efímeros y no deben guardarse ni reutilizarse.
+
+Desde Fish, con `~/plasma-smartbar` como directorio actual y un video de Brave reproduciéndose:
+
+```fish
+python3 prototype/v0.1/scripts/verificar_correspondencia_audio.py --kde-app-id com.brave.Browser
+```
+
+**Resultados posibles:** ninguna coincidencia (`none`), un stream (`single`), varios streams de la misma aplicación (`multiple`) o conflicto entre identidades declaradas por nodo/cliente/portal (`conflict`). El emparejamiento es **exacto** y no se hacen suposiciones por nombre visible, PID, binario ni sufijo `.desktop`. Si faltan identidades confiables, el resultado queda sin coincidencia. Si hay conflicto relevante, se informa en lugar de elegir arbitrariamente un flujo.
+
+Los IDs listados sirven **solo para observar esta captura**. Ni el módulo `scripts/audio_stream_match.py` ni `scripts/verificar_correspondencia_audio.py` incluyen acciones de mute, cambios de volumen, escritura en PipeWire o control de ventanas KDE.
+
+Pruebas sintéticas offline, sin necesidad de que haya audio:
+
+```fish
+python3 -m unittest discover -s prototype/v0.1/tests -p 'test_audio_stream_match.py' -v
+```
+
+No pegar los caracteres `❯` del prompt Fish delante de los comandos. Esta prueba no requiere cerrar el visor original ni modificar el panel de KDE.
