@@ -37,6 +37,24 @@ assert(bar.includes("DemoWindowInstances.close(demoWindowInstances, appName, win
 assert(qml.includes("interval: 450"), "Abrir miniatura tras hover breve");
 assert(qml.includes("acceptedButtons: Qt.RightButton"));
 assert(qml.includes("id: previewPopup"));
+// Regresión: antes los tres popups se quedaban abiertos aun después
+// de quitar el cursor de Dolphin/Konsole/Brave (captura CachyOS).
+assert(qml.includes("id: previewDismissDelay") &&
+       qml.includes("interval: 240") &&
+       qml.includes("if (!chipHover.hovered && !previewPopupHover.hovered)") &&
+       qml.includes("chip.closePreview()"),
+       "Al salir de la ficha Y del popup, la vista previa debe cerrarse");
+assert(qml.includes("id: chipHover") &&
+       qml.includes("id: previewPopupHover") &&
+       qml.includes("previewDismissDelay.stop()"),
+       "Mantener abierta mientras se pasa el puntero a la X de la vista previa");
+assert(qml.includes("chip.host.activeDemoPreviewApp = chip.appName") &&
+       qml.includes("onActiveDemoPreviewAppChanged()") &&
+       qml.includes("chip.host.activeDemoPreviewApp !== chip.appName"),
+       "Solo una aplicación debe mostrar vista previa a la vez");
+assert(bar.includes('property string activeDemoPreviewApp: ""'),
+       "Estado de popup efímero, sin preferencias adicionales");
+assert(qml.includes("id: previewPopup"));
 assert(qml.includes("chip.host.demoInstancesForApp(chip.appName)"));
 assert(qml.includes("required property var modelData"));
 assert(qml.includes("chip.host.closeDemoWindowInstance(chip.appName, modelData.id)"));
