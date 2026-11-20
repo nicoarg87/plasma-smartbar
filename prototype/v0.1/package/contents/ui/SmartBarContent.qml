@@ -1505,18 +1505,18 @@ Item {
         maxVisibleSlots: root.launcherMaxSlots
         iconsWithNames: root.launcherIconsWithNames
         switchShape: root.launcherSwitchShape
-        switchCustomColor: root.launcherSwitchColorOverride
-        switchColor: root.launcherSwitchColor
-        islandColor: root.soledadColor
-        islandGradientEnd: root.soledadGradientEnd
-        islandGradientThird: root.soledadGradientThird
+        switchCustomColor: root.displayLauncherSwitchColorOverride
+        switchColor: root.displayLauncherSwitchColor
+        islandColor: root.displaySoledadColor
+        islandGradientEnd: root.displaySoledadGradientEnd
+        islandGradientThird: root.displaySoledadGradientThird
         islandGradientColorCount: root.soledadGradientColorCount
         islandOpacity: root.launcherOpacityOverride
             ? root.launcherOpacity : root.soledadOpacity
         islandGradientEnabled: root.soledadGradientEnabled
         islandGradientDirection: root.soledadGradientDirection
         islandBreathingFactor: root.gradientBreathingFactor
-        outlineColor: root.outlineConfig.soledad.color
+        outlineColor: root.displayOutlineSoColor
         outlineOpacity: root.outlineConfig.soledad.opacity
         outlineWidth: root.outlineConfig.soledad.width
         outlineStyle: root.outlineConfig.soledad.style
@@ -1593,8 +1593,8 @@ Item {
             topRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
             bottomRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
             color: root.malvinaShape === "leftTip" || root.malvinaGradientEnabled ? "transparent" :
-                Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                        root.malvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
+                Qt.rgba(root.displayMalvinaColor.r, root.displayMalvinaColor.g,
+                        root.displayMalvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
             Rectangle {
                 anchors.fill: parent
                 visible: root.malvinaGradientEnabled && root.malvinaShape !== "leftTip"
@@ -1614,8 +1614,8 @@ Item {
                                              root.malvinaGradientDirection === "bottomTop"
                             const value = reversed
                                 ? (root.malvinaGradientColorCount === 3
-                                   ? root.malvinaGradientThird : root.malvinaGradientEnd)
-                                : root.malvinaColor
+                                   ? root.displayMalvinaGradientThird : root.displayMalvinaGradientEnd)
+                                : root.displayMalvinaColor
                             return Qt.rgba(value.r, value.g, value.b,
                                 root.malvinaOpacity * root.malvinaGradientBreathingFactor)
                         }
@@ -1626,8 +1626,8 @@ Item {
                             const reversed = root.malvinaGradientDirection === "rightLeft" ||
                                              root.malvinaGradientDirection === "bottomTop"
                             const value = root.malvinaGradientColorCount === 3
-                                ? root.malvinaGradientEnd
-                                : (reversed ? root.malvinaColor : root.malvinaGradientEnd)
+                                ? root.displayMalvinaGradientEnd
+                                : (reversed ? root.displayMalvinaColor : root.displayMalvinaGradientEnd)
                             return Qt.rgba(value.r, value.g, value.b,
                                 root.malvinaOpacity * root.malvinaGradientBreathingFactor)
                         }
@@ -1637,9 +1637,9 @@ Item {
                         color: {
                             const reversed = root.malvinaGradientDirection === "rightLeft" ||
                                              root.malvinaGradientDirection === "bottomTop"
-                            const value = reversed ? root.malvinaColor
+                            const value = reversed ? root.displayMalvinaColor
                                 : (root.malvinaGradientColorCount === 3
-                                   ? root.malvinaGradientThird : root.malvinaGradientEnd)
+                                   ? root.displayMalvinaGradientThird : root.displayMalvinaGradientEnd)
                             return Qt.rgba(value.r, value.g, value.b,
                                 root.malvinaOpacity * root.malvinaGradientBreathingFactor)
                         }
@@ -1691,21 +1691,21 @@ Item {
                         // La dirección ya está dada por las coordenadas.
                         // No invertir además los colores: invertir dos veces
                         // anulaba el efecto de derecha→izquierda.
-                        g.addColorStop(0, Qt.rgba(root.malvinaColor.r,
-                            root.malvinaColor.g, root.malvinaColor.b, alpha))
+                        g.addColorStop(0, Qt.rgba(root.displayMalvinaColor.r,
+                            root.displayMalvinaColor.g, root.displayMalvinaColor.b, alpha))
                         if (root.malvinaGradientColorCount === 3) {
-                            g.addColorStop(0.5, Qt.rgba(root.malvinaGradientEnd.r,
-                                root.malvinaGradientEnd.g, root.malvinaGradientEnd.b, alpha))
-                            g.addColorStop(1, Qt.rgba(root.malvinaGradientThird.r,
-                                root.malvinaGradientThird.g, root.malvinaGradientThird.b, alpha))
+                            g.addColorStop(0.5, Qt.rgba(root.displayMalvinaGradientEnd.r,
+                                root.displayMalvinaGradientEnd.g, root.displayMalvinaGradientEnd.b, alpha))
+                            g.addColorStop(1, Qt.rgba(root.displayMalvinaGradientThird.r,
+                                root.displayMalvinaGradientThird.g, root.displayMalvinaGradientThird.b, alpha))
                         } else {
-                            g.addColorStop(1, Qt.rgba(root.malvinaGradientEnd.r,
-                                root.malvinaGradientEnd.g, root.malvinaGradientEnd.b, alpha))
+                            g.addColorStop(1, Qt.rgba(root.displayMalvinaGradientEnd.r,
+                                root.displayMalvinaGradientEnd.g, root.displayMalvinaGradientEnd.b, alpha))
                         }
                         ctx.fillStyle = g
                     } else {
-                        ctx.fillStyle = Qt.rgba(root.malvinaColor.r, root.malvinaColor.g,
-                                                root.malvinaColor.b, alpha)
+                        ctx.fillStyle = Qt.rgba(root.displayMalvinaColor.r, root.displayMalvinaColor.g,
+                                                root.displayMalvinaColor.b, alpha)
                     }
                     ctx.fill()
                     const outline = root.outlineConfig.malvina
@@ -1724,7 +1724,7 @@ Item {
                 anchors.fill: parent
                 lineStyle: root.outlineConfig.malvina.style
                 lineWidth: root.outlineConfig.malvina.width
-                lineColor: root.outlineConfig.malvina.color
+                lineColor: root.displayOutlineMalvinaColor
                 lineOpacity: root.outlineConfig.malvina.opacity
                 topLeft: launcherIsland.topLeftRadius
                 topRight: launcherIsland.topRightRadius
@@ -1737,17 +1737,17 @@ Item {
                 searchButtonShape: root.malvinaSearchButtonShape
                 islandShape: root.malvinaShape
                 islandRadius: root.malvinaRadius
-                islandColor: root.malvinaColor
+                islandColor: root.displayMalvinaColor
                 islandOpacity: root.malvinaOpacity * root.malvinaGradientBreathingFactor
                 optionsPanelOpacity: root.malvinaOptionsOpacityOverride
                     ? root.malvinaOptionsOpacity : root.malvinaOpacity
                 optionsPanelBreathingFactor: root.malvinaGradientBreathingFactor
                 islandGradientEnabled: root.malvinaGradientEnabled
-                islandGradientEnd: root.malvinaGradientEnd
-                islandGradientThird: root.malvinaGradientThird
+                islandGradientEnd: root.displayMalvinaGradientEnd
+                islandGradientThird: root.displayMalvinaGradientThird
                 islandGradientColorCount: root.malvinaGradientColorCount
                 islandGradientDirection: root.malvinaGradientDirection
-                islandOutlineColor: root.outlineConfig.malvina.color
+                islandOutlineColor: root.displayOutlineMalvinaColor
                 islandOutlineOpacity: root.outlineConfig.malvina.opacity
                 islandOutlineWidth: root.outlineConfig.malvina.width
                 islandOutlineStyle: root.outlineConfig.malvina.style
@@ -1771,7 +1771,7 @@ Item {
                 hiddenAi: root.malvinaHiddenAi
                 compactAi: root.malvinaCompactAi
                 taskFrameShape: root.taskFrameShape
-                taskFrameColor: root.taskFrameColor
+                taskFrameColor: root.displayTaskFrameColor
                 taskFrameOpacity: root.taskFrameOpacity
                 taskFrameWidth: root.taskFrameWidth
                 webFirst: root.malvinaWebFirst
@@ -1893,24 +1893,24 @@ Item {
                             dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
                             dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
                             dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
-                        g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                                   root.soledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
+                        g.addColorStop(0, Qt.rgba(root.displaySoledadColor.r, root.displaySoledadColor.g,
+                                                   root.displaySoledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
                         if (root.soledadGradientColorCount === 3) {
-                            g.addColorStop(0.5, Qt.rgba(root.soledadGradientEnd.r,
-                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                            g.addColorStop(0.5, Qt.rgba(root.displaySoledadGradientEnd.r,
+                                root.displaySoledadGradientEnd.g, root.displaySoledadGradientEnd.b,
                                 root.soledadOpacity * root.gradientBreathingFactor))
-                            g.addColorStop(1, Qt.rgba(root.soledadGradientThird.r,
-                                root.soledadGradientThird.g, root.soledadGradientThird.b,
+                            g.addColorStop(1, Qt.rgba(root.displaySoledadGradientThird.r,
+                                root.displaySoledadGradientThird.g, root.displaySoledadGradientThird.b,
                                 root.soledadOpacity * root.gradientBreathingFactor))
                         } else {
-                            g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r,
-                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                            g.addColorStop(1, Qt.rgba(root.displaySoledadGradientEnd.r,
+                                root.displaySoledadGradientEnd.g, root.displaySoledadGradientEnd.b,
                                 root.soledadOpacity * root.gradientBreathingFactor))
                         }
                         ctx.fillStyle = g
                     } else {
-                        ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                                root.soledadColor.b, root.soledadOpacity)
+                        ctx.fillStyle = Qt.rgba(root.displaySoledadColor.r, root.displaySoledadColor.g,
+                                                root.displaySoledadColor.b, root.soledadOpacity)
                     }
                     ctx.fill()
                     // Retirar el relleno SOLO detrás de los controles cuyo
@@ -1923,8 +1923,8 @@ Item {
                         if (!child || !child.visible) continue
                         const tray = child.useTileColor === true
                         const grip = child === moveGrip
-                        if ((tray && !root.trayButtonColorOverride) ||
-                            (grip && !root.gripButtonColorOverride) ||
+                        if ((tray && !root.displayTrayButtonColorOverride) ||
+                            (grip && !root.displayGripButtonColorOverride) ||
                             (!tray && !grip)) continue
                         const x = systemRow.x + child.x
                         const y = systemRow.y + child.y
@@ -1957,7 +1957,7 @@ Item {
                 visible: root.soledadShape !== "leftTip" && lineStyle !== "off"
                 lineStyle: root.outlineConfig.soledad.style
                 lineWidth: root.outlineConfig.soledad.width
-                lineColor: root.outlineConfig.soledad.color
+                lineColor: root.displayOutlineSoColor
                 lineOpacity: root.outlineConfig.soledad.opacity
                 topLeft: systemIsland.topLeftRadius
                 topRight: systemIsland.topRightRadius
@@ -2017,24 +2017,24 @@ Item {
                             dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
                             dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
                             dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
-                        g.addColorStop(0, Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                                  root.soledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
+                        g.addColorStop(0, Qt.rgba(root.displaySoledadColor.r, root.displaySoledadColor.g,
+                                                  root.displaySoledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
                         if (root.soledadGradientColorCount === 3) {
-                            g.addColorStop(0.5, Qt.rgba(root.soledadGradientEnd.r,
-                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                            g.addColorStop(0.5, Qt.rgba(root.displaySoledadGradientEnd.r,
+                                root.displaySoledadGradientEnd.g, root.displaySoledadGradientEnd.b,
                                 root.soledadOpacity * root.gradientBreathingFactor))
-                            g.addColorStop(1, Qt.rgba(root.soledadGradientThird.r,
-                                root.soledadGradientThird.g, root.soledadGradientThird.b,
+                            g.addColorStop(1, Qt.rgba(root.displaySoledadGradientThird.r,
+                                root.displaySoledadGradientThird.g, root.displaySoledadGradientThird.b,
                                 root.soledadOpacity * root.gradientBreathingFactor))
                         } else {
-                            g.addColorStop(1, Qt.rgba(root.soledadGradientEnd.r,
-                                root.soledadGradientEnd.g, root.soledadGradientEnd.b,
+                            g.addColorStop(1, Qt.rgba(root.displaySoledadGradientEnd.r,
+                                root.displaySoledadGradientEnd.g, root.displaySoledadGradientEnd.b,
                                 root.soledadOpacity * root.gradientBreathingFactor))
                         }
                         ctx.fillStyle = g
                     } else {
-                        ctx.fillStyle = Qt.rgba(root.soledadColor.r, root.soledadColor.g,
-                                                root.soledadColor.b, root.soledadOpacity)
+                        ctx.fillStyle = Qt.rgba(root.displaySoledadColor.r, root.displaySoledadColor.g,
+                                                root.displaySoledadColor.b, root.soledadOpacity)
                     }
                     ctx.strokeStyle = "#4e8499"
                     ctx.lineWidth = 1
@@ -2059,11 +2059,11 @@ Item {
                     // debajo de la bandeja. Un color propio explícito se
                     // mantiene intacto.
                     tileOpacity: root.soledadGradientEnabled &&
-                                 !root.trayButtonColorOverride
+                                 !root.displayTrayButtonColorOverride
                         ? 0 : root.effectiveTrayButtonOpacity
                     outlineStyle: root.outlineConfig.tray.style
                     outlineWidth: root.outlineConfig.tray.width
-                    outlineColor: root.outlineConfig.tray.color
+                    outlineColor: root.displayOutlineTrayColor
                     outlineOpacity: root.outlineConfig.tray.opacity
                     onClicked: root.toggleTray()
                     QQC2.ToolTip.visible: hovered
@@ -2079,7 +2079,7 @@ Item {
                         tileOpacity: root.effectiveTrayButtonOpacity
                     outlineStyle: root.outlineConfig.tray.style
                     outlineWidth: root.outlineConfig.tray.width
-                    outlineColor: root.outlineConfig.tray.color
+                    outlineColor: root.displayOutlineTrayColor
                     outlineOpacity: root.outlineConfig.tray.opacity
                         onClicked: root.selectDemoTray(modelData)
                         QQC2.ToolTip.visible: hovered
@@ -2113,22 +2113,22 @@ Item {
                         inheritIslandFill: true
                         taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
-                        taskFrameColor: root.taskFrameColor
+                        taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         taskActiveGlowEnabled: root.taskActiveGlowEnabled
                         taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
-                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderColor: root.displayOutlineSoColor
                         taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
                         taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
-                        activityColor: root.soActivityColor
+                        activityColor: root.displaySoActivityColor
                         activityStroke: root.soActivityStroke
                         activityMotionAllowed: root.soActivityMotion
                         activityOrbitSpeed: root.soActivityOrbitSpeed
                         activityTrailPercent: root.soActivityTrailPercent
                         activityTrailStyle: root.soActivityTrailStyle
-                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowColor: root.displaySoActivityGlowColor
                         activityGlowIntensity: root.soActivityGlowIntensity
                         activityGlowSpread: root.soActivityGlowSpread
                         activityPulseSpeed: root.soActivityPulseSpeed
@@ -2158,22 +2158,22 @@ Item {
                         inheritIslandFill: true
                         taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
-                        taskFrameColor: root.taskFrameColor
+                        taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         taskActiveGlowEnabled: root.taskActiveGlowEnabled
                         taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
-                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderColor: root.displayOutlineSoColor
                         taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
                         taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
-                        activityColor: root.soActivityColor
+                        activityColor: root.displaySoActivityColor
                         activityStroke: root.soActivityStroke
                         activityMotionAllowed: root.soActivityMotion
                         activityOrbitSpeed: root.soActivityOrbitSpeed
                         activityTrailPercent: root.soActivityTrailPercent
                         activityTrailStyle: root.soActivityTrailStyle
-                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowColor: root.displaySoActivityGlowColor
                         activityGlowIntensity: root.soActivityGlowIntensity
                         activityGlowSpread: root.soActivityGlowSpread
                         activityPulseSpeed: root.soActivityPulseSpeed
@@ -2207,23 +2207,23 @@ Item {
                     id: soButton
                     text: root.soLogoMode === "text" ? root.soTextLabel : "SO"
                     customTextMode: root.soLogoMode === "text"
-                    customTextColor: root.soTextColor
-                    customTextBackground: root.soTextBackground
-                    customTextBackgroundOpacity: root.soTextBackgroundOpacity
+                    customTextColor: root.displaySoTextColor
+                    customTextBackground: root.displaySoTextBackground
+                    customTextBackgroundOpacity: root.displaySoTextBackgroundOpacity
                     customTextFontFamily: root.soTextFontFamily
                     customTextFontSize: root.soTextFontSize
                     customTextBold: root.soTextBold
-                    customTextBackgroundImage: root.soTextBackgroundImage
+                    customTextBackgroundImage: root.displaySoTextBackgroundImage
                     accent: true
                     activityCount: root.soWindowCount
                     activityEffect: root.soActivityStyle
-                    activityColor: root.soActivityColor
+                    activityColor: root.displaySoActivityColor
                     activityStroke: root.soActivityStroke
                     activityMotionAllowed: root.soActivityMotion
                     activityOrbitSpeed: root.soActivityOrbitSpeed
                     activityTrailPercent: root.soActivityTrailPercent
                     activityTrailStyle: root.soActivityTrailStyle
-                    activityGlowColor: root.soActivityGlowColor
+                    activityGlowColor: root.displaySoActivityGlowColor
                     activityGlowIntensity: root.soActivityGlowIntensity
                     activityGlowSpread: root.soActivityGlowSpread
                     activityPulseSpeed: root.soActivityPulseSpeed
@@ -2242,7 +2242,7 @@ Item {
                     clockDate: root.soClockDate
                     clockFontFamily: root.soClockFontFamily
                     clockFontSize: root.soClockFontSize
-                    clockTextColor: root.soClockTextColor
+                    clockTextColor: root.displaySoClockTextColor
                     iconShape: root.soLogoShape
                     iconFitMode: root.soLogoFitMode
                     iconZoom: root.soLogoZoom
@@ -2378,14 +2378,14 @@ Item {
                                        root.effectiveGripButtonColor.g,
                                        root.effectiveGripButtonColor.b,
                                        root.soledadGradientEnabled &&
-                                       !root.gripButtonColorOverride
+                                       !root.displayGripButtonColorOverride
                                            ? 0 : root.effectiveGripButtonOpacity)
                         border.width: 0
                         OutlineStyle {
                             anchors.fill: parent
                             lineStyle: root.outlineConfig.grip.style
                             lineWidth: root.outlineConfig.grip.width
-                            lineColor: root.outlineConfig.grip.color
+                            lineColor: root.displayOutlineGripColor
                             lineOpacity: root.outlineConfig.grip.opacity
                             topLeft: parent.radius
                             topRight: parent.radius
@@ -2618,22 +2618,22 @@ Item {
                         inheritIslandFill: true
                         taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
-                        taskFrameColor: root.taskFrameColor
+                        taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         taskActiveGlowEnabled: root.taskActiveGlowEnabled
                         taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
-                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderColor: root.displayOutlineSoColor
                         taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
                         taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
-                        activityColor: root.soActivityColor
+                        activityColor: root.displaySoActivityColor
                         activityStroke: root.soActivityStroke
                         activityMotionAllowed: root.soActivityMotion
                         activityOrbitSpeed: root.soActivityOrbitSpeed
                         activityTrailPercent: root.soActivityTrailPercent
                         activityTrailStyle: root.soActivityTrailStyle
-                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowColor: root.displaySoActivityGlowColor
                         activityGlowIntensity: root.soActivityGlowIntensity
                         activityGlowSpread: root.soActivityGlowSpread
                         activityPulseSpeed: root.soActivityPulseSpeed
@@ -2663,22 +2663,22 @@ Item {
                         inheritIslandFill: true
                         taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
-                        taskFrameColor: root.taskFrameColor
+                        taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
                         taskFrameWidth: root.taskFrameWidth
                         taskActiveGlowEnabled: root.taskActiveGlowEnabled
                         taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
-                        taskActiveBorderColor: root.outlineConfig.soledad.color
+                        taskActiveBorderColor: root.displayOutlineSoColor
                         taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
                         taskActiveBorderWidth: root.outlineConfig.soledad.width
                         activityEffect: root.soActivityStyle
-                        activityColor: root.soActivityColor
+                        activityColor: root.displaySoActivityColor
                         activityStroke: root.soActivityStroke
                         activityMotionAllowed: root.soActivityMotion
                         activityOrbitSpeed: root.soActivityOrbitSpeed
                         activityTrailPercent: root.soActivityTrailPercent
                         activityTrailStyle: root.soActivityTrailStyle
-                        activityGlowColor: root.soActivityGlowColor
+                        activityGlowColor: root.displaySoActivityGlowColor
                         activityGlowIntensity: root.soActivityGlowIntensity
                         activityGlowSpread: root.soActivityGlowSpread
                         activityPulseSpeed: root.soActivityPulseSpeed
