@@ -26,7 +26,7 @@ QQC2.ToolButton {
 
     // Dibujamos el parlante y las ondas en Canvas: independientemente de
     // glifos Unicode o temas de íconos instalados en Qt/CachyOS.
-    onDemoMutedChanged: iconCanvas.requestPaint()
+    onDemoMutedChanged: { if (iconCanvas) iconCanvas.requestPaint() }
     contentItem: Item {
         Canvas {
             id: iconCanvas
