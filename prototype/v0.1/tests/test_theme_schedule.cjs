@@ -38,7 +38,7 @@ assert.equal(context.withBoundary(four,1,"end","05:59"),null);
 assert.equal(context.withBoundary(four,0,"end","06:00"),null);
 assert.equal(context.withBoundary(four,0,"start","24:00"),null);
 assert.equal(context.withBoundary(four,0,"start","8:00"),null);
-assert.equal(context.withBoundary(four,0,"start","07:30"),null);
+assert.equal(context.withBoundary(four,0,"start","08:00"),null);
 assert.equal(context.withTheme(four,1,"night")[1].theme,"night");
 assert.equal(context.withTheme(four,1,"invalid"),null);
 assert.deepEqual(JSON.parse(JSON.stringify(context.read(context.serialize(four,4),4))),four);
