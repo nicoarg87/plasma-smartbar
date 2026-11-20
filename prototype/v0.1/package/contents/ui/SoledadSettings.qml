@@ -4634,7 +4634,6 @@ Window {
                         QQC2.ToolButton {
                             id: scheduleMenuButton
                             text: "Con horarios " + (settings.scheduleMenuExpanded ? "▴" : "▾")
-                            accessibleName: "Configurar cambio automático por horarios"
                             onClicked: settings.scheduleMenuExpanded = !settings.scheduleMenuExpanded
                             QQC2.ToolTip.visible: hovered
                             QQC2.ToolTip.text: "Mostrar u ocultar la programación horaria"
