@@ -75,6 +75,12 @@ assert(viewer.includes('id: wallpaperDemoButton'));
 assert(viewer.includes('readonly property int wallpaperFadeDurationMs: 800'));
 assert(viewer.includes('fillMode: Image.Stretch'));
 assert(viewer.includes('wallpaperFade.target = target'));
+assert(!viewer.includes('property string wallpaperShownTheme: simulatedWallpaperTheme'),
+    "El tema persistido no puede cambiar wallpaperShownTheme antes del fundido");
+assert(!viewer.includes('property string wallpaperPrimaryTheme: simulatedWallpaperTheme'),
+    "El fondo cargado debe mantenerse hasta que termine la transición");
+assert(viewer.includes('property string wallpaperShownTheme:\\n        String(localPreviewSettings.value("simulatedWallpaperTheme", "day"))'.replace('\\n','\n')));
+
 assert(viewer.includes('wallpaperIncomingLayer === "primary" ? -0.9 : -1'));
 assert(viewer.includes('wallpaperIncomingLayer === "secondary" ? -0.9 : -1'));
 assert(defaults.includes('<entry name="themeScheduleEnabled" type="Bool"><default>true</default></entry>'));
