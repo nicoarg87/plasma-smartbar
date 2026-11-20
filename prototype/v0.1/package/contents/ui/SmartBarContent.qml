@@ -438,12 +438,6 @@ Item {
     property bool taskActiveDoubleBorderEnabled: false
     signal requestTaskActiveIndicatorChange(bool glowEnabled, bool doubleBorderEnabled)
     property string taskDisplayMode: "icon" // text, both, icon
-    // SOLO en el visor experimental: identificar siempre las tareas en
-    // pruebas aunque la preferencia persistente diga "Solo icono".
-    // Las preferencias guardadas y el plasmoide conservan su modo elegido.
-    property bool previewShowTaskIdentity: false
-    readonly property string effectiveTaskDisplayMode:
-        previewShowTaskIdentity ? "both" : taskDisplayMode
     property string taskFrameShape: "rounded"
     property color taskFrameColor: "#ffffff"
     property real taskFrameOpacity: 0.12
@@ -2273,7 +2267,7 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
-                        taskDisplayMode: root.effectiveTaskDisplayMode
+                        taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
@@ -2779,7 +2773,7 @@ Item {
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
                         inheritIslandFill: true
-                        taskDisplayMode: root.effectiveTaskDisplayMode
+                        taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
                         taskFrameColor: root.displayTaskFrameColor
                         taskFrameOpacity: root.taskFrameOpacity
