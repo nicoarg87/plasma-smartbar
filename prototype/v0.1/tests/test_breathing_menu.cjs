@@ -77,6 +77,33 @@ assert(ui.includes('Layout.minimumWidth: 0'));
 const fixedScrolls = (ui.match(/QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn/g) || []).length;
 assert(fixedScrolls >= 9, "Las páginas principales deben conservar scrollbar visible");
 assert(ui.includes("id: themesScroll"), "La página Temas debe conservar su scroll");
+// Regresión Qt observada el 20/11 en CachyOS: no enlazar el ancho de
+// TabBar a sus propios hijos ocultos y no inicializar la muestra como {}.
+assert(!ui.includes('width: islandSubtabs.width / 3'),
+       "Pestañas ocultas no deben depender del ancho calculado de su TabBar");
+assert(!ui.includes('width: appearanceSubtabs.width / 3'),
+       "Pestañas de color ocultas no deben crear un ciclo de anchura");
+assert(ui.includes('property var appliedOutlinePreview: outlinePreviewSnapshot()'),
+       "La vista previa SO necesita valores válidos desde la inicialización");
+assert(ui.includes('function outlinePreviewSnapshot()'));
+assert(ui.includes('appliedOutlinePreview = outlinePreviewSnapshot()'));
+const previewContract = ui.slice(ui.indexOf('function outlinePreviewSnapshot()'),
+                                  ui.indexOf('function refreshOutlinePreview()'));
+for (const field of ["iconSource", "iconAnimated", "iconAnimationEnabled", "iconShape",
+    "frameShape", "frameWidth", "frameHeight", "iconRotation", "iconFitMode",
+    "iconZoom", "iconPanX", "iconPanY", "activityCount", "activityEffect",
+    "activityColor", "activityStroke", "activityMotionAllowed", "activityOrbitSpeed",
+    "activityTrailPercent", "activityTrailStyle", "activityGlowColor",
+    "activityGlowIntensity", "activityGlowSpread", "activityPulseSpeed",
+    "activityPulseDepth", "activityGlowGradient", "activityShowWhenEmpty",
+    "activityShowWhenOpen"]) {
+    assert(previewContract.includes(field + ":"), "Muestra SO no inicializa " + field);
+}
+assert(bar.includes("switchCustomColor: root.launcherSwitchColorOverride"),
+       "El launcher debe utilizar el booleano de configuración existente");
+assert(!bar.includes("root.displayLauncherSwitchColorOverride"),
+       "No referenciar propiedades inexistentes");
+
 assert(ui.includes("id: themeOptionsPopup") && ui.includes("id: themesScroll"),
        "La página Temas y el selector desplegable deben conservar su scroll");
 assert(ui.includes("contentHeight: themeOptionsColumn.implicitHeight") &&
