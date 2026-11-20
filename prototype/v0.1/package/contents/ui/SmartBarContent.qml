@@ -1719,7 +1719,7 @@ Item {
                     const outline = root.outlineConfig.malvina
                     if (outline && outline.style !== "none" && outline.width > 0) {
                         ctx.lineWidth = outline.width
-                        const c = root.displayOutlineMalvinaColor
+                        const c = root.displayOutlineMalvinaColor.toString()
                         ctx.strokeStyle = c
                         ctx.globalAlpha = outline.opacity
                         ctx.stroke()
