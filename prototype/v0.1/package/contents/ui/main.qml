@@ -24,6 +24,12 @@ PlasmoidItem {
         // La programación se guarda también en KConfig, pero no se ejecuta
         // sobre el panel real hasta validar el visor en CachyOS.
         themeScheduleRuntimeEnabled: false
+        wallpaperFadeAmount: Plasmoid.configuration.wallpaperFadeAmount
+        wallpaperFadeUnit: Plasmoid.configuration.wallpaperFadeUnit
+        onRequestWallpaperFadeChange: function(amount, unit) {
+            Plasmoid.configuration.wallpaperFadeAmount = amount
+            Plasmoid.configuration.wallpaperFadeUnit = unit
+        }
         themeScheduleEnabled: Plasmoid.configuration.themeScheduleEnabled
         themeScheduleSlotCount: Plasmoid.configuration.themeScheduleSlotCount
         themeScheduleSlots3Json: Plasmoid.configuration.themeScheduleSlots3Json
