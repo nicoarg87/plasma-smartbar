@@ -811,6 +811,9 @@ Item {
     // Controles interactivos solamente en el visor Qt; el plasmoide real
     // mantiene sus fichas simuladas pasivas y su TaskManager solo lectura.
     property bool demoWindowControlsEnabled: false
+    // Solo un popup de previsualización FICTICIA puede quedar abierto.
+    // Estado efímero: nunca se guarda en temas ni preferencias.
+    property string activeDemoPreviewApp: ""
     property var demoOpenedApps: demoApps.slice()
     // Estado efímero de ventanas ficticias; dos Dolphin simuladas para ensayo.
     property var demoWindowInstances: DemoWindowInstances.initial()
