@@ -47,6 +47,89 @@ QQC2.Button {
     property url iconSource: ""
     property bool iconAnimated: false
     property bool iconAnimationEnabled: true
+    // Fundido VISUAL del logo SO, sin duplicar botones ni modificar los temas
+    // guardados. Las fichas de tareas nunca instancian estas capas.
+    property bool previewArtworkEnabled: false
+    property var previewArtworkA: ({})
+    property var previewArtworkB: ({})
+    property int previewArtworkLast: 0
+    property int previewArtworkDurationMs: 3000
+    property real previewArtworkOpacityA: 0
+    property real previewArtworkOpacityB: 0
+    property real renderedPreviewOpacityA: 0
+    property real renderedPreviewOpacityB: 0
+    property int previewArtworkGeneration: 0
+    readonly property real previewArtworkBaseOpacity:
+        Math.max(0, 1 - Math.min(1, renderedPreviewOpacityA + renderedPreviewOpacityB))
+    function currentArtworkSnapshot() {
+        return {
+            mode: customTextMode ? "text" : "image",
+            image: iconSource.toString(), animated: iconAnimated,
+            animationAllowed: iconAnimationEnabled,
+            shape: effectiveImageShape, fit: iconFitMode, zoom: iconZoom,
+            panX: iconPanX, panY: iconPanY, rotation: iconRotation,
+            label: text, textColor: String(customTextColor),
+            textBackground: String(customTextBackground),
+            textOpacity: customTextBackgroundOpacity,
+            textBackgroundImage: customTextBackgroundImage,
+            textFont: customTextFontFamily, textSize: customTextFontSize,
+            textBold: customTextBold
+        }
+    }
+    function beginArtworkPreview(art, durationMs) {
+        if (!art || (art.mode !== "text" && !String(art.image || "").length))
+            return false
+        previewArtworkDurationMs = Math.max(1, Number(durationMs) || 3000)
+        const slot = previewArtworkLast === 1 ? 2 : 1
+        if (slot === 1) previewArtworkA = art
+        else previewArtworkB = art
+        previewArtworkEnabled = true
+        previewArtworkLast = slot
+        const generation = ++previewArtworkGeneration
+        Qt.callLater(function() {
+            if (generation !== previewArtworkGeneration) return
+            previewArtworkOpacityA = slot === 1 ? 1 : 0
+            previewArtworkOpacityB = slot === 2 ? 1 : 0
+        })
+        return true
+    }
+    function beginActualArtworkFade(durationMs) {
+        // Se llama ANTES de aplicar el tema. Conserva arriba el aspecto
+        // saliente mientras el botón real recibe el siguiente GIF/foto.
+        if (!previewArtworkEnabled) {
+            previewArtworkOpacityA = 1
+            previewArtworkOpacityB = 0
+            previewArtworkA = currentArtworkSnapshot()
+            previewArtworkLast = 1
+            previewArtworkEnabled = true
+        }
+        previewArtworkDurationMs = Math.max(1, Number(durationMs) || 3000)
+        const generation = ++previewArtworkGeneration
+        Qt.callLater(function() {
+            if (generation !== previewArtworkGeneration) return
+            previewArtworkOpacityA = 0
+            previewArtworkOpacityB = 0
+            artworkCleanupTimer.restart()
+        })
+    }
+    function clearArtworkPreview() {
+        ++previewArtworkGeneration
+        artworkCleanupTimer.stop()
+        previewArtworkEnabled = false
+        previewArtworkLast = 0
+        previewArtworkOpacityA = 0
+        previewArtworkOpacityB = 0
+        renderedPreviewOpacityA = 0
+        renderedPreviewOpacityB = 0
+        previewArtworkA = ({})
+        previewArtworkB = ({})
+    }
+    Timer {
+        id: artworkCleanupTimer
+        interval: control.previewArtworkDurationMs + 100
+        repeat: false
+        onTriggered: control.clearArtworkPreview()
+    }
     property string iconShape: "square"
     property string iconFitMode: "fit"
     property real iconZoom: 1
@@ -114,6 +197,7 @@ QQC2.Button {
             height: Math.max(14, control.height - 6)
             visible: control.customTextMode &&
                      control.customTextBackgroundImage.length > 0
+            opacity: control.previewArtworkBaseOpacity
             imageUrl: control.customTextBackgroundImage
             animateGif: control.customTextBackgroundIsGif
             animationAllowed: true
@@ -200,6 +284,7 @@ QQC2.Button {
         // Las fichas de ventanas y bandeja siguen siendo botones livianos.
         Loader {
             id: iconLoader
+            opacity: control.previewArtworkBaseOpacity
             anchors.centerIn: parent
             width: Math.max(14, control.width - 12)
             height: Math.max(14, control.height - 6)
@@ -219,6 +304,90 @@ QQC2.Button {
                     zoom: control.iconZoom
                     panX: control.iconPanX
                     panY: control.iconPanY
+                }
+            }
+        }
+
+        // Dos superficies artísticas no interactivas para alternar fotos/GIF
+        // de temas por horario. Se crean solo durante la transición de SO.
+        Loader {
+            id: themeArtworkLoader
+            anchors.fill: parent
+            active: control.previewArtworkEnabled
+            sourceComponent: Component {
+                Item {
+                    Repeater {
+                        model: 2
+                        delegate: Item {
+                            id: artworkLayer
+                            readonly property var art: index === 0
+                                ? control.previewArtworkA : control.previewArtworkB
+                            anchors.centerIn: parent
+                            width: Math.max(14, control.width - 12)
+                            height: Math.max(14, control.height - 6)
+                            opacity: index === 0
+                                ? control.previewArtworkOpacityA
+                                : control.previewArtworkOpacityB
+                            onOpacityChanged: {
+                                if (index === 0) control.renderedPreviewOpacityA = opacity
+                                else control.renderedPreviewOpacityB = opacity
+                            }
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: control.previewArtworkDurationMs
+                                    easing.type: Easing.InOutCubic
+                                }
+                            }
+                            LogoArtwork {
+                                anchors.fill: parent
+                                visible: artworkLayer.art.mode === "image"
+                                imageUrl: artworkLayer.art.image || ""
+                                animateGif: !!artworkLayer.art.animated
+                                animationAllowed: artworkLayer.art.animationAllowed !== false
+                                cropShape: artworkLayer.art.shape || "square"
+                                fitMode: artworkLayer.art.fit || "fit"
+                                zoom: artworkLayer.art.zoom || 1
+                                panX: artworkLayer.art.panX || 0
+                                panY: artworkLayer.art.panY || 0
+                                imageRotation: artworkLayer.art.rotation || 0
+                            }
+                            Rectangle {
+                                anchors.fill: parent
+                                visible: artworkLayer.art.mode === "text"
+                                radius: control.frameShape === "square" ||
+                                        control.frameShape === "rectangle"
+                                        ? 0 : height / 2
+                                color: Qt.rgba(
+                                    Qt.color(artworkLayer.art.textBackground || "#192536").r,
+                                    Qt.color(artworkLayer.art.textBackground || "#192536").g,
+                                    Qt.color(artworkLayer.art.textBackground || "#192536").b,
+                                    artworkLayer.art.textOpacity === undefined
+                                        ? 0.9 : artworkLayer.art.textOpacity)
+                            }
+                            LogoArtwork {
+                                anchors.fill: parent
+                                visible: artworkLayer.art.mode === "text" &&
+                                         !!artworkLayer.art.textBackgroundImage
+                                imageUrl: artworkLayer.art.textBackgroundImage || ""
+                                animateGif: String(artworkLayer.art.textBackgroundImage || "").toLowerCase().endsWith(".gif")
+                                cropShape: artworkLayer.art.shape || "square"
+                                fitMode: "crop"
+                            }
+                            Text {
+                                anchors.fill: parent
+                                visible: artworkLayer.art.mode === "text" && !control.clockVisible
+                                text: artworkLayer.art.label || "SO"
+                                color: artworkLayer.art.textColor || "#ffffff"
+                                font.family: artworkLayer.art.textFont || "Sans Serif"
+                                font.pixelSize: artworkLayer.art.textSize || 13
+                                font.bold: artworkLayer.art.textBold !== false
+                                fontSizeMode: Text.Fit
+                                minimumPixelSize: 8
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -329,6 +498,7 @@ QQC2.Button {
             anchors.rightMargin: control.taskUsesIcon &&
                 control.taskDisplayMode === "both" ? 5 : 0
             text: control.text
+            opacity: control.previewArtworkBaseOpacity
             // Si la imagen no existe, nunca perder el control SO.
             visible: control.taskUsesText && !control.clockVisible &&
                      (control.iconSource.toString().length === 0 ||
