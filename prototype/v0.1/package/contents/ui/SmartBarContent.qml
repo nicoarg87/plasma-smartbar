@@ -1923,8 +1923,8 @@ Item {
                         if (!child || !child.visible) continue
                         const tray = child.useTileColor === true
                         const grip = child === moveGrip
-                        if ((tray && !root.displayTrayButtonColorOverride) ||
-                            (grip && !root.displayGripButtonColorOverride) ||
+                        if ((tray && !root.trayButtonColorOverride) ||
+                            (grip && !root.gripButtonColorOverride) ||
                             (!tray && !grip)) continue
                         const x = systemRow.x + child.x
                         const y = systemRow.y + child.y
@@ -2059,7 +2059,7 @@ Item {
                     // debajo de la bandeja. Un color propio explícito se
                     // mantiene intacto.
                     tileOpacity: root.soledadGradientEnabled &&
-                                 !root.displayTrayButtonColorOverride
+                                 !root.trayButtonColorOverride
                         ? 0 : root.effectiveTrayButtonOpacity
                     outlineStyle: root.outlineConfig.tray.style
                     outlineWidth: root.outlineConfig.tray.width
@@ -2209,11 +2209,11 @@ Item {
                     customTextMode: root.soLogoMode === "text"
                     customTextColor: root.displaySoTextColor
                     customTextBackground: root.displaySoTextBackground
-                    customTextBackgroundOpacity: root.displaySoTextBackgroundOpacity
+                    customTextBackgroundOpacity: root.soTextBackgroundOpacity
                     customTextFontFamily: root.soTextFontFamily
                     customTextFontSize: root.soTextFontSize
                     customTextBold: root.soTextBold
-                    customTextBackgroundImage: root.displaySoTextBackgroundImage
+                    customTextBackgroundImage: root.soTextBackgroundImage
                     accent: true
                     activityCount: root.soWindowCount
                     activityEffect: root.soActivityStyle
@@ -2378,7 +2378,7 @@ Item {
                                        root.effectiveGripButtonColor.g,
                                        root.effectiveGripButtonColor.b,
                                        root.soledadGradientEnabled &&
-                                       !root.displayGripButtonColorOverride
+                                       !root.gripButtonColorOverride
                                            ? 0 : root.effectiveGripButtonOpacity)
                         border.width: 0
                         OutlineStyle {
