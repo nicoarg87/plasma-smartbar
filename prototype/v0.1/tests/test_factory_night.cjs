@@ -45,8 +45,11 @@ assert(ui.includes('factoryNightExportDialog.open()'));
 assert(ui.includes("factoryNightExportText.copy()"));
 assert(ui.includes("settings.factoryNightCandidateJson()"));
 assert(ui.includes("originalImageUrl = logoMode === \"text\" ? \"\" : selectedImage.toString()"));
-assert(ui.includes("factorySunsetImage.toString() : factoryNightImage.toString()"),
-       "Noche debe recuperar su propia imagen, separada de Atardecer");
+assert(ui.includes('slot === "sunset"') &&
+       ui.includes('factorySunsetImage.toString()') &&
+       ui.includes('slot === "dayOfficial" ? factoryDayImage.toString()') &&
+       ui.includes('factoryNightImage.toString()'),
+       "Cada fábrica debe conservar su propia ruta, incluido Día oficial");
 assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
 assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
 // El modelo del selector mantiene tres opciones principales, más temas personales.
