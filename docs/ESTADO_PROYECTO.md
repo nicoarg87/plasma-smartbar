@@ -1660,3 +1660,26 @@ El mantenedor reporta muy pocos fallos del visor en CachyOS y solicita una revis
 **IMPLEMENTADO en rama experimental:** compilación única por lista del patrón para proveedores de Malvina en `MalvinaSlots.js` (commit [bbcb448](https://github.com/nicoarg87/plasma-smartbar/commit/bbcb448d5fd00a138bc815d8a7c2a1a86fb3b1a7)). Comparación V8 de 1.260 salidas anteriores/nuevas: **equivalentes**. Tests aislados de proveedores/URLs pasaron con FS simulado. Se añadió ejecutor de los 18 tests `test_*.cjs`: `node prototype/v0.1/tests/ejecutar_todos.cjs` (commit [59258af](https://github.com/nicoarg87/plasma-smartbar/commit/59258af9bce60efc417fc2630551250bfb39bd93)); no instala ni modifica el panel.
 
 **PENDIENTE:** ejecutar la suite completa en Node real y el visor Qt/CachyOS tras el último commit; registrar salida y medir CPU/GPU de respiración (50 ms), contornos (50 ms), Canvas/GIF y fundidos largos. No modificar velocidades ni dividir masivamente QML sin perfilado y pruebas regresivas. Agregar CI tras estabilizar la suite. Continuar issue #11 en pequeños cambios autónomos y PR #3 en borrador; no fusionar a `main`.
+
+
+## 20/11/2026 — Primera suite Node REAL en CachyOS: 13/18 y reparación de regresiones desactualizadas
+
+**Resultado comprobado en Konsole del mantenedor (Node.js v22.23.1):** se ejecutó `node prototype/v0.1/tests/ejecutar_todos.cjs` sobre la rama experimental después de `git pull --ff-only`. **13 de 18 tests pasaron, 5 fallaron:** `test_breathing_menu.cjs`, `test_context_theme_wallpaper.cjs`, `test_factory_night.cjs`, `test_factory_sunset.cjs` y `test_theme_persistence.cjs`. Debido al encadenamiento con `and`, el visor **NO llegó a ejecutarse en ese intento**. No se registró error Qt/QML de la aplicación, solamente de los tests.
+
+**Diagnóstico concreto:** (1) `test_breathing_menu` exigía diez scrollbars y nueve existentes; además buscaba el antiguo `themeListScroll`, nombre histórico de «Estados y color», firma anterior de `onClosing` y valores iniciales del 70 %, cuando los archivos vigentes `SoledadSettings.qml`, `SmartBarContent.qml`, `preview_redimensionable.qml` y `main.xml` acuerdan **90 %**; (2) `test_context_theme_wallpaper` usaba `this.calls++` en callback no ligado a `this`; (3–5) los tests de Noche, Atardecer y persistencia buscaban tarjetas y botones individuales eliminados por el selector único `themeOptionsPopup`; también omitían el tercer origen independiente de Día oficial en la ruta de imagen. Ninguna de las cinco fallas prueba un error funcional del visor.
+
+**Corregido exclusivamente en los cinco archivos de pruebas**, sin modificar QML de producción, KConfig, temas, imágenes, horarios, panel KDE ni licencias: pruebas del desplegable vigente con scroll, selección y protección de fábrica, opacidad inicial 90 %, reinicio de desplegables al cerrar y callback aislado. Nuevos tests conservan chequeos para evitar usar el logo activo como miniatura de fábrica o restaurar fábricas inexistentes.
+
+**Verificación posterior:** las cinco pruebas modificadas ejecutaron **PASS en simulación V8 y fuentes vigentes de GitHub**. **Aún pendiente** ejecutar de nuevo el conjunto de **18/18 en Node nativo en CachyOS**, abrir visor y comprobar comportamiento. Los 13 tests sin modificar ya habían pasado en ese mismo equipo antes del parche. No declarar 18/18 hasta obtener la nueva salida.
+
+**Comando Fish:**
+
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/ejecutar_todos.cjs
+and bash prototype/v0.1/probar_ancho.sh
+```
+
+**Seguimiento:** issue #11 para calidad/arquitectura; issue #13 para fábricas; PR #3 continúa borrador. Los recursos originales de fábrica Día/Atardecer/Noche que falten siguen pendientes y no se sustituyeron por otros.
