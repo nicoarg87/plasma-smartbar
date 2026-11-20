@@ -11,7 +11,7 @@ Row {
 
     IslandButton {
         inheritIslandFill: true
-        taskDisplayMode: chip.host.taskDisplayMode
+        taskDisplayMode: chip.host.effectiveTaskDisplayMode
         taskFrameShape: chip.host.taskFrameShape
         taskFrameColor: chip.host.displayTaskFrameColor
         taskFrameOpacity: chip.host.taskFrameOpacity
