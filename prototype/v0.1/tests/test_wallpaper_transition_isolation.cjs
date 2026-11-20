@@ -55,7 +55,7 @@ const ctx={
   wallpaperQueuedTheme:"",wallpaperActiveLayer:"primary",
   wallpaperFadeBusy:false,simulatedWallpaperEnabled:true,
   wallpaperDemoPendingTheme:"",
-  bar:{previewBarThemeColors:theme=>{colorPreviewCalls.push(theme);return true}},
+  bar:{previewThemeAvailable:()=>true,previewBarThemeColors:theme=>{colorPreviewCalls.push(theme);return true}},
   wallpaperFade:{running:false,target:null,stop(){},start(){}},
   simulatedDesktopWallpaper:{opacity:1,status:1},
   incomingWallpaper:{opacity:0,status:1},
@@ -81,6 +81,12 @@ for(const next of ["sunset","night","day"]) {
   assert.deepEqual(writes,[],"El botón de prueba guardó una preferencia");
 }
 assert.equal(ctx.wallpaperShownTheme,"day");
+// Si falta la apariencia de SO, no mostrar una foto de otra franja.
+ctx.bar.previewThemeAvailable=()=>false;
+ctx.previewNextWallpaper();
+assert.equal(ctx.wallpaperFadeBusy,false);
+assert.equal(ctx.wallpaperDemoPendingTheme,"");
+ctx.bar.previewThemeAvailable=()=>true;
 assert.deepEqual(colorPreviewCalls,["sunset","night","day"],
   "Cada clic debe previsualizar también una sola paleta de islas");
 // Con horas de transición, un cambio automático/manual no debe quedar en cola.
