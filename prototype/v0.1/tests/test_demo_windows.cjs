@@ -41,7 +41,7 @@ assert(chip.includes("required property string modelData"),
        "Qt debe inyectar la fila actual en una propiedad requerida");
 assert(chip.includes("readonly property string appName: modelData"),
        "El nombre de aplicación debe derivarse del dato del modelo");
-assert(!/appName:\\s*modelData/.test(bar),
+assert(!/appName:\s*modelData/.test(bar),
        "Prohibir modelData contextual fuera del delegate con required");
 assert.equal((bar.match(/delegate: DemoTaskChip \{\s*\/\/[\s\S]*?host: root\s*\}/g)||[]).length,2,
        "Derecha y centro deben pasar el host y dejar que Qt inyecte modelData");
