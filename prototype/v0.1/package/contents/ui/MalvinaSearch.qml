@@ -6,6 +6,7 @@ import QtQuick.Window
 import QtQuick.Controls as QQC2
 import "MalvinaUrlPolicy.js" as UrlPolicy
 import "MalvinaSlots.js" as Slots
+import "MalvinaKeyboard.js" as Keyboard
 
 Item {
     id: search
@@ -255,7 +256,13 @@ Item {
             addLine()
             event.accepted = true
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-            openSelected()
+            // Enter en una ficha destacada la CONFIRMA sin transmitir texto.
+            // Recién el siguiente Enter, con navegación de vuelta en 0,
+            // ejecuta la búsqueda. Espacio conserva su función actual.
+            if (Keyboard.enterAction(navigationSection) === "confirm")
+                confirmCandidate()
+            else
+                openSelected()
             event.accepted = true
         }
     }
@@ -507,7 +514,7 @@ Item {
                     // Sólo un margen interior para el icono, no una columna.
                     rightPadding: 25
                     selectByMouse: true
-                    placeholderText: "Buscador: pulsá Tab para elegir Web o IA…"
+                    placeholderText: "Tab: Web/IA · Enter: elegir, Enter: buscar…"
                     cursorVisible: activeFocus && search.navigationSection === 0
                     Keys.priority: Keys.BeforeItem
                     Keys.onTabPressed: function(event) {
