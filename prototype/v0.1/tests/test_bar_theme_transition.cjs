@@ -26,7 +26,7 @@ assert(bar.includes('themeColorsTransitionActive = themeScheduleRuntimeEnabled &
 assert(bar.includes('function previewBarThemeColors(theme)'));
 assert(bar.includes('function previewArtworkFromTheme(info)'));
 assert(bar.includes('function previewThemeAvailable(theme)'));
-assert(bar.includes('soButton.beginArtworkPreview(art,themeColorsDurationMs)'));
+assert(bar.includes('soButton.beginArtworkPreview(art,artDuration)'));
 assert(bar.includes('soButton.beginActualArtworkFade(themeColorsDurationMs)'));
 assert(button.includes('function beginArtworkPreview(art, durationMs)'));
 assert(button.includes('function beginActualArtworkFade(durationMs)'));
