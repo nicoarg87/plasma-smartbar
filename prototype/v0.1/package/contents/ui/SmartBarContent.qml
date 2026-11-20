@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import "ThemeSchedule.js" as ThemeSchedule
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
+import "DemoWindows.js" as DemoWindows
 
 Item {
     id: root
@@ -798,9 +799,13 @@ Item {
     property var realTaskModel: null
     readonly property bool usingRealTasks: realTaskModel !== null
     property bool demoHasRunningWindows: true
+    // Controles interactivos solamente en el visor Qt; el plasmoide real
+    // mantiene sus fichas simuladas pasivas y su TaskManager solo lectura.
+    property bool demoWindowControlsEnabled: false
+    property var demoOpenedApps: demoApps.slice()
     readonly property int soWindowCount: usingRealTasks
         ? realTaskModel.count
-        : (demoHasRunningWindows ? demoApps.length : 0)
+        : (demoHasRunningWindows ? demoOpenedApps.length : 0)
     // Con cero ventanas, el brillo atrae la atención hacia el lanzador.
     // Con ventanas abiertas, permanece apagado por defecto.
     property string soActivityStyle: "breathe"  // off, steady, orbit
@@ -820,7 +825,8 @@ Item {
     property real soActivityPulseDepth: 0.7
     property bool soActivityGlowGradient: true
     onSoWindowCountChanged: {
-        if (soWindowCount === 0) soExpanded = false
+        if (soWindowCount === 0 &&
+            !(demoWindowControlsEnabled && !usingRealTasks)) soExpanded = false
     }
     signal requestSoActivityChange(string style, string color,
                                    real stroke, bool allowMotion,
@@ -903,6 +909,36 @@ Item {
     property real offsetAtDragStart: 0
     property string lastDemoSelection: ""
     readonly property var demoApps: ["Dolphin", "Konsole", "Brave"]
+    // Las fichas abiertas son un estado temporal y reversible del visor.
+    // Nunca se guardan como preferencias ni afectan a las tareas reales.
+    function openDemoWindow(appName) {
+        if (!demoWindowControlsEnabled || usingRealTasks) return false
+        const updated = DemoWindows.open(demoOpenedApps, demoApps, appName)
+        if (updated.length === demoOpenedApps.length && demoHasRunningWindows)
+            return false
+        demoOpenedApps = updated
+        demoHasRunningWindows = true
+        return true
+    }
+    function closeDemoWindow(appName) {
+        if (!demoWindowControlsEnabled || usingRealTasks ||
+            !demoHasRunningWindows) return false
+        const updated = DemoWindows.close(demoOpenedApps, appName)
+        if (updated.length === demoOpenedApps.length) return false
+        demoOpenedApps = updated
+        if (lastDemoSelection === appName) lastDemoSelection = ""
+        return true
+    }
+    function reopenNextDemoWindow() {
+        if (!demoWindowControlsEnabled || usingRealTasks) return false
+        if (!demoHasRunningWindows) {
+            demoOpenedApps = demoApps.slice()
+            demoHasRunningWindows = true
+            return true
+        }
+        const next = DemoWindows.firstClosed(demoOpenedApps, demoApps)
+        return next.length > 0 && openDemoWindow(next)
+    }
     readonly property var demoTray: ["Wi-Fi", "Audio", "Bluetooth"]
     // Menú de muestra: NO representa las aplicaciones instaladas todavía.
     readonly property var demoInstalledApps: ["Dolphin", "Konsole", "Brave", "Firefox", "Configuración"]
@@ -1057,7 +1093,8 @@ Item {
             installedAppsPopup.close()
         // No enviar al lanzador por falta de ventanas: el gesto elegido
         // para "ventanas abiertas" conserva su significado.
-        if (soWindowCount === 0) {
+        if (soWindowCount === 0 &&
+            !(demoWindowControlsEnabled && !usingRealTasks)) {
             soExpanded = false
             return
         }
@@ -2196,45 +2233,29 @@ Item {
                 Repeater {
                     model: root.positionMode === "right" && root.soExpanded &&
                            !root.usingRealTasks && root.demoHasRunningWindows
-                           ? root.demoApps : []
-                    delegate: IslandButton {
-                        // El propio relleno de la isla aparece debajo:
-                        // no añadir otra cápsula azul sobre el degradado.
-                        inheritIslandFill: true
-                        taskDisplayMode: root.taskDisplayMode
-                        taskFrameShape: root.taskFrameShape
-                        taskFrameColor: root.displayTaskFrameColor
-                        taskFrameOpacity: root.taskFrameOpacity
-                        taskFrameWidth: root.taskFrameWidth
-                        taskActiveGlowEnabled: root.taskActiveGlowEnabled
-                        taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
-                        taskActiveBorderColor: root.displayOutlineSoColor
-                        taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
-                        taskActiveBorderWidth: root.outlineConfig.soledad.width
-                        activityEffect: root.soActivityStyle
-                        activityColor: root.displaySoActivityColor
-                        activityStroke: root.soActivityStroke
-                        activityMotionAllowed: root.soActivityMotion
-                        activityOrbitSpeed: root.soActivityOrbitSpeed
-                        activityTrailPercent: root.soActivityTrailPercent
-                        activityTrailStyle: root.soActivityTrailStyle
-                        activityGlowColor: root.displaySoActivityGlowColor
-                        activityGlowIntensity: root.soActivityGlowIntensity
-                        activityGlowSpread: root.soActivityGlowSpread
-                        activityPulseSpeed: root.soActivityPulseSpeed
-                        activityPulseDepth: root.soActivityPulseDepth
-                        activityGlowGradient: root.soActivityGlowGradient
-                        frameShape: "task"
-                        taskIconSource: root.demoIconForApp(modelData)
-                        taskIsActive: root.demoHasRunningWindows &&
-                            root.lastDemoSelection.length > 0 &&
-                            modelData === root.lastDemoSelection
-                        text: modelData
-                        onClicked: root.selectDemoApp(modelData)
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.text: "Ficha ficticia: " + modelData
+                           ? root.demoOpenedApps : []
+                    delegate: DemoTaskChip {
+                        host: root
+                        appName: modelData
                     }
                 }
+                // Único control de reapertura en el mismo cajón de fichas SO.
+                // Nunca se muestra con TasksModel real ni modifica KDE.
+                QQC2.ToolButton {
+                    visible: root.positionMode === "right" && root.soExpanded &&
+                             root.demoWindowControlsEnabled && !root.usingRealTasks
+                    text: "+"
+                    implicitWidth: 26
+                    implicitHeight: 34
+                    focusPolicy: Qt.StrongFocus
+                    enabled: !root.demoHasRunningWindows ||
+                             DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
+                    Accessible.name: "Abrir ventana simulada"
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.text: "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
+                    onClicked: root.reopenNextDemoWindow()
+                }
+
 
                 // Nuevo ensayo: KDE TasksModel de solo lectura, inyectado
                 // únicamente por el visor Qt. El Repeater actualiza las
@@ -2666,7 +2687,14 @@ Item {
                                 : (root.demoHasRunningWindows
                                    ? "Simular SO SIN ventanas (0)"
                                    : "Simular SO CON ventanas (3)")
-                            onTriggered: root.demoHasRunningWindows = !root.demoHasRunningWindows
+                            onTriggered: {
+                                if (root.demoHasRunningWindows) {
+                                    root.demoHasRunningWindows = false
+                                } else {
+                                    root.demoOpenedApps = root.demoApps.slice()
+                                    root.demoHasRunningWindows = true
+                                }
+                            }
                         }
                         QQC2.MenuItem {
                             visible: !root.usingRealTasks && root.demoHasRunningWindows
@@ -2711,45 +2739,29 @@ Item {
                 Repeater {
                     model: root.positionMode === "center" && root.soExpanded &&
                            !root.usingRealTasks && root.demoHasRunningWindows
-                           ? root.demoApps : []
-                    delegate: IslandButton {
-                        // El propio relleno de la isla aparece debajo:
-                        // no añadir otra cápsula azul sobre el degradado.
-                        inheritIslandFill: true
-                        taskDisplayMode: root.taskDisplayMode
-                        taskFrameShape: root.taskFrameShape
-                        taskFrameColor: root.displayTaskFrameColor
-                        taskFrameOpacity: root.taskFrameOpacity
-                        taskFrameWidth: root.taskFrameWidth
-                        taskActiveGlowEnabled: root.taskActiveGlowEnabled
-                        taskActiveDoubleBorderEnabled: root.taskActiveDoubleBorderEnabled
-                        taskActiveBorderColor: root.displayOutlineSoColor
-                        taskActiveBorderOpacity: root.outlineConfig.soledad.opacity
-                        taskActiveBorderWidth: root.outlineConfig.soledad.width
-                        activityEffect: root.soActivityStyle
-                        activityColor: root.displaySoActivityColor
-                        activityStroke: root.soActivityStroke
-                        activityMotionAllowed: root.soActivityMotion
-                        activityOrbitSpeed: root.soActivityOrbitSpeed
-                        activityTrailPercent: root.soActivityTrailPercent
-                        activityTrailStyle: root.soActivityTrailStyle
-                        activityGlowColor: root.displaySoActivityGlowColor
-                        activityGlowIntensity: root.soActivityGlowIntensity
-                        activityGlowSpread: root.soActivityGlowSpread
-                        activityPulseSpeed: root.soActivityPulseSpeed
-                        activityPulseDepth: root.soActivityPulseDepth
-                        activityGlowGradient: root.soActivityGlowGradient
-                        frameShape: "task"
-                        taskIconSource: root.demoIconForApp(modelData)
-                        taskIsActive: root.demoHasRunningWindows &&
-                            root.lastDemoSelection.length > 0 &&
-                            modelData === root.lastDemoSelection
-                        text: modelData
-                        onClicked: root.selectDemoApp(modelData)
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.text: "Ficha ficticia: " + modelData
+                           ? root.demoOpenedApps : []
+                    delegate: DemoTaskChip {
+                        host: root
+                        appName: modelData
                     }
                 }
+                // Único control de reapertura en el mismo cajón de fichas SO.
+                // Nunca se muestra con TasksModel real ni modifica KDE.
+                QQC2.ToolButton {
+                    visible: root.positionMode === "center" && root.soExpanded &&
+                             root.demoWindowControlsEnabled && !root.usingRealTasks
+                    text: "+"
+                    implicitWidth: 26
+                    implicitHeight: 34
+                    focusPolicy: Qt.StrongFocus
+                    enabled: !root.demoHasRunningWindows ||
+                             DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
+                    Accessible.name: "Abrir ventana simulada"
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.text: "Reabrir una ficha ficticia de Dolphin, Konsole o Brave"
+                    onClicked: root.reopenNextDemoWindow()
+                }
+
 
                 // Nuevo ensayo: KDE TasksModel de solo lectura, inyectado
                 // únicamente por el visor Qt. El Repeater actualiza las
