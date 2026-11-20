@@ -59,7 +59,7 @@ state.settings=state;
 const script=[
     extract("preferenceCopy"),extract("captureSettingsBaseline"),
     extract("stageThemeSlot"),extract("parseThemeLibrary"),
-    extract("saveNamedTheme"),extract("dayThemeIndex"),
+    extract("saveNamedTheme"),extract("namedThemeIndex"),extract("dayThemeIndex"),
     'Object.defineProperty(settings,"savedThemeLibrary",{get:function(){return parseThemeLibrary(themeLibraryJson)}})',
     'applyChanges = function(){appliedCount++;captureSettingsBaseline()}',
     'saveNamedTheme()',
