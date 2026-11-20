@@ -2235,8 +2235,9 @@ Item {
                            !root.usingRealTasks && root.demoHasRunningWindows
                            ? root.demoOpenedApps : []
                     delegate: DemoTaskChip {
+                        // modelData se inyecta en la propiedad requerida
+                        // del componente; no es un nombre contextual aquí.
                         host: root
-                        appName: modelData
                     }
                 }
                 // Único control de reapertura en el mismo cajón de fichas SO.
@@ -2741,8 +2742,9 @@ Item {
                            !root.usingRealTasks && root.demoHasRunningWindows
                            ? root.demoOpenedApps : []
                     delegate: DemoTaskChip {
+                        // modelData se inyecta en la propiedad requerida
+                        // del componente; no es un nombre contextual aquí.
                         host: root
-                        appName: modelData
                     }
                 }
                 // Único control de reapertura en el mismo cajón de fichas SO.
