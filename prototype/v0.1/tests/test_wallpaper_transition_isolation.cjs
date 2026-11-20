@@ -54,6 +54,7 @@ const ctx={
   wallpaperIncomingTheme:"", wallpaperIncomingLayer:"",
   wallpaperQueuedTheme:"",wallpaperActiveLayer:"primary",
   wallpaperFadeBusy:false,simulatedWallpaperEnabled:true,
+  wallpaperDemoPendingTheme:"",
   bar:{previewBarThemeColors:theme=>{colorPreviewCalls.push(theme);return true}},
   wallpaperFade:{running:false,target:null,stop(){},start(){}},
   simulatedDesktopWallpaper:{opacity:1,status:1},
@@ -66,6 +67,9 @@ const scope=vm.createContext(ctx);
 for(const f of funcs)vm.runInContext(extract(f),scope);
 for(const next of ["sunset","night","day"]) {
   ctx.previewNextWallpaper(); // exactamente UN cambio
+  assert.equal(ctx.wallpaperDemoPendingTheme,next);
+  ctx.startWallpaperFadeIfReady(); // dispara ambas animaciones al cargar el PNG
+  assert.equal(ctx.wallpaperDemoPendingTheme,"");
   assert.equal(ctx.wallpaperIncomingTheme,next);
   assert.equal(ctx.wallpaperFadeBusy,true);
   assert.equal(ctx.simulatedWallpaperTheme,"day");
@@ -81,6 +85,7 @@ assert.deepEqual(colorPreviewCalls,["sunset","night","day"],
   "Cada clic debe previsualizar también una sola paleta de islas");
 // Con horas de transición, un cambio automático/manual no debe quedar en cola.
 ctx.previewNextWallpaper(); // fundido hacia Atardecer iniciado
+ctx.startWallpaperFadeIfReady();
 ctx.wallpaperQueuedTheme="sunset"; // solicitud previa obsoleta
 ctx.changeSimulatedWallpaper("night",true);
 assert.equal(ctx.wallpaperQueuedTheme,"");
