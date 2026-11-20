@@ -34,6 +34,17 @@ assert(bar.includes("property bool demoWindowControlsEnabled: false"));
 assert(viewer.includes("demoWindowControlsEnabled: true"));
 assert(bar.includes("property var demoOpenedApps: demoApps.slice()"));
 assert.equal((bar.match(/delegate: DemoTaskChip \{/g)||[]).length,2);
+// Error real de Qt/CachyOS (20/11): ReferenceError modelData is not defined.
+// Si el delegate usa propiedades required, modelData debe declararse como
+// propiedad requerida DENTRO del componente, no leerse en el padre.
+assert(chip.includes("required property string modelData"),
+       "Qt debe inyectar la fila actual en una propiedad requerida");
+assert(chip.includes("readonly property string appName: modelData"),
+       "El nombre de aplicación debe derivarse del dato del modelo");
+assert(!/appName:\\s*modelData/.test(bar),
+       "Prohibir modelData contextual fuera del delegate con required");
+assert.equal((bar.match(/delegate: DemoTaskChip \{\s*\/\/[\s\S]*?host: root\s*\}/g)||[]).length,2,
+       "Derecha y centro deben pasar el host y dejar que Qt inyecte modelData");
 assert.equal((bar.match(/onClicked: root.reopenNextDemoWindow\(\)/g)||[]).length,2);
 assert(chip.includes("onClicked: chip.host.closeDemoWindow(chip.appName)"));
 assert(chip.includes("chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks"));
