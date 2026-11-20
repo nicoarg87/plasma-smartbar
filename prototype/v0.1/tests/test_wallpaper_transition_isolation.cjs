@@ -35,6 +35,8 @@ const ctx = {
     wallpaperActiveLayer:"primary",
     simulatedWallpaperEnabled:true,
     wallpaperFadeBusy:false,
+    wallpaperDemoRemaining:0,
+    wallpaperDemoHoldTimer:{stop(){},restart(){}},
     localPreviewSettings:{setValue:(k,v)=>writes.push([k,v]),sync:()=>writes.push(["sync"])},
     simulatedDesktopWallpaper:{opacity:1,status:1},
     incomingWallpaper:{opacity:0,status:1},
@@ -45,34 +47,53 @@ const ctx = {
 };
 ctx.previewWindow=ctx;
 for(const name of funcs)vm.runInNewContext(extract(name),ctx);
-function advance(expect) {
-    ctx.previewNextWallpaper();
-    assert.equal(ctx.wallpaperIncomingTheme,expect,"Siguiente wallpaper equivocado");
+// Un clic solicita tres fundidos y el retorno al wallpaper del tema activo.
+ctx.previewNextWallpaper();
+assert.equal(ctx.wallpaperDemoRemaining,3);
+for(const [i,expected] of ["sunset","night","day"].entries()){
+    // La primera transición la inicia el botón; las siguientes las dispara
+    // wallpaperDemoHoldTimer al terminar cada fundido.
+    if (i>0) ctx.changeSimulatedWallpaper(expected,false);
+    assert.equal(ctx.wallpaperIncomingTheme,expected);
     assert.equal(ctx.wallpaperFadeBusy,true);
-    assert.equal(ctx.simulatedWallpaperTheme,"day","Demo cambia tema guardado");
-    assert.equal(ctx.wallpaperShownTheme===expect,false,"Cambió antes de animar");
+    assert.equal(ctx.simulatedWallpaperTheme,"day","La demostración cambió el tema");
+    assert.notEqual(ctx.wallpaperShownTheme,expected);
     ctx.finishWallpaperFade();
-    assert.equal(ctx.wallpaperShownTheme,expect);
+    assert.equal(ctx.wallpaperShownTheme,expected);
     assert.equal(ctx.wallpaperFadeBusy,false);
     assert.equal(ctx.wallpaperIncomingTheme,"");
-    const visible = ctx.wallpaperActiveLayer==="primary"
+    assert.equal(ctx.wallpaperDemoRemaining,2-i);
+    const visible=ctx.wallpaperActiveLayer==="primary"
         ? ctx.simulatedDesktopWallpaper : ctx.incomingWallpaper;
-    const hidden = ctx.wallpaperActiveLayer==="primary"
+    const hidden=ctx.wallpaperActiveLayer==="primary"
         ? ctx.incomingWallpaper : ctx.simulatedDesktopWallpaper;
     assert.equal(visible.opacity,1);
     assert.equal(hidden.opacity,0);
-    assert.deepEqual(writes,[],"Demo escribió configuración persistente");
+    assert.deepEqual(writes,[],"La prueba escribió preferencias");
 }
-advance("sunset");
-advance("night");
-advance("day");
 assert.equal(ctx.wallpaperActiveLayer,"secondary");
+assert.equal(ctx.wallpaperShownTheme,ctx.simulatedWallpaperTheme,
+    "La prueba debe devolver el wallpaper correcto al terminar");
+// Un cambio horario/manual real interrumpe cualquier demostración.
+ctx.previewNextWallpaper();
+assert.equal(ctx.wallpaperDemoRemaining,3);
+ctx.changeSimulatedWallpaper("night",true);
+assert.equal(ctx.wallpaperDemoRemaining,0);
+assert.deepEqual(writes,[["simulatedWallpaperTheme","night"],["sync"]]);
+assert(!writes.some(([key])=>key.includes("themeLibrary")||key.includes("themeSchedule")));
+
 assert(settings.includes('slot.length && settings.activateTheme(slot)'));
 assert(settings.includes("readonly property var factoryDayPreset"));
 assert(!viewer.slice(viewer.indexOf('function previewNextWallpaper()'),
                       viewer.indexOf('onSimulatedWallpaperEnabledChanged:')).includes('themeSnapshot'));
 assert(viewer.includes('id: wallpaperDemoButton'));
 assert(viewer.includes('readonly property int wallpaperFadeDurationMs: 800'));
+assert(viewer.includes('property int wallpaperDemoRemaining: 0'));
+assert(viewer.includes('id: wallpaperDemoHoldTimer'));
+assert(viewer.includes('wallpaperDemoRemaining = 3'));
+assert(viewer.includes('wallpaperDemoRemaining--'));
+assert(viewer.includes('if (saveSelection && wallpaperDemoRemaining > 0)'));
+
 assert(viewer.includes('fillMode: Image.Stretch'));
 assert(viewer.includes('wallpaperFade.target = target'));
 assert(!viewer.includes('property string wallpaperShownTheme: simulatedWallpaperTheme'),
