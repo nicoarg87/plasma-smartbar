@@ -1717,3 +1717,26 @@ Si los 18 tests pasan, Fish iniciará el visor. Registrar el resultado real de C
 **Corregido por inspección en la rama experimental:** [51c7a7e](https://github.com/nicoarg87/plasma-smartbar/commit/51c7a7e3c4f5b3e4b1537f09d5582e6c80047b97) usa el booleano real del launcher; [6a45948](https://github.com/nicoarg87/plasma-smartbar/commit/6a45948c22028b0c4a360adbbeed0143c8b8c4cf) inicializa la muestra de SO con todos los datos mediante `outlinePreviewSnapshot()` compartido con `refreshOutlinePreview()` y quita seis anchos autorreferenciales de pestañas ocultas; [d0c51a5](https://github.com/nicoarg87/plasma-smartbar/commit/d0c51a56417e23e0bacf1bc339b3cfaada441c0a) añade regresión de esos tres defectos a `test_breathing_menu.cjs`. La prueba modificada pasó contra archivos actuales de GitHub en **V8/FS simulado**.
 
 **PENDIENTE:** nueva apertura real en Qt/CachyOS después de estos ajustes, verificar si desaparecieron los avisos respectivos y si los repetidos de ScrollView/Breeze permanecen. No se tocó la interfaz aprobada, configuración persistente, imágenes ni temas de usuario. PR #3 continúa borrador, licencia del software MIT.
+
+
+## 20/11/2026 — Corrección mínima de los ciclos de Breeze (pendiente de confirmación visual)
+
+**Confirmado antes del parche:** el mantenedor ejecutó en CachyOS **18/18 pruebas Node PASS**, abrió el visor Qt sin instalar plasmoide, recuperó apariencia/270 aplicaciones y reportó exclusivamente advertencias de estilo QQC2 Breeze: `org/kde/breeze/ScrollView.qml:41` (`ScrollBar.x`), `ScrollBar.qml:42` (`Separator.thickness`) y `SoledadSettings.qml:1748` (`rightPadding`). Ya no aparecieron las advertencias anteriores de pestañas ni propiedades `undefined`.
+
+**Diagnóstico basado en código upstream KDE:** `KDE/qqc2-breeze-style` `style/qtquickcontrols/ScrollView.qml` contiene `ScrollBar.vertical.x: control.width - width` (línea 41) y `rightPadding` que depende de `ScrollBar.vertical.background.width` (líneas 24–30). El `ScrollBar.qml` de Breeze tiene `leftPadding` basado en `separator.thickness`, que a su vez depende del ancho del fondo (línea 42). Los valores implícitos pueden crear una cadena circular. La documentación Qt 6 confirma que `ScrollBar.vertical.width` se puede fijar sin sustituir `ScrollView` ni el estilo del sistema.
+
+**Implementado, limitado a rama experimental:**
+- [6012e72](https://github.com/nicoarg87/plasma-smartbar/commit/6012e724c480d4eba873edfc7e40dc500b724886): `SoledadSettings.qml`, para las **nueve ScrollView existentes**, establece `QQC2.ScrollBar.vertical.width: 16` y conserva `QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn`, sin modificar entradas, geometrías de islas, archivos de configuración, imágenes, temas, launcher, apps ni panel del sistema. Se conserva la reserva de 32 px en el contenido.
+- [5ffb6b4](https://github.com/nicoarg87/plasma-smartbar/commit/5ffb6b4cc49601f79fa03f638724a9ce874672e5): `test_breathing_menu.cjs` verifica que las nueve zonas mantengan scroll vertical activo y ancho estable, además de sus regresiones previas.
+
+**Verificación:** `test_breathing_menu.cjs` completo PASS en V8/FS simulado contra la fuente vigente; **nueva suite Node completa y ensayo visual Qt/Breeze todavía pendientes**. No afirmar que se eliminaron todas las advertencias hasta recibir un registro de CachyOS. Observar además si el scrollbar de 16 px o el scroll en pantallas estrechas modifica la experiencia visual; si ocurre, revertir solo el parche de ancho (sin alterar datos).
+
+**Próxima instrucción Fish:**
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/ejecutar_todos.cjs
+and bash prototype/v0.1/probar_ancho.sh
+```
+Cerrar con X para terminar visor; examinar advertencias antes y después del arranque, scrolling en General/Soledad/Malvina/Temas. PR #3 sigue borrador, código propio licencia MIT.
