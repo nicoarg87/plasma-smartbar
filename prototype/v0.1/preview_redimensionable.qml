@@ -64,8 +64,13 @@ Window {
     // El tema activo y las preferencias Qt siguen siendo independientes
     // del botón de demostración (no se guardan cambios al probar).
     readonly property int wallpaperFadeDurationMs: 800
-    property string wallpaperShownTheme: simulatedWallpaperTheme
-    property string wallpaperPrimaryTheme: simulatedWallpaperTheme
+    // Inicialización independiente: NO hacer un binding al valor elegido.
+    // De lo contrario un cambio automático actualiza wallpaperShownTheme
+    // antes de iniciar el fundido y la animación se saltea.
+    property string wallpaperShownTheme:
+        String(localPreviewSettings.value("simulatedWallpaperTheme", "day"))
+    property string wallpaperPrimaryTheme:
+        String(localPreviewSettings.value("simulatedWallpaperTheme", "day"))
     property string wallpaperSecondaryTheme: ""
     property string wallpaperIncomingTheme: ""
     property string wallpaperQueuedTheme: ""
