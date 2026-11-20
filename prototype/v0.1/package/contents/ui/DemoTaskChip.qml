@@ -50,12 +50,35 @@ Row {
     }
 
     QQC2.ToolButton {
+        id: closeDemoChip
         visible: chip.host.demoWindowControlsEnabled && !chip.host.usingRealTasks
         text: "×"
-        implicitWidth: 22
+        implicitWidth: 26
         implicitHeight: 34
         focusPolicy: Qt.StrongFocus
         Accessible.name: "Cerrar ventana simulada de " + chip.appName
+        // Dos trazos forman una X visible sin depender de la tipografía
+        // o del color de texto aplicado por el estilo de Qt.
+        contentItem: Item {
+            implicitWidth: 18
+            implicitHeight: 18
+            Rectangle {
+                anchors.centerIn: parent
+                width: 14
+                height: 2
+                radius: 1
+                rotation: 45
+                color: closeDemoChip.enabled ? "#ffffff" : "#91a8b8"
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: 14
+                height: 2
+                radius: 1
+                rotation: -45
+                color: closeDemoChip.enabled ? "#ffffff" : "#91a8b8"
+            }
+        }
         QQC2.ToolTip.visible: hovered
         QQC2.ToolTip.text: "Cerrar solo la ficha simulada de " + chip.appName
         onClicked: chip.host.closeDemoWindow(chip.appName)
