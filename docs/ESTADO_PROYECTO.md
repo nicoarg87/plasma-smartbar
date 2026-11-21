@@ -2380,3 +2380,11 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 - **NO PROBADO AÚN:** persistencia tras cerrar y reabrir por completo el visor; acción «Olvidar posición»; controles ficticios fijos al extremo derecho durante esta secuencia; cambio de resolución/escala/monitor; detección y posicionamiento real con KWin/Wayland. El resultado visual no demuestra esos casos.
 - **PRÓXIMA PRUEBA:** reiniciar el visor Qt y repetir Dolphin/otra aplicación con maximización simulada para verificar persistencia; luego ensayar borrado del perfil y controles fijos. No instalar ni sustituir el panel existente.
 - Seguimiento: [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4); rama experimental `prototype/v0.1-islas-so`.
+
+### Segunda validación visual de perfiles — reinicio y eliminación (21/11/2026)
+
+- **PROBADO / CONFIRMADO POR EL MANTENEDOR EN CACHYOS:** cerró y volvió a abrir el visor Qt, y comprobó que la posición previamente memorizada para la aplicación simulada se recuperó correctamente sin reconfiguración ni arrastre adicional. La persistencia local de `soledadDemoPositionProfilesV1` quedó validada en esta secuencia.
+- **PROBADO / CONFIRMADO POR EL MANTENEDOR:** al utilizar «Olvidar posición» en el menú contextual existente, Soledad volvió de inmediato a la ubicación general predeterminada.
+- **ALCANCE VALIDADO:** memoria por aplicación, alternancia de aplicación simulada, recuperación tras reinicio y eliminación del perfil. Suite automática previa: 32/32 aprobadas.
+- **PENDIENTE:** verificar específicamente inmovilidad de controles ficticios `− □ ×` en este flujo; ventana real activa/maximizada y AppId estable bajo KWin/Wayland; Steam/XWayland, varias ventanas, monitores y escalas; convivencia con pestañas y decoraciones de ventanas maximizadas. No instalar el applet en el panel existente.
+- **SIGUIENTE ETAPA:** lectura pasiva de foco/AppId/maximización con aplicaciones reales, sin reposicionar Soledad todavía. Relacionado con [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4).
