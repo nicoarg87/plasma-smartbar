@@ -191,4 +191,25 @@ assert(config.includes('<entry name="selectedThemePackId" type="String"><default
 assert(preview.includes("themeScheduleRuntimeEnabled: previewWindow.appearanceRestored && !previewWindow.captureDayOnce"));
 assert(main.includes("themeScheduleRuntimeEnabled: false"),"No activar reloj en panel KDE real");
 assert(!qml.includes('text: "Guardar cambios actuales en Día"'));
+// Inventario previo al empaquetado de Día/Atardecer/Noche: solo lectura,
+// nunca reescribir la biblioteca Qt ni ejecutar fijar_*_fabrica.
+const auditQml = fs.readFileSync(path.join(base,"scripts/leer_candidatos_playa.qml"),"utf8");
+const auditScript = fs.readFileSync(path.join(base,"scripts/inspeccionar_perfiles_playa.cjs"),"utf8");
+const auditShell = fs.readFileSync(path.join(base,"inspeccionar_perfiles_playa.sh"),"utf8");
+assert(auditQml.includes('category: "plasma-smartbar-v01-preview-appearance"'));
+assert(auditQml.includes('saved.value("themeLibraryJson", "[]")'));
+assert(!auditQml.includes("setValue("), "El auditor no escribe Qt Settings");
+assert(auditScript.includes('aliases.includes(item.name.trim().toLocaleLowerCase("es"))'),
+       "No confundir Día prueba/Noche prueba con los tres temas principales");
+assert(auditScript.includes('matching.length !== 1'),
+       "No elegir automáticamente entradas ambiguas");
+assert(auditScript.includes('const missing = requiredKeys(script).filter('),
+       "Revisar todos los campos exigidos por el empaquetador");
+assert(!/writeFileSync|copyFileSync|mkdirSync|renameSync|unlinkSync|spawnSync|execSync/.test(auditScript),
+       "La inspección no altera ni copia recursos");
+assert(auditShell.includes('LOG="$(mktemp)"') &&
+       auditShell.includes('trap \'rm -f -- "$LOG"\' EXIT'),
+       "El registro local temporal se elimina al finalizar");
+assert(!auditShell.includes('node "$HERE/scripts/fijar_'),
+       "Inspeccionar no ejecuta empaquetadores de fábrica");
 console.log("OK: Playa y packs personales conservan franjas, modo automático y 3/4 independientemente.");
