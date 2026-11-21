@@ -76,7 +76,10 @@ assert(bar.includes("function checkThemeSchedule()"));
 assert(bar.includes("interval: 15000"));
 assert(bar.includes("syncSettingsFromRoot()"));
 assert(bar.includes("soledadSettings.activateTheme(slot)"));
-assert(bar.includes("requestWallpaperThemeChange(selected.theme)"));
+assert(bar.includes('requestWallpaperThemeChange(customPack ? member.theme : selected.theme)'),
+       "El pack Playa y sus referencias de fábrica conservan el wallpaper horario");
+assert(bar.includes('if (!customPack || member.kind === "preset")'),
+       "Un snapshot personal nunca debe inventar un wallpaper no configurado");
 assert(preview.includes("themeScheduleRuntimeEnabled: previewWindow.appearanceRestored && !previewWindow.captureDayOnce"));
 assert(preview.includes('localPreviewSettings.setValue("themeScheduleSlots4Json", slots4Json)'));
 assert(preview.includes('localPreviewSettings.setValue("themeScheduleSlots3Json", slots3Json)'));
