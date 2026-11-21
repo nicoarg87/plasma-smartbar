@@ -19,7 +19,7 @@
 - [ ] No desplaza pestañas ni modifica indebidamente el tamaño/foco de ventanas.
 - [ ] Respeta modo pantalla completa real y la exclusividad SO/bandeja.
 - [ ] No añade dependencias pesadas innecesarias ni secretos.
-- [ ] Respeta la licencia GPL-3.0 y las licencias/avisos de terceros.
+- [ ] Respeta la licencia MIT para código y documentación propios, CC0 1.0 para recursos gráficos propios autorizados y los avisos/licencias de terceros.
 - [ ] Actualicé documentación y pruebas cuando corresponde.
 
 **Nota:** un PR es una propuesta; la incorporación a la versión oficial depende de revisión y aprobación del mantenedor.
