@@ -119,7 +119,7 @@ for (const [label, raw, script] of [
     ["Atardecer histórico (themeDayJson)", legacy.sunset, factoryScripts["Atardecer"]],
     ["Noche histórica (themeNightJson)", legacy.night, factoryScripts["Noche"]]
 ]) {
-    console.log("\\n" + label + ":");
+    console.log("\n" + label + ":");
     if (!raw.length) {
         console.log("  SIN DATOS guardados.");
         continue;
@@ -160,5 +160,5 @@ for (const [label, raw, script] of [
         "  COMPLETO técnicamente; identidad de fábrica NO verificada." :
         "  INCOMPLETO técnicamente; conservar para recuperación manual.");
 }
-console.log("\\nNo se copió ni modificó ninguna configuración, GIF, tema ni panel KDE.");
+console.log("\nNo se copió ni modificó ninguna configuración, GIF, tema ni panel KDE.");
 console.log("No se verificaron derechos de imagen ni wallpapers; NO se empaquetó fábrica.");
