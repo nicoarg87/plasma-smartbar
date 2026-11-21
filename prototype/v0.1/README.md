@@ -1059,4 +1059,26 @@ and bash prototype/v0.1/inspeccionar_perfiles_playa.sh
 
 La inspección es **solo lectura**: no guarda, restaura, cambia ni exporta temas, no instala paneles y **no ejecuta** `fijar_dia_fabrica.cjs`, `fijar_atardecer_fabrica.cjs` o `fijar_noche_fabrica.cjs`. Lee de Qt Settings los nombres y perfiles de `themeLibraryJson` del visor, cuenta las entradas denominadas exactamente Día, Atardecer y Noche, indica si son perfiles JSON completos según el contrato actual de empaquetado y si el logo y fondo SO locales existen. «Día prueba» y «Noche prueba» no suplantan temas originales; ante duplicados, **no elige** por cuenta propia. No muestra rutas locales completas ni el JSON íntegro. Si falta alguno, o aparece ambiguo, se revisa antes de proceder. El script no modifica los tres `Factory*Theme.js`, que todavía tienen `preset = null`.
 
-El resumen **no acredita derechos sobre los gráficos** ni confirma los wallpapers del escritorio simulado. La captura de los archivos exactos, cualquier empaquetado y su publicación quedan para un paso posterior después de revisar el resultado con el mantenedor. La función interna anterior `showFactoryCapture` no está conectada al selector de Temas actual: por eso este procedimiento no depende de botones antiguos que hoy no aparecen en la interfaz. 
+El resumen **no acredita derechos sobre los gráficos** ni confirma los wallpapers del escritorio simulado. La captura de los archivos exactos, cualquier empaquetado y su publicación quedan para un paso posterior después de revisar el resultado con el mantenedor. La función interna anterior `showFactoryCapture` no está conectada al selector de Temas actual: por eso este procedimiento no depende de botones antiguos que hoy no aparecen en la interfaz.
+
+## Playa 24hs como original de fábrica — resguardo previo (21/11/2026)
+
+**Decisión confirmada:** el paquete original de fábrica será **Playa 24hs** con los tres temas que ya utiliza el mantenedor en CachyOS (Día, Atardecer y Noche), preservando su aspecto real. No son fábrica ni se deben inventar los datos incompletos de `themeDayJson` y `themeNightJson`. Los tres `Factory*Theme.js` siguen en `preset=null` hasta recibir material completo y derechos verificados.
+
+**Resguardo privado candidato, por tema y sin modificar preferencias:**
+- Tener **Playa 24hs** seleccionado en el visor. El tema que se va a resguardar debe estar **actualmente visible y guardado**, sin cambios pendientes.
+- **Cerrar completamente el visor** para sincronizar sus parámetros de apariencia.
+- Ejecutar desde Fish, cambiando la etiqueta por el tema que efectivamente estaba visible:
+
+```fish
+cd ~/plasma-smartbar
+git pull --ff-only
+and node prototype/v0.1/tests/ejecutar_todos.cjs
+and bash prototype/v0.1/resguardar_original_playa.sh noche
+```
+
+Se admite `dia`, `atardecer` o `noche`, pero **no ejecutarlos indistintamente sobre la misma apariencia**. El lector valida 134 campos activos y hace coincidir los archivos de logo y fondo con la referencia correcta; si no coincide se niega a archivar bajo una etiqueta falsa. Crea directorio local privado único en `~/.local/share/plasma-smartbar/resguardos-playa-fabrica` (o `$XDG_DATA_HOME`), guarda `apariencia-activa-completa.json`, la referencia original sin modificación, horarios guardados y copia de los gráficos con hashes SHA-256. No crea botones ni cambia Qt Settings, pack, temas, panel KDE, wallpapers reales, originales de GitHub o modos de trabajo; no envía datos al repositorio. **Es una captura candidata, no un tema oficial aún.**
+
+**Precaución crítica:** al seleccionar *manualmente* Día/Atardecer/Noche en el desplegable actual se desactiva el horario automático del pack, como parte del diseño ya aprobado. **No cambiar manualmente para capturar sin resguardar y planificar restauración de esa preferencia.** Para el primer ensayo, registrar únicamente el tema que ya esté visible por horario al tener Playa seleccionado. No suponer que el fondo del escritorio simulado corresponde al tema activo; no usar esa imagen para identificarlo.
+
+Queda pendiente un procedimiento de validación visual por las tres apariencias y la revisión de las imágenes/GIF y wallpapers bajo la licencia de recursos correspondiente antes del empaquetado inmutable. El resguardo conserva una copia local de información de preferencias: **no compartir el JSON íntegro ni el directorio como registro público**. Compartir en la conversación solamente el resumen del comando.
