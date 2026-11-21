@@ -17,3 +17,9 @@ El recurso binario exacto **no se ha subido a este árbol de GitHub** mediante e
 `SoledadSettings.qml` detecta la presencia del archivo y, al aplicar la ranura Noche guardada, usa el GIF incluido. Si el binario falta, respeta la imagen nocturna local ya guardada. La selección de imagen no borra ni cambia los colores, degradados, opacidades o permisos de los perfiles del usuario.
 
 Detalle jurídico: [Licencias de recursos gráficos](../../../../../../docs/LICENCIAS_RECURSOS_GRAFICOS.md).
+
+## Licencia vigente para los recursos propios (21/11/2026)
+
+El mantenedor confirmó que los recursos gráficos originales del proyecto hechos con ChatGPT u otras herramientas de imagen por IA, incluidos los GIF/logos propios y los wallpapers **Día, Atardecer y Noche**, se dedican a **[CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)** en la medida de los derechos que puede conceder. La licencia de código/documentación propios sigue siendo **MIT**. Los tres fondos constan en `assets/wallpapers/manifest.json` con `license: CC0-1.0` y hashes individuales.
+
+La dedicación no acredita que los binarios estén cargados en el repositorio ni autoriza redistribuir marcas/logos ajenos. «Golden Dog» mantiene la exclusión preventiva hasta verificar su origen; archivos locales aportados por otros usuarios no heredan la licencia. Revisar el [inventario](../../../../../../docs/LICENCIAS_RECURSOS_GRAFICOS.md) antes de distribuir los originales de Playa 24hs.
