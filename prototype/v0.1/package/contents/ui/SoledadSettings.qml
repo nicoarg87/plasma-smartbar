@@ -198,7 +198,12 @@ Window {
         return true
     }
     function persistCustomPack(updated) {
-        const next = ThemePack.replace(savedThemePacks, updated)
+        const original = ThemePack.raw(themePackLibraryJson)
+        if (!original) {
+            scheduleError = "Biblioteca de packs inválida: no se sobrescribió."
+            return
+        }
+        const next = ThemePack.replace(original, updated)
         themePackLibraryJson = JSON.stringify(next)
         saveThemePackLibraryRequested(themePackLibraryJson)
     }
@@ -214,12 +219,17 @@ Window {
         const members = selected.filter(function(i) {
             return i >= 0 && i < packCandidateItems.length
         }).map(function(i) { return packCandidateItems[i] })
-        const pack = ThemePack.create(savedThemePacks, newPackName, members)
+        const original = ThemePack.raw(themePackLibraryJson)
+        if (!original) {
+            themeStatus = "Biblioteca de packs inválida: no se sobrescribió."
+            return false
+        }
+        const pack = ThemePack.create(original, newPackName, members)
         if (!pack) {
             themeStatus = "Escribí un nombre distinto y elegí al menos un tema válido."
             return false
         }
-        const next = savedThemePacks.concat([pack])
+        const next = original.concat([pack])
         themePackLibraryJson = JSON.stringify(next)
         saveThemePackLibraryRequested(themePackLibraryJson)
         selectedThemePackId = pack.id
