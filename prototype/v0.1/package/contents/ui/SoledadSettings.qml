@@ -5148,7 +5148,9 @@ Window {
                             Layout.fillWidth: true
                             spacing: 6
                             Repeater {
-                                model: settings.themeScheduleSlotCount
+                                // Al cambiar de pack recrear las filas con los datos
+                                // guardados, no reutilizar ComboBox del pack anterior.
+                                model: settings.scheduleSlots
                                 delegate: RowLayout {
                                     required property int index
                                     Layout.fillWidth: true
@@ -5184,13 +5186,22 @@ Window {
                                     }
                                     QQC2.ComboBox {
                                         Layout.fillWidth: true
-                                        model: settings.selectedThemePack
+                                        readonly property var themeChoices: settings.selectedThemePack
                                             ? ThemePack.labels(settings.selectedThemePack)
                                             : ["Día", "Atardecer", "Noche"]
-                                        currentIndex: settings.selectedThemePack
+                                        readonly property int savedThemeIndex: settings.selectedThemePack
                                             ? settings.scheduleTheme(index)
                                             : settings.scheduleTheme(index) === "day" ? 0
-                                              : settings.scheduleTheme(index) === "sunset" ? 1 : 2
+                                              : settings.scheduleTheme(index) === "sunset" ? 1
+                                                : settings.scheduleTheme(index) === "night" ? 2 : -1
+                                        model: themeChoices
+                                        currentIndex: savedThemeIndex
+                                        // El modelo de QQC2.ComboBox puede reiniciar su índice
+                                        // a cero al cambiar entre packs. Mostrar SIEMPRE el
+                                        // valor persistido; no sustituirlo por "Día".
+                                        displayText: savedThemeIndex >= 0 &&
+                                            savedThemeIndex < themeChoices.length
+                                            ? themeChoices[savedThemeIndex] : "Tema no disponible"
                                         onActivated: function(i) {
                                             settings.updateScheduleTheme(index,
                                                 settings.selectedThemePack ? i :
