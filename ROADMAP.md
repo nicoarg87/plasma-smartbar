@@ -15,6 +15,15 @@
 - [ ] Integrar imagen tropical original cuando esté disponible y registrar integridad/autoría; no usar sustitutos visuales como si fueran el original.
 - [ ] Retest en CachyOS de forma única del botón SO (figuras normales y anchas) y ajuste `Estirar` + zoom y desplazamiento sin reescribir la imagen.
 
+## Prioridad de ejecución ratificada — 21/11/2026
+
+- [x] **Licencia inequívoca:** código, documentación y `KPlugin.License` de obra propia bajo **MIT**; GIF, logos y wallpapers originales generados mediante IA y aportados por el mantenedor bajo **CC0 1.0 Universal**, sobre derechos que puede conceder. `wallpapers/manifest.json` declara `CC0-1.0` para Día/Atardecer/Noche. Esto no incorpora binarios todavía ausentes ni autoriza material de terceros. Revisión documental en rama experimental.
+- [x] **Disciplina funcional:** el mantenedor propone ideas mientras prueba en CachyOS; registrar sin frenar ese método, pero la IA **no puede crear botones/menús/reorganizaciones no solicitados**. La modularización es obligación de ingeniería de la implementación, no tarea de recordatorio para el mantenedor.
+- [ ] **Ensayo KDE real aislado como siguiente prioridad técnica:** primero validar en CachyOS lectura de aplicación/ventana activa y maximizada, identificador estable, TasksModel y fullscreen; después medir compatibilidad y foco con Dolphin/Konsole/Steam/navegadores. No instalar en el panel principal ni habilitar acciones destructivas de KWin antes de pruebas.
+- [ ] **Posición general anclada + memoria por aplicación activa y maximizada:** ratificación del [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4); aprovechar el agarre/menús existentes, sin botón añadido. Probar primero con ventanas simuladas y sin mover controles propios de SmartBar del extremo derecho. Poner límites por monitor/escalado y regreso a posición general para aplicaciones sin perfil.
+- [ ] **Refactor gradual y pruebas:** extraer módulos acotados de `SoledadSettings.qml`/`SmartBarContent.qml` con contratos Qt/QML y test de regresión después de cada cambio. Mantener el PR #3 como borrador [#11](https://github.com/nicoarg87/plasma-smartbar/issues/11).
+- [ ] **Volver a ejecutar la suite Node ampliada** (`test_license_policy.cjs` incluido), verificar carga QML/CachyOS; última ejecución certificada por el mantenedor antes de estos cambios: **29/29**.
+
 ## Fase 1 — MVP funcional y estable (sin animaciones)
 - [ ] **Modo superior predeterminado**, con islas separadas, cuyo grosor configurado permanece **constante** durante cada interacción. Diseñar la base de estados y vistas para permitir cambiar de orientación más adelante sin reescribir la gestión de ventanas.
 - [ ] Detectar max/restauración y mostrar/ocultar controles de ventana según corresponda; **anclarlos al extremo derecho de manera independiente de isla 1**, sin seguir el arrastre de SO.
