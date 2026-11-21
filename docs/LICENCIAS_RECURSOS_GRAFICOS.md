@@ -22,7 +22,7 @@
 
 Según https://openai.com/policies/terms-of-use/ , entre el usuario y OpenAI y en la medida permitida por la ley, la propiedad del *output* corresponde al usuario; OpenAI cede los derechos que pueda tener. Esto **no garantiza exclusividad del resultado ni creación de derechos de autor por IA en todos los países**. La dedicatoria CC0 no permite ceder derechos que no se poseen ni elimina derechos de marcas, imagen, privacidad o contenidos de terceros.
 
-**No es correcto afirmar que CC0 garantiza que cualquier uso, en cualquier país y sobre cualquier producto, es legal.** CC0 habilita la mayor libertad posible sobre los derechos de autor que podamos ofrecer. Versiones del programa publicadas anteriormente bajo GPL-3.0 conservan sus licencias históricas y permisos; el cambio a MIT no revoca esos permisos.
+**No es correcto afirmar que CC0 garantiza que cualquier uso, en cualquier país y sobre cualquier producto, es legal.** CC0 habilita la mayor libertad posible sobre los derechos de autor que podamos ofrecer. Las publicaciones anteriores conservan los permisos de sus licencias originales; MIT es la licencia vigente para código y documentación propios.
 
 ## Procedimiento para incorporar la imagen tropical
 
