@@ -34,6 +34,14 @@ PlasmoidItem {
             Plasmoid.configuration.wallpaperFadeAmount = amount
             Plasmoid.configuration.wallpaperFadeUnit = unit
         }
+        themePackLibraryJson: Plasmoid.configuration.themePackLibraryJson
+        selectedThemePackId: Plasmoid.configuration.selectedThemePackId
+        onRequestThemePackLibraryChange: function(json) {
+            Plasmoid.configuration.themePackLibraryJson = json
+        }
+        onRequestSelectedThemePackChange: function(id) {
+            Plasmoid.configuration.selectedThemePackId = id
+        }
         themeScheduleEnabled: Plasmoid.configuration.themeScheduleEnabled
         themeScheduleSlotCount: Plasmoid.configuration.themeScheduleSlotCount
         themeScheduleSlots3Json: Plasmoid.configuration.themeScheduleSlots3Json
