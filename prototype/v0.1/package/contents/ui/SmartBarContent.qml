@@ -11,6 +11,7 @@ import "DemoWindows.js" as DemoWindows
 import "DemoWindowInstances.js" as DemoWindowInstances
 import "DemoAudioState.js" as DemoAudioState
 import "SoledadPositionProfiles.js" as SoledadPositionProfiles
+import "RealActiveWindow.js" as RealActiveWindow
 
 Item {
     id: root
@@ -846,19 +847,56 @@ Item {
     // Solo cambia posiciones del visor Qt, no ventanas KDE.
     property string realTrackedAppId: ""
     property string realTrackedAppName: ""
+    // Elegir ficha REAL en SO selecciona destino para recordar; nunca
+    // activa la ventana KDE ni modifica su estado.
+    property string realSelectedAppId: ""
+    property string realSelectedAppName: ""
+    function selectRealTaskApp(appId, appName) {
+        if (!demoWindowControlsEnabled || !usingRealTasks) return
+        realSelectedAppId = typeof appId === "string" ? appId.trim() : ""
+        realSelectedAppName = typeof appName === "string" && appName.length > 0
+            ? appName : "(aplicación sin nombre)"
+        console.log("SO perfil elegido:", realSelectedAppName,
+                    realSelectedAppId, "(sin activar ventanas KDE)")
+    }
+    onRealTrackedAppIdChanged: {
+        // Al enfocar otra app REAL, liberar una selección anterior.
+        // Pasar a qml6 no cambia realTrackedAppId: se conserva Steam.
+        if (realSelectedAppName.length > 0 && realTrackedAppId.length > 0 &&
+            realTrackedAppId !== realSelectedAppId) {
+            realSelectedAppId = ""
+            realSelectedAppName = ""
+        }
+    }
+    onUsingRealTasksChanged: {
+        if (!usingRealTasks) {
+            realSelectedAppId = ""
+            realSelectedAppName = ""
+        } else {
+            // En modo real no mostrar controles de maximización ficticios.
+            previewMaximized = false
+            previewFullscreen = false
+        }
+    }
     property bool realTrackedMaximized: false
     property bool realTrackedFullscreen: false
     property bool realTrackedKnown: false
     property string realPositionProfilesJson: "{}"
     signal requestRealPositionProfilesChange(string json)
+    readonly property var realProfileTarget: RealActiveWindow.profileTarget(
+        realSelectedAppId, realSelectedAppName,
+        { appId: realTrackedAppId, appName: realTrackedAppName,
+          maximized: realTrackedMaximized, fullscreen: realTrackedFullscreen,
+          known: realTrackedKnown })
     readonly property bool realProfileContextReady:
         demoWindowControlsEnabled && usingRealTasks &&
-        realTrackedKnown && realTrackedMaximized && !realTrackedFullscreen &&
-        positionMode === "right" && realTrackedAppId.length > 0
-    readonly property bool realProfileExists: realProfileContextReady &&
+        positionMode === "right" && realProfileTarget.eligible
+    readonly property bool realProfileExists:
+        demoWindowControlsEnabled && usingRealTasks &&
+        positionMode === "right" && realProfileTarget.appId.length > 0 &&
         Object.prototype.hasOwnProperty.call(
             SoledadPositionProfiles.readProfiles(realPositionProfilesJson),
-            realTrackedAppId)
+            realProfileTarget.appId)
     function applyRealPositionProfile() {
         if (!demoWindowControlsEnabled || !usingRealTasks ||
             positionMode !== "right" || gripDrag.active) return
@@ -877,13 +915,14 @@ Item {
     function saveRealPositionProfile() {
         if (!realProfileContextReady) return
         const updated = SoledadPositionProfiles.saveProfile(
-            realPositionProfilesJson, realTrackedAppId, islandOffset, maxIslandOffset)
+            realPositionProfilesJson, realProfileTarget.appId,
+            islandOffset, maxIslandOffset)
         if (updated !== null) requestRealPositionProfilesChange(updated)
     }
     function deleteRealPositionProfile() {
         if (!realProfileExists) return
         const updated = SoledadPositionProfiles.removeProfile(
-            realPositionProfilesJson, realTrackedAppId)
+            realPositionProfilesJson, realProfileTarget.appId)
         if (updated !== null) {
             requestRealPositionProfilesChange(updated)
             setIslandOffset(0)
@@ -2592,10 +2631,10 @@ Item {
                         readonly property int windowCount: Number(model.ChildCount) || 0
                         text: appName + (isGrouped && windowCount > 1
                                         ? " (" + windowCount + ")" : "")
-                        // Se deja deliberadamente sin acción sobre KDE.
-                        // El clic solo informa en Konsole que es una prueba.
-                        onClicked: console.log("SO solo lectura: ", appName,
-                                               "(sin activar ventanas)")
+                        // Selección EXCLUSIVAMENTE local del perfil:
+                        // el clic NO cambia el foco ni toca la ventana KDE.
+                        readonly property string appId: String(model.AppId || "")
+                        onClicked: root.selectRealTaskApp(appId, appName)
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
@@ -2998,12 +3037,14 @@ Item {
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
                             text: "Simular ventana maximizada"
+                            visible: !root.usingRealTasks
                             checkable: true
                             checked: root.previewMaximized
                             onTriggered: root.setPreviewMaximized(!root.previewMaximized)
                         }
                         QQC2.MenuItem {
                             text: "Simular pantalla completa (bloquea Malvina)"
+                            visible: !root.usingRealTasks
                             checkable: true
                             checked: root.previewFullscreen
                             onTriggered: root.previewFullscreen = !root.previewFullscreen
@@ -3020,13 +3061,22 @@ Item {
                             onTriggered: root.deleteDemoPositionProfile()
                         }
                         QQC2.MenuItem {
-                            visible: root.realProfileContextReady
-                            text: "Recordar esta posición para " + root.realTrackedAppName
+                            visible: root.demoWindowControlsEnabled &&
+                                     root.usingRealTasks &&
+                                     root.positionMode === "right" &&
+                                     root.realProfileTarget.appName.length > 0
+                            enabled: root.realProfileContextReady
+                            text: root.realProfileContextReady
+                                ? "Recordar esta posición para " + root.realProfileTarget.appName
+                                : (root.realProfileTarget.appId.length === 0
+                                    ? root.realProfileTarget.appName + ": KDE no informa su ID"
+                                    : root.realProfileTarget.appName +
+                                      ": activala y maximizala en KDE")
                             onTriggered: root.saveRealPositionProfile()
                         }
                         QQC2.MenuItem {
                             visible: root.realProfileExists
-                            text: "Olvidar posición de " + root.realTrackedAppName
+                            text: "Olvidar posición de " + root.realProfileTarget.appName
                             onTriggered: root.deleteRealPositionProfile()
                         }
                         // Atajo contextual del agarre: respeta la preferencia
@@ -3147,10 +3197,10 @@ Item {
                         readonly property int windowCount: Number(model.ChildCount) || 0
                         text: appName + (isGrouped && windowCount > 1
                                         ? " (" + windowCount + ")" : "")
-                        // Se deja deliberadamente sin acción sobre KDE.
-                        // El clic solo informa en Konsole que es una prueba.
-                        onClicked: console.log("SO solo lectura: ", appName,
-                                               "(sin activar ventanas)")
+                        // Selección EXCLUSIVAMENTE local del perfil:
+                        // el clic NO cambia el foco ni toca la ventana KDE.
+                        readonly property string appId: String(model.AppId || "")
+                        onClicked: root.selectRealTaskApp(appId, appName)
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
