@@ -1557,7 +1557,7 @@ Item {
         // usuario eligió Playa 24hs automático; no esperar al siguiente tick.
         onVisibleChanged: {
             if (!visible && root.themeScheduleEnabled && root.themeScheduleRuntimeEnabled)
-                Qt.callLater(root.checkThemeSchedule)
+                Qt.callLater(function() { root.checkThemeSchedule() })
         }
         onSettingsApplied: root.requestPersistCurrentSettings()
         onRestorePersonalDefaultRequested: root.requestRestorePersonalDefault()
