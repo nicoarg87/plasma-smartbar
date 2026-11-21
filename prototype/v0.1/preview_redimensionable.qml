@@ -1240,19 +1240,20 @@ Window {
         wrapMode: Text.WordWrap
         color: "#f4edf9"
         text: previewWindow.useRealWindowTasks
-              ? "Modo KDE REAL (solo lectura): SO muestra aplicaciones abiertas. " +
-                "Ventana activa: " + (previewWindow.observedRealKnown
-                    ? previewWindow.observedRealAppName + " [" + previewWindow.observedRealAppId + "]" +
-                      (previewWindow.observedRealFullscreen ? " · Pantalla completa" :
-                       (previewWindow.observedRealMaximized ? " · Maximizada" : " · Normal"))
-                    : "(sin dato confiable)") +
-                ". Última aplicación externa: " +
-                (previewWindow.trackedExternalKnown
-                    ? previewWindow.trackedExternalAppName + " [" +
-                      previewWindow.trackedExternalAppId + "]" +
-                      (previewWindow.trackedExternalMaximized ? " · Maximizada" : " · Normal")
-                    : "(todavía no detectada)") +
-                ". Solo el visor puede mover Soledad; las ventanas KDE no se modifican."
+              ? "SO real (solo lectura) · Foco KDE: " +
+                (previewWindow.observedRealKnown
+                    ? previewWindow.observedRealAppName : "(sin dato)") +
+                " · Perfil elegido: " +
+                (bar.realProfileTarget.appName.length > 0
+                    ? bar.realProfileTarget.appName +
+                      (bar.realSelectedAppName.length > 0 ? " (seleccionado en SO)" : " (última externa)")
+                    : "(ninguno)") +
+                (bar.realProfileTarget.appName.length > 0
+                    ? (bar.realProfileContextReady
+                       ? " · listo para recordar."
+                       : " · para recordar, activá y maximizá esa ventana en KDE.")
+                    : ".") +
+                " Las ventanas KDE no se modifican."
               : "Modo SIMULADO: conserva todas las pruebas anteriores. Arrastrá " +
                 "el borde de la ventana o maximizala; Malvina queda a la izquierda " +
                 (bar.positionMode === "center"
