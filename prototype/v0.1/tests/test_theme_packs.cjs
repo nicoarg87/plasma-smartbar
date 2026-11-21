@@ -59,8 +59,10 @@ const unknown = {id:"pack-99",name:"Formato futuro",members:[{newSchema:true}]};
 const storedWithUnknown = [created, unknown, null];
 const rawPackList = pack.raw(JSON.stringify(storedWithUnknown));
 const updated = pack.replace(rawPackList, second);
-assert.deepEqual(JSON.parse(JSON.stringify(updated)), [created, unknown, null],
+assert.deepEqual(JSON.parse(JSON.stringify(updated)),
+    JSON.parse(JSON.stringify(storedWithUnknown)),
     "No borrar packs desconocidos ni objetos históricos al persistir");
+assert.equal(updated[1], rawPackList[1], "No reescribir el pack de versión desconocida");
 assert.deepEqual(JSON.parse(JSON.stringify(pack.schedule(created, 3))), [
     {start:"08:00",member:0},
     {start:"18:00",member:1},
