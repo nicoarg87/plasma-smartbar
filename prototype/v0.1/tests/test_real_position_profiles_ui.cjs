@@ -22,6 +22,23 @@ assert.deepEqual(snapshot(api.rememberExternal(steam,null,viewer.appId)),steam);
 assert.equal(api.rememberExternal(steam,{...steam,maximized:false},viewer.appId).maximized,false);
 assert.equal(api.rememberExternal(steam,{...steam,appId:"com.brave.Browser"},viewer.appId).appId,"com.brave.Browser");
 assert.equal(api.rememberExternal(null,viewer,viewer.appId).known,false);
+// La ficha seleccionada gana al último foco externo: nunca guardar Brave
+// por tocar Steam, aunque Brave haya sido la última ventana maximizada.
+const wrongTarget = api.profileTarget("com.valvesoftware.Steam","Steam",{
+    appId:"com.brave.Browser",appName:"Brave",known:true,
+    maximized:true,fullscreen:false});
+assert.equal(wrongTarget.appId,"com.valvesoftware.Steam");
+assert.equal(wrongTarget.appName,"Steam");
+assert.equal(wrongTarget.eligible,false);
+assert.equal(wrongTarget.explicitlySelected,true);
+const correctTarget = api.profileTarget("com.valvesoftware.Steam","Steam",steam);
+assert.equal(correctTarget.eligible,true);
+assert.equal(api.profileTarget("com.valvesoftware.Steam","Steam",{
+    ...steam,maximized:false}).eligible,false);
+assert.equal(api.profileTarget("com.valvesoftware.Steam","Steam",{
+    ...steam,fullscreen:true}).eligible,false);
+assert.equal(api.profileTarget("","Steam",steam).eligible,false);
+assert.equal(api.profileTarget("","",steam).appId,"com.valvesoftware.Steam");
 for(const expected of [
     'realTrackedAppId: previewWindow.useRealWindowTasks',
     'realTrackedMaximized: previewWindow.useRealWindowTasks',
@@ -38,10 +55,20 @@ for(const expected of [
     'function saveDemoPositionProfile()',
     'function deleteDemoPositionProfile()',
     'demoWindowControlsEnabled && usingRealTasks &&',
-    'realTrackedKnown && realTrackedMaximized && !realTrackedFullscreen',
-    'text: "Recordar esta posición para " + root.realTrackedAppName',
-    'text: "Olvidar posición de " + root.realTrackedAppName'
+    'positionMode === "right" && realProfileTarget.eligible',
+    'function selectRealTaskApp(appId, appName)',
+    'readonly property var realProfileTarget: RealActiveWindow.profileTarget(',
+    'realPositionProfilesJson, realProfileTarget.appId,',
+    'text: "Olvidar posición de " + root.realProfileTarget.appName',
+    'enabled: root.realProfileContextReady',
+    'root.realProfileTarget.appName +',
+    'visible: !root.usingRealTasks'
 ]) assert(bar.includes(expected),"Falta integración SO: "+expected);
+// Ambas filas (derecha/centro) deben seleccionar el mismo AppId real
+// sin llamar acciones sobre KDE/Steam.
+assert.equal((bar.match(/onClicked: root\.selectRealTaskApp\(appId, appName\)/g)||[]).length,2);
+assert.equal((bar.match(/readonly property string appId: String\(model\.AppId \|\| ""\)/g)||[]).length,2);
+assert(!bar.includes('onClicked: console.log("SO solo lectura: "'));
 const from = bar.indexOf('    // Última aplicación EXTERNA,');
 const to = bar.indexOf('    property var realTaskModel:',from);
 assert(from>0 && to>from);
@@ -51,4 +78,4 @@ assert(!/requestActivate\s*\(|requestClose\s*\(|requestToggle\w+\s*\(/.test(isol
 assert(!main.includes("soledadRealPositionProfilesV1") &&
        !main.includes("realTrackedAppId"),
        "El panel KDE no debe adoptar aún la integración experimental");
-console.log("OK: perfil Steam real recordable en visor Qt, foco conservado y panel aislado.");
+console.log("OK: Steam elegida ≠ Brave con último foco, guardado condicionado a maximización real, KDE aislado.");
