@@ -1533,6 +1533,12 @@ Item {
 
     SoledadSettings {
         id: soledadSettings
+        // Al cerrar el editor, ejecutar enseguida la franja vigente si el
+        // usuario eligió Playa 24hs automático; no esperar al siguiente tick.
+        onVisibleChanged: {
+            if (!visible && root.themeScheduleEnabled && root.themeScheduleRuntimeEnabled)
+                Qt.callLater(root.checkThemeSchedule)
+        }
         onSettingsApplied: root.requestPersistCurrentSettings()
         onRestorePersonalDefaultRequested: root.requestRestorePersonalDefault()
         onRestoreFavoriteAppearanceRequested: root.requestRestoreFavoriteAppearance()
