@@ -18,10 +18,13 @@ function readMarker(prefix) {
         throw Error("Respuesta QML no inequívoca para " + prefix);
     return JSON.parse(matches[0].slice(matches[0].indexOf(prefix) + prefix.length));
 }
-let themes, context;
+let themes, context, legacy;
 try {
     const raw = readMarker("SMARTBAR_PLAYA_AUDIT_LIBRARY=");
     context = readMarker("SMARTBAR_PLAYA_AUDIT_CONTEXT=");
+    legacy = readMarker("SMARTBAR_PLAYA_AUDIT_LEGACY=");
+    if (!legacy || typeof legacy.sunset !== "string" ||
+        typeof legacy.night !== "string") throw Error("Ranuras históricas inválidas");
     if (typeof raw !== "string") throw Error("Biblioteca inválida");
     themes = JSON.parse(raw);
     if (!Array.isArray(themes)) throw Error("La biblioteca no es una lista");
@@ -109,5 +112,53 @@ console.log("\nPerfiles únicos hallados: " + candidates + "/3. Técnicamente re
 console.log("Ranuras históricas (NO equivalen a fábrica): Atardecer=" +
     (context && context.historicalSunset ? "presente" : "ausente") +
     ", Noche=" + (context && context.historicalNight ? "presente" : "ausente"));
-console.log("No se copió ni modificó ninguna configuración, GIF, tema ni panel KDE.");
+// Las ranuras históricas pueden contener algo visualmente parecido a la
+// fábrica, pero NUNCA autorizan automáticamente sustituir los originales.
+// Se inspeccionan individualmente, sin consultar ni alterar su forma activa.
+for (const [label, raw, script] of [
+    ["Atardecer histórico (themeDayJson)", legacy.sunset, factoryScripts["Atardecer"]],
+    ["Noche histórica (themeNightJson)", legacy.night, factoryScripts["Noche"]]
+]) {
+    console.log("\\n" + label + ":");
+    if (!raw.length) {
+        console.log("  SIN DATOS guardados.");
+        continue;
+    }
+    let values;
+    try {
+        values = JSON.parse(raw);
+        if (!values || typeof values !== "object" || Array.isArray(values))
+            throw Error("No es objeto JSON");
+    } catch (_) {
+        console.log("  JSON antiguo inválido; no se modifica.");
+        continue;
+    }
+    const missing = requiredKeys(script).filter(k =>
+        !Object.prototype.hasOwnProperty.call(values, k));
+    console.log("  Versión: " + String(values.version ?? "ausente") +
+        "; campos visuales requeridos faltantes: " + missing.length);
+    if (missing.length)
+        console.log("  Faltan: " + missing.slice(0,8).join(", ") +
+            (missing.length > 8 ? "…" : ""));
+    const mode = values.logoMode;
+    const source = mode === "default" ?
+        path.join(base, "so-tropical.gif") :
+        mode === "custom" ? values.filePath : "";
+    const imageStatus = mode === "text" ? "logo de texto (sin binario)" :
+        imageInfo(source);
+    console.log("  Logo: " + String(mode ?? "sin modo") + "; " + imageStatus);
+    if (values.soTextBackgroundImage)
+        console.log("  Fondo de texto SO: " + imageInfo(values.soTextBackgroundImage));
+    console.log("  Huella JSON (SHA-256): " +
+        sha(Buffer.from(raw, "utf8")).slice(0,16) + "…");
+    const technicallyComplete = values.version === 1 && !missing.length &&
+        ["default", "custom", "text"].includes(mode) &&
+        (mode === "text" || imageStatus.startsWith("archivo disponible")) &&
+        (!values.soTextBackgroundImage ||
+         imageInfo(values.soTextBackgroundImage).startsWith("archivo disponible"));
+    console.log(technicallyComplete ?
+        "  COMPLETO técnicamente; identidad de fábrica NO verificada." :
+        "  INCOMPLETO técnicamente; conservar para recuperación manual.");
+}
+console.log("\\nNo se copió ni modificó ninguna configuración, GIF, tema ni panel KDE.");
 console.log("No se verificaron derechos de imagen ni wallpapers; NO se empaquetó fábrica.");
