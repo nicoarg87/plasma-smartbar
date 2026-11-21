@@ -35,7 +35,7 @@ assert.equal(result.items.length, original.length-2);
 assert.deepEqual(Array.from(result.items, x => x && x.name), [
     "Atardecer", "Noche", "Día", "Mi tema",
     "Día · respaldo 2026-11-19T00-00", "Día · modificado", "Dia",
-    null, undefined
+    null, false
 ]);
 assert.equal(JSON.stringify(original), frozen, "No mutar biblioteca original");
 assert.equal(result.items[2], original[2], "No alterar Día principal");
