@@ -10,14 +10,15 @@ const crypto = require("node:crypto");
 const {fileURLToPath} = require("node:url");
 
 const logPath = process.argv[2];
-const themeId = process.argv[3];
+let themeId = process.argv[3];
 const config = {
     dia: {label:"Día",slot:"library",display:"Día"},
     atardecer: {label:"Atardecer",slot:"sunsetLegacy",display:"Atardecer histórico"},
     noche: {label:"Noche",slot:"nightLegacy",display:"Noche histórica"}
 };
-if (process.argv.length !== 4 || !logPath || !Object.hasOwn(config,themeId)) {
-    console.error("Uso: archivar_original_playa.cjs registro-qt dia|atardecer|noche");
+if (process.argv.length !== 4 || !logPath ||
+    (themeId !== "auto" && !Object.hasOwn(config,themeId))) {
+    console.error("Uso: archivar_original_playa.cjs registro-qt auto|dia|atardecer|noche");
     process.exit(2);
 }
 const cwd = path.resolve(__dirname, "..");
@@ -31,6 +32,15 @@ function sha(fileOrBuffer) {
     return crypto.createHash("sha256").update(fileOrBuffer).digest("hex");
 }
 let payload, appearance, library, source;
+function loadReference(id) {
+    if (config[id].slot === "library") {
+        const day = library.filter(item=>item && typeof item.name === "string" &&
+            ["día","dia"].includes(item.name.trim().toLocaleLowerCase("es")));
+        if (day.length !== 1) throw Error("Día inexistente o ambiguo en biblioteca");
+        return JSON.parse(day[0].jsonData);
+    }
+    return JSON.parse(payload[config[id].slot]);
+}
 try {
     const log = fs.readFileSync(logPath,"utf8");
     const marker = "SMARTBAR_PLAYA_FACTORY_CANDIDATE=";
@@ -45,16 +55,11 @@ try {
     if (!appearance || typeof appearance !== "object" || Array.isArray(appearance))
         throw Error("Apariencia guardada inválida");
     if (!Array.isArray(library)) throw Error("Biblioteca inválida");
-    if (config[themeId].slot === "library") {
-        const matches = library.filter(item=>item && typeof item.name === "string" &&
-            ["día","dia"].includes(item.name.trim().toLocaleLowerCase("es")));
-        if (matches.length !== 1) throw Error("Día inexistente o ambiguo en biblioteca");
-        source = JSON.parse(matches[0].jsonData);
-    } else {
-        source = JSON.parse(payload[config[themeId].slot]);
+    if (themeId !== "auto") {
+        source = loadReference(themeId);
+        if (!source || typeof source !== "object" || source.version !== 1 ||
+            Array.isArray(source)) throw Error("La referencia histórica está incompleta o es inválida");
     }
-    if (!source || typeof source !== "object" || source.version !== 1 ||
-        Array.isArray(source)) throw Error("La referencia histórica está incompleta o es inválida");
     const previewSrc = fs.readFileSync(path.join(cwd,"preview_redimensionable.qml"),"utf8");
     const match = /readonly property var appearanceKeys:\s*(\[[^\r\n]+\])/.exec(previewSrc);
     if (!match) throw Error("No se pudo verificar el contrato completo de apariencia Qt");
@@ -91,13 +96,39 @@ function visualLogo(values, modeKey, pathKey) {
 let activeLogo, originalLogo, activeBg;
 try {
     activeLogo = visualLogo(appearance,"demoSoLogoMode","demoSoLogoPath");
+    if (appearance.demoSoTextBackgroundImage)
+        activeBg = readImage(appearance.demoSoTextBackgroundImage,"fondo de texto SO");
+    if (themeId === "auto") {
+        // Detección solo por recursos gráficos EXACTOS (SHA-256 completo),
+        // no por wallpaper ni por horario estimado. Si hay dos coincidencias
+        // o ninguna, rechazar antes de escribir un resguardo.
+        const found = [];
+        for (const id of Object.keys(config)) {
+            try {
+                const candidate = loadReference(id);
+                if (!candidate || candidate.version !== 1) continue;
+                const icon = visualLogo(candidate,"logoMode","filePath");
+                if (!!icon !== !!activeLogo ||
+                    (icon && icon.hash !== activeLogo.hash)) continue;
+                if (candidate.soTextBackgroundImage) {
+                    const candidateBg = readImage(candidate.soTextBackgroundImage,"fondo de texto SO");
+                    if (!activeBg || candidateBg.hash !== activeBg.hash) continue;
+                }
+                found.push({id, candidate});
+            } catch (_) { /* Perfil faltante/imagen ilegible: no adivinar. */ }
+        }
+        if (found.length !== 1)
+            throw Error("No se puede identificar un tema único por sus imágenes ("+
+                found.length+" coincidencias); ninguna captura se etiqueta automáticamente.");
+        themeId = found[0].id;
+        source = found[0].candidate;
+        console.log("Tema identificado sin cambiar configuraciones: "+config[themeId].label);
+    }
     originalLogo = visualLogo(source,"logoMode","filePath");
     if (!!activeLogo !== !!originalLogo ||
         (activeLogo && activeLogo.hash !== originalLogo.hash))
         throw Error("El logo de la apariencia activa NO coincide con el tema elegido. "+
             "No se archivó bajo un nombre incorrecto.");
-    if (appearance.demoSoTextBackgroundImage)
-        activeBg = readImage(appearance.demoSoTextBackgroundImage,"fondo de texto SO");
     if (source.soTextBackgroundImage) {
         const historicBg = readImage(source.soTextBackgroundImage,"fondo histórico");
         if (!activeBg || activeBg.hash !== historicBg.hash)
