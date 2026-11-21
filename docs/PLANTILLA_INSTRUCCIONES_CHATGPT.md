@@ -38,3 +38,11 @@ Si no podés consultar GitHub, decilo y usá los archivos del Proyecto aclarando
 ---
 
 **Última edición de esta plantilla:** 16 de noviembre de 2026 (MIT para software, CC0 para imagen tropical pendiente de archivo, Golden Dog excluido, SO con forma única y estiramiento + zoom; pendiente ensayo CachyOS).
+
+## Ratificación vigente — 21/11/2026
+
+**MIT** es la única licencia vigente para código, documentación y metadatos propios de Plasma SmartBar (ver `LICENSE`); **CC0 1.0 Universal** es la dedicación autorizada por el mantenedor, sobre los derechos que pueda conceder, para **todas las imágenes, GIF y wallpapers propios aportados al proyecto que declara creados mediante ChatGPT u otras herramientas de imagen por IA**, incluidos Día, Atardecer y Noche de **Playa 24hs**. Esta declaración de licencia NO significa que los binarios de los tres temas hayan sido incorporados a `main`: el prototipo sigue en rama experimental, PR #3 borrador.
+
+**Separación imprescindible:** el arte de terceros, marcas/recursos de procedencia no acreditada (Golden Dog continúa excluido hasta aclarar), bibliotecas externas y archivos de usuarios distintos del mantenedor no reciben por esta declaración licencia MIT ni CC0. Identificar hashes, archivos originales y procedencia antes de empaquetar; conservar las licencias de publicaciones anteriores en sus respectivas copias y permisos sin alterar retrospectivamente su historial.
+
+**Organización:** ninguna modificación de diseño, botones o menús se aprueba tácitamente por una propuesta de IA. La posición general de Soledad y los perfiles de ubicación por aplicación activa/maximizada están ratificados por el mantenedor ([issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4)), pero la integración KWin/Wayland y la memoria per-app siguen pendientes. Priorizar prueba KDE real aislada y extracción modular gradual ([issue #11](https://github.com/nicoarg87/plasma-smartbar/issues/11)) sin reemplazar el panel ni fusionar el prototipo automáticamente.
