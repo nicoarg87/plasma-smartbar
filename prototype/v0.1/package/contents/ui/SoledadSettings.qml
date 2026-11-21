@@ -134,6 +134,9 @@ Window {
     }
     // Programación diaria: opción personal, independiente de los temas inmutables.
     property bool scheduleMenuExpanded: false
+    // La selección predeterminada del pack no abre su configuración visual.
+    // Solo una elección explícita del pack habilita el submenú; no es persistente.
+    property bool packOptionsVisible: false
     property int wallpaperFadeAmount: 3
     property string wallpaperFadeUnit: "seconds"
     property string wallpaperFadeError: ""
@@ -192,7 +195,8 @@ Window {
         if (id !== ThemePack.DEFAULT_ID && !ThemePack.find(savedThemePacks, id))
             return false
         selectedThemePackId = id
-        scheduleMenuExpanded = true
+        packOptionsVisible = true
+        scheduleMenuExpanded = false
         creatingNewPack = false
         saveThemePackSelectionRequested(id)
         return true
@@ -234,7 +238,8 @@ Window {
         saveThemePackLibraryRequested(themePackLibraryJson)
         selectedThemePackId = pack.id
         saveThemePackSelectionRequested(pack.id)
-        scheduleMenuExpanded = true
+        packOptionsVisible = true
+        scheduleMenuExpanded = false
         creatingNewPack = false
         newPackName = ""
         pendingPackMemberIndexes = []
@@ -558,7 +563,7 @@ Window {
 
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
-    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; scheduleMenuExpanded = false; factoryToolsExpanded = false; creatingNewPack = false }
+    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; packOptionsVisible = false; scheduleMenuExpanded = false; factoryToolsExpanded = false; creatingNewPack = false }
     function showSoledadLogo() {
         navigationGroup = "soledad"
         currentTab = 1
@@ -4816,10 +4821,203 @@ Window {
                         color: "#ddd6e8"
                         text: "Pack predeterminado Playa 24hs: usá el cambio automático por horarios o elegí Día, Atardecer o Noche de forma manual. Tus temas personales siguen disponibles."
                     }
-                    // Dos controles juntos: el segundo solo despliega la
-                    // configuración horaria; no cambia el estado automático.
+                    // Los packs usan este mismo editor horario y el selector
+                    // existente; no duplicar botones de activación ni menú.
+                    // Un pack personalizado copia los perfiles elegidos y no
+                    // reemplaza ninguna biblioteca ni preset de fábrica.
+                    // Un único desplegable. Sin tarjetas, subtítulos ni botones "Usar".
+                    // Primero las instantáneas locales que el usuario ya guardó.
+                    // Selector básico con Popup propio: evita el ComboBox con lista vacía.
+                    QQC2.Button {
+                        id: themeSelectorButton
+                        Layout.fillWidth: true
+                        text: (settings.selectedThemePack
+                            ? settings.selectedThemePack.name +
+                              (settings.themeScheduleEnabled ? " · Automático" : " · Manual")
+                            : ThemePack.title(settings.themeScheduleEnabled)) +
+                              (themeOptionsPopup.opened ? "  ▴" : "  ▾")
+                        onClicked: {
+                            if (themeOptionsPopup.opened) themeOptionsPopup.close()
+                            else themeOptionsPopup.open()
+                        }
+                    }
+                    QQC2.Popup {
+                        id: themeOptionsPopup
+                        parent: themeSelectorButton
+                        x: 0
+                        y: themeSelectorButton.height
+                        width: themeSelectorButton.width
+                        height: Math.min(240, 50 * (5 + settings.savedThemePacks.length +
+                            (settings.selectedThemePack ? settings.selectedThemePack.members.length
+                                : 3 + settings.otherNamedThemes.length)) + 8)
+                        padding: 4
+                        modal: false
+                        focus: true
+                        // Clic repetido en botón padre NO debe cerrar popup antes de onClicked.
+                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+                        background: Rectangle {
+                            color: "#252b38"
+                            border.color: "#63778e"
+                            radius: 5
+                        }
+                        contentItem: Flickable {
+                            clip: true
+                            contentWidth: width
+                            contentHeight: themeOptionsColumn.implicitHeight
+                            boundsBehavior: Flickable.StopAtBounds
+                            QQC2.ScrollBar.vertical: QQC2.ScrollBar {
+                                policy: QQC2.ScrollBar.AsNeeded
+                            }
+                            Column {
+                                id: themeOptionsColumn
+                                width: parent.width
+                                spacing: 2
+                                QQC2.ItemDelegate {
+                                    width: themeOptionsColumn.width
+                                    height: 48
+                                    text: "Pack · Playa 24hs" +
+                                        (settings.selectedThemePackId === ThemePack.DEFAULT_ID
+                                            ? " ✓" : "")
+                                    onClicked: {
+                                        themeOptionsPopup.close()
+                                        settings.selectThemePack(ThemePack.DEFAULT_ID)
+                                    }
+                                }
+                                Repeater {
+                                    model: settings.savedThemePacks
+                                    delegate: QQC2.ItemDelegate {
+                                        required property var modelData
+                                        width: themeOptionsColumn.width
+                                        height: 48
+                                        text: "Pack · " + modelData.name +
+                                            (settings.selectedThemePackId === modelData.id ? " ✓" : "")
+                                        onClicked: {
+                                            themeOptionsPopup.close()
+                                            settings.selectThemePack(modelData.id)
+                                        }
+                                    }
+                                }
+                                // Elegir modo automático para el pack activo.
+                                QQC2.ItemDelegate {
+                                    id: playa24AutoChoice
+                                    width: themeOptionsColumn.width
+                                    height: 48
+                                    text: (settings.selectedThemePack
+                                        ? settings.selectedThemePack.name : ThemePack.NAME) +
+                                        " · automático por horarios"
+                                    font.bold: settings.themeScheduleEnabled
+                                    onClicked: {
+                                        themeOptionsPopup.close()
+                                        settings.setScheduleEnabled(true)
+                                        settings.packOptionsVisible = true
+                                        settings.scheduleMenuExpanded = true
+                                        settings.themeStatus = "Pack: cambio automático por horarios activado."
+                                    }
+                                }
+                                Repeater {
+                                    model: settings.selectedThemePack ? 0 :
+                                        3 + settings.otherNamedThemes.length
+                                    delegate: QQC2.ItemDelegate {
+                                        required property int index
+                                        width: themeOptionsColumn.width
+                                        height: 48
+                                        contentItem: RowLayout {
+                                            spacing: 10
+                                            AnimatedImage {
+                                                Layout.preferredWidth: 58
+                                                Layout.preferredHeight: 38
+                                                fillMode: Image.PreserveAspectFit
+                                                playing: visible
+                                                source: index === 0
+                                                    ? (settings.themeDayJson.length
+                                                        ? settings.themeImageSource(settings.themeDayJson)
+                                                        : settings.factorySunsetImage)
+                                                    : index === 1
+                                                      ? (settings.themeNightJson.length
+                                                          ? settings.themeImageSource(settings.themeNightJson)
+                                                          : settings.factoryNightImage)
+                                                      : index === 2
+                                                        ? (settings.factoryDayAvailable ? settings.factoryDayImage
+                                                            : settings.dayThemeIndex() >= 0
+                                                              ? settings.themeImageSource(settings.savedThemeLibrary[settings.dayThemeIndex()].jsonData)
+                                                              : "")
+                                                        : settings.themeImageSource(settings.savedThemeLibrary[settings.otherNamedThemeOriginalIndex(index - 3)].jsonData)
+                                            }
+                                            QQC2.Label {
+                                                Layout.fillWidth: true
+                                                color: "white"
+                                                text: index === 0 ? "Atardecer" :
+                                                      index === 1 ? "Noche" :
+                                                      index === 2 ? "Día" :
+                                                      settings.savedThemeLibrary[settings.otherNamedThemeOriginalIndex(index - 3)].name
+                                            }
+                                        }
+                                        onClicked: {
+                                            const selectedIndex = index
+                                            themeOptionsPopup.close()
+                                            let slot = ""
+                                            if (selectedIndex === 0) {
+                                                slot = settings.themeDayJson.length ? "day" :
+                                                    (settings.factorySunsetAvailable ? "sunset" : "")
+                                            } else if (selectedIndex === 1) {
+                                                slot = settings.themeNightJson.length ? "nightLegacy" :
+                                                    (settings.factoryNightAvailable ? "night" : "")
+                                            } else if (selectedIndex === 2) {
+                                                if (settings.factoryDayAvailable) slot = "dayOfficial"
+                                                else {
+                                                    const savedDayIndex = settings.dayThemeIndex()
+                                                    if (savedDayIndex >= 0) slot = "library:" + savedDayIndex
+                                                }
+                                            } else {
+                                                const originalIndex = settings.otherNamedThemeOriginalIndex(selectedIndex - 3)
+                                                if (originalIndex >= 0) slot = "library:" + originalIndex
+                                            }
+                                            if (slot.length && settings.activateTheme(slot)) {
+                                                settings.packOptionsVisible = false
+                                                settings.scheduleMenuExpanded = false
+                                                settings.previewFactorySlot = ""
+                                                // La elección individual del pack es MANUAL:
+                                                // suspender el reloj solo si el tema se aplicó.
+                                                if (selectedIndex < 3)
+                                                    settings.setScheduleEnabled(false)
+                                                if (selectedIndex === 0) settings.wallpaperThemeSelected("sunset")
+                                                else if (selectedIndex === 1) settings.wallpaperThemeSelected("night")
+                                                else if (selectedIndex === 2) settings.wallpaperThemeSelected("day")
+                                            } else {
+                                                settings.themeStatus = selectedIndex === 0
+                                                    ? "No se encuentra el Atardecer guardado."
+                                                    : selectedIndex === 1
+                                                      ? "No se encuentra la Noche guardada."
+                                                       : "El tema Día todavía no tiene una configuración disponible."
+                                            }
+                                        }
+                                    }
+                                }
+                                // Opciones MANUALES del pack personal seleccionado.
+                                Repeater {
+                                    model: settings.selectedThemePack
+                                        ? settings.selectedThemePack.members : []
+                                    delegate: QQC2.ItemDelegate {
+                                        required property var modelData
+                                        required property int index
+                                        width: themeOptionsColumn.width
+                                        height: 48
+                                        text: modelData.name
+                                        onClicked: {
+                                            themeOptionsPopup.close()
+                                            settings.activatePackMember(index)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Fin del selector de temas y packs.
+                    // Submenú del pack, oculto hasta que el usuario elige
+                    // explícitamente un pack en el selector superior.
                     RowLayout {
                         Layout.fillWidth: true
+                        visible: settings.packOptionsVisible
                         spacing: 8
                         QQC2.CheckBox {
                             Layout.fillWidth: true
@@ -4843,7 +5041,7 @@ Window {
                     ColumnLayout {
                         id: themeScheduleMenu
                         Layout.fillWidth: true
-                        visible: settings.scheduleMenuExpanded
+                        visible: settings.scheduleMenuExpanded && settings.packOptionsVisible
                         spacing: 10
                         // Duración independiente de las franjas horarias.
                         // El fundido también se usa al elegir un tema a mano.
@@ -5103,194 +5301,6 @@ Window {
                                         GradientStop {
                                             position: 1
                                             color: settings.previewGradientColor(2)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Los packs usan este mismo editor horario y el selector
-                    // existente; no duplicar botones de activación ni menú.
-                    // Un pack personalizado copia los perfiles elegidos y no
-                    // reemplaza ninguna biblioteca ni preset de fábrica.
-                    // Un único desplegable. Sin tarjetas, subtítulos ni botones "Usar".
-                    // Primero las instantáneas locales que el usuario ya guardó.
-                    // Selector básico con Popup propio: evita el ComboBox con lista vacía.
-                    QQC2.Button {
-                        id: themeSelectorButton
-                        Layout.fillWidth: true
-                        text: (settings.selectedThemePack
-                            ? settings.selectedThemePack.name +
-                              (settings.themeScheduleEnabled ? " · Automático" : " · Manual")
-                            : ThemePack.title(settings.themeScheduleEnabled)) +
-                              (themeOptionsPopup.opened ? "  ▴" : "  ▾")
-                        onClicked: {
-                            if (themeOptionsPopup.opened) themeOptionsPopup.close()
-                            else themeOptionsPopup.open()
-                        }
-                    }
-                    QQC2.Popup {
-                        id: themeOptionsPopup
-                        parent: themeSelectorButton
-                        x: 0
-                        y: themeSelectorButton.height
-                        width: themeSelectorButton.width
-                        height: Math.min(240, 50 * (5 + settings.savedThemePacks.length +
-                            (settings.selectedThemePack ? settings.selectedThemePack.members.length
-                                : 3 + settings.otherNamedThemes.length)) + 8)
-                        padding: 4
-                        modal: false
-                        focus: true
-                        // Clic repetido en botón padre NO debe cerrar popup antes de onClicked.
-                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
-                        background: Rectangle {
-                            color: "#252b38"
-                            border.color: "#63778e"
-                            radius: 5
-                        }
-                        contentItem: Flickable {
-                            clip: true
-                            contentWidth: width
-                            contentHeight: themeOptionsColumn.implicitHeight
-                            boundsBehavior: Flickable.StopAtBounds
-                            QQC2.ScrollBar.vertical: QQC2.ScrollBar {
-                                policy: QQC2.ScrollBar.AsNeeded
-                            }
-                            Column {
-                                id: themeOptionsColumn
-                                width: parent.width
-                                spacing: 2
-                                QQC2.ItemDelegate {
-                                    width: themeOptionsColumn.width
-                                    height: 48
-                                    text: "Pack · Playa 24hs" +
-                                        (settings.selectedThemePackId === ThemePack.DEFAULT_ID
-                                            ? " ✓" : "")
-                                    onClicked: {
-                                        themeOptionsPopup.close()
-                                        settings.selectThemePack(ThemePack.DEFAULT_ID)
-                                    }
-                                }
-                                Repeater {
-                                    model: settings.savedThemePacks
-                                    delegate: QQC2.ItemDelegate {
-                                        required property var modelData
-                                        width: themeOptionsColumn.width
-                                        height: 48
-                                        text: "Pack · " + modelData.name +
-                                            (settings.selectedThemePackId === modelData.id ? " ✓" : "")
-                                        onClicked: {
-                                            themeOptionsPopup.close()
-                                            settings.selectThemePack(modelData.id)
-                                        }
-                                    }
-                                }
-                                // Elegir modo automático para el pack activo.
-                                QQC2.ItemDelegate {
-                                    id: playa24AutoChoice
-                                    width: themeOptionsColumn.width
-                                    height: 48
-                                    text: (settings.selectedThemePack
-                                        ? settings.selectedThemePack.name : ThemePack.NAME) +
-                                        " · automático por horarios"
-                                    font.bold: settings.themeScheduleEnabled
-                                    onClicked: {
-                                        themeOptionsPopup.close()
-                                        settings.setScheduleEnabled(true)
-                                        settings.scheduleMenuExpanded = true
-                                        settings.themeStatus = "Pack: cambio automático por horarios activado."
-                                    }
-                                }
-                                Repeater {
-                                    model: settings.selectedThemePack ? 0 :
-                                        3 + settings.otherNamedThemes.length
-                                    delegate: QQC2.ItemDelegate {
-                                        required property int index
-                                        width: themeOptionsColumn.width
-                                        height: 48
-                                        contentItem: RowLayout {
-                                            spacing: 10
-                                            AnimatedImage {
-                                                Layout.preferredWidth: 58
-                                                Layout.preferredHeight: 38
-                                                fillMode: Image.PreserveAspectFit
-                                                playing: visible
-                                                source: index === 0
-                                                    ? (settings.themeDayJson.length
-                                                        ? settings.themeImageSource(settings.themeDayJson)
-                                                        : settings.factorySunsetImage)
-                                                    : index === 1
-                                                      ? (settings.themeNightJson.length
-                                                          ? settings.themeImageSource(settings.themeNightJson)
-                                                          : settings.factoryNightImage)
-                                                      : index === 2
-                                                        ? (settings.factoryDayAvailable ? settings.factoryDayImage
-                                                            : settings.dayThemeIndex() >= 0
-                                                              ? settings.themeImageSource(settings.savedThemeLibrary[settings.dayThemeIndex()].jsonData)
-                                                              : "")
-                                                        : settings.themeImageSource(settings.savedThemeLibrary[settings.otherNamedThemeOriginalIndex(index - 3)].jsonData)
-                                            }
-                                            QQC2.Label {
-                                                Layout.fillWidth: true
-                                                color: "white"
-                                                text: index === 0 ? "Atardecer" :
-                                                      index === 1 ? "Noche" :
-                                                      index === 2 ? "Día" :
-                                                      settings.savedThemeLibrary[settings.otherNamedThemeOriginalIndex(index - 3)].name
-                                            }
-                                        }
-                                        onClicked: {
-                                            const selectedIndex = index
-                                            themeOptionsPopup.close()
-                                            let slot = ""
-                                            if (selectedIndex === 0) {
-                                                slot = settings.themeDayJson.length ? "day" :
-                                                    (settings.factorySunsetAvailable ? "sunset" : "")
-                                            } else if (selectedIndex === 1) {
-                                                slot = settings.themeNightJson.length ? "nightLegacy" :
-                                                    (settings.factoryNightAvailable ? "night" : "")
-                                            } else if (selectedIndex === 2) {
-                                                if (settings.factoryDayAvailable) slot = "dayOfficial"
-                                                else {
-                                                    const savedDayIndex = settings.dayThemeIndex()
-                                                    if (savedDayIndex >= 0) slot = "library:" + savedDayIndex
-                                                }
-                                            } else {
-                                                const originalIndex = settings.otherNamedThemeOriginalIndex(selectedIndex - 3)
-                                                if (originalIndex >= 0) slot = "library:" + originalIndex
-                                            }
-                                            if (slot.length && settings.activateTheme(slot)) {
-                                                settings.previewFactorySlot = ""
-                                                // La elección individual del pack es MANUAL:
-                                                // suspender el reloj solo si el tema se aplicó.
-                                                if (selectedIndex < 3)
-                                                    settings.setScheduleEnabled(false)
-                                                if (selectedIndex === 0) settings.wallpaperThemeSelected("sunset")
-                                                else if (selectedIndex === 1) settings.wallpaperThemeSelected("night")
-                                                else if (selectedIndex === 2) settings.wallpaperThemeSelected("day")
-                                            } else {
-                                                settings.themeStatus = selectedIndex === 0
-                                                    ? "No se encuentra el Atardecer guardado."
-                                                    : selectedIndex === 1
-                                                      ? "No se encuentra la Noche guardada."
-                                                       : "El tema Día todavía no tiene una configuración disponible."
-                                            }
-                                        }
-                                    }
-                                }
-                                // Opciones MANUALES del pack personal seleccionado.
-                                Repeater {
-                                    model: settings.selectedThemePack
-                                        ? settings.selectedThemePack.members : []
-                                    delegate: QQC2.ItemDelegate {
-                                        required property var modelData
-                                        required property int index
-                                        width: themeOptionsColumn.width
-                                        height: 48
-                                        text: modelData.name
-                                        onClicked: {
-                                            themeOptionsPopup.close()
-                                            settings.activatePackMember(index)
                                         }
                                     }
                                 }
