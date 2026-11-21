@@ -8,6 +8,7 @@ import org.kde.taskmanager 0.1 as TaskManager
 import "package/contents/ui"
 import "package/contents/ui/ThemeSchedule.js" as ThemeSchedule
 import "package/contents/ui/WallpaperFadeDuration.js" as WallpaperFadeDuration
+import "package/contents/ui/RealActiveWindow.js" as RealActiveWindow
 
 Window {
     id: previewWindow
@@ -445,6 +446,28 @@ Window {
     // Solo este visor Qt utiliza la opción real. El plasmoide sigue
     // sin conexión a ventanas y el panel instalado no se modifica.
     property bool useRealWindowTasks: false
+    // Datos reales, solo lectura; no cambiar posición de Soledad.
+    property string observedRealAppId: ""
+    property string observedRealAppName: ""
+    property bool observedRealMaximized: false
+    property bool observedRealFullscreen: false
+    property bool observedRealKnown: false
+    function refreshObservedRealWindow() {
+        const rows = []
+        for (let i = 0; i < realTaskObserver.count; i++) {
+            const delegate = realTaskObserver.itemAt(i)
+            if (delegate !== null) rows.push(delegate.snapshot())
+        }
+        const active = RealActiveWindow.resolve(rows)
+        observedRealAppId = active.appId
+        observedRealAppName = active.appName
+        observedRealMaximized = active.maximized
+        observedRealFullscreen = active.fullscreen
+        observedRealKnown = active.known
+    }
+    function scheduleRealWindowRefresh() {
+        Qt.callLater(previewWindow.refreshObservedRealWindow)
+    }
 
     // Misma configuración ya validada por el mantenedor en el
     // diagnóstico preview_ventanas_reales.qml.
@@ -462,6 +485,49 @@ Window {
         }
     }
 
+    // Modelo no agrupado para observar el estado de una ventana concreta.
+    // La lista de SO mantiene su modelo agrupado original.
+    TaskManager.TasksModel {
+        id: kdeIndividualTasks
+        groupMode: TaskManager.TasksModel.GroupDisabled
+        sortMode: TaskManager.TasksModel.SortAlpha
+        launcherList: []
+        filterByVirtualDesktop: false
+        filterByActivity: false
+        filterByScreen: false
+        onCountChanged: previewWindow.scheduleRealWindowRefresh()
+    }
+    Item {
+        id: realTaskObserverContainer
+        visible: false
+        width: 0
+        height: 0
+        Repeater {
+            id: realTaskObserver
+            model: kdeIndividualTasks
+            delegate: Item {
+                required property var model
+                readonly property string observedAppId: String(model.AppId || "")
+                readonly property string observedAppName: String(model.AppName || "")
+                readonly property bool observedActive: model.IsActive === true
+                readonly property bool observedMaximized: model.IsMaximized === true
+                readonly property bool observedFullscreen: model.IsFullScreen === true
+                readonly property bool observedMinimized: model.IsMinimized === true
+                function snapshot() {
+                    return { appId: observedAppId, appName: observedAppName,
+                             active: observedActive, maximized: observedMaximized,
+                             fullscreen: observedFullscreen, minimized: observedMinimized }
+                }
+                onObservedAppIdChanged: previewWindow.scheduleRealWindowRefresh()
+                onObservedActiveChanged: previewWindow.scheduleRealWindowRefresh()
+                onObservedMaximizedChanged: previewWindow.scheduleRealWindowRefresh()
+                onObservedFullscreenChanged: previewWindow.scheduleRealWindowRefresh()
+                onObservedMinimizedChanged: previewWindow.scheduleRealWindowRefresh()
+            }
+            onItemAdded: previewWindow.scheduleRealWindowRefresh()
+            onItemRemoved: previewWindow.scheduleRealWindowRefresh()
+        }
+    }
     property bool demoTaskActiveGlowEnabled: true
     property bool demoTaskActiveDoubleBorderEnabled: false
     property string demoMalvinaGoogleUrl: "https://www.google.com/search?q={query}"
@@ -669,6 +735,8 @@ Window {
                                       !previewWindow.wallpaperFadeBusy
         onRequestThemeWallpaperPreview: previewWindow.previewNextWallpaper()
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
+        realObservedAppId: previewWindow.useRealWindowTasks ? previewWindow.observedRealAppId : ""
+        realObservedMaximized: previewWindow.useRealWindowTasks && previewWindow.observedRealMaximized
         // Abrir/cerrar fichas ficticias solo en esta ventana de ensayo.
         demoWindowControlsEnabled: true
         demoPositionProfilesJson: previewWindow.demoPositionProfilesJson
@@ -1125,8 +1193,12 @@ Window {
         color: "#f4edf9"
         text: previewWindow.useRealWindowTasks
               ? "Modo KDE REAL (solo lectura): SO muestra aplicaciones abiertas. " +
-                "No activa, minimiza ni cierra ventanas. Probá abrir/cerrar Dolphin o Konsole; " +
-                "la fila de SO se actualiza manteniendo el botón a la derecha."
+                "Ventana activa: " + (previewWindow.observedRealKnown
+                    ? previewWindow.observedRealAppName + " [" + previewWindow.observedRealAppId + "]" +
+                      (previewWindow.observedRealFullscreen ? " · Pantalla completa" :
+                       (previewWindow.observedRealMaximized ? " · Maximizada" : " · Normal"))
+                    : "(sin dato confiable)") +
+                ". Esta lectura NO desplaza Soledad ni controla ventanas KDE."
               : "Modo SIMULADO: conserva todas las pruebas anteriores. Arrastrá " +
                 "el borde de la ventana o maximizala; Malvina queda a la izquierda " +
                 (bar.positionMode === "center"
