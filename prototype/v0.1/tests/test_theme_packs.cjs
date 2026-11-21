@@ -224,4 +224,29 @@ assert(auditShell.includes('LOG="$(mktemp)"') &&
        "El registro local temporal se elimina al finalizar");
 assert(!auditShell.includes('node "$HERE/scripts/fijar_'),
        "Inspeccionar no ejecuta empaquetadores de fábrica");
+// Resguardo opcional de candidatos de fábrica sin nuevos botones ni escrituras Qt.
+const factoryCaptureReader = fs.readFileSync(path.join(base,"scripts/leer_apariencia_playa.qml"),"utf8");
+const factoryCaptureWrapper = fs.readFileSync(path.join(base,"resguardar_original_playa.sh"),"utf8");
+const factoryCaptureArchiver = fs.readFileSync(path.join(base,"scripts/archivar_original_playa.cjs"),"utf8");
+assert(factoryCaptureReader.includes('saved.value("appearanceV1", "")'),
+       "Capturar solo la apariencia activa ya guardada");
+assert(factoryCaptureReader.includes('saved.value("themeScheduleSlots4Json", "")'),
+       "Preservar franjas originales de Playa sin alterarlas");
+assert(!factoryCaptureReader.includes("setValue("),
+       "Nunca escribir datos Qt en el lector de candidatos");
+assert(factoryCaptureWrapper.includes('umask 077') &&
+       factoryCaptureWrapper.includes('trap \'rm -f -- "$LOG"\' EXIT'),
+       "Eliminar el log temporal y limitar permisos");
+assert(factoryCaptureWrapper.includes('pgrep -f \'[/]preview_redimensionable[.]qml\''),
+       "Exigir visor cerrado para no guardar cambios a medias");
+assert(factoryCaptureArchiver.includes('payload.selectedPack !== "playa-24hs"'),
+       "No registrar otro pack como el original Playa");
+assert(factoryCaptureArchiver.includes('activeLogo.hash !== originalLogo.hash'),
+       "Rechazar el perfil si la imagen visible no coincide con la referencia");
+assert(factoryCaptureArchiver.includes('resguardos-playa-fabrica') &&
+       factoryCaptureArchiver.includes('fs.mkdtempSync('),
+       "Guardar solo copia local privada distinta de los recursos oficiales");
+assert(!factoryCaptureArchiver.includes("Plasmoid.configuration") &&
+       !factoryCaptureArchiver.includes('FactoryDayTheme.js'),
+       "No reemplazar el panel ni los manifiestos de fábrica");
 console.log("OK: Playa y packs personales conservan franjas, modo automático y 3/4 independientemente.");
