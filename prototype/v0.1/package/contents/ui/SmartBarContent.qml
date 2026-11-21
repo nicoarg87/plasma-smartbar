@@ -864,6 +864,9 @@ Item {
             positionMode !== "right" || gripDrag.active) return
         // Solo aplicar un estado con ventana externa identificada y no fullscreen.
         if (!realTrackedKnown || realTrackedFullscreen) return
+        // Desmaximizar solo fuerza el retorno general si esa preferencia
+        // está habilitada; sin ella, respetar la posición manual.
+        if (!realTrackedMaximized && !autoReturnRight) return
         const next = SoledadPositionProfiles.resolveOffset(
             realPositionProfilesJson, realTrackedAppId, true,
             realTrackedMaximized, 0, maxIslandOffset)
