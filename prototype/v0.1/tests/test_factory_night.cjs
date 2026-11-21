@@ -24,7 +24,7 @@ assert(!ui.includes('text: "Fijar tema Noche"'));
 // El selector actual es un único desplegable, sin tarjetas ni botones
 // individuales de restauración. Noche histórica tiene prioridad cuando existe.
 const popupStart = ui.indexOf("id: themeOptionsPopup");
-const popupEnd = ui.indexOf('text: "Crear tema nuevo"', popupStart);
+const popupEnd = ui.indexOf("// Fin del selector de temas y packs.", popupStart);
 assert(popupStart > 0 && popupEnd > popupStart, "Falta selector de temas vigente");
 const popup = ui.slice(popupStart, popupEnd);
 assert(popup.includes('index === 1 ? "Noche"'), "Noche debe figurar en la lista");
