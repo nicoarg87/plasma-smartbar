@@ -37,6 +37,8 @@ assert(bar.includes('import "DemoWindowInstances.js" as DemoWindowInstances'));
 assert(bar.includes("property bool demoWindowControlsEnabled: false"));
 assert(viewer.includes("demoWindowControlsEnabled: true"));
 assert(bar.includes("property var demoOpenedApps: demoApps.slice()"));
+assert(bar.includes("property var demoAppVolumes: ({})"),
+       "El entorno de prueba debe reflejar el estado de audio ficticio de QML");
 assert.equal((bar.match(/delegate: DemoTaskChip \{/g)||[]).length,2);
 // Error real de Qt/CachyOS (20/11): ReferenceError modelData is not defined.
 // Si el delegate usa propiedades required, modelData debe declararse como
@@ -96,7 +98,8 @@ const state={
  demoHasRunningWindows:true,demoApps:catalog.slice(),
  demoOpenedApps:catalog.slice(),lastDemoSelection:"Konsole",DemoWindows:helpers,
  demoWindowInstances:instanceHelpers.initial(),DemoWindowInstances:instanceHelpers,
- demoClosedHistory:[],demoMutedApps:{}
+ // Mismo estado inicial que SmartBarContent.qml: audio SOLO simulado.
+ demoClosedHistory:[],demoMutedApps:{},demoAppVolumes:{}
 };
 vm.runInNewContext([
  extract("demoInstancesForApp"),extract("openDemoWindow"),extract("closeDemoWindow"),
