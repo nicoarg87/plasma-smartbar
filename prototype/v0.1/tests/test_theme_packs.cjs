@@ -98,6 +98,19 @@ assert(qml.includes('import "ThemePack.js" as ThemePack'));
 assert(bar.includes('import "ThemePack.js" as ThemePack'));
 assert(qml.includes('property string selectedThemePackId: ThemePack.DEFAULT_ID'));
 assert(qml.includes('property string themePackLibraryJson: "[]"'));
+assert(qml.includes("property bool packOptionsVisible: false"),
+    "Playa 24hs puede quedar seleccionado por defecto sin abrir su configuración");
+assert(qml.includes("packOptionsVisible = false; scheduleMenuExpanded = false; factoryToolsExpanded = false"),
+    "Reingresar en Temas no reabre ajustes horarios");
+assert(qml.includes("selectedThemePackId = id\n        packOptionsVisible = true\n        scheduleMenuExpanded = false"),
+    "Elegir pack muestra solo el submenú, nunca las franjas desplegadas");
+assert(qml.includes("visible: settings.packOptionsVisible"),
+    "Ocultar todos los controles horarios antes de elegir pack");
+assert(qml.includes("visible: settings.scheduleMenuExpanded && settings.packOptionsVisible"),
+    "Ni siquiera un estado previo del horario puede abrir el bloque sin elegir pack");
+assert(qml.indexOf("id: themeSelectorButton") < qml.indexOf("id: scheduleMenuButton") &&
+       qml.indexOf("id: scheduleMenuButton") < qml.indexOf("id: themeScheduleMenu"),
+    "Primero debe aparecer el pack, luego su submenú y recién después las franjas");
 assert(bar.includes('property string selectedThemePackId: ThemePack.DEFAULT_ID'));
 assert(bar.includes('property string themePackLibraryJson: "[]"'));
 assert(qml.includes("function createPersonalPack()"));
