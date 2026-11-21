@@ -400,12 +400,12 @@ Window {
             const name = item && String(item.name || "").trim().toLowerCase()
             return name === "día" || name === "dia"
         })
-        // Se mantiene la copia anterior restaurable en la biblioteca.
-        if (oldIndex >= 0) {
-            items.push({name: "Día · respaldo " + stamp.slice(0, 16),
-                        jsonData: items[oldIndex].jsonData})
+        // Al actualizar Día no crear duplicados visibles en la biblioteca.
+        // La copia previa COMPLETA ya queda en dayCapturedLibraryBeforeV1
+        // y el capturador la archiva fuera del selector, con su imagen.
+        if (oldIndex >= 0)
             items[oldIndex] = {name: "Día", jsonData: snapshot}
-        } else items.push({name: "Día", jsonData: snapshot})
+        else items.push({name: "Día", jsonData: snapshot})
         // La copia original y la biblioteca anterior nunca se sobrescriben
         // dentro de los originales oficiales Factory*Theme.js.
         localPreviewSettings.setValue("dayCapturedAppearanceBefore90V1", originalAppearance)
