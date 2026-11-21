@@ -71,6 +71,9 @@ Window {
         id: localPreviewSettings
         category: "plasma-smartbar-v01-preview-appearance"
     }
+    // Memoria propia del visor: separada de temas, favoritos y KDE/KConfig.
+    property string demoPositionProfilesJson:
+        String(localPreviewSettings.value("soledadDemoPositionProfilesV1", "{}"))
     // Wallpaper del escritorio SIMULADO exclusivamente: nunca usa KWin
     // ni escribe la configuración del fondo del escritorio KDE.
     property string simulatedWallpaperTheme:
@@ -668,6 +671,12 @@ Window {
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         // Abrir/cerrar fichas ficticias solo en esta ventana de ensayo.
         demoWindowControlsEnabled: true
+        demoPositionProfilesJson: previewWindow.demoPositionProfilesJson
+        onRequestDemoPositionProfilesChange: function(json) {
+            previewWindow.demoPositionProfilesJson = json
+            localPreviewSettings.setValue("soledadDemoPositionProfilesV1", json)
+            localPreviewSettings.sync()
+        }
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
