@@ -150,15 +150,33 @@ Window {
     }
     property bool barThemeTransitionEnabled: true
     property bool themeScheduleEnabled: true
+    // Playa 24hs es el pack inicial. Biblioteca y selección son independientes
+    // de themeLibraryJson: jamás se reescriben temas personales antiguos.
+    property string selectedThemePackId: ThemePack.DEFAULT_ID
+    property string themePackLibraryJson: "[]"
+    readonly property var savedThemePacks: ThemePack.parse(themePackLibraryJson)
+    readonly property var selectedThemePack: ThemePack.find(savedThemePacks, selectedThemePackId)
+    property bool creatingNewPack: false
+    property string newPackName: ""
+    property var pendingPackMemberIndexes: ([])
+    readonly property var packCandidateItems: [
+        {kind: "preset", theme: "day", name: "Día"},
+        {kind: "preset", theme: "sunset", name: "Atardecer"},
+        {kind: "preset", theme: "night", name: "Noche"}
+    ].concat(savedThemeLibrary.map(function(item) {
+        return {kind: "snapshot", name: item.name, jsonData: item.jsonData}
+    }))
     property int themeScheduleSlotCount: 4
     property string themeScheduleSlots3Json:
         ThemeSchedule.serialize(ThemeSchedule.defaults(3), 3)
     property string themeScheduleSlots4Json:
         ThemeSchedule.serialize(ThemeSchedule.defaults(4), 4)
     property string scheduleError: ""
-    readonly property var scheduleSlots: ThemeSchedule.read(
-        themeScheduleSlotCount === 3 ? themeScheduleSlots3Json : themeScheduleSlots4Json,
-        themeScheduleSlotCount)
+    readonly property var scheduleSlots: selectedThemePack
+        ? ThemePack.schedule(selectedThemePack, themeScheduleSlotCount)
+        : ThemeSchedule.read(
+            themeScheduleSlotCount === 3 ? themeScheduleSlots3Json : themeScheduleSlots4Json,
+            themeScheduleSlotCount)
     function scheduleStart(index) {
         return index >= 0 && index < scheduleSlots.length ? scheduleSlots[index].start : ""
     }
@@ -167,7 +185,77 @@ Window {
             ? scheduleSlots[(index + 1) % scheduleSlots.length].start : ""
     }
     function scheduleTheme(index) {
-        return index >= 0 && index < scheduleSlots.length ? scheduleSlots[index].theme : ""
+        if (index < 0 || index >= scheduleSlots.length) return ""
+        return selectedThemePack ? scheduleSlots[index].member : scheduleSlots[index].theme
+    }
+    function selectThemePack(id) {
+        if (id !== ThemePack.DEFAULT_ID && !ThemePack.find(savedThemePacks, id))
+            return false
+        selectedThemePackId = id
+        scheduleMenuExpanded = true
+        creatingNewPack = false
+        saveThemePackSelectionRequested(id)
+        return true
+    }
+    function persistCustomPack(updated) {
+        const next = ThemePack.replace(savedThemePacks, updated)
+        themePackLibraryJson = JSON.stringify(next)
+        saveThemePackLibraryRequested(themePackLibraryJson)
+    }
+    function togglePackCandidate(index, checked) {
+        const next = pendingPackMemberIndexes.slice()
+        const at = next.indexOf(index)
+        if (checked && at < 0) next.push(index)
+        if (!checked && at >= 0) next.splice(at, 1)
+        pendingPackMemberIndexes = next
+    }
+    function createPersonalPack() {
+        const selected = pendingPackMemberIndexes.slice().sort(function(a,b){return a-b})
+        const members = selected.filter(function(i) {
+            return i >= 0 && i < packCandidateItems.length
+        }).map(function(i) { return packCandidateItems[i] })
+        const pack = ThemePack.create(savedThemePacks, newPackName, members)
+        if (!pack) {
+            themeStatus = "Escribí un nombre distinto y elegí al menos un tema válido."
+            return false
+        }
+        const next = savedThemePacks.concat([pack])
+        themePackLibraryJson = JSON.stringify(next)
+        saveThemePackLibraryRequested(themePackLibraryJson)
+        selectedThemePackId = pack.id
+        saveThemePackSelectionRequested(pack.id)
+        scheduleMenuExpanded = true
+        creatingNewPack = false
+        newPackName = ""
+        pendingPackMemberIndexes = []
+        themeStatus = "Pack «" + pack.name + "» creado, con horarios independientes."
+        return true
+    }
+    function resolvePackPreset(theme) {
+        const named = namedThemeIndex(theme)
+        if (theme === "day")
+            return factoryDayAvailable ? "dayOfficial" :
+                named >= 0 ? "library:" + named : ""
+        if (theme === "sunset")
+            return factorySunsetAvailable ? "sunset" :
+                named >= 0 ? "library:" + named :
+                (themeDayJson.length ? "day" : "")
+        if (theme === "night")
+            return factoryNightAvailable ? "night" :
+                named >= 0 ? "library:" + named :
+                (themeNightJson.length ? "nightLegacy" : "")
+        return ""
+    }
+    function activatePackMember(index) {
+        if (!selectedThemePack || index < 0 ||
+            index >= selectedThemePack.members.length) return false
+        const member = selectedThemePack.members[index]
+        const slot = member.kind === "preset"
+            ? resolvePackPreset(member.theme) : "pack:" + index
+        if (!slot || !activateTheme(slot)) return false
+        setScheduleEnabled(false)
+        if (member.kind === "preset") wallpaperThemeSelected(member.theme)
+        return true
     }
     function persistThemeSchedule() {
         saveThemeScheduleRequested(themeScheduleEnabled, themeScheduleSlotCount,
@@ -185,6 +273,17 @@ Window {
         persistThemeSchedule()
     }
     function updateScheduleBoundary(index, boundary, text) {
+        if (selectedThemePack) {
+            const next = ThemePack.withBoundary(selectedThemePack,
+                themeScheduleSlotCount, index, boundary, text.trim())
+            if (!next) {
+                scheduleError = "Hora inválida (HH:MM) o límites fuera de orden."
+                return false
+            }
+            persistCustomPack(next)
+            scheduleError = ""
+            return true
+        }
         const updated = ThemeSchedule.withBoundary(scheduleSlots, index, boundary, text.trim())
         if (!updated) {
             scheduleError = "Hora inválida (HH:MM) o límites fuera de orden. No se guardó ese cambio."
@@ -198,6 +297,15 @@ Window {
         return true
     }
     function updateScheduleTheme(index, theme) {
+        if (selectedThemePack) {
+            const updatedPack = ThemePack.withMember(selectedThemePack,
+                themeScheduleSlotCount, index, theme)
+            if (updatedPack) {
+                persistCustomPack(updatedPack)
+                scheduleError = ""
+            }
+            return
+        }
         const updated = ThemeSchedule.withTheme(scheduleSlots, index, theme)
         if (!updated) return
         const json = ThemeSchedule.serialize(updated, themeScheduleSlotCount)
@@ -339,6 +447,8 @@ Window {
     signal saveThemeSlotRequested(string slot, string jsonData)
     signal wallpaperThemeSelected(string themeName)
     signal saveThemeScheduleRequested(bool enabled, int count, string slots3Json, string slots4Json)
+    signal saveThemePackSelectionRequested(string id)
+    signal saveThemePackLibraryRequested(string json)
     signal saveWallpaperFadeRequested(int amount, string unit)
     signal saveBarThemeTransitionRequested(bool enabled)
     signal themeVisualTransitionRequested()
@@ -438,7 +548,7 @@ Window {
 
     // Accesos únicos y acotados. Ninguna pestaña de isla permite editar
     // otra isla; los controles compartidos se encuentran en General.
-    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; scheduleMenuExpanded = false; factoryToolsExpanded = false }
+    function showThemes() { navigationGroup = "themes"; currentTab = 4; themeChooserExpanded = false; scheduleMenuExpanded = false; factoryToolsExpanded = false; creatingNewPack = false }
     function showSoledadLogo() {
         navigationGroup = "soledad"
         currentTab = 1
@@ -631,6 +741,16 @@ Window {
         })
     }
     function slotJson(slot) {
+        if (slot.indexOf("pack:") === 0) {
+            const index = Number(slot.substring(5))
+            const pack = selectedThemePack
+            if (!pack || !Number.isInteger(index) ||
+                index < 0 || index >= pack.members.length) return ""
+            const member = pack.members[index]
+            if (member.kind === "snapshot") return member.jsonData
+            const resolved = resolvePackPreset(member.theme)
+            return resolved ? slotJson(resolved) : ""
+        }
         if (slot.indexOf("library:") === 0) {
             const index = Number(slot.substring(8))
             const items = savedThemeLibrary
