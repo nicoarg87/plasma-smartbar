@@ -4,13 +4,14 @@
 set -euo pipefail
 umask 077
 HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-if [ "$#" -ne 1 ]; then
-    echo "Uso: bash prototype/v0.1/resguardar_original_playa.sh dia|atardecer|noche" >&2
+if [ "$#" -gt 1 ]; then
+    echo "Uso: bash prototype/v0.1/resguardar_original_playa.sh [auto|dia|atardecer|noche]" >&2
     exit 2
 fi
-case "$1" in
-    dia|atardecer|noche) ;;
-    *) echo "Elegí dia, atardecer o noche. No se guardó nada." >&2; exit 2 ;;
+TARGET="${1:-auto}"
+case "$TARGET" in
+    auto|dia|atardecer|noche) ;;
+    *) echo "Modo inválido. No se guardó nada." >&2; exit 2 ;;
 esac
 if command -v pgrep >/dev/null 2>&1 &&
    pgrep -f '[/]preview_redimensionable[.]qml' >/dev/null 2>&1; then
@@ -38,4 +39,4 @@ if ! "$QML" "$HERE/scripts/leer_apariencia_playa.qml" >"$LOG" 2>&1; then
     grep -E 'QQmlApplicationEngine|failed|Error|module .*not installed' "$LOG" >&2 || true
     exit 3
 fi
-node "$HERE/scripts/archivar_original_playa.cjs" "$LOG" "$1"
+node "$HERE/scripts/archivar_original_playa.cjs" "$LOG" "$TARGET"
