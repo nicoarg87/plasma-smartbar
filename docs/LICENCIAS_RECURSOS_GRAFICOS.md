@@ -3,6 +3,14 @@
 **Decisión del mantenedor:** 16 de noviembre de 2026.  
 **Proyecto oficial:** https://github.com/nicoarg87/plasma-smartbar
 
+## Política ratificada por el mantenedor — 21/11/2026
+
+**Código, documentación y metadatos propios: MIT. Imágenes, GIF y wallpapers originales del proyecto generados con ChatGPT u otras herramientas de generación visual, aportados por el mantenedor: Creative Commons CC0 1.0 Universal.** El mantenedor declara que la totalidad de los recursos visuales que eligió y creó para Plasma SmartBar son generados por IA, y autoriza expresamente esta dedicación en la medida en que pueda conceder sus derechos. Incluye las apariencias de **Playa 24hs** (Día, Atardecer y Noche), sus GIF/logos y **los tres wallpapers PNG** identificados por SHA-256 al final de este inventario.
+
+**La autorización del titular queda confirmada; la validación técnica y la distribución de los archivos concretos son pasos distintos.** Antes de subir binarios, comprobar que correspondan a los hashes y originales elegidos y que no incorporen logos/marcas ajenos o material de terceros sin permiso. El recurso previamente identificado como «Golden Dog» sigue **excluido** mientras su procedencia/identidad no se aclare: la declaración general no da por verificadas marcas de terceros. Tampoco abarca imágenes que futuros usuarios carguen localmente ni componentes externos. La dedicación de material propio no reemplaza sus avisos de terceros ni garantiza que una obra de IA genere derechos exclusivos en toda jurisdicción.
+
+**Referencia:** [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). La licencia **MIT** puede verificarse en [LICENSE](../LICENSE). Esta sección prevalece sobre notas antiguas de este documento que dejaban sin autorización los wallpapers, pero no convierte en existentes los binarios todavía ausentes de GitHub.
+
 ## Separación de derechos
 
 - **Código fuente y documentación propia**: licencia **MIT**, archivo [LICENSE](../LICENSE). La licencia del código **no se aplica automáticamente** a las imágenes de terceros.
@@ -23,7 +31,7 @@
 
 Según https://openai.com/policies/terms-of-use/ , entre el usuario y OpenAI y en la medida permitida por la ley, la propiedad del *output* corresponde al usuario; OpenAI cede los derechos que pueda tener. Esto **no garantiza exclusividad del resultado ni creación de derechos de autor por IA en todos los países**. La dedicatoria CC0 no permite ceder derechos que no se poseen ni elimina derechos de marcas, imagen, privacidad o contenidos de terceros.
 
-**No es correcto afirmar que CC0 garantiza que cualquier uso, en cualquier país y sobre cualquier producto, es legal.** CC0 habilita la mayor libertad posible sobre los derechos de autor que podamos ofrecer. Versiones del programa publicadas anteriormente bajo GPL-3.0 conservan sus licencias históricas y permisos; el cambio a MIT no revoca esos permisos.
+**No es correcto afirmar que CC0 garantiza que cualquier uso, en cualquier país y sobre cualquier producto, es legal.** CC0 habilita la mayor libertad posible sobre los derechos de autor que podamos ofrecer. Las publicaciones históricas mantienen sus concesiones previas bajo las condiciones originales; la política vigente para el código y documentación propios es MIT.
 
 ## Procedimiento para incorporar la imagen tropical
 
@@ -84,7 +92,7 @@ Se recibió **el archivo exacto** `Playa tropical nocturna animada.gif` del mant
 
 ## Ratificación del mantenedor — 19/11/2026: MIT para software y CC0 para GIF propios
 
-**Decisión vigente y obligatoria para el repositorio oficial:** todo el **código fuente original** de Plasma SmartBar Islands, su documentación y los metadatos del paquete KDE se distribuyen bajo **MIT**, conforme al archivo `LICENSE`. El metadato `prototype/v0.1/package/metadata.json` también debe declarar `"License": "MIT"` (corregido en el commit [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384)). Ningún archivo del software propio nuevo debe declarar GPL-3.0 como licencia vigente. Las menciones a GPL-3.0 en textos históricos son antecedentes, **no** la licencia actual.
+**Decisión vigente y obligatoria para el repositorio oficial:** todo el **código fuente original** de Plasma SmartBar Islands, su documentación y los metadatos del paquete KDE se distribuyen bajo **MIT**, conforme al archivo `LICENSE`. El metadato `prototype/v0.1/package/metadata.json` también debe declarar `"License": "MIT"` (corregido en el commit [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384)). Ningún archivo del software original actual debe declarar una licencia distinta de MIT. Las referencias documentales anteriores a otras licencias no rigen la publicación actual.
 
 **GIF/imágenes animadas originales del botón SO aportados por el mantenedor y generados a su pedido mediante ChatGPT/OpenAI:** quedan expresamente autorizados por él para la dedicación **Creative Commons CC0 1.0 Universal**, en la medida de los derechos que pueda dedicar. Se incluyen las versiones originales identificadas como **Atardecer / tropical** y **Playa nocturna / Noche** ya inventariadas, sin alterar sus bytes, hashes ni tamaños. Esta ratificación no afirma que los binarios estén incorporados a GitHub: su instalación local mediante los paquetes ZIP anteriores es independiente del código versionado. Cuando se incorporen, verificar archivo exacto, hash y aviso CC0 en su inventario.
 
@@ -100,6 +108,6 @@ El mantenedor entregó tres imágenes completas, distintas de los GIF de los bot
 | Atardecer | `assets/wallpapers/sunset.png` | 2048×1143 | `426ad76fdab09aa28feba4d3d4b076c2638ec8ec7df02e743f949c796cf462ea` |
 | Noche | `assets/wallpapers/night.png` | 2048×1143 | `643454f74565e13782a42a0d7c5dc247a3d278f1ca5a1aa7669ecc4c96141633` |
 
-**Uso aprobado:** el proyecto asocia cada wallpaper a su tema y lo estira para cubrir la pantalla. **Licencia de redistribución pendiente de documentar para estos tres PNG exactos**: la autorización previa CC0 para GIFs no se extrapola a estas imágenes estáticas sin verificar. Mantener separados los derechos de estos recursos gráficos y la licencia MIT del código.
+**Uso aprobado:** el proyecto asocia cada wallpaper a su tema y lo estira para cubrir la pantalla. **Autorización CC0 ratificada el 21/11/2026 para estos tres PNG exactos por declaración expresa del mantenedor** (véase política vigente al principio). Mantener separadas la dedicación CC0 de estos recursos y la licencia MIT del código. La comprobación de correspondencia de sus archivos originales y su publicación siguen pendientes.
 
-Los tres PNG se conservaron sin editar en un ZIP entregado en la conversación. Se publicaron solo los hashes y metadatos en `prototype/v0.1/package/contents/ui/assets/wallpapers/manifest.json`, **no los binarios**. Antes de incorporarlos a GitHub se debe verificar procedencia, permiso de redistribución y aprobar la licencia individual.
+Los tres PNG se conservaron sin editar en un ZIP entregado en la conversación. Se publicaron solo los hashes y metadatos en `prototype/v0.1/package/contents/ui/assets/wallpapers/manifest.json`, **no los binarios**. Antes de incorporarlos a GitHub se debe verificar la identidad e integridad de los PNG, la ausencia de derechos ajenos y asociar la dedicación CC0 ya autorizada a sus archivos definitivos.
