@@ -403,15 +403,15 @@ No repetir preguntas ya contestadas: coexistencia de SO/bandeja condicionada al 
 
 **Alcance:** extensión libre para distribuciones Linux con KDE Plasma 6 compatible, empezando por CachyOS. No se plantea portar a GNOME, Cinnamon, Windows ni macOS.
 
-**Licencia seleccionada:** GNU GPL versión 3.0, según el archivo [LICENSE](../LICENSE) existente en el repositorio. Se permiten uso, estudio, copia, modificación, redistribución y forks bajo sus condiciones; quien distribuya obras derivadas alcanzadas por la licencia debe respetar sus obligaciones. Este hecho sustituye las comparaciones de licencias que aparecen en el historial de versiones anteriores.
+**Licencia vigente confirmada:** **MIT** para el código y documentación originales, según [LICENSE](../LICENSE). Permite uso, estudio, copia, modificación, redistribución, forks y comercialización, respetando la conservación de los avisos MIT y derechos de terceros. Sustituye las antiguas comparaciones de licencias de este manual.
 
 **Dirección del proyecto:** el titular y mantenedor del repositorio oficial establece los objetivos funcionales y los criterios de diseño. Los colaboradores pueden abrir issues, proponer cambios mediante pull requests y crear forks, pero sus propuestas no se incorporan automáticamente. Nadie recibe permiso de escritura por contribuir. Una versión alternativa no representa por sí misma el proyecto oficial.
 
 **Colaboración deseada:** revisión de bugs, pruebas entre distribuciones Plasma, corrección de fallos, rendimiento, accesibilidad y mejoras que respeten las reglas de geometría constante, foco, superposición y pantalla completa. Las grandes modificaciones de diseño requieren discusión y aprobación explícita antes de implementarse.
 
-**Prioridad:** estabilidad y compatibilidad por encima de efectos decorativos. La primera versión funcional se construye sin animaciones complejas ni MPRIS. Cualquier reutilización de código de terceros debe ser compatible con GPL-3.0 y mantener avisos de autoría y licencias correspondientes.
+**Prioridad:** estabilidad y compatibilidad por encima de efectos decorativos. La primera versión funcional se construye sin animaciones complejas ni MPRIS. Cualquier reutilización de código de terceros debe ser compatible con los términos MIT del código propio y con las licencias de terceros aplicables y mantener avisos de autoría y licencias correspondientes.
 
-**Protección de la rama main:** configurar las reglas de ramas y permisos desde la interfaz de GitHub; la existencia de esta cláusula por sí sola no activa las protecciones de GitHub. Ninguna regla puede impedir que otra persona haga un fork conforme a la GPL.
+**Protección de la rama main:** configurar las reglas de ramas y permisos desde la interfaz de GitHub; la existencia de esta cláusula por sí sola no activa las protecciones de GitHub. Ninguna regla puede impedir que otra persona haga un fork conforme a la licencia MIT y a los derechos de terceros.
 
 **Registro del origen:** las decisiones de diseño y el manual se documentan con versiones y cambios. Las aportaciones posteriores son contribuciones de sus autores conforme a sus licencias; el rol de director funcional no supone poseer automáticamente los derechos de autor de todo código futuro.
 
@@ -460,7 +460,7 @@ Flecha bandeja `◀` = abrir horizontalmente a la izquierda; `▶` = cerrar. **S
 
 Se quieren **escritorios virtuales** de forma discreta y configurable: opción de indicadores al extremo izquierdo del selector SO, con miniatura al hover y clic para cambiar, o ícono independiente pequeño en la barra. **Todavía no está decidido cuál es la presentación por defecto.** Los **monitores físicos múltiples** son un tema distinto, también configurable. Personalización, transparencias, temas y efectos vendrán **después de estabilizar el núcleo**; el ejemplo Nyan Cat es solo una demostración de lo que podría admitir un sistema de efectos modular.
 
-El proyecto tiene repositorio oficial público **https://github.com/nicoarg87/plasma-smartbar**, bajo **GPL-3.0**, para **Linux con KDE Plasma**. No se busca compatibilidad con otros escritorios ni Windows/macOS. No usar las imágenes conceptuales recargadas y descartadas como referencia. Esta especificación escrita prevalece. Preguntar solo ante verdaderas contradicciones o decisiones técnicas abiertas; evitar repetir preguntas ya contestadas.
+El proyecto tiene repositorio oficial público **https://github.com/nicoarg87/plasma-smartbar**, bajo **MIT**, para **Linux con KDE Plasma**. No se busca compatibilidad con otros escritorios ni Windows/macOS. No usar las imágenes conceptuales recargadas y descartadas como referencia. Esta especificación escrita prevalece. Preguntar solo ante verdaderas contradicciones o decisiones técnicas abiertas; evitar repetir preguntas ya contestadas.
 
 ---
 
@@ -496,7 +496,7 @@ El proyecto tiene repositorio oficial público **https://github.com/nicoarg87/pl
 - **SO adaptable:** puede permanecer expandido, permanecer contraído o cerrarse automáticamente ante activación de aplicaciones con pestañas; configurable y sujeto a pruebas en diferentes navegadores.
 - **SO tras selección:** confirmado el cierre/contracción **por defecto** luego de activar ventana; opción de **mantener abierto** para cambios frecuentes.
 - **GitHub:** objetivo explícito de repositorio público abierto, con documentación previa al código y fork/redistribución permitidos; ya publicado como repositorio inicial.
-- **Licencias:** se distingue MIT (permisiva) y GPL-3.0-or-later (copyleft), y se aclara que ausencia de licencia no implica permiso general de reutilización. Licencia elegida posteriormente: GPL-3.0; esta frase pertenece al historial de la v0.7.
+- **Licencias:** **MIT** es la licencia vigente del software/documentación propios; CC0 1.0 cubre los recursos originales autorizados por el mantenedor. La ausencia de licencia para material ajeno no concede permiso general de reutilización. Este apartado corrige una comparación histórica obsoleta de la v0.7.
 - **Registro histórico v0.7 (exclusividad sustituida en v0.22):** altura constante, ventanas y pestañas no desplazadas, SO agrupado por aplicación por defecto, fullscreen oculta todo, multimedia y animaciones quedan para fases posteriores. La antigua exclusividad de SO/bandeja **ya no rige**: véase sección 34.
 
 ### Apéndice breve para el próximo chat
@@ -511,7 +511,7 @@ La especificación funcional vigente es la de este Manual Maestro, bajo la direc
 
 **Principios operativos:** no romper programas ni sus pestañas; respetar el fullscreen real; mantener grosor constante; conservar control de foco; no introducir efectos que cambien la geometría; preferir código existente compatible, rendimiento y pruebas; no anunciar compatibilidad universal sin haberla probado.
 
-**Derechos de terceros:** los forks son libres conforme a GPL-3.0. Las decisiones de incorporación y publicación de la versión oficial permanecen en manos de los mantenedores autorizados. La marca o nombre del proyecto podrá regirse separadamente de la licencia del código, cuando se documente de forma adecuada.
+**Derechos de terceros:** los forks son libres conforme a MIT para el código propio y a las licencias correspondientes para otros materiales. Las decisiones de incorporación y publicación de la versión oficial permanecen en manos de los mantenedores autorizados. La marca o nombre del proyecto podrá regirse separadamente de la licencia del código, cuando se documente de forma adecuada.
 
 **Evolución del manual:** registrar fecha, número de versión, requisito modificado, motivo y aprobación. No borrar la historia de decisiones cuando sea relevante para comprender el proyecto.
 
@@ -855,7 +855,7 @@ Se debe verificar en **CachyOS, sin sustituir el panel habitual**, apertura bajo
 
 Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los valores iniciales (Logo: logo original, forma cuadrada, rotación 0°; Contorno: borde fijo opcional, color y grosor iniciales; Apariencia: colores/opacidad iniciales; Islas y posición: alturas 48/44/44, radios 22/22, anchos automático/52 y posicionamiento inicial; Autocontracción: SO sí y bandeja no). El botón principal **Aplicar** mantiene la ventana abierta y guarda; **Cerrar** cierra. «Mover isla 1 a la derecha AHORA» sigue actuando sin esperar Aplicar. «Acerca de» no tiene Restablecer porque no edita preferencias.
 
-**Acerca de:** presentar **Plasma SmartBar**, autor público **nicoarg87**, correo para consultas **nicoarg87@gmail.com** (confirmado explícitamente por el mantenedor), licencia **GNU GPL versión 3** y repositorio oficial `nicoarg87/plasma-smartbar`. Un botón «Enviar una consulta por correo» abre el cliente de correo mediante `mailto:`. Mostrar un aviso visible: **«SIN NINGUNA GARANTÍA»**, aclarando que no se ofrece garantía de comerciabilidad ni de aptitud para un propósito determinado, en la medida permitida por la ley, y vincular el archivo oficial [LICENSE](../LICENSE) con el texto completo de la GPL v3. **No mostrar referencias ni botones PayPal/Cafecito por ahora**, a solicitud expresa del mantenedor. No exponer más información personal.
+**Acerca de:** presentar **Plasma SmartBar**, autor público **nicoarg87**, correo para consultas **nicoarg87@gmail.com** (confirmado explícitamente por el mantenedor), licencia **MIT** y repositorio oficial `nicoarg87/plasma-smartbar`. Un botón «Enviar una consulta por correo» abre el cliente de correo mediante `mailto:`. Mostrar un aviso visible: **«SIN NINGUNA GARANTÍA»**, aclarando que no se ofrece garantía de comerciabilidad ni de aptitud para un propósito determinado, en la medida permitida por la ley, y vincular el archivo oficial [LICENSE](../LICENSE) con el texto completo de la GPL v3. **No mostrar referencias ni botones PayPal/Cafecito por ahora**, a solicitud expresa del mantenedor. No exponer más información personal.
 
 **Diferido sin implementación:** nuevos iconos personalizables de bandeja y del agarre, subpestañas anidadas de iconos y opción para añadir isla extra. No redefinir isla 3 ni alterar funciones previas sin aprobación.
 
@@ -865,7 +865,7 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 
 **CAMBIOS APROBADOS POR EL MANTENEDOR TRAS PROBAR EL MENÚ:**
 
-**Acerca de:** la información debe aparecer en orden previsible: (1) nombre del proyecto y autor **nicoarg87**; (2) correo de contacto **nicoarg87@gmail.com** y botón para preparar consulta por email; (3) URL del **repositorio oficial GitHub** y botón para abrirlo; (4) explicación de la licencia **GNU GPL versión 3**; (5) aviso destacado **SIN NINGUNA GARANTÍA**, incluyendo ausencia de garantía de comerciabilidad y de adecuación para propósito particular, en la medida legal aplicable, y acceso a [LICENSE](../LICENSE). Sin PayPal, Cafecito ni mensajes de donación.
+**Acerca de:** la información debe aparecer en orden previsible: (1) nombre del proyecto y autor **nicoarg87**; (2) correo de contacto **nicoarg87@gmail.com** y botón para preparar consulta por email; (3) URL del **repositorio oficial GitHub** y botón para abrirlo; (4) explicación de la licencia **MIT**; (5) aviso destacado **SIN NINGUNA GARANTÍA**, incluyendo ausencia de garantía de comerciabilidad y de adecuación para propósito particular, en la medida legal aplicable, y acceso a [LICENSE](../LICENSE). Sin PayPal, Cafecito ni mensajes de donación.
 
 **Forma predeterminada de isla 1 (Soledad):** lado **izquierdo redondeado** y lado **derecho cuadrado/recto**; el botón de **seis puntos** debe ser **cuadrado** inicialmente. Las formas son personalizables: Soledad ofrece redondeada completa, cuadrada completa, redondeada izquierda/recta derecha, recta izquierda/redondeada derecha y punta triangular izquierda opcional (derecha recta); Malvina ofrece las cuatro opciones básicas, con redondeada completa por defecto. Las opciones se ubican en la pestaña **«Islas y posición»** y se guardan por separado en las preferencias. **Restablecer islas y posición** devuelve estas formas iniciales y conserva el funcionamiento habitual de los gestos.
 
@@ -879,7 +879,7 @@ Cada pestaña editable tiene un **Restablecer** propio: lleva sus ajustes a los 
 
 ## 48. Licencias por separado, logo tropical y ajuste del botón SO (v0.39, 16/11/2026)
 
-**CONFIRMADO POR EL MANTENEDOR:** pasar el software/documentación propia de GPL-3.0 a **MIT**, sin imponer esa licencia a las imágenes. Imagen tropical con palmera, barra rústica y atardecer producida en ChatGPT autorizada bajo **CC0 1.0** para permitir su uso comercial, reproducción e impresión en productos por terceros, conforme a los derechos disponibles. El archivo original exacto se recibió después y se entrega solo en un **ZIP de prueba local; aún no está incorporado a GitHub**. Ver [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md).
+**CONFIRMADO POR EL MANTENEDOR:** ratificar el software y la documentación propios bajo **MIT**, sustituyendo la política anterior, sin imponer esa licencia a las imágenes. Imagen tropical con palmera, barra rústica y atardecer producida en ChatGPT autorizada bajo **CC0 1.0** para permitir su uso comercial, reproducción e impresión en productos por terceros, conforme a los derechos disponibles. El archivo original exacto se recibió después y se entrega solo en un **ZIP de prueba local; aún no está incorporado a GitHub**. Ver [Licencias de recursos gráficos](LICENCIAS_RECURSOS_GRAFICOS.md).
 
 **Golden Dog:** suspender la huella/logo como recurso predeterminado o alternativa empaquetada hasta acreditar su origen, licencia y permiso de redistribución. No asumir que el hecho de estar en otra distribución permite copiarla. Durante la espera, el prototipo usa el texto **SO** como opción segura sin reemplazar el archivo tropical ausente por otra ilustración.
 
