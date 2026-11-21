@@ -43,6 +43,31 @@ assert.equal(JSON.stringify(members),original, "Nunca modificar la biblioteca or
 assert.notEqual(created.members[0], members[0], "Guardar copia independiente");
 assert.equal(created.slots3.length, 3);
 assert.equal(created.slots4.length, 4);
+assert.equal(created.automaticEnabled, true);
+assert.equal(created.slotCount, 4);
+const inheritedCustom = pack.create([], "Con tres franjas", members, false, 3);
+assert.equal(inheritedCustom.automaticEnabled, false);
+assert.equal(inheritedCustom.slotCount, 3);
+const customized = pack.withPreferences(created, false, 3);
+assert.equal(pack.automatic(customized, true), false, "Modo del pack personal aislado");
+assert.equal(pack.slotCount(customized, 4), 3, "Cantidad de franjas aislada");
+assert.equal(pack.automatic(created, true), true, "No modificar el pack original");
+assert.equal(pack.slotCount(created, 4), 4, "No modificar franjas originales");
+assert.equal(pack.withPreferences(created, true, 5), null, "Rechazar cantidad inválida");
+const legacyPack = JSON.parse(JSON.stringify(created));
+delete legacyPack.automaticEnabled;
+delete legacyPack.slotCount;
+assert.equal(pack.automatic(legacyPack, false), false, "Pack previo hereda estado activo");
+assert.equal(pack.slotCount(legacyPack, 3), 3, "Pack previo hereda franjas activas");
+const migratedPack = pack.ensurePreferences(legacyPack, false, 3);
+assert.equal(migratedPack.automaticEnabled, false, "Migración no destructiva del modo");
+assert.equal(migratedPack.slotCount, 3, "Migración no destructiva de franjas");
+assert.deepEqual(JSON.parse(JSON.stringify(migratedPack.slots4)),
+    JSON.parse(JSON.stringify(legacyPack.slots4)), "No alterar franjas existentes");
+assert.deepEqual(JSON.parse(JSON.stringify(migratedPack.members)),
+    JSON.parse(JSON.stringify(legacyPack.members)), "No alterar temas del pack");
+assert.equal(pack.ensurePreferences(created, false, 3), created,
+    "No reescribir configuración de pack que ya está completo");
 assert.equal(pack.create([], "Playa 24hs", members), null, "No reemplazar pack del sistema");
 assert.equal(pack.create([], "", members), null);
 assert.equal(pack.create([], "Vacío", []), null);
@@ -92,6 +117,12 @@ assert.equal(pack.withMember(created,4,0,99),null);
 const replaced=pack.replace([created,second],edited);
 assert.equal(replaced[0].slots4[2].member,0);
 assert.equal(replaced[1],second,"El resto de packs no cambia");
+const isolatedOptions = pack.replace([created,second], customized);
+assert.equal(isolatedOptions[0].automaticEnabled, false);
+assert.equal(isolatedOptions[0].slotCount, 3);
+assert.equal(isolatedOptions[1], second, "Cambiar modo/3-4 no modifica otro pack");
+assert.equal(pack.automatic(created, true), true);
+assert.equal(pack.slotCount(created, 4), 4);
 assert.equal(JSON.stringify(JSON.parse(encoded)),encoded,"Persistencia no destructiva");
 
 assert(qml.includes('import "ThemePack.js" as ThemePack'));
@@ -118,6 +149,26 @@ assert(qml.includes("function selectThemePack(id)"));
 assert(qml.includes("function activatePackMember(index)"));
 assert(qml.includes("function resolvePackPreset(theme)"));
 assert(qml.includes("function persistCustomPack(updated)"));
+assert(qml.includes("ThemePack.ensurePreferences(pack,"),
+       "Primer ingreso a pack anterior captura sus opciones sin borrar franjas");
+assert(qml.includes("ThemePack.withPreferences(selectedThemePack,"),
+       "Editar modo o 3/4 franjas guarda en el pack seleccionado");
+assert(qml.includes("playaScheduleEnabled = enabled"),
+       "Solo el pack Playa escribe el modo histórico");
+assert(qml.includes("playaScheduleSlotCount = count"),
+       "Solo el pack Playa escribe la cantidad histórica");
+assert(qml.includes("saveThemeScheduleRequested(playaScheduleEnabled, playaScheduleSlotCount,"),
+       "La persistencia histórica no recibe controles del pack personalizado");
+assert(bar.includes("readonly property bool activeThemeScheduleEnabled:"),
+       "El reloj resuelve el modo del pack activo");
+assert(bar.includes("readonly property int activeThemeScheduleSlotCount:"),
+       "El reloj resuelve 3/4 franjas del pack activo");
+assert(bar.includes("soledadSettings.playaScheduleEnabled = root.themeScheduleEnabled"),
+       "El editor conserva el modo antiguo de Playa");
+assert(bar.includes("soledadSettings.themeScheduleEnabled = root.activeThemeScheduleEnabled"),
+       "El editor abre con modo propio del pack activo");
+assert(bar.includes("soledadSettings.themeScheduleSlotCount = root.activeThemeScheduleSlotCount"),
+       "El editor abre con cantidad de franjas del pack activo");
 assert(qml.includes('text: "Crear pack personalizado"'));
 assert(qml.includes('text: "Guardar pack"'));
 assert(qml.includes("ThemePack.labels(settings.selectedThemePack)"));
@@ -127,7 +178,7 @@ assert(qml.includes("settings.setScheduleEnabled(false)"));
 assert(qml.includes("return member.jsonData"));
 assert(qml.includes("savedThemeLibrary.map("));
 assert(qml.includes("settings.saveNamedTheme()"),"Seguir creando temas personales");
-assert(bar.includes("ThemePack.active(customPack, themeScheduleSlotCount, now)"));
+assert(bar.includes("ThemePack.active(customPack, activeThemeScheduleSlotCount, now)"));
 assert(bar.includes('slot = customPack ?') || bar.includes("const slot = customPack ?"));
 assert(bar.includes('root.requestSelectedThemePackChange(id)'));
 assert(bar.includes('root.requestThemePackLibraryChange(json)'));
@@ -140,4 +191,4 @@ assert(config.includes('<entry name="selectedThemePackId" type="String"><default
 assert(preview.includes("themeScheduleRuntimeEnabled: previewWindow.appearanceRestored && !previewWindow.captureDayOnce"));
 assert(main.includes("themeScheduleRuntimeEnabled: false"),"No activar reloj en panel KDE real");
 assert(!qml.includes('text: "Guardar cambios actuales en Día"'));
-console.log("OK: pack Playa 24hs inicial, packs personales/horarios independientes y preferencias aisladas.");
+console.log("OK: Playa y packs personales conservan franjas, modo automático y 3/4 independientemente.");
