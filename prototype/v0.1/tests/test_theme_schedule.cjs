@@ -64,7 +64,12 @@ assert(settings.includes('text: "Activar cambio automático de tema"'));
 assert(settings.includes('model: ["3 franjas", "4 franjas"]'));
 assert(settings.includes('settings.updateScheduleBoundary(index, "start", text)'));
 assert(settings.includes('settings.updateScheduleBoundary(index, "end", text)'));
-assert(settings.includes('settings.updateScheduleTheme(index, ["day", "sunset", "night"][i])'));
+assert(settings.includes("settings.updateScheduleTheme(index,"),
+       "La edición de franja usa la misma función pública");
+assert(settings.includes("settings.selectedThemePack ? i :"),
+       "El pack personal usa su propio índice de tema");
+assert(settings.includes('["day", "sunset", "night"][i])'),
+       "Playa 24hs conserva los tres identificadores históricos");
 assert(settings.includes("saveThemeScheduleRequested(bool enabled"));
 assert(bar.includes("themeScheduleRuntimeEnabled: false"));
 assert(bar.includes("function checkThemeSchedule()"));
