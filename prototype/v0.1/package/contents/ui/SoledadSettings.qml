@@ -4976,11 +4976,17 @@ Window {
                                     }
                                     QQC2.ComboBox {
                                         Layout.fillWidth: true
-                                        model: ["Día", "Atardecer", "Noche"]
-                                        currentIndex: settings.scheduleTheme(index) === "day" ? 0
-                                            : settings.scheduleTheme(index) === "sunset" ? 1 : 2
+                                        model: settings.selectedThemePack
+                                            ? ThemePack.labels(settings.selectedThemePack)
+                                            : ["Día", "Atardecer", "Noche"]
+                                        currentIndex: settings.selectedThemePack
+                                            ? settings.scheduleTheme(index)
+                                            : settings.scheduleTheme(index) === "day" ? 0
+                                              : settings.scheduleTheme(index) === "sunset" ? 1 : 2
                                         onActivated: function(i) {
-                                            settings.updateScheduleTheme(index, ["day", "sunset", "night"][i])
+                                            settings.updateScheduleTheme(index,
+                                                settings.selectedThemePack ? i :
+                                                ["day", "sunset", "night"][i])
                                         }
                                     }
                                 }
@@ -5093,13 +5099,21 @@ Window {
                             }
                         }
                     }
+                    // Los packs usan este mismo editor horario y el selector
+                    // existente; no duplicar botones de activación ni menú.
+                    // Un pack personalizado copia los perfiles elegidos y no
+                    // reemplaza ninguna biblioteca ni preset de fábrica.
                     // Un único desplegable. Sin tarjetas, subtítulos ni botones "Usar".
                     // Primero las instantáneas locales que el usuario ya guardó.
                     // Selector básico con Popup propio: evita el ComboBox con lista vacía.
                     QQC2.Button {
                         id: themeSelectorButton
                         Layout.fillWidth: true
-                        text: ThemePack.title(settings.themeScheduleEnabled) + (themeOptionsPopup.opened ? "  ▴" : "  ▾")
+                        text: (settings.selectedThemePack
+                            ? settings.selectedThemePack.name +
+                              (settings.themeScheduleEnabled ? " · Automático" : " · Manual")
+                            : ThemePack.title(settings.themeScheduleEnabled)) +
+                              (themeOptionsPopup.opened ? "  ▴" : "  ▾")
                         onClicked: {
                             if (themeOptionsPopup.opened) themeOptionsPopup.close()
                             else themeOptionsPopup.open()
@@ -5111,7 +5125,9 @@ Window {
                         x: 0
                         y: themeSelectorButton.height
                         width: themeSelectorButton.width
-                        height: Math.min(240, 50 * (4 + settings.otherNamedThemes.length) + 8)
+                        height: Math.min(240, 50 * (5 + settings.savedThemePacks.length +
+                            (settings.selectedThemePack ? settings.selectedThemePack.members.length
+                                : 3 + settings.otherNamedThemes.length)) + 8)
                         padding: 4
                         modal: false
                         focus: true
@@ -5134,14 +5150,39 @@ Window {
                                 id: themeOptionsColumn
                                 width: parent.width
                                 spacing: 2
-                                // Primera elección: pack Playa 24hs en modo horario.
-                                // Las tres opciones siguientes son el modo manual
-                                // del MISMO pack, sin duplicar el selector.
+                                QQC2.ItemDelegate {
+                                    width: themeOptionsColumn.width
+                                    height: 48
+                                    text: "Pack · Playa 24hs" +
+                                        (settings.selectedThemePackId === ThemePack.DEFAULT_ID
+                                            ? " ✓" : "")
+                                    onClicked: {
+                                        themeOptionsPopup.close()
+                                        settings.selectThemePack(ThemePack.DEFAULT_ID)
+                                    }
+                                }
+                                Repeater {
+                                    model: settings.savedThemePacks
+                                    delegate: QQC2.ItemDelegate {
+                                        required property var modelData
+                                        width: themeOptionsColumn.width
+                                        height: 48
+                                        text: "Pack · " + modelData.name +
+                                            (settings.selectedThemePackId === modelData.id ? " ✓" : "")
+                                        onClicked: {
+                                            themeOptionsPopup.close()
+                                            settings.selectThemePack(modelData.id)
+                                        }
+                                    }
+                                }
+                                // Elegir modo automático para el pack activo.
                                 QQC2.ItemDelegate {
                                     id: playa24AutoChoice
                                     width: themeOptionsColumn.width
                                     height: 48
-                                    text: "Playa 24hs · automático por horarios"
+                                    text: (settings.selectedThemePack
+                                        ? settings.selectedThemePack.name : ThemePack.NAME) +
+                                        " · automático por horarios"
                                     font.bold: settings.themeScheduleEnabled
                                     onClicked: {
                                         themeOptionsPopup.close()
@@ -5150,7 +5191,8 @@ Window {
                                     }
                                 }
                                 Repeater {
-                                    model: 3 + settings.otherNamedThemes.length
+                                    model: settings.selectedThemePack ? 0 :
+                                        3 + settings.otherNamedThemes.length
                                     delegate: QQC2.ItemDelegate {
                                         required property int index
                                         width: themeOptionsColumn.width
@@ -5225,6 +5267,22 @@ Window {
                                         }
                                     }
                                 }
+                                // Opciones MANUALES del pack personal seleccionado.
+                                Repeater {
+                                    model: settings.selectedThemePack
+                                        ? settings.selectedThemePack.members : []
+                                    delegate: QQC2.ItemDelegate {
+                                        required property var modelData
+                                        required property int index
+                                        width: themeOptionsColumn.width
+                                        height: 48
+                                        text: modelData.name
+                                        onClicked: {
+                                            themeOptionsPopup.close()
+                                            settings.activatePackMember(index)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -5277,6 +5335,46 @@ Window {
                                 text: "Guardar tema"
                                 onClicked: settings.saveNamedTheme()
                             }
+                        }
+                    }
+                    QQC2.Button {
+                        Layout.fillWidth: true
+                        text: "Crear pack personalizado"
+                        onClicked: {
+                            settings.creatingNewPack = !settings.creatingNewPack
+                            settings.creatingNewTheme = false
+                        }
+                    }
+                    ColumnLayout {
+                        visible: settings.creatingNewPack
+                        Layout.fillWidth: true
+                        spacing: 8
+                        QQC2.TextField {
+                            Layout.fillWidth: true
+                            placeholderText: "Nombre del pack"
+                            text: settings.newPackName
+                            onTextEdited: settings.newPackName = text
+                        }
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            color: "#b7c7d9"
+                            wrapMode: Text.WordWrap
+                            text: "Elegí los temas que integrarán el pack. Podrás configurar sus franjas horarias o seleccionarlos individualmente."
+                        }
+                        Repeater {
+                            model: settings.packCandidateItems
+                            delegate: QQC2.CheckBox {
+                                required property int index
+                                required property var modelData
+                                Layout.fillWidth: true
+                                text: modelData.name
+                                checked: settings.pendingPackMemberIndexes.indexOf(index) >= 0
+                                onToggled: settings.togglePackCandidate(index, checked)
+                            }
+                        }
+                        QQC2.Button {
+                            text: "Guardar pack"
+                            onClicked: settings.createPersonalPack()
                         }
                     }
                     QQC2.Label {
