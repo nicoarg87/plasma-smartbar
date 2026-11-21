@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import "ThemeSchedule.js" as ThemeSchedule
+import "ThemePack.js" as ThemePack
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "DemoWindows.js" as DemoWindows
 import "DemoWindowInstances.js" as DemoWindowInstances
@@ -103,6 +104,10 @@ Item {
     signal requestThemeSlotChange(string slot, string jsonData)
     // Programación diaria de temas. Valores personales y perfiles de 3/4 slots
     // independientes de los tres originales de fábrica inmutables.
+    property string selectedThemePackId: ThemePack.DEFAULT_ID
+    property string themePackLibraryJson: "[]"
+    signal requestSelectedThemePackChange(string id)
+    signal requestThemePackLibraryChange(string json)
     property bool themeScheduleRuntimeEnabled: false  // solo habilitado en el visor seguro
     property bool themeScheduleEnabled: true
     property int themeScheduleSlotCount: 4
@@ -125,6 +130,8 @@ Item {
     }
     property bool barThemeTransitionEnabled: true
     signal requestBarThemeTransitionChange(bool enabled)
+    onSelectedThemePackIdChanged: lastScheduledSlotKey = ""
+    onThemePackLibraryJsonChanged: lastScheduledSlotKey = ""
     onThemeScheduleEnabledChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlotCountChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlots3JsonChanged: lastScheduledSlotKey = ""
@@ -159,24 +166,35 @@ Item {
     function checkThemeSchedule() {
         if (!themeScheduleRuntimeEnabled || !themeScheduleEnabled ||
             soledadSettings.visible) return
+        const customPack = ThemePack.find(
+            ThemePack.parse(themePackLibraryJson), selectedThemePackId)
         const json = themeScheduleSlotCount === 3 ?
             themeScheduleSlots3Json : themeScheduleSlots4Json
         const now = new Date()
-        const selected = ThemeSchedule.activeNow(json,themeScheduleSlotCount,now)
+        const selected = customPack
+            ? ThemePack.active(customPack, themeScheduleSlotCount, now)
+            : ThemeSchedule.activeNow(json, themeScheduleSlotCount, now)
         if (!selected) return
-        const key = themeScheduleSlotCount + ":" + selected.index + ":" +
-                    selected.start + ":" + selected.theme
+        const themeKey = customPack ? selected.memberIndex : selected.theme
+        const key = selectedThemePackId + ":" + themeScheduleSlotCount + ":" +
+                    selected.index + ":" + selected.start + ":" + themeKey
         if (key === lastScheduledSlotKey) return
-        // Restaurar los valores VIGENTES (no una copia obsoleta del diálogo).
+        // Usar las preferencias actuales del visor; no tocar ningún panel KDE.
         syncSettingsFromRoot()
-        const slot = scheduledThemeSlot(selected.theme)
+        const member = customPack ? selected.member : null
+        const slot = customPack ?
+            (member.kind === "preset" ? scheduledThemeSlot(member.theme) :
+                "pack:" + selected.memberIndex) : scheduledThemeSlot(selected.theme)
         if (!slot) {
-            // Si todavía falta incorporar un preset exacto, no aplicar otro tema.
+            // Nunca reemplazar un tema faltante por otro distinto.
             return
         }
         if (soledadSettings.activateTheme(slot)) {
             lastScheduledSlotKey = key
-            requestWallpaperThemeChange(selected.theme)
+            // El wallpaper simulado solo conoce los tres fondos integrados.
+            // Un snapshot personal no cambia el wallpaper a otro arbitrario.
+            if (!customPack || member.kind === "preset")
+                requestWallpaperThemeChange(customPack ? member.theme : selected.theme)
         }
     }
 
@@ -1359,6 +1377,8 @@ Item {
         soledadSettings.themeNightJson = root.themeNightJson
         soledadSettings.themeCustomJson = root.themeCustomJson
         soledadSettings.themeLibraryJson = root.themeLibraryJson
+        soledadSettings.themePackLibraryJson = root.themePackLibraryJson
+        soledadSettings.selectedThemePackId = root.selectedThemePackId
             soledadSettings.themeScheduleEnabled = root.themeScheduleEnabled
             soledadSettings.themeScheduleSlotCount = root.themeScheduleSlotCount
             soledadSettings.themeScheduleSlots3Json = root.themeScheduleSlots3Json
@@ -1550,6 +1570,12 @@ Item {
         }
         onSaveThemeScheduleRequested: function(enabled, count, slots3Json, slots4Json) {
             root.requestThemeScheduleChange(enabled, count, slots3Json, slots4Json)
+        }
+        onSaveThemePackSelectionRequested: function(id) {
+            root.requestSelectedThemePackChange(id)
+        }
+        onSaveThemePackLibraryRequested: function(json) {
+            root.requestThemePackLibraryChange(json)
         }
         onSaveWallpaperFadeRequested: function(amount, unit) {
             root.requestWallpaperFadeChange(amount,unit)
