@@ -111,6 +111,16 @@ Item {
     property bool themeScheduleRuntimeEnabled: false  // solo habilitado en el visor seguro
     property bool themeScheduleEnabled: true
     property int themeScheduleSlotCount: 4
+    // El formato histórico sigue siendo exclusivamente el de Playa 24hs.
+    // Los packs personales toman modo/3-4 franjas de su propia biblioteca.
+    readonly property var activeCustomThemePack: ThemePack.find(
+        ThemePack.parse(themePackLibraryJson), selectedThemePackId)
+    readonly property bool activeThemeScheduleEnabled: activeCustomThemePack
+        ? ThemePack.automatic(activeCustomThemePack, themeScheduleEnabled)
+        : themeScheduleEnabled
+    readonly property int activeThemeScheduleSlotCount: activeCustomThemePack
+        ? ThemePack.slotCount(activeCustomThemePack, themeScheduleSlotCount)
+        : themeScheduleSlotCount
     property string themeScheduleSlots3Json:
         ThemeSchedule.serialize(ThemeSchedule.defaults(3),3)
     property string themeScheduleSlots4Json:
@@ -141,7 +151,7 @@ Item {
     // La hora siempre es local; al recuperar suspensión recalcular sin colas.
     Timer {
         interval: 15000
-        running: root.themeScheduleRuntimeEnabled && root.themeScheduleEnabled
+        running: root.themeScheduleRuntimeEnabled && root.activeThemeScheduleEnabled
         triggeredOnStart: true
         repeat: true
         onTriggered: root.checkThemeSchedule()
@@ -164,19 +174,18 @@ Item {
         return ""
     }
     function checkThemeSchedule() {
-        if (!themeScheduleRuntimeEnabled || !themeScheduleEnabled ||
+        if (!themeScheduleRuntimeEnabled || !activeThemeScheduleEnabled ||
             soledadSettings.visible) return
-        const customPack = ThemePack.find(
-            ThemePack.parse(themePackLibraryJson), selectedThemePackId)
-        const json = themeScheduleSlotCount === 3 ?
+        const customPack = activeCustomThemePack
+        const json = activeThemeScheduleSlotCount === 3 ?
             themeScheduleSlots3Json : themeScheduleSlots4Json
         const now = new Date()
         const selected = customPack
-            ? ThemePack.active(customPack, themeScheduleSlotCount, now)
-            : ThemeSchedule.activeNow(json, themeScheduleSlotCount, now)
+            ? ThemePack.active(customPack, activeThemeScheduleSlotCount, now)
+            : ThemeSchedule.activeNow(json, activeThemeScheduleSlotCount, now)
         if (!selected) return
         const themeKey = customPack ? selected.memberIndex : selected.theme
-        const key = selectedThemePackId + ":" + themeScheduleSlotCount + ":" +
+        const key = selectedThemePackId + ":" + activeThemeScheduleSlotCount + ":" +
                     selected.index + ":" + selected.start + ":" + themeKey
         if (key === lastScheduledSlotKey) return
         // Usar las preferencias actuales del visor; no tocar ningún panel KDE.
@@ -1379,8 +1388,10 @@ Item {
         soledadSettings.themeLibraryJson = root.themeLibraryJson
         soledadSettings.themePackLibraryJson = root.themePackLibraryJson
         soledadSettings.selectedThemePackId = root.selectedThemePackId
-            soledadSettings.themeScheduleEnabled = root.themeScheduleEnabled
-            soledadSettings.themeScheduleSlotCount = root.themeScheduleSlotCount
+        soledadSettings.playaScheduleEnabled = root.themeScheduleEnabled
+        soledadSettings.playaScheduleSlotCount = root.themeScheduleSlotCount
+        soledadSettings.themeScheduleEnabled = root.activeThemeScheduleEnabled
+        soledadSettings.themeScheduleSlotCount = root.activeThemeScheduleSlotCount
             soledadSettings.themeScheduleSlots3Json = root.themeScheduleSlots3Json
             soledadSettings.themeScheduleSlots4Json = root.themeScheduleSlots4Json
         soledadSettings.barThemeTransitionEnabled = root.barThemeTransitionEnabled
@@ -1556,7 +1567,7 @@ Item {
         // Al cerrar el editor, ejecutar enseguida la franja vigente si el
         // usuario eligió Playa 24hs automático; no esperar al siguiente tick.
         onVisibleChanged: {
-            if (!visible && root.themeScheduleEnabled && root.themeScheduleRuntimeEnabled)
+            if (!visible && root.activeThemeScheduleEnabled && root.themeScheduleRuntimeEnabled)
                 Qt.callLater(function() { root.checkThemeSchedule() })
         }
         onSettingsApplied: root.requestPersistCurrentSettings()
