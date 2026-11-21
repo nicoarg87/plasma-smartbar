@@ -5,7 +5,7 @@
 
 ## Fase 0 — Fundamentos y organización
 - [x] Abrir repositorio público para Linux con KDE Plasma.
-- [x] Establecer constitución, Manual Maestro y gobernanza; licencia inicial GPL-3.0, **relicenciamiento del código propio a MIT aprobado el 16/11/2026**.
+- [x] Establecer constitución, Manual Maestro y gobernanza; **licencia MIT vigente para código propio**, ratificada por el mantenedor; se conserva el historial de licenciamiento anterior.
 - [x] Redactar reglas de contribución y visión inicial.
 - [x] Activar regla de protección de rama main (bloqueo de borrado y force push; confirmado 14/11/2026).
 - [ ] Revisar periódicamente colaboradores autorizados y evaluar exigencia de PRs cuando haya equipo.
@@ -100,13 +100,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] Altura global elegida por usuario (48 por defecto, constante mientras se expanden las islas), altos/anchos/radios de Soledad y Malvina independientes dentro del espacio. Verificar limitaciones del contenedor Plasma al solicitar altura de panel real.
 - [ ] Rotar foto/GIF con control de −180° a +180° sin modificar fuente, manteniendo recorte y contorno coherentes.
 - [ ] Pestañas reordenadas Logo → Contorno → Apariencia → Islas y posición → Autocontracción → Acerca de. Las cinco configurables tienen Restablecer; Aplicar guarda sin cerrar.
-- [ ] **Acerca de (prueba pendiente):** autor público nicoarg87, correo para consultas **nicoarg87@gmail.com** (autorizado), licencia GNU GPL v3 con enlace al LICENSE oficial y aviso **SIN NINGUNA GARANTÍA**. Código en PR #3; verificar apertura de cliente de correo y legibilidad en CachyOS. **PayPal y Cafecito se posponen**; sin links ni botones de donaciones.
+- [ ] **Acerca de (prueba pendiente):** autor público nicoarg87, correo para consultas **nicoarg87@gmail.com** (autorizado), licencia MIT con enlace al LICENSE oficial y aviso **SIN NINGUNA GARANTÍA**. Código en PR #3; verificar apertura de cliente de correo y legibilidad en CachyOS. **PayPal y Cafecito se posponen**; sin links ni botones de donaciones.
 - [ ] Validar todos los cambios en CachyOS/Wayland usando exclusivamente ventana de prueba Qt; PR #3 y issues #1/#5 abiertos. Iconos personalizados del agarre y bandeja e isla extra siguen diferidos.
 
 ## Terminaciones por isla y orden de Acerca de — validar en CachyOS (15/11/2026)
 
 - [ ] **Geometría predeterminada nueva:** Soledad redondeada izquierda / recta derecha y agarre cuadrado. Alternar Soledad entre redondeada, cuadrada, ambas mixtas y punta triangular izquierda (experimental); Malvina entre redondeada, cuadrada y ambas mixtas; agarre y flecha de bandeja cuadrado/redondeado. `Restablecer` vuelve a defaults. Verificar gesto de arrastre y barra fija.
-- [ ] **Acerca de:** correo autorizado `nicoarg87@gmail.com`, repositorio GitHub inmediatamente debajo del contacto, licencia GNU GPL v3 y aviso SIN NINGUNA GARANTÍA por debajo. Verificar botones con teclado, sin donaciones.
+- [ ] **Acerca de:** correo autorizado `nicoarg87@gmail.com`, repositorio GitHub inmediatamente debajo del contacto, licencia MIT y aviso SIN NINGUNA GARANTÍA por debajo. Verificar botones con teclado, sin donaciones.
 - [ ] **Compatibilidad:** probar esquinas individuales de QtQuick Rectangle (Qt 6.7+, `tech preview` en Qt 6.8), Canvas triangular y ancho de isla con SO y bandeja abiertos. PR #3 experimental, issues #1/#5 abiertos; no modificar panel KDE en uso.
 
 ## Centro de configuración de Soledad en pestañas — decisión confirmada (14/11/2026)
@@ -608,7 +608,7 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [x] Unificar «Botón de inicio SO» y «Efectos luminosos SO» bajo una entrada lateral única, con subpestañas visibles para Logo/ancho/texto y Efectos; mover «Launcher y botón SO» al primer lugar de Soledad. [0274f6d](https://github.com/nicoarg87/plasma-smartbar/commit/0274f6dcc6f70a274ff7f336f40f80adc036cc5c).
 - [x] Agregar en el apartado Brillo y respiración SO acceso directo a Color y transparencia → Degradado y respiración de Soledad, sin mezclar controles y velocidades. Mantener enlace inverso.
 - [x] Abrir ventana de configuración más ancha si cabe; reservar margen de scrollbar y separar botones HEX/Copiar/Editar en filas que no desborden. Verificar cada vista y escala de KDE en pruebas.
-- [x] Corregir `KPlugin.License` de GPL-3.0-only a MIT para respetar licencia vigente del software y documentación propios. [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384).
+- [x] Corregir el antiguo `KPlugin.License` a MIT para respetar licencia vigente del software y documentación propios. [6b4c3c2](https://github.com/nicoarg87/plasma-smartbar/commit/6b4c3c23ac3ff1aaa1d27f5843877d050433a384).
 - [x] Ratificar dedicación CC0 1.0 Universal del arte/GIF original de botones SO generado por ChatGPT y aportado por el mantenedor, separado de MIT del código. No aplicar CC0 a terceros; conservar hash y original.
 - [x] Actualizar regresión `test_breathing_menu.cjs` para orden, navegación, scrollbar y metadatos. [c9c59a9](https://github.com/nicoarg87/plasma-smartbar/commit/c9c59a957178226ac54d00aa8a2b6466a7a5e19f).
 - [ ] **Prueba real en CachyOS:** ejecutar test Node + visor, confirmar que no se oculta ningún botón por la barra vertical a resolución normal/ventana angosta/escalado KDE, los saltos de degradado/contorno llegan al apartado correcto, el launcher queda primero y los temas/ajustes actuales sobreviven.
