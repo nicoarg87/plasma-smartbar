@@ -838,6 +838,10 @@ Item {
     // El visor puede inyectar el TasksModel REAL ya probado en CachyOS.
     // Si es null, se mantiene intacta la simulación habitual. Este
     // componente NO crea modelos KDE ni ejecuta acciones sobre ventanas.
+    // Estado real OBSERVADO en el visor Qt; aún sin autorizar movimiento
+    // ni modificación de ventanas de KDE desde SO.
+    property string realObservedAppId: ""
+    property bool realObservedMaximized: false
     property var realTaskModel: null
     readonly property bool usingRealTasks: realTaskModel !== null
     property bool demoHasRunningWindows: true
