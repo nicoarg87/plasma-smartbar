@@ -1003,6 +1003,13 @@ Item {
             alignRightSelected = true
         }
     }
+    // Responder al cambio de ficha desde QML, sin acoplar el modelo
+    // de ventanas ficticias a los perfiles. La prueba aislada puede
+    // ejecutar closeDemoWindow sin depender de propiedades del visor.
+    onLastDemoSelectionChanged: {
+        if (demoWindowControlsEnabled && !usingRealTasks && previewMaximized)
+            applyDemoPositionProfile()
+    }
     onDemoPositionProfilesJsonChanged: {
         if (demoProfileContextReady && !gripDrag.active)
             applyDemoPositionProfile()
@@ -1075,10 +1082,7 @@ Item {
         delete volumes[appName]
         demoAppVolumes = volumes
         demoOpenedApps = updated
-        if (lastDemoSelection === appName) {
-            lastDemoSelection = ""
-            if (previewMaximized) applyDemoPositionProfile()
-        }
+        if (lastDemoSelection === appName) lastDemoSelection = ""
         return true
     }
     // Cierre individual solo de muestra, nunca KDE/KWin.
