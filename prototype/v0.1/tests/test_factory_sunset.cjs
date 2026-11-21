@@ -40,7 +40,8 @@ const popupStart = ui.indexOf("id: themeOptionsPopup");
 const popupEnd = ui.indexOf('text: "Crear tema nuevo"', popupStart);
 assert(popupStart >= 0 && popupEnd > popupStart, "Falta desplegable de temas");
 const popup = ui.slice(popupStart, popupEnd);
-assert(popup.includes('model: 3 + settings.otherNamedThemes.length'));
+assert(/model:\s*settings\.selectedThemePack\s*\?\s*0\s*:\s*3\s*\+\s*settings\.otherNamedThemes\.length/.test(popup),
+       "Sin pack personal, mantener los tres temas base y la biblioteca histórica");
 assert(popup.includes('index === 0 ? "Atardecer"'), "Atardecer debe ser primera opción");
 assert(popup.includes('settings.factorySunsetImage'), "Falta imagen original Atardecer");
 assert(popup.includes('settings.themeImageSource(settings.themeDayJson)'),
