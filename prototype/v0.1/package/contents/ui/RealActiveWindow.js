@@ -20,3 +20,19 @@ function resolve(items) {
         known: true
     };
 }
+
+function rememberExternal(previous, observed, viewerAppId) {
+    const old = previous && previous.known === true ? previous
+        : { appId: "", appName: "", maximized: false, fullscreen: false, known: false };
+    // El propio visor toma foco al usar el agarre o abrir el menú.
+    // No reemplazar por qml6 la última aplicación externa observada.
+    if (!observed || observed.known !== true ||
+        observed.appId === viewerAppId) return old;
+    return {
+        appId: observed.appId,
+        appName: observed.appName,
+        maximized: observed.maximized === true,
+        fullscreen: observed.fullscreen === true,
+        known: true
+    };
+}
