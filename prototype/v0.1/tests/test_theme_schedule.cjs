@@ -51,6 +51,14 @@ const preview = read("preview_redimensionable.qml");
 const main = read("package/contents/ui/main.qml");
 const config = read("package/contents/config/main.xml");
 assert(settings.includes('id: themeScheduleMenu'));
+assert(settings.includes('model: settings.scheduleSlots'),
+       "Al cambiar de pack, reconstruir filas con las franjas de ese pack");
+assert(settings.includes('readonly property int savedThemeIndex:'),
+       "Las opciones horarias deben leer su índice real guardado");
+assert(settings.includes('displayText: savedThemeIndex >= 0 &&'),
+       "No mostrar Día por defecto al volver de un pack personal");
+assert(settings.includes('themeChoices[savedThemeIndex] : "Tema no disponible"'),
+       "Mostrar explícitamente el tema persistido, incluso si ComboBox reinicia currentIndex");
 assert(settings.includes('visible: settings.scheduleMenuExpanded'));
 assert(settings.includes('id: scheduleMenuButton'));
 assert(settings.includes('text: "Con horarios "'));
