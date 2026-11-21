@@ -37,7 +37,7 @@ assert(!ui.includes("function restorePreviousSunset()"));
 // Tras la sustitución de tarjetas por un desplegable con scroll, el
 // selector mantiene los tres temas centrales y las copias personales.
 const popupStart = ui.indexOf("id: themeOptionsPopup");
-const popupEnd = ui.indexOf('text: "Crear tema nuevo"', popupStart);
+const popupEnd = ui.indexOf("// Fin del selector de temas y packs.", popupStart);
 assert(popupStart >= 0 && popupEnd > popupStart, "Falta desplegable de temas");
 const popup = ui.slice(popupStart, popupEnd);
 assert(/model:\s*settings\.selectedThemePack\s*\?\s*0\s*:\s*3\s*\+\s*settings\.otherNamedThemes\.length/.test(popup),
