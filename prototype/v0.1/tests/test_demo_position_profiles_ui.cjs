@@ -28,6 +28,20 @@ for (const marker of [
 ]) assert(preview.includes(marker), "Falta visor: " + marker);
 assert(!main.includes('onRequestDemoPositionProfilesChange'),
     "No se permite persistir posiciones ficticias en el applet Plasma");
-assert(!qml.includes('requestActivate(') && !qml.includes('requestClose('),
-    "La simulación no debe manipular las ventanas KDE");
+// El código general puede invocar soledadSettings.requestActivate() para
+// enfocar el diálogo de configuración. Verificar solo el código de perfiles,
+// sin confundirlo con APIs de TaskManager/KWin.
+const begin = qml.indexOf('    // Ensayo local aislado:');
+const end = qml.indexOf('    readonly property var demoApps:', begin);
+assert(begin >= 0 && end > begin, "No se encontró el bloque aislado de perfiles");
+const profilesBlock = qml.slice(begin, end);
+assert(!/\b(?:requestActivate|requestClose|requestToggleMinimized)\s*\(/.test(profilesBlock),
+    "Los perfiles ficticios no pueden controlar ventanas KDE");
+assert(qml.includes('onLastDemoSelectionChanged:'),
+    "La selección debe resolver posiciones sin acoplar closeDemoWindow");
+const closeStart = qml.indexOf('    function closeDemoWindow(appName)');
+const closeEnd = qml.indexOf('    // Cierre individual', closeStart);
+assert(closeStart >= 0 && closeEnd > closeStart);
+assert(!qml.slice(closeStart, closeEnd).includes('applyDemoPositionProfile('),
+    "Cerrar una ficha debe mantener la lógica ficticia independiente de perfiles");
 console.log("OK: memoria por aplicación conectada al visor y agarre, sin alterar panel KDE.");
