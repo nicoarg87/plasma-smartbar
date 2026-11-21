@@ -53,7 +53,8 @@ assert(ui.includes('slot === "sunset"') &&
 assert(ui.includes('Qt.resolvedUrl("assets/" + info.assetTextFile)'));
 assert(!ui.includes("officialNightAvailable"), "Resurgió fallback de imagen incorrecta");
 // El modelo del selector mantiene tres opciones principales, más temas personales.
-assert(popup.includes('model: 3 + settings.otherNamedThemes.length'));
+assert(/model:\s*settings\.selectedThemePack\s*\?\s*0\s*:\s*3\s*\+\s*settings\.otherNamedThemes\.length/.test(popup),
+       "Sin pack personal, mantener los tres temas base y la biblioteca histórica");
 assert(popup.includes('settings.themeImageSource(settings.themeNightJson)'),
        "Un tema personal histórico debe utilizar su imagen, no la fábrica");
 assert(popup.includes('else if (selectedIndex === 1)'),
