@@ -34,7 +34,12 @@ assert(preview.includes("function captureDayFromSavedAppearance()"));
 assert(preview.includes('simulatedWallpaperTheme !== "day"'),"No guardar una Noche como Día");
 assert(preview.includes('dayCapturedAppearanceBefore90V1'),"Falta respaldo anterior");
 assert(preview.includes('dayCapturedLibraryBeforeV1'),"Falta respaldo biblioteca");
-assert(preview.includes('items.push({name: "Día · respaldo "'));
+assert(!preview.includes('items.push({name: "Día · respaldo "'),
+       "La recaptura de Día no debe recrear respaldos visibles");
+assert(preview.includes('items[oldIndex] = {name: "Día", jsonData: snapshot}'),
+       "Actualizar solo la entrada principal Día, sin duplicados");
+assert(preview.includes('dayCapturedLibraryBeforeV1'),
+       "Conservar respaldo completo fuera del selector");
 assert(preview.includes('localPreviewSettings.setValue("themeLibraryJson"'));
 assert(preview.includes('if (captureDayOnce)'));
 assert(preview.includes('themeScheduleRuntimeEnabled: previewWindow.appearanceRestored && !previewWindow.captureDayOnce'));
