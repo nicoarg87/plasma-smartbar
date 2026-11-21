@@ -10,6 +10,7 @@ import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "DemoWindows.js" as DemoWindows
 import "DemoWindowInstances.js" as DemoWindowInstances
 import "DemoAudioState.js" as DemoAudioState
+import "SoledadPositionProfiles.js" as SoledadPositionProfiles
 
 Item {
     id: root
@@ -963,6 +964,49 @@ Item {
     property real islandOffset: 0          // Distancia horizontal desde la derecha.
     property real offsetAtDragStart: 0
     property string lastDemoSelection: ""
+    // Ensayo local aislado: sin control de ventanas KDE ni cambios de temas.
+    property string demoPositionProfilesJson: "{}"
+    signal requestDemoPositionProfilesChange(string json)
+    readonly property bool demoProfileContextReady:
+        demoWindowControlsEnabled && !usingRealTasks && previewMaximized &&
+        positionMode === "right" && lastDemoSelection.length > 0 &&
+        demoOpenedApps.indexOf(lastDemoSelection) >= 0
+    readonly property bool demoProfileExists: demoProfileContextReady &&
+        Object.prototype.hasOwnProperty.call(
+            SoledadPositionProfiles.readProfiles(demoPositionProfilesJson),
+            lastDemoSelection)
+    function applyDemoPositionProfile() {
+        if (!demoWindowControlsEnabled || usingRealTasks ||
+            positionMode !== "right") return
+        const next = SoledadPositionProfiles.resolveOffset(
+            demoPositionProfilesJson, lastDemoSelection,
+            lastDemoSelection.length > 0 &&
+                demoOpenedApps.indexOf(lastDemoSelection) >= 0,
+            previewMaximized, 0, maxIslandOffset)
+        setIslandOffset(next)
+        alignRightSelected = next === 0
+        ensureExpansionFits()
+    }
+    function saveDemoPositionProfile() {
+        if (!demoProfileContextReady) return
+        const updated = SoledadPositionProfiles.saveProfile(
+            demoPositionProfilesJson, lastDemoSelection, islandOffset, maxIslandOffset)
+        if (updated !== null) requestDemoPositionProfilesChange(updated)
+    }
+    function deleteDemoPositionProfile() {
+        if (!demoProfileExists) return
+        const updated = SoledadPositionProfiles.removeProfile(
+            demoPositionProfilesJson, lastDemoSelection)
+        if (updated !== null) {
+            requestDemoPositionProfilesChange(updated)
+            setIslandOffset(0)
+            alignRightSelected = true
+        }
+    }
+    onDemoPositionProfilesJsonChanged: {
+        if (demoProfileContextReady && !gripDrag.active)
+            applyDemoPositionProfile()
+    }
     readonly property var demoApps: ["Dolphin", "Konsole", "Brave"]
     // Las fichas abiertas son un estado temporal y reversible del visor.
     // Nunca se guardan como preferencias ni afectan a las tareas reales.
@@ -1031,7 +1075,10 @@ Item {
         delete volumes[appName]
         demoAppVolumes = volumes
         demoOpenedApps = updated
-        if (lastDemoSelection === appName) lastDemoSelection = ""
+        if (lastDemoSelection === appName) {
+            lastDemoSelection = ""
+            if (previewMaximized) applyDemoPositionProfile()
+        }
         return true
     }
     // Cierre individual solo de muestra, nunca KDE/KWin.
@@ -1174,6 +1221,9 @@ Item {
             alignRightSelected = islandOffset <= 0
         }
 
+        if (value && demoWindowControlsEnabled && !usingRealTasks &&
+            lastDemoSelection.length > 0)
+            applyDemoPositionProfile()
         console.log("SmartBar v0.1: maximizada simulada =", previewMaximized,
                     "retorno =", root.autoReturnRight,
                     "alineación =", alignRightSelected,
@@ -1348,7 +1398,10 @@ Item {
     }
 
     function selectDemoApp(appName) {
+        if (usingRealTasks || !demoHasRunningWindows ||
+            demoOpenedApps.indexOf(appName) < 0) return
         lastDemoSelection = appName
+        if (previewMaximized) applyDemoPositionProfile()
         // Elegir ficha: mantener abierto solo si la preferencia lo pide.
         if (autoCollapseSO) {
             soExpanded = false
@@ -2894,6 +2947,17 @@ Item {
                             checkable: true
                             checked: root.previewFullscreen
                             onTriggered: root.previewFullscreen = !root.previewFullscreen
+                        }
+                        // Opciones aprobadas, dentro del menú existente.
+                        QQC2.MenuItem {
+                            visible: root.demoProfileContextReady
+                            text: "Recordar esta posición para " + root.lastDemoSelection
+                            onTriggered: root.saveDemoPositionProfile()
+                        }
+                        QQC2.MenuItem {
+                            visible: root.demoProfileExists
+                            text: "Olvidar posición de " + root.lastDemoSelection
+                            onTriggered: root.deleteDemoPositionProfile()
                         }
                         // Atajo contextual del agarre: respeta la preferencia
                         // elegida en Islas y posición, sin cambiar de modo.
