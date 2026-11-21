@@ -242,32 +242,14 @@ Window {
     // Día/Atardecer/Noche de la biblioteca tienen una imagen y un perfil
     // propios. No confundir la ranura histórica themeDayJson (Atardecer)
     // ni sustituir los tres originales de fábrica inmutables.
+    // API QML y enlaces del selector intactos; reglas puras en ThemeLibrary.js.
     function namedThemeIndex(theme) {
-        const names = theme === "day" ? ["día", "dia"] :
-                      theme === "sunset" ? ["atardecer"] :
-                      theme === "night" ? ["noche", "anoche"] : []
-        if (!names.length) return -1
-        const items = savedThemeLibrary
-        for (let i = 0; i < items.length; ++i) {
-            if (names.indexOf(items[i].name.trim().toLocaleLowerCase()) >= 0)
-                return i
-        }
-        return -1
+        return ThemeLibrary.namedThemeIndex(savedThemeLibrary, theme)
     }
     function dayThemeIndex() { return namedThemeIndex("day") }
-    readonly property var otherNamedThemes: savedThemeLibrary.filter(function(item) {
-        const name = item.name.trim().toLocaleLowerCase()
-        return name !== "día" && name !== "dia"
-    })
+    readonly property var otherNamedThemes: ThemeLibrary.otherNamedThemes(savedThemeLibrary)
     function otherNamedThemeOriginalIndex(index) {
-        let count = 0
-        const items = savedThemeLibrary
-        for (let i = 0; i < items.length; ++i) {
-            const name = items[i].name.trim().toLocaleLowerCase()
-            if (name === "día" || name === "dia") continue
-            if (count++ === index) return i
-        }
-        return -1
+        return ThemeLibrary.otherNamedThemeOriginalIndex(savedThemeLibrary, index)
     }
     // Perfil Noche original de fábrica: SOLO manifiesto distribuido con el
     // programa; el tema histórico guardado localmente no lo modifica.
