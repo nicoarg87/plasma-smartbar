@@ -106,6 +106,35 @@ function schedule(pack, count) {
         defaultSlots(count, pack.members.length)
 }
 
+// Estado de modo y cantidad de franjas propio de cada pack personal.
+// Valores heredados: usar los ajustes históricos de Playa una sola vez.
+function automatic(pack, legacyEnabled) {
+    return pack && typeof pack.automaticEnabled === "boolean"
+        ? pack.automaticEnabled : legacyEnabled === true
+}
+
+function slotCount(pack, legacyCount) {
+    return pack && (pack.slotCount === 3 || pack.slotCount === 4)
+        ? pack.slotCount : legacyCount === 3 ? 3 : 4
+}
+
+function withPreferences(pack, enabled, count) {
+    if (!pack || typeof enabled !== "boolean" || (count !== 3 && count !== 4))
+        return null
+    return Object.assign({}, pack, {
+        automaticEnabled: enabled,
+        slotCount: count
+    })
+}
+
+function ensurePreferences(pack, legacyEnabled, legacyCount) {
+    if (!pack) return null
+    if (typeof pack.automaticEnabled === "boolean" &&
+        (pack.slotCount === 3 || pack.slotCount === 4)) return pack
+    return withPreferences(pack,
+        automatic(pack, legacyEnabled), slotCount(pack, legacyCount))
+}
+
 function update(pack, count, slots) {
     if (!pack || !validSlots(slots, count, pack.members.length)) return null
     const result = Object.assign({}, pack)
@@ -149,7 +178,7 @@ function active(pack, count, clock) {
             member: pack.members[slots[index].member]}
 }
 
-function create(packs, name, members) {
+function create(packs, name, members, enabled, count) {
     const normalizedName = String(name || "").trim().slice(0, 60)
     if (!normalizedName || normalizedName.toLocaleLowerCase() === NAME.toLocaleLowerCase() ||
         !Array.isArray(members) || members.length < 1 ||
@@ -168,6 +197,8 @@ function create(packs, name, members) {
                   members: members.map(function(member) { return Object.assign({}, member) })}
     pack.slots3 = defaultSlots(3, pack.members.length)
     pack.slots4 = defaultSlots(4, pack.members.length)
+    pack.automaticEnabled = typeof enabled === "boolean" ? enabled : true
+    pack.slotCount = count === 3 ? 3 : 4
     return pack
 }
 
