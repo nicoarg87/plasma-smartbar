@@ -8,6 +8,7 @@ import "ThemeSchedule.js" as ThemeSchedule
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "DemoWindows.js" as DemoWindows
 import "DemoWindowInstances.js" as DemoWindowInstances
+import "DemoAudioState.js" as DemoAudioState
 
 Item {
     id: root
@@ -941,41 +942,34 @@ Item {
     function demoInstancesForApp(appName) {
         return DemoWindowInstances.forApp(demoWindowInstances, appName)
     }
+    // Fachada pública sin cambios: la política de audio ficticio vive en
+    // DemoAudioState.js; aquí se conservan los controles de acceso del visor.
     function demoAppVolume(appName) {
-        const stored = demoAppVolumes[appName]
-        return stored === undefined ? 70 :
-            Math.max(0, Math.min(100, Math.round(Number(stored) || 0)))
+        return DemoAudioState.volume(demoAppVolumes, appName)
     }
     function setDemoAppVolume(appName, value) {
         if (!demoWindowControlsEnabled || usingRealTasks ||
             !demoHasRunningWindows || demoOpenedApps.indexOf(appName) < 0)
             return false
-        const next = Math.max(0, Math.min(100, Math.round(Number(value) || 0)))
-        const volumes = Object.assign({}, demoAppVolumes)
-        volumes[appName] = next
-        demoAppVolumes = volumes
-        const muted = Object.assign({}, demoMutedApps)
-        muted[appName] = next === 0
-        demoMutedApps = muted
+        const result = DemoAudioState.setVolume(
+            demoMutedApps, demoAppVolumes, appName, value)
+        demoAppVolumes = result.volumes
+        demoMutedApps = result.muted
         return true
     }
     function demoAppIsMuted(appName) {
-        return demoMutedApps[appName] === true || demoAppVolume(appName) === 0
+        return DemoAudioState.isMuted(demoMutedApps, demoAppVolumes, appName)
     }
     function toggleDemoAppMute(appName) {
         if (!demoWindowControlsEnabled || usingRealTasks ||
             !demoHasRunningWindows || demoOpenedApps.indexOf(appName) < 0)
             return false
-        const wasMuted = demoAppIsMuted(appName)
-        const updated = Object.assign({}, demoMutedApps)
-        updated[appName] = !wasMuted
-        demoMutedApps = updated
-        // Si estaba en 0, reactivar restaura un nivel audible de muestra.
-        if (wasMuted && demoAppVolume(appName) === 0) {
-            const volumes = Object.assign({}, demoAppVolumes)
-            volumes[appName] = 50
-            demoAppVolumes = volumes
-        }
+        const result = DemoAudioState.toggleMute(
+            demoMutedApps, demoAppVolumes, appName)
+        demoMutedApps = result.muted
+        // Mantener la señal de cambio de volumen solo cuando cambia el nivel.
+        if (result.volumes !== demoAppVolumes)
+            demoAppVolumes = result.volumes
         return true
     }
     function openDemoWindow(appName) {
