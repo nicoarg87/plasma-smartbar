@@ -11,6 +11,12 @@ const settings=read("package/contents/ui/SoledadSettings.qml");
 const bar=read("package/contents/ui/SmartBarContent.qml");
 const btn=read("package/contents/ui/IslandButton.qml");
 const preview=read("preview_redimensionable.qml");
+// Esta prueba ejecuta funciones QML aisladas: cargar también sus imports JS.
+const themeLibrarySource=read("package/contents/ui/ThemeLibrary.js");
+const themeLibrary={};
+vm.runInNewContext(themeLibrarySource.replace(/^\s*\.pragma library\s*/, ""),themeLibrary);
+assert.equal(typeof themeLibrary.namedThemeIndex,"function",
+             "ThemeLibrary debe proporcionar la búsqueda de temas personales");
 function extract(source,name) {
   const from=source.indexOf("    function "+name+"(");
   assert(from>=0,"No existe "+name);
@@ -42,7 +48,7 @@ assert(preview.includes("bar.previewThemeAvailable(next)"));
 assert(preview.includes("!bar.previewBarThemeColors(wallpaperIncomingTheme)"));
 assert(!preview.includes("plasma-apply-wallpaperimage"));
 
-const named=vm.createContext({savedThemeLibrary:[
+const named=vm.createContext({ThemeLibrary:themeLibrary,savedThemeLibrary:[
  {name:"Día",jsonData:"day"},{name:"Atardecer",jsonData:"sunset"},
  {name:"Noche",jsonData:"night"}]});
 vm.runInContext(extract(settings,"namedThemeIndex"),named);
