@@ -713,3 +713,13 @@ Las modificaciones nunca deben modificar el grosor de la barra o de sus expansio
 - [ ] **CachyOS/Qt:** suite completa de **20 pruebas** con Node v22+, abrir el visor, mostrar cajón SO con clic derecho (o gesto configurado), cerrar y reabrir Dolphin/Konsole/Brave ficticios, cerrar los tres, comprobar que **+** queda accesible, alternar posición derecha/centro y verificar que la prueba de tareas reales continúa de solo lectura.
 
 No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ensayar la interacción del cajón sin dañar el entorno del mantenedor. PR #3 borrador, licencias e imágenes sin cambios.
+
+## Pack inicial «Playa 24hs» y packs personalizados — 20/11/2026
+
+- [x] **Requisito del mantenedor:** Playa 24hs agrupa Día/Atardecer/Noche y queda elegido en instalaciones nuevas; permite selección manual o cambio automático por horarios. Los usuarios podrán construir temas y packs propios manteniendo el selector único.
+- [x] **Primer prototipo en rama `prototype/v0.1-islas-so`:** `ThemePack.js` nuevo módulo de datos/schedules; `SoledadSettings.qml` ofrece Playa, packs personales, selección manual, creación a partir de temas guardados, y editor horario compartido. Nuevas preferencias independientes `selectedThemePackId` y `themePackLibraryJson` en visor y KConfig. Sin activar reloj en panel real.
+- [x] **Regresión creada:** `test_theme_packs.cjs`; `test_theme_schedule.cjs` adaptada. Revisión V8 focalizada positiva.
+- [ ] **Ejecutar suite Node completa 29/29 en CachyOS y validar Qt**: Playa por defecto, automático/manual, apertura de menús horarios, nuevo pack con temas personales, horarios por pack, cambio de pack y persistencia tras relanzar.
+- [ ] **Perfiles originales empaquetados:** los tres `Factory*Theme.js` todavía tienen `preset=null`; recibir las capturas auténticas y archivos GIF/imagen correspondientes, revisar derechos y empaquetar. No inferir colores ni activos desde capturas.
+- [ ] Validar con el mantenedor si el interruptor automático y cantidad de franjas deben persistir **por pack** (hoy compartidos); estudiar edición de integrantes de packs existentes y wallpapers específicos de temas personales. [Issue #17](https://github.com/nicoarg87/plasma-smartbar/issues/17), arquitectura [#11](https://github.com/nicoarg87/plasma-smartbar/issues/11).
+
