@@ -36,3 +36,25 @@ function rememberExternal(previous, observed, viewerAppId) {
         known: true
     };
 }
+
+function profileTarget(selectedAppId, selectedAppName, external) {
+    const chosen = typeof selectedAppName === "string" &&
+        selectedAppName.trim().length > 0;
+    const id = chosen
+        ? (typeof selectedAppId === "string" ? selectedAppId.trim() : "")
+        : (external && external.known === true &&
+           typeof external.appId === "string" ? external.appId.trim() : "");
+    const name = chosen ? selectedAppName.trim()
+        : (external && external.known === true &&
+           typeof external.appName === "string" ? external.appName : "");
+    // Seleccionar Steam no activa Steam. Solo permite guardar si KDE
+    // confirmó que ESA MISMA ventana estaba activa y maximizada.
+    return {
+        appId: id,
+        appName: name,
+        explicitlySelected: chosen,
+        eligible: !!id && !!external && external.known === true &&
+            external.appId === id && external.maximized === true &&
+            external.fullscreen !== true
+    };
+}
