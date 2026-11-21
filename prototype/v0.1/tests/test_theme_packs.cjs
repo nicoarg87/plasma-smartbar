@@ -24,6 +24,9 @@ assert.equal(pack.parse("[]").length, 0);
 assert.equal(pack.parse("{broken").length, 0);
 assert.equal(pack.parse("{}").length, 0);
 assert.equal(pack.parse('null').length, 0);
+assert.equal(pack.raw("[]").length, 0);
+assert.equal(pack.raw("{broken"), null, "Nunca sobreescribir biblioteca inválida");
+assert.equal(pack.raw("{}"), null);
 
 const members = [
     {kind:"preset",theme:"day",name:"Día"},
@@ -52,6 +55,12 @@ assert.equal(parsed.length, 2);
 assert.equal(pack.find(parsed,"pack-2").name, "Otro pack");
 assert.deepEqual(Array.from(pack.labels(created)), ["Día","Mi tema azul","Noche"]);
 assert.equal(pack.find(parsed,"pack-404"), null);
+const unknown = {id:"pack-99",name:"Formato futuro",members:[{newSchema:true}]};
+const storedWithUnknown = [created, unknown, null];
+const rawPackList = pack.raw(JSON.stringify(storedWithUnknown));
+const updated = pack.replace(rawPackList, second);
+assert.deepEqual(JSON.parse(JSON.stringify(updated)), [created, unknown, null],
+    "No borrar packs desconocidos ni objetos históricos al persistir");
 assert.deepEqual(JSON.parse(JSON.stringify(pack.schedule(created, 3))), [
     {start:"08:00",member:0},
     {start:"18:00",member:1},
