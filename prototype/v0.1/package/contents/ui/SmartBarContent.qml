@@ -842,6 +842,55 @@ Item {
     // ni modificación de ventanas de KDE desde SO.
     property string realObservedAppId: ""
     property bool realObservedMaximized: false
+    // Última aplicación EXTERNA, conservada aunque qml6 reciba foco.
+    // Solo cambia posiciones del visor Qt, no ventanas KDE.
+    property string realTrackedAppId: ""
+    property string realTrackedAppName: ""
+    property bool realTrackedMaximized: false
+    property bool realTrackedFullscreen: false
+    property bool realTrackedKnown: false
+    property string realPositionProfilesJson: "{}"
+    signal requestRealPositionProfilesChange(string json)
+    readonly property bool realProfileContextReady:
+        demoWindowControlsEnabled && usingRealTasks &&
+        realTrackedKnown && realTrackedMaximized && !realTrackedFullscreen &&
+        positionMode === "right" && realTrackedAppId.length > 0
+    readonly property bool realProfileExists: realProfileContextReady &&
+        Object.prototype.hasOwnProperty.call(
+            SoledadPositionProfiles.readProfiles(realPositionProfilesJson),
+            realTrackedAppId)
+    function applyRealPositionProfile() {
+        if (!demoWindowControlsEnabled || !usingRealTasks ||
+            positionMode !== "right" || gripDrag.active) return
+        // Solo aplicar un estado con ventana externa identificada y no fullscreen.
+        if (!realTrackedKnown || realTrackedFullscreen) return
+        const next = SoledadPositionProfiles.resolveOffset(
+            realPositionProfilesJson, realTrackedAppId, true,
+            realTrackedMaximized, 0, maxIslandOffset)
+        setIslandOffset(next)
+        alignRightSelected = next === 0
+        ensureExpansionFits()
+    }
+    function saveRealPositionProfile() {
+        if (!realProfileContextReady) return
+        const updated = SoledadPositionProfiles.saveProfile(
+            realPositionProfilesJson, realTrackedAppId, islandOffset, maxIslandOffset)
+        if (updated !== null) requestRealPositionProfilesChange(updated)
+    }
+    function deleteRealPositionProfile() {
+        if (!realProfileExists) return
+        const updated = SoledadPositionProfiles.removeProfile(
+            realPositionProfilesJson, realTrackedAppId)
+        if (updated !== null) {
+            requestRealPositionProfilesChange(updated)
+            setIslandOffset(0)
+            alignRightSelected = true
+        }
+    }
+    onRealPositionProfilesJsonChanged: {
+        if (realProfileContextReady && !gripDrag.active)
+            applyRealPositionProfile()
+    }
     property var realTaskModel: null
     readonly property bool usingRealTasks: realTaskModel !== null
     property bool demoHasRunningWindows: true
@@ -2966,6 +3015,16 @@ Item {
                             visible: root.demoProfileExists
                             text: "Olvidar posición de " + root.lastDemoSelection
                             onTriggered: root.deleteDemoPositionProfile()
+                        }
+                        QQC2.MenuItem {
+                            visible: root.realProfileContextReady
+                            text: "Recordar esta posición para " + root.realTrackedAppName
+                            onTriggered: root.saveRealPositionProfile()
+                        }
+                        QQC2.MenuItem {
+                            visible: root.realProfileExists
+                            text: "Olvidar posición de " + root.realTrackedAppName
+                            onTriggered: root.deleteRealPositionProfile()
                         }
                         // Atajo contextual del agarre: respeta la preferencia
                         // elegida en Islas y posición, sin cambiar de modo.
