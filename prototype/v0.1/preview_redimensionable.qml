@@ -37,6 +37,11 @@ Window {
     property string demoThemeNightJson: String(localPreviewSettings.value("themeNightJson", ""))
     property string demoThemeCustomJson: String(localPreviewSettings.value("themeCustomJson", ""))
     property string demoThemeLibraryJson: String(localPreviewSettings.value("themeLibraryJson", "[]"))
+    // Packs y selección separados de los temas originales/personales.
+    property string demoThemePackLibraryJson:
+        String(localPreviewSettings.value("themePackLibraryJson", "[]"))
+    property string demoSelectedThemePackId:
+        String(localPreviewSettings.value("selectedThemePackId", "playa-24hs"))
     // Preferencias HORARIAS locales, no incluidas en las instantáneas de los temas.
     property bool demoThemeScheduleEnabled:
         String(localPreviewSettings.value("themeScheduleEnabled", true)).toLowerCase() !== "false"
@@ -649,6 +654,8 @@ Window {
         // No empezar el reloj antes de restaurar los ajustes locales.
         themeScheduleRuntimeEnabled: previewWindow.appearanceRestored && !previewWindow.captureDayOnce
         themeScheduleEnabled: previewWindow.demoThemeScheduleEnabled
+        selectedThemePackId: previewWindow.demoSelectedThemePackId
+        themePackLibraryJson: previewWindow.demoThemePackLibraryJson
         themeScheduleSlotCount: previewWindow.demoThemeScheduleSlotCount
         themeScheduleSlots3Json: previewWindow.demoThemeScheduleSlots3Json
         themeScheduleSlots4Json: previewWindow.demoThemeScheduleSlots4Json
@@ -776,6 +783,16 @@ Window {
         onRequestThematicWallpaperVisibilityChange: function(enabled) {
             previewWindow.simulatedWallpaperEnabled = enabled
             localPreviewSettings.setValue("simulatedWallpaperEnabled", enabled)
+            localPreviewSettings.sync()
+        }
+        onRequestSelectedThemePackChange: function(id) {
+            previewWindow.demoSelectedThemePackId = id
+            localPreviewSettings.setValue("selectedThemePackId", id)
+            localPreviewSettings.sync()
+        }
+        onRequestThemePackLibraryChange: function(json) {
+            previewWindow.demoThemePackLibraryJson = json
+            localPreviewSettings.setValue("themePackLibraryJson", json)
             localPreviewSettings.sync()
         }
         onRequestThemeScheduleChange: function(enabled, count, slots3Json, slots4Json) {
