@@ -5187,7 +5187,8 @@ Window {
                                     onClicked: {
                                         themeOptionsPopup.close()
                                         settings.setScheduleEnabled(true)
-                                        settings.themeStatus = "Playa 24hs: cambio automático por horarios activado."
+                                        settings.scheduleMenuExpanded = true
+                                        settings.themeStatus = "Pack: cambio automático por horarios activado."
                                     }
                                 }
                                 Repeater {
