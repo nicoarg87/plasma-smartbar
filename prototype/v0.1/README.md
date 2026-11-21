@@ -617,7 +617,7 @@ Confirmar que la rama es prototype/v0.1-islas-so. No sobrescribir modificaciones
 - **Islas y posición:** altura general 40–120 unidades lógicas, altura Soledad y Malvina por separado (limitada a la altura disponible), radio de esquinas por isla, ancho mínimo opcional de Soledad (0=automático por fichas), ancho de Malvina, además de las opciones de posición confirmadas.
 - **Pestañas, orden:** Logo SO → Contorno → Apariencia → Islas y posición → Autocontracción → **Acerca de**.
 - **Restablecer:** botón independiente en todas las pestañas que modifican preferencias: Logo, Contorno, Apariencia, Islas/posición y Autocontracción. Los valores restablecidos quedan **pendientes hasta pulsar Aplicar**. La pestaña Acerca de no contiene opciones modificables.
-- **Acerca de (actualización 15/11/2026):** proyecto, autor público **nicoarg87**, correo **nicoarg87@gmail.com** autorizado para consultas, botón que abre el cliente de correo, licencia **GNU GPL versión 3**, enlace al archivo LICENSE y aviso visible **SIN NINGUNA GARANTÍA** con salvedad legal. **No mostrar PayPal/Cafecito ni enlaces de donaciones** por ahora: postergados expresamente por el mantenedor.
+- **Acerca de (actualización 15/11/2026):** proyecto, autor público **nicoarg87**, correo **nicoarg87@gmail.com** autorizado para consultas, botón que abre el cliente de correo, licencia **MIT**, enlace al archivo LICENSE y aviso visible **SIN NINGUNA GARANTÍA** con salvedad legal. **No mostrar PayPal/Cafecito ni enlaces de donaciones** por ahora: postergados expresamente por el mantenedor.
 - **El editor sigue una sola ventana**, con botones Aplicar (no cierra) y Cerrar separados, scroll por pestaña y tamaño adaptable a pantalla.
 
 **Código publicado en PR #3, PENDIENTE DE PRUEBA EN CACHYOS/KWIN/WAYLAND:** `SoledadSettings.qml`, `LogoArtwork.qml`, `SoActivityOutline.qml`, `IslandButton.qml`, `SmartBarContent.qml`, `preview_redimensionable.qml`, `main.qml` y `main.xml` enlazados. En la ventana Qt las preferencias son solo de sesión; no se ha demostrado que un plasmoide dentro de un panel de KDE pueda solicitar su altura preferida a la geometría del contenedor. **No instalar sobre el panel de uso diario.**
@@ -643,19 +643,19 @@ Confirmar la rama `prototype/v0.1-islas-so` antes de actualizar. Si hay cambios 
 
 **Estado:** código y documentación escritos; revisión estática de delimitadores/referencias. **No probada aún la ejecución de Qt/Wayland de estos nuevos cambios** ni la persistencia KConfig; PR #3 sigue en borrador, issues #1/#5 abiertos.
 
-### Verificación posterior: contacto y aviso GPL v3 (15/11/2026)
+### Verificación posterior: contacto y aviso MIT (15/11/2026)
 
 1. Entrar en seis puntos → Configuración de Soledad… → última pestaña **Acerca de**. Debe mostrar **Autor: nicoarg87**, **nicoarg87@gmail.com**, nombre Plasma SmartBar y el aviso **SIN NINGUNA GARANTÍA**, con texto sobre ausencia de garantía de comerciabilidad y de aptitud para un fin particular, en la medida legal aplicable.
 2. Pulsar **Enviar una consulta por correo**: solo debe abrirse el cliente de correo predeterminado con destinatario preparado. **No debe enviar un mensaje automáticamente**.
-3. Pulsar **Leer licencia GNU GPL versión 3**: debe abrir el archivo oficial `LICENSE` de este repositorio. Verificar legibilidad y acceso con teclado.
+3. Pulsar **Leer licencia MIT**: debe abrir el archivo oficial `LICENSE` de este repositorio. Verificar legibilidad y acceso con teclado.
 4. No deben verse botones ni leyendas de PayPal o Cafecito. El panel KDE habitual no se modifica. **Prueba en CachyOS/Wayland pendiente**.
 
 ## Retest: orden de Acerca de y formas configurables de islas (15/11/2026)
 
-**NUEVAS OBSERVACIONES CONFIRMADAS POR EL MANTENEDOR:** en Acerca de, GitHub estaba demasiado abajo; debe aparecer inmediatamente debajo del contacto por correo, con nombre y botón; después la licencia GNU GPL v3 y el aviso SIN NINGUNA GARANTÍA. Soledad parecía demasiado redondeada: **estética inicial nueva = izquierda redondeada / derecha recta**; el botón de seis puntos pasa a **cuadrado de forma predeterminada**. Ambos y sus alternativas deben ser configurables. También se pide formato rectangular para el acceso de bandeja y una posible punta triangular izquierda donde la bandeja se ubique correctamente.
+**NUEVAS OBSERVACIONES CONFIRMADAS POR EL MANTENEDOR:** en Acerca de, GitHub estaba demasiado abajo; debe aparecer inmediatamente debajo del contacto por correo, con nombre y botón; después la licencia MIT y el aviso SIN NINGUNA GARANTÍA. Soledad parecía demasiado redondeada: **estética inicial nueva = izquierda redondeada / derecha recta**; el botón de seis puntos pasa a **cuadrado de forma predeterminada**. Ambos y sus alternativas deben ser configurables. También se pide formato rectangular para el acceso de bandeja y una posible punta triangular izquierda donde la bandeja se ubique correctamente.
 
 **IMPLEMENTADO EN LA RAMA EXPERIMENTAL, NO PROBADO TODAVÍA EN CACHYOS:**
-- «Acerca de»: orden `autor → contacto + botón de correo → enlace de GitHub + botón de repositorio → explicación licencia GNU GPL v3 → SIN NINGUNA GARANTÍA → botón leer LICENSE`. Se conserva correo público `nicoarg87@gmail.com` y autor `nicoarg87`; sin PayPal/Cafecito.
+- «Acerca de»: orden `autor → contacto + botón de correo → enlace de GitHub + botón de repositorio → explicación licencia MIT → SIN NINGUNA GARANTÍA → botón leer LICENSE`. Se conserva correo público `nicoarg87@gmail.com` y autor `nicoarg87`; sin PayPal/Cafecito.
 - «Islas y posición»: selectores **Forma de Soledad** (mixta izquierda redondeada/derecha recta [inicial], toda redondeada, toda cuadrada, inversa, punta triangular izquierda opcional), **Forma de Malvina** (redondeada [inicial], cuadrada, mixta en ambas direcciones), **Agarre de seis puntos** (cuadrado [inicial] o redondeado) y **Botón de bandeja simulada** (redondeado [inicial] o cuadrado).
 - Los radios de esquina configurados previamente siguen actuando donde haya esquinas redondeadas. Las esquinas por lado usan propiedades de `Rectangle` disponibles desde Qt 6.7 (Qt 6.8 las documenta como *tech preview*); la punta triangular opcional utiliza un Canvas estático detrás de los controles y reserva más espacio a la izquierda para no tapar la flecha ni reducir su área de clic. **Esta variante es experimental y debe validar visual, foco y accesibilidad**.
 - **Restablecer islas y posición** vuelve a las formas y dimensiones iniciales. El alto general queda constante durante las expansiones; el agarre no cambia de ubicación con SO/bandeja.
