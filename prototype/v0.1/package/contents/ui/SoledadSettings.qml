@@ -5363,7 +5363,8 @@ Window {
                             text: "Elegí los temas que integrarán el pack. Podrás configurar sus franjas horarias o seleccionarlos individualmente."
                         }
                         Repeater {
-                            model: settings.packCandidateItems
+                            // Instanciar controles de hasta 200 temas solo al crear pack.
+                            model: settings.creatingNewPack ? settings.packCandidateItems : []
                             delegate: QQC2.CheckBox {
                                 required property int index
                                 required property var modelData
