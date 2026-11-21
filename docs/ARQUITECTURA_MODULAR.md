@@ -46,4 +46,4 @@
 
 **Pendiente:** pruebas QML reales, pruebas de URLs limite, persistencia KConfig, atajo global Wayland, seleccion de navegador, separar secciones demasiado grandes de `SmartBarContent.qml` y `SoledadSettings.qml` en intervenciones pequenas con retest. No dividirlos masivamente sin pruebas intermedias. Superposicion de pestañas/controles y fullscreen en KWin/Wayland no resueltos.
 
-**Licencias:** respetar `LICENSE` del repositorio para el codigo vigente (MIT segun documentacion actual de GitHub), y el inventario separado para imagenes. No relicenciar material previo ni terceros sin revision.
+**Licencias:** respetar `LICENSE` del repositorio para el codigo vigente (MIT, ratificada por el mantenedor el 21/11/2026), y el inventario separado para imagenes. No relicenciar material previo ni terceros sin revision.
