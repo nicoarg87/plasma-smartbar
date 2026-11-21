@@ -121,7 +121,16 @@ try {
     }
     const saved = [
         writeJson("apariencia-activa-completa.json",appearance),
-        writeJson("referencia-original-local.json",source)
+        writeJson("referencia-original-local.json",source),
+        // Horarios originales del pack Playa, tal cual persisten en Qt.
+        // Las tablas vacías siguen vacías: jamás inventar franjas.
+        writeJson("horarios-playa-originales.json",{
+            selectedPack:payload.selectedPack,
+            enabled:payload.scheduleEnabled,
+            count:payload.scheduleCount,
+            slots3:payload.scheduleSlots3,
+            slots4:payload.scheduleSlots4
+        })
     ];
     function archiveImage(image,basename) {
         if (!image) return;
