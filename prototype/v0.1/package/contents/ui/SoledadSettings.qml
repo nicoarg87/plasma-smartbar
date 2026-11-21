@@ -153,6 +153,10 @@ Window {
     }
     property bool barThemeTransitionEnabled: true
     property bool themeScheduleEnabled: true
+    // Las claves heredadas pertenecen a Playa 24hs; el editor muestra
+    // por separado el modo/cantidad del pack activo sin reescribirlas.
+    property bool playaScheduleEnabled: true
+    property int playaScheduleSlotCount: 4
     // Playa 24hs es el pack inicial. Biblioteca y selección son independientes
     // de themeLibraryJson: jamás se reescriben temas personales antiguos.
     property string selectedThemePackId: ThemePack.DEFAULT_ID
@@ -192,24 +196,39 @@ Window {
         return selectedThemePack ? scheduleSlots[index].member : scheduleSlots[index].theme
     }
     function selectThemePack(id) {
-        if (id !== ThemePack.DEFAULT_ID && !ThemePack.find(savedThemePacks, id))
+        const pack = ThemePack.find(savedThemePacks, id)
+        if (id !== ThemePack.DEFAULT_ID && !pack)
             return false
+        // Al elegir por primera vez un pack anterior a esta función,
+        // capturar su modo y número de franjas sin tocar slots3/slots4.
+        if (pack) {
+            const upgraded = ThemePack.ensurePreferences(pack,
+                playaScheduleEnabled, playaScheduleSlotCount)
+            if (upgraded !== pack && !persistCustomPack(upgraded)) return false
+        }
         selectedThemePackId = id
         packOptionsVisible = true
         scheduleMenuExpanded = false
+        themeScheduleEnabled = selectedThemePack
+            ? ThemePack.automatic(selectedThemePack, playaScheduleEnabled)
+            : playaScheduleEnabled
+        themeScheduleSlotCount = selectedThemePack
+            ? ThemePack.slotCount(selectedThemePack, playaScheduleSlotCount)
+            : playaScheduleSlotCount
         creatingNewPack = false
         saveThemePackSelectionRequested(id)
         return true
     }
     function persistCustomPack(updated) {
         const original = ThemePack.raw(themePackLibraryJson)
-        if (!original) {
+        if (!original || !updated) {
             scheduleError = "Biblioteca de packs inválida: no se sobrescribió."
-            return
+            return false
         }
         const next = ThemePack.replace(original, updated)
         themePackLibraryJson = JSON.stringify(next)
         saveThemePackLibraryRequested(themePackLibraryJson)
+        return true
     }
     function togglePackCandidate(index, checked) {
         const next = pendingPackMemberIndexes.slice()
@@ -228,7 +247,8 @@ Window {
             themeStatus = "Biblioteca de packs inválida: no se sobrescribió."
             return false
         }
-        const pack = ThemePack.create(original, newPackName, members)
+        const pack = ThemePack.create(original, newPackName, members,
+                                      themeScheduleEnabled, themeScheduleSlotCount)
         if (!pack) {
             themeStatus = "Escribí un nombre distinto y elegí al menos un tema válido."
             return false
@@ -273,19 +293,32 @@ Window {
         return true
     }
     function persistThemeSchedule() {
-        saveThemeScheduleRequested(themeScheduleEnabled, themeScheduleSlotCount,
+        // Esta señal guarda solamente las claves históricas de Playa 24hs.
+        saveThemeScheduleRequested(playaScheduleEnabled, playaScheduleSlotCount,
                                    themeScheduleSlots3Json, themeScheduleSlots4Json)
     }
     function setScheduleEnabled(enabled) {
+        if (selectedThemePack) {
+            if (!persistCustomPack(ThemePack.withPreferences(selectedThemePack,
+                enabled, themeScheduleSlotCount))) return
+        } else {
+            playaScheduleEnabled = enabled
+        }
         themeScheduleEnabled = enabled
         scheduleError = ""
-        persistThemeSchedule()
+        if (!selectedThemePack) persistThemeSchedule()
     }
     function setScheduleSlotCount(count) {
         if (count !== 3 && count !== 4) return
+        if (selectedThemePack) {
+            if (!persistCustomPack(ThemePack.withPreferences(selectedThemePack,
+                themeScheduleEnabled, count))) return
+        } else {
+            playaScheduleSlotCount = count
+        }
         themeScheduleSlotCount = count
         scheduleError = ""
-        persistThemeSchedule()
+        if (!selectedThemePack) persistThemeSchedule()
     }
     function updateScheduleBoundary(index, boundary, text) {
         if (selectedThemePack) {
