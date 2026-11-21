@@ -1046,3 +1046,17 @@ python3 -m unittest discover -s prototype/v0.1/tests -p 'test_audio_stream_match
 ```
 
 No pegar los caracteres `❯` del prompt Fish delante de los comandos. Esta prueba no requiere cerrar el visor original ni modificar el panel de KDE.
+
+## Inspección segura de perfiles originales de Playa 24hs (21/11/2026)
+
+Antes de fijar un original de fábrica, **cerrar el visor Qt** y ejecutar desde Fish:
+
+```fish
+cd ~/plasma-smartbar
+git pull --ff-only
+and bash prototype/v0.1/inspeccionar_perfiles_playa.sh
+```
+
+La inspección es **solo lectura**: no guarda, restaura, cambia ni exporta temas, no instala paneles y **no ejecuta** `fijar_dia_fabrica.cjs`, `fijar_atardecer_fabrica.cjs` o `fijar_noche_fabrica.cjs`. Lee de Qt Settings los nombres y perfiles de `themeLibraryJson` del visor, cuenta las entradas denominadas exactamente Día, Atardecer y Noche, indica si son perfiles JSON completos según el contrato actual de empaquetado y si el logo y fondo SO locales existen. «Día prueba» y «Noche prueba» no suplantan temas originales; ante duplicados, **no elige** por cuenta propia. No muestra rutas locales completas ni el JSON íntegro. Si falta alguno, o aparece ambiguo, se revisa antes de proceder. El script no modifica los tres `Factory*Theme.js`, que todavía tienen `preset = null`.
+
+El resumen **no acredita derechos sobre los gráficos** ni confirma los wallpapers del escritorio simulado. La captura de los archivos exactos, cualquier empaquetado y su publicación quedan para un paso posterior después de revisar el resultado con el mantenedor. La función interna anterior `showFactoryCapture` no está conectada al selector de Temas actual: por eso este procedimiento no depende de botones antiguos que hoy no aparecen en la interfaz. 
