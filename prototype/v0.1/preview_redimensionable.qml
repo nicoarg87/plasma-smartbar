@@ -452,6 +452,15 @@ Window {
     property bool observedRealMaximized: false
     property bool observedRealFullscreen: false
     property bool observedRealKnown: false
+    // Contexto de última ventana externa; el visor qml6 no lo sobrescribe.
+    property string trackedExternalAppId: ""
+    property string trackedExternalAppName: ""
+    property bool trackedExternalMaximized: false
+    property bool trackedExternalFullscreen: false
+    property bool trackedExternalKnown: false
+    // Separa los perfiles de aplicaciones reales de los ficticios y los temas.
+    property string realPositionProfilesJson:
+        String(localPreviewSettings.value("soledadRealPositionProfilesV1", "{}"))
     function refreshObservedRealWindow() {
         const rows = []
         for (let i = 0; i < realTaskObserver.count; i++) {
@@ -464,6 +473,28 @@ Window {
         observedRealMaximized = active.maximized
         observedRealFullscreen = active.fullscreen
         observedRealKnown = active.known
+        const last = {
+            appId: trackedExternalAppId, appName: trackedExternalAppName,
+            maximized: trackedExternalMaximized,
+            fullscreen: trackedExternalFullscreen, known: trackedExternalKnown
+        }
+        const external = RealActiveWindow.rememberExternal(
+            last, active, "org.qt-project.qml6")
+        const changed = external.appId !== trackedExternalAppId ||
+            external.maximized !== trackedExternalMaximized ||
+            external.fullscreen !== trackedExternalFullscreen ||
+            external.known !== trackedExternalKnown
+        trackedExternalAppId = external.appId
+        trackedExternalAppName = external.appName
+        trackedExternalMaximized = external.maximized
+        trackedExternalFullscreen = external.fullscreen
+        trackedExternalKnown = external.known
+        if (changed && useRealWindowTasks) {
+            console.log("SmartBar ventana externa:",
+                external.appId, "maximizada:", external.maximized,
+                "fullscreen:", external.fullscreen)
+            Qt.callLater(function() { bar.applyRealPositionProfile() })
+        }
     }
     function scheduleRealWindowRefresh() {
         Qt.callLater(previewWindow.refreshObservedRealWindow)
@@ -737,6 +768,17 @@ Window {
         realTaskModel: previewWindow.useRealWindowTasks ? kdeTasks : null
         realObservedAppId: previewWindow.useRealWindowTasks ? previewWindow.observedRealAppId : ""
         realObservedMaximized: previewWindow.useRealWindowTasks && previewWindow.observedRealMaximized
+        realTrackedAppId: previewWindow.useRealWindowTasks ? previewWindow.trackedExternalAppId : ""
+        realTrackedAppName: previewWindow.useRealWindowTasks ? previewWindow.trackedExternalAppName : ""
+        realTrackedMaximized: previewWindow.useRealWindowTasks && previewWindow.trackedExternalMaximized
+        realTrackedFullscreen: previewWindow.useRealWindowTasks && previewWindow.trackedExternalFullscreen
+        realTrackedKnown: previewWindow.useRealWindowTasks && previewWindow.trackedExternalKnown
+        realPositionProfilesJson: previewWindow.realPositionProfilesJson
+        onRequestRealPositionProfilesChange: function(json) {
+            previewWindow.realPositionProfilesJson = json
+            localPreviewSettings.setValue("soledadRealPositionProfilesV1", json)
+            localPreviewSettings.sync()
+        }
         // Abrir/cerrar fichas ficticias solo en esta ventana de ensayo.
         demoWindowControlsEnabled: true
         demoPositionProfilesJson: previewWindow.demoPositionProfilesJson
@@ -1179,7 +1221,13 @@ Window {
         anchors.topMargin: 12
         text: "Usar ventanas reales de KDE en SO (solo lectura)"
         checked: previewWindow.useRealWindowTasks
-        onToggled: previewWindow.useRealWindowTasks = checked
+        onToggled: {
+            previewWindow.useRealWindowTasks = checked
+            if (checked) {
+                previewWindow.refreshObservedRealWindow()
+                Qt.callLater(function() { bar.applyRealPositionProfile() })
+            }
+        }
     }
 
     QQC2.Label {
@@ -1198,7 +1246,13 @@ Window {
                       (previewWindow.observedRealFullscreen ? " · Pantalla completa" :
                        (previewWindow.observedRealMaximized ? " · Maximizada" : " · Normal"))
                     : "(sin dato confiable)") +
-                ". Esta lectura NO desplaza Soledad ni controla ventanas KDE."
+                ". Última aplicación externa: " +
+                (previewWindow.trackedExternalKnown
+                    ? previewWindow.trackedExternalAppName + " [" +
+                      previewWindow.trackedExternalAppId + "]" +
+                      (previewWindow.trackedExternalMaximized ? " · Maximizada" : " · Normal")
+                    : "(todavía no detectada)") +
+                ". Solo el visor puede mover Soledad; las ventanas KDE no se modifican."
               : "Modo SIMULADO: conserva todas las pruebas anteriores. Arrastrá " +
                 "el borde de la ventana o maximizala; Malvina queda a la izquierda " +
                 (bar.positionMode === "center"
