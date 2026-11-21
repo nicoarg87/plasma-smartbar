@@ -9,6 +9,7 @@ import QtQuick.Dialogs
 import "PaletteExtractor.js" as PaletteExtractor
 import "ThemeSchedule.js" as ThemeSchedule
 import "ThemeLibrary.js" as ThemeLibrary
+import "ThemePack.js" as ThemePack
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "assets/FactoryNightTheme.js" as FactoryNightTheme
 import "assets/FactorySunsetTheme.js" as FactorySunsetTheme
@@ -4683,7 +4684,7 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: "#ddd6e8"
-                        text: "Elegí Día, Atardecer o Noche. Los temas nuevos se suman al mismo desplegable."
+                        text: "Pack predeterminado Playa 24hs: usá el cambio automático por horarios o elegí Día, Atardecer o Noche de forma manual. Tus temas personales siguen disponibles."
                     }
                     // Dos controles juntos: el segundo solo despliega la
                     // configuración horaria; no cambia el estado automático.
@@ -4978,7 +4979,7 @@ Window {
                     QQC2.Button {
                         id: themeSelectorButton
                         Layout.fillWidth: true
-                        text: "Elegir tema  " + (themeOptionsPopup.opened ? "▴" : "▾")
+                        text: ThemePack.title(settings.themeScheduleEnabled) + (themeOptionsPopup.opened ? "  ▴" : "  ▾")
                         onClicked: {
                             if (themeOptionsPopup.opened) themeOptionsPopup.close()
                             else themeOptionsPopup.open()
@@ -4990,7 +4991,7 @@ Window {
                         x: 0
                         y: themeSelectorButton.height
                         width: themeSelectorButton.width
-                        height: Math.min(240, 50 * (3 + settings.otherNamedThemes.length) + 8)
+                        height: Math.min(240, 50 * (4 + settings.otherNamedThemes.length) + 8)
                         padding: 4
                         modal: false
                         focus: true
@@ -5013,6 +5014,21 @@ Window {
                                 id: themeOptionsColumn
                                 width: parent.width
                                 spacing: 2
+                                // Primera elección: pack Playa 24hs en modo horario.
+                                // Las tres opciones siguientes son el modo manual
+                                // del MISMO pack, sin duplicar el selector.
+                                QQC2.ItemDelegate {
+                                    id: playa24AutoChoice
+                                    width: themeOptionsColumn.width
+                                    height: 48
+                                    text: "Playa 24hs · automático por horarios"
+                                    font.bold: settings.themeScheduleEnabled
+                                    onClicked: {
+                                        themeOptionsPopup.close()
+                                        settings.setScheduleEnabled(true)
+                                        settings.themeStatus = "Playa 24hs: cambio automático por horarios activado."
+                                    }
+                                }
                                 Repeater {
                                     model: 3 + settings.otherNamedThemes.length
                                     delegate: QQC2.ItemDelegate {
@@ -5072,6 +5088,10 @@ Window {
                                             }
                                             if (slot.length && settings.activateTheme(slot)) {
                                                 settings.previewFactorySlot = ""
+                                                // La elección individual del pack es MANUAL:
+                                                // suspender el reloj solo si el tema se aplicó.
+                                                if (selectedIndex < 3)
+                                                    settings.setScheduleEnabled(false)
                                                 if (selectedIndex === 0) settings.wallpaperThemeSelected("sunset")
                                                 else if (selectedIndex === 1) settings.wallpaperThemeSelected("night")
                                                 else if (selectedIndex === 2) settings.wallpaperThemeSelected("day")
