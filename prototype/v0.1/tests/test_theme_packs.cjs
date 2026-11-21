@@ -243,6 +243,11 @@ assert(factoryCaptureArchiver.includes('payload.selectedPack !== "playa-24hs"'),
        "No registrar otro pack como el original Playa");
 assert(factoryCaptureArchiver.includes('activeLogo.hash !== originalLogo.hash'),
        "Rechazar el perfil si la imagen visible no coincide con la referencia");
+assert(factoryCaptureWrapper.includes('TARGET="${1:-auto}"'),
+       "Detectar automáticamente el tema visible sin selección manual");
+assert(factoryCaptureArchiver.includes('if (themeId === "auto")') &&
+       factoryCaptureArchiver.includes('if (found.length !== 1)'),
+       "Rechazar captura con nombres ambiguos o sin coincidencia exacta");
 assert(factoryCaptureArchiver.includes('resguardos-playa-fabrica') &&
        factoryCaptureArchiver.includes('fs.mkdtempSync('),
        "Guardar solo copia local privada distinta de los recursos oficiales");
