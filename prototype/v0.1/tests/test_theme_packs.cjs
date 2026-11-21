@@ -199,6 +199,18 @@ const auditShell = fs.readFileSync(path.join(base,"inspeccionar_perfiles_playa.s
 assert(auditQml.includes('category: "plasma-smartbar-v01-preview-appearance"'));
 assert(auditQml.includes('saved.value("themeLibraryJson", "[]")'));
 assert(!auditQml.includes("setValue("), "El auditor no escribe Qt Settings");
+assert(auditQml.includes('saved.value("themeDayJson", "")'),
+       "Leer Atardecer histórico de la ranura heredada, sin inferir identidad");
+assert(auditQml.includes('saved.value("themeNightJson", "")'),
+       "Leer Noche histórica de la ranura heredada");
+assert(auditQml.includes('SMARTBAR_PLAYA_AUDIT_LEGACY='),
+       "Entregar instantáneas históricas al analizador local efímero");
+assert(auditScript.includes('legacy = readMarker("SMARTBAR_PLAYA_AUDIT_LEGACY=")'),
+       "Interpretar los datos históricos solo en el informe");
+assert(auditScript.includes('identidad de fábrica NO verificada'),
+       "No promocionar tema histórico a fábrica automáticamente");
+assert(auditScript.includes('const technicallyComplete = values.version === 1'),
+       "Verificar campos y archivos antes de proponer revisión manual");
 assert(auditScript.includes('aliases.includes(item.name.trim().toLocaleLowerCase("es"))'),
        "No confundir Día prueba/Noche prueba con los tres temas principales");
 assert(auditScript.includes('matching.length !== 1'),
