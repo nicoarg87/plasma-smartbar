@@ -10,9 +10,11 @@ const chip=fs.readFileSync(path.join(ui,"DemoTaskChip.qml"),"utf8");
 const button=fs.readFileSync(path.join(ui,"DemoAudioButton.qml"),"utf8");
 const source=fs.readFileSync(path.join(ui,"DemoWindowInstances.js"),"utf8");
 const opener=fs.readFileSync(path.join(ui,"DemoWindows.js"),"utf8");
-const windowFns={}, appFns={};
+const audioSource=fs.readFileSync(path.join(ui,"DemoAudioState.js"),"utf8");
+const windowFns={}, appFns={}, audioFns={};
 vm.runInNewContext(source.replace(/^\s*\.pragma library\s*/,""),windowFns);
 vm.runInNewContext(opener.replace(/^\s*\.pragma library\s*/,""),appFns);
+vm.runInNewContext(audioSource.replace(/^\s*\.pragma library\s*/,""),audioFns);
 function extract(name) {
   const index=bar.indexOf("    function "+name+"(");
   assert(index>=0,"Falta "+name);
@@ -30,11 +32,12 @@ const state={
     demoApps:["Dolphin","Konsole","Brave"],
     demoOpenedApps:["Dolphin","Konsole","Brave"],
     demoWindowInstances:windowFns.initial(),DemoWindowInstances:windowFns,
-    demoClosedHistory:[],demoMutedApps:{},
+    demoClosedHistory:[],demoMutedApps:{},demoAppVolumes:{},DemoAudioState:audioFns,
     DemoWindows:appFns,lastDemoSelection:""
 };
 vm.runInNewContext([
     extract("demoInstancesForApp"),
+    extract("demoAppVolume"),extract("setDemoAppVolume"),
     extract("demoAppIsMuted"),extract("toggleDemoAppMute"),
     extract("openDemoWindow"),extract("closeDemoWindow"),
     extract("closeDemoWindowInstance"),extract("reopenNextDemoWindow"),
