@@ -1,0 +1,27 @@
+"use strict";
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+const source = fs.readFileSync(path.resolve(__dirname,
+    "../package/contents/ui/SoledadPositionProfiles.js"), "utf8");
+assert(source.startsWith(".pragma library\n"));
+const api = { Number, JSON, Object };
+vm.runInNewContext(source.replace(/^\.pragma library\s*/, ""), api);
+let data = "{}";
+data = api.saveProfile(data, "steam", 240, 500);
+assert.equal(api.resolveOffset(data, "steam", true, true, 0, 500), 240);
+assert.equal(api.resolveOffset(data, "steam", false, true, 12, 500), 12);
+assert.equal(api.resolveOffset(data, "steam", true, false, 12, 500), 12);
+assert.equal(api.resolveOffset(data, "org.kde.dolphin", true, true, 12, 500), 12);
+assert.equal(api.resolveOffset(data, "steam", true, true, 0, 100), 100);
+assert.equal(api.resolveOffset(data, "steam", true, true, 0, 500), 240);
+assert.equal(api.saveProfile(data, "", 80, 500), null);
+assert.equal(api.saveProfile(data, "__proto__", 80, 500), null);
+assert.equal(api.saveProfile(data, "steam", NaN, 500), null);
+assert.equal(api.resolveOffset("{bad", "steam", true, true, 20, 500), 20);
+assert.equal(api.resolveOffset('{"steam":-200}', "steam", true, true, 20, 500), 20);
+assert.equal(api.resolveOffset(data, "steam", true, true, 0, -20), 0);
+assert.equal(api.resolveOffset(api.removeProfile(data, "steam"), "steam", true, true, 13, 500), 13);
+assert.equal(api.resolveOffset(data, "steam", true, true, 0, 500), 240);
+console.log("OK: memoria por AppId activo/maximizado, límites, invalidación y borrado; sin tocar KDE.");
