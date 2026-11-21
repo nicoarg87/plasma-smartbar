@@ -15,6 +15,15 @@ function isManualTheme(theme) {
     return THEMES.indexOf(theme) >= 0
 }
 
+// Lectura sin filtrar para reescribir solo el pack editado, preservando
+// versiones futuras/desconocidas en almacenamiento. JSON inválido: bloquear.
+function raw(json) {
+    try {
+        const values = JSON.parse(json || "[]")
+        return Array.isArray(values) ? values : null
+    } catch (error) { return null }
+}
+
 function parse(json) {
     try {
         const values = JSON.parse(json || "[]")
@@ -51,7 +60,9 @@ function labels(pack) {
 function nextId(packs) {
     let maxId = 0
     for (let i = 0; i < packs.length; ++i) {
-        const match = /^pack-([1-9][0-9]*)$/.exec(packs[i].id)
+        const id = packs[i] && typeof packs[i].id === "string"
+            ? packs[i].id : ""
+        const match = /^pack-([1-9][0-9]*)$/.exec(id)
         if (match) maxId = Math.max(maxId, Number(match[1]))
     }
     return "pack-" + (maxId + 1)
@@ -150,7 +161,8 @@ function create(packs, name, members) {
               member.jsonData.length > 0))
     })
     if (!validMembers || packs.some(function(item) {
-        return item.name.trim().toLocaleLowerCase() === normalizedName.toLocaleLowerCase()
+        return item && typeof item.name === "string" &&
+            item.name.trim().toLocaleLowerCase() === normalizedName.toLocaleLowerCase()
     })) return null
     const pack = {id: nextId(packs), name: normalizedName,
                   members: members.map(function(member) { return Object.assign({}, member) })}
@@ -160,5 +172,7 @@ function create(packs, name, members) {
 }
 
 function replace(packs, pack) {
-    return packs.map(function(item) { return item.id === pack.id ? pack : item })
+    return packs.map(function(item) {
+        return item && item.id === pack.id ? pack : item
+    })
 }
