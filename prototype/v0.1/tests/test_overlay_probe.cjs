@@ -25,7 +25,7 @@ for (const marker of [
 ]) assert(probe.includes(marker), "Falta garantía en QML temporal: "+marker);
 assert(passive.includes("OverlayProbe {") && passive.includes("clickThrough: true"));
 assert(active.includes("OverlayProbe {") && active.includes("clickThrough: false"));
-assert(shell.includes('MODE="${1:-pasivo}"') || shell.includes('MODE="${1:-pasivo}"'));
+assert(shell.includes('MODE="${1:-pasivo}"'));
 assert(shell.includes("pasivo|interactivo"));
 assert(shell.includes("preview_superposicion_"));
 assert(shell.includes('exec "$QML_RUNNER"'));
