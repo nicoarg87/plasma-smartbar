@@ -18,7 +18,7 @@ Window {
     // La superficie física comprende solo Soledad, no toda la pantalla.
     // Nunca crear un Window ancho de pantalla que bloquee clics ajenos.
     width: Math.max(1, Math.ceil(bar.actualIslandWidth))
-    height: 48
+    height: 44
     flags: Qt.Window | Qt.FramelessWindowHint
 
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop |
