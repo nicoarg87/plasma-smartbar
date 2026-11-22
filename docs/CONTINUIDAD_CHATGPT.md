@@ -26,6 +26,9 @@ Ante «retomemos Plasma SmartBar», el asistente debe:
 4. No pedir al usuario que repita decisiones ya documentadas.
 5. Antes de proponer una nueva arquitectura, comprobar si contradice requisitos aprobados. Las nuevas ideas se etiquetan **PROPUESTA**, nunca **CONFIRMADO** sin decisión del director funcional.
 
+**ENTORNO DE TERMINAL DEL MANTENEDOR (ratificado 22/11/2026):** el shell interactivo de Konsole en CachyOS es **Fish**, no Bash. Dar siempre comandos para copiar/pegar con sintaxis **Fish**, por ejemplo `cd ~/plasma-smartbar; and git pull --ff-only; and bash prototype/v0.1/probar_soledad_entrada_fija.sh`. Los scripts `.sh` del repositorio se pueden ejecutar con `bash ruta/script.sh` desde Fish, pero no usar bucles ni condicionales Bash como comandos interactivos directos. No volver a preguntar qué shell usa ni obligarlo a repetir esta información. Este apunte no altera ningún comportamiento del software ni el panel KDE.
+
+
 ## 3. Identidad, autoridad y licencia
 
 - Director funcional y de diseño: titular del repositorio oficial (usuario GitHub **nicoarg87**).
