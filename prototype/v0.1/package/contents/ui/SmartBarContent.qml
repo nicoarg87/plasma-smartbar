@@ -11,6 +11,7 @@ import "DemoWindows.js" as DemoWindows
 import "DemoWindowInstances.js" as DemoWindowInstances
 import "DemoAudioState.js" as DemoAudioState
 import "SoledadPositionProfiles.js" as SoledadPositionProfiles
+import "LayerShellDragCompensation.js" as LayerShellDragCompensation
 import "RealActiveWindow.js" as RealActiveWindow
 
 Item {
@@ -1058,6 +1059,11 @@ Item {
     }
     property real islandOffset: 0          // Distancia horizontal desde la derecha.
     property real offsetAtDragStart: 0
+    // Solo para una ventana LayerShellQt ACOTADA que se mueve durante
+    // el agarre. El visor principal y el plasmoide mantienen el cálculo
+    // original: no alterar funcionalidad probada ni posiciones guardadas.
+    property bool layerShellDragCompensation: false
+    property real layerShellDragSceneStartX: 0
     property string lastDemoSelection: ""
     // Ensayo local aislado: sin control de ventanas KDE ni cambios de temas.
     property string demoPositionProfilesJson: "{}"
@@ -2900,6 +2906,12 @@ Item {
                                 root.dragStartSoCenterX = visualSoX
                             } else {
                                 root.offsetAtDragStart = root.islandOffset
+                                if (root.layerShellDragCompensation) {
+                                    // Coordenada del puntero RELATIVA al Window,
+                                    // no al Item que cambia de x al mover la isla.
+                                    root.layerShellDragSceneStartX =
+                                        gripDrag.centroid.scenePosition.x
+                                }
                             }
                             root.soExpanded = false
                             root.trayExpanded = false
@@ -2907,7 +2919,8 @@ Item {
                             moveGrip.suppressGripTooltip = true
                         }
                         onActiveTranslationChanged: {
-                            if (active && Math.abs(activeTranslation.x) > 1) {
+                            if (active && (root.layerShellDragCompensation ||
+                                          Math.abs(activeTranslation.x) > 1)) {
                                 // El gesto del usuario destilda de inmediato
                                 // «Alinear a la derecha» sin tocar el retorno
                                 // automático al desmaximizar.
@@ -2929,7 +2942,23 @@ Item {
                                             Math.min(maxX, root.dragStartSoCenterX +
                                                 activeTranslation.x))
                                     }
+                                } else if (root.layerShellDragCompensation) {
+                                    // Mientras LayerShellQt mueve el Window, la
+                                    // activeTranslation acumulada toma como
+                                    // origen una escena que también se mueve:
+                                    // realimentarla causa saltos y bloqueos.
+                                    // La desviación respecto de la coordenada
+                                    // inicial DEL PUNTERO dentro del Window
+                                    // es la corrección relativa estable.
+                                    root.setIslandOffset(
+                                        LayerShellDragCompensation.nextOffset(
+                                            root.islandOffset,
+                                            root.layerShellDragSceneStartX,
+                                            gripDrag.centroid.scenePosition.x,
+                                            root.maxIslandOffset))
                                 } else {
+                                    // Modo original sin cambios: ventanas Qt
+                                    // estáticas, maqueta y plasmoide.
                                     root.setIslandOffset(
                                         root.offsetAtDragStart - activeTranslation.x)
                                 }
