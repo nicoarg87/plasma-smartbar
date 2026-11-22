@@ -9,6 +9,7 @@ import "package/contents/ui"
 import "package/contents/ui/ThemeSchedule.js" as ThemeSchedule
 import "package/contents/ui/WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "package/contents/ui/RealActiveWindow.js" as RealActiveWindow
+import "package/contents/ui/KwinTopEdgeProbe.js" as KwinTopEdgeProbe
 
 Window {
     id: previewWindow
@@ -458,6 +459,9 @@ Window {
     property bool trackedExternalMaximized: false
     property bool trackedExternalFullscreen: false
     property bool trackedExternalKnown: false
+    // Diagnóstico geométrico conservador, independiente del perfil guardado.
+    property string trackedExternalTopStatus: "unknown"
+    property string trackedExternalTopSummary: "Franja superior sin evaluar"
     // Separa los perfiles de aplicaciones reales de los ficticios y los temas.
     property string realPositionProfilesJson:
         String(localPreviewSettings.value("soledadRealPositionProfilesV1", "{}"))
@@ -489,6 +493,27 @@ Window {
         trackedExternalMaximized = external.maximized
         trackedExternalFullscreen = external.fullscreen
         trackedExternalKnown = external.known
+        // Solo observar la ventana individual real mientras está activa.
+        // Al enfocar qml6 se conserva el último resultado externo,
+        // igual que la memoria por AppId; no inferir pestañas del navegador.
+        if (active.known && active.appId !== "org.qt-project.qml6") {
+            const activeRow = rows.find(function(item) {
+                return item.active === true && !item.minimized &&
+                       item.appId === active.appId
+            })
+            const probe = KwinTopEdgeProbe.inspect(
+                activeRow ? activeRow.windowGeometry : null,
+                activeRow ? activeRow.screenGeometry : null,
+                bar.height, active.maximized, active.fullscreen)
+            const summary = KwinTopEdgeProbe.summary(active.appName, probe)
+            if (probe.status !== trackedExternalTopStatus ||
+                summary !== trackedExternalTopSummary) {
+                trackedExternalTopStatus = probe.status
+                trackedExternalTopSummary = summary
+                if (useRealWindowTasks)
+                    console.log("SmartBar borde superior:", summary)
+            }
+        }
         if (changed && useRealWindowTasks) {
             console.log("SmartBar ventana externa:",
                 external.appId, "maximizada:", external.maximized,
@@ -544,16 +569,24 @@ Window {
                 readonly property bool observedMaximized: model.IsMaximized === true
                 readonly property bool observedFullscreen: model.IsFullScreen === true
                 readonly property bool observedMinimized: model.IsMinimized === true
+                // Roles oficiales de TaskManager. Si KWin no ofrece
+                // geometría, el diagnóstico devuelve "unknown".
+                readonly property var observedWindowGeometry: model.Geometry
+                readonly property var observedScreenGeometry: model.ScreenGeometry
                 function snapshot() {
                     return { appId: observedAppId, appName: observedAppName,
                              active: observedActive, maximized: observedMaximized,
-                             fullscreen: observedFullscreen, minimized: observedMinimized }
+                             fullscreen: observedFullscreen, minimized: observedMinimized,
+                             windowGeometry: observedWindowGeometry,
+                             screenGeometry: observedScreenGeometry }
                 }
                 onObservedAppIdChanged: previewWindow.scheduleRealWindowRefresh()
                 onObservedActiveChanged: previewWindow.scheduleRealWindowRefresh()
                 onObservedMaximizedChanged: previewWindow.scheduleRealWindowRefresh()
                 onObservedFullscreenChanged: previewWindow.scheduleRealWindowRefresh()
                 onObservedMinimizedChanged: previewWindow.scheduleRealWindowRefresh()
+                onObservedWindowGeometryChanged: previewWindow.scheduleRealWindowRefresh()
+                onObservedScreenGeometryChanged: previewWindow.scheduleRealWindowRefresh()
             }
             onItemAdded: previewWindow.scheduleRealWindowRefresh()
             onItemRemoved: previewWindow.scheduleRealWindowRefresh()
@@ -1240,20 +1273,28 @@ Window {
         wrapMode: Text.WordWrap
         color: "#f4edf9"
         text: previewWindow.useRealWindowTasks
-              ? "SO real (solo lectura) · Foco KDE: " +
+              ? "KDE real · Foco: " +
                 (previewWindow.observedRealKnown
                     ? previewWindow.observedRealAppName : "(sin dato)") +
-                " · Perfil elegido: " +
+                " · Perfil: " +
                 (bar.realProfileTarget.appName.length > 0
                     ? bar.realProfileTarget.appName +
-                      (bar.realSelectedAppName.length > 0 ? " (seleccionado en SO)" : " (última externa)")
+                      (bar.realSelectedAppName.length > 0 ? " (elegido)" : " (última externa)")
                     : "(ninguno)") +
                 (bar.realProfileTarget.appName.length > 0
                     ? (bar.realProfileContextReady
-                       ? " · listo para recordar."
-                       : " · para recordar, activá y maximizá esa ventana en KDE.")
-                    : ".") +
-                " Las ventanas KDE no se modifican."
+                       ? " · listo para recordar"
+                       : " · activar y maximizar para guardar")
+                    : "") +
+                " · Franja superior: " +
+                (previewWindow.trackedExternalTopStatus === "potential"
+                    ? "posible cruce geométrico"
+                    : previewWindow.trackedExternalTopStatus === "separate"
+                        ? "sin cruce del marco"
+                    : previewWindow.trackedExternalTopStatus === "fullscreen"
+                        ? "fullscreen (barra debe ocultarse)"
+                    : "sin dato concluyente") +
+                ". Pestañas y clics NO verificados."
               : "Modo SIMULADO: conserva todas las pruebas anteriores. Arrastrá " +
                 "el borde de la ventana o maximizala; Malvina queda a la izquierda " +
                 (bar.positionMode === "center"
