@@ -20,6 +20,7 @@ Window {
     width: Math.max(1, Math.ceil(bar.actualIslandWidth))
     height: 44
     flags: Qt.Window | Qt.FramelessWindowHint
+    property int lastReportedOffset: 0
 
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop |
                                LayerShell.Window.AnchorRight
@@ -60,12 +61,20 @@ Window {
         // Valores temporales predeterminados: ninguna preferencia se escribe.
         soLogoMode: "default"
         themeScheduleRuntimeEnabled: false
+        // El visor principal NO activa esto: solo compensa la ventana
+        // LayerShellQt que cambia de posición durante el propio gesto.
+        layerShellDragCompensation: true
 
-        onIslandOffsetChanged: console.log(
-            "SmartBar SO REAL visual: desplazamiento temporal =",
-            Math.round(islandOffset), "px lógicos",
-            "· margen LayerShellQt solicitado =",
-            12 + Math.round(islandOffset))
+        // Evitar cientos de escrituras de Konsole por segundo: el log
+        // continuo durante un arrastre puede introducir pausas visibles.
+        onIslandOffsetChanged: {
+            if (Math.abs(Math.round(islandOffset) -
+                    probe.lastReportedOffset) >= 80) {
+                probe.lastReportedOffset = Math.round(islandOffset)
+                console.log("SmartBar SO REAL visual: desplazamiento =",
+                            probe.lastReportedOffset, "px lógicos")
+            }
+        }
         onActualIslandWidthChanged: console.log(
             "SmartBar SO REAL visual: ancho de isla =",
             Math.round(actualIslandWidth), "px lógicos")
@@ -82,6 +91,7 @@ Window {
     }
     Component.onCompleted: console.log(
         "SmartBar SO REAL visual: MISMO SmartBarContent.qml / IslandButton",
+        "Compensación de arrastre en Window móvil: EXPERIMENTAL.",
         "y agarre de seis puntos; isla SÓLIDA, no click-through.",
         "Solo es un ensayo: NO guarda posición ni copia preferencias personales.",
         "No se instaló ni se reemplazó ningún panel KDE.",
