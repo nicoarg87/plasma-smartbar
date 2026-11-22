@@ -21,6 +21,6 @@ echo "Ventana limitada al ancho REAL de la isla, sin banda transparente externa.
 echo "Para desplazarla, arrastrá el agarre de seis puntos, NO las pestañas."
 echo "El desplazamiento es temporal; no altera perfiles Steam/Brave ni temas."
 echo "El GIF puede usar la configuración predeterminada en este ensayo aislado."
-echo "Sin instalación ni reemplazo del panel KDE. Cierre en 60s o Ctrl+C."
+echo "Sin instalación ni reemplazo del panel KDE. Cierre en 90s o Ctrl+C."
 exec env QT_QPA_PLATFORM=wayland QT_WAYLAND_SHELL_INTEGRATION=layer-shell \
     "$QML_RUNNER" "$HERE/preview_soledad_layershell.qml"
