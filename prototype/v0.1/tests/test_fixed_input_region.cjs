@@ -24,8 +24,8 @@ for (const marker of [
     'QMetaObject::invokeMethod(window, "refreshInputRegion"',
     "window->create();", "window->show();"
 ]) assert(cpp.includes(marker), "Falta puente Qt6 seguro: " + marker);
-assert(cpp.indexOf("window->create();") < cpp.indexOf("m_window->setMask(requested);") ||
-       cpp.indexOf("window->create();") > 0); // llamada runtime: create antes del invoke
+// La llamada setMask vive en la clase, pero se INVoca después de crear
+// la superficie nativa y antes de hacer show: comprobar orden efectivo abajo.
 assert(cpp.indexOf("window->create();") < cpp.indexOf("input.attach(window);"));
 assert(cpp.indexOf("input.attach(window);") <
        cpp.indexOf('QMetaObject::invokeMethod(window, "refreshInputRegion"'));
