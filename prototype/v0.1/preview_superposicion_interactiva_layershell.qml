@@ -12,7 +12,7 @@ Window {
     width: 64
     height: 48
     color: "transparent"
-    flags: Qt.FramelessWindowHint
+    flags: Qt.Window | Qt.FramelessWindowHint
 
     property int pressCount: 0
     property bool pointerInside: false
