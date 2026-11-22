@@ -2950,12 +2950,18 @@ Item {
                                     // La desviación respecto de la coordenada
                                     // inicial DEL PUNTERO dentro del Window
                                     // es la corrección relativa estable.
-                                    root.setIslandOffset(
-                                        LayerShellDragCompensation.nextOffset(
+                                    const result =
+                                        LayerShellDragCompensation.nextWithEdgeRebase(
                                             root.islandOffset,
                                             root.layerShellDragSceneStartX,
                                             gripDrag.centroid.scenePosition.x,
-                                            root.maxIslandOffset))
+                                            root.maxIslandOffset)
+                                    // No acumular sobre-recorrido en los extremos.
+                                    // Dejar que volver en sentido contrario
+                                    // responda desde el primer movimiento.
+                                    root.layerShellDragSceneStartX =
+                                        result.anchorSceneX
+                                    root.setIslandOffset(result.offset)
                                 } else {
                                     // Modo original sin cambios: ventanas Qt
                                     // estáticas, maqueta y plasmoide.
