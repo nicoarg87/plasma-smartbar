@@ -25,7 +25,11 @@ for(const marker of [
     "Qt.FramelessWindowHint",
     "LayerShell.Window.margins: ({left: 0, top: 6, right: 76, bottom: 0})",
     "LayerShell.Window.margins: ({left: 0, top: 6, right: 12, bottom: 0})",
-    "acceptedButtons: Qt.LeftButton",
+    "acceptedButtons: Qt.LeftButton | Qt.RightButton",
+    "hoverEnabled: true",
+    "onPressed: function(mouse)",
+    'source: Qt.resolvedUrl("package/contents/ui/assets/so-tropical.gif")',
+    "fillMode: Image.PreserveAspectCrop",
     "experiment.receivedClicks += 1",
     "interval: 60000",
     "Qt.quit()"
@@ -39,6 +43,18 @@ assert.equal((qml.match(/MouseArea \{/g)||[]).length,1,
     "Solo la superficie pequeña recibe clics.");
 assert.equal((qml.match(/Qt.WindowTransparentForInput/g)||[]).length,1,
     "Solo la superficie pasante debe tener input vacío.");
+const interactiveBegin=qml.indexOf("property Window interactive: Window {");
+const timeoutBegin=qml.indexOf("property Timer timeout: Timer {",interactiveBegin);
+assert(interactiveBegin>=0 && timeoutBegin>interactiveBegin);
+const interactiveCode=qml.slice(interactiveBegin,timeoutBegin);
+assert(interactiveCode.includes("flags: Qt.Window | Qt.FramelessWindowHint"),
+    "La zona interactiva debe ser una ventana Qt normal.");
+assert(!interactiveCode.includes("Qt.WindowDoesNotAcceptFocus"),
+    "No impedir el foco en la ventana de ensayo interactiva.");
+assert(!interactiveCode.includes("Qt.WindowTransparentForInput"),
+    "El botón SO de prueba no debe ser pasante.");
+assert(interactiveCode.includes("onPressed: function(mouse)"),
+    "Contar al PRESIONAR para diagnosticar entrada Wayland, no solo al release.");
 assert(!/\b(?:x|y)\s*:/.test(qml),"No posicionar a la fuerza con coordenadas XDG.");
 assert(!qml.includes("LayerShell.Window.LayerOverlay"),
     "No mostrar la prueba sobre fullscreen con capa Overlay.");
@@ -57,4 +73,4 @@ assert(!plasma.includes("preview_superposicion_mixta"));
 assert(!original.includes("preview_superposicion_mixta"));
 assert(priorPassive.includes("Qt.WindowTransparentForInput"),
     "Conservar el experimento anterior ya validado, sin sobreescribirlo.");
-console.log("OK: dos LayerShellQt autónomas con entrada separada, sin panel ni cambios del usuario.");
+console.log("OK: LayerShellQt mixto con GIF original, clic izquierdo/derecho y entrada observable, sin alterar KDE.");
