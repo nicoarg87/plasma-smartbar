@@ -60,7 +60,7 @@ Window {
                 spacing: 2
                 Text {
                     text: overlay.clickThrough
-                        ? "ENSAYO PASIVO · clics pasan a Brave"
+                        ? "ENSAYO PASIVO · los clics deberían pasar"
                         : "ENSAYO INTERACTIVO · clics en esta franja"
                     color: "#ffffff"
                     font.bold: true
