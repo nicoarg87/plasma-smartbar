@@ -23,6 +23,7 @@ for (const text of [
     "flags: Qt.Window | Qt.FramelessWindowHint",
     'color: "transparent"',
     "width: Math.max(1, Math.ceil(bar.actualIslandWidth))",
+    "height: 44",
     "width: Math.max(760, probe.Screen.width)",
     "x: -(width - actualIslandWidth - islandOffset - controlsReservation)",
     "right: 12 + Math.round(bar.islandOffset)",
