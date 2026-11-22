@@ -11,6 +11,7 @@ import org.kde.layershell 1.0 as LayerShell
 QtObject {
     id: experiment
     property int receivedClicks: 0
+    property bool pointerInsideControl: false
 
     // Franja de prueba: clics pasantes. Su fondo no tapa las pestañas;
     // solo un contorno ligero y una etiqueta marcan el área de ensayo.
@@ -59,7 +60,9 @@ QtObject {
         height: 42
         visible: true
         color: "transparent"
-        flags: Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus
+        // Solo en la ventana INTERACTIVA: no marcarla como sin
+        // entrada. La región clickeable corresponde a sus 52x42 px.
+        flags: Qt.Window | Qt.FramelessWindowHint
 
         LayerShell.Window.anchors: LayerShell.Window.AnchorTop |
                                    LayerShell.Window.AnchorRight
@@ -72,27 +75,61 @@ QtObject {
         Rectangle {
             anchors.fill: parent
             radius: 10
-            color: "#ed194d76"
-            border.color: "#eaf3ff"
-            border.width: 1
+            clip: true
+            color: "#194d76"
+            border.color: experiment.pointerInsideControl ? "#ffffff" : "#b3ddf7"
+            border.width: experiment.pointerInsideControl ? 2 : 1
+
+            // GIF original del proyecto, sin modificar los recursos.
+            AnimatedImage {
+                id: testSoGif
+                anchors.fill: parent
+                source: Qt.resolvedUrl("package/contents/ui/assets/so-tropical.gif")
+                fillMode: Image.PreserveAspectCrop
+                playing: true
+            }
             Text {
                 anchors.centerIn: parent
+                visible: testSoGif.status !== Image.Ready
                 color: "#ffffff"
                 font.bold: true
                 font.pixelSize: 12
-                horizontalAlignment: Text.AlignHCenter
-                text: "SO\n" + experiment.receivedClicks
+                text: "SO"
+            }
+            Rectangle {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 2
+                width: 19
+                height: 17
+                radius: 5
+                color: "#e7192939"
+                border.color: "#ffffff"
+                Text {
+                    anchors.centerIn: parent
+                    text: String(experiment.receivedClicks)
+                    color: "#ffffff"
+                    font.bold: true
+                    font.pixelSize: 11
+                }
             }
         }
         MouseArea {
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
             cursorShape: Qt.PointingHandCursor
-            onClicked: {
+            onEntered: {
+                experiment.pointerInsideControl = true
+                console.log("SmartBar ensayo MIXTO: puntero SOBRE SO")
+            }
+            onExited: experiment.pointerInsideControl = false
+            // Contar al presionar, sin depender de release.
+            onPressed: function(mouse) {
                 experiment.receivedClicks += 1
-                console.log("SmartBar ensayo MIXTO: clic en SO de prueba =",
+                console.log("SmartBar ensayo MIXTO: pulsación SO =",
                             experiment.receivedClicks,
-                            "— sin modificar navegador ni KWin")
+                            "botón:", mouse.button)
             }
         }
     }
@@ -113,7 +150,8 @@ QtObject {
     Component.onCompleted: console.log(
         "SmartBar MIXTO: 2 superficies separadas; zona pasante 348x42",
         "y control SO 52x42, ambas arriba a la derecha; sin zona exclusiva.",
-        "Clic en SO suma un contador; fuera de SO debería pasar a Brave.",
+        "Clic izquierdo o derecho en GIF SO suma un contador;",
+        "si no cambia, revisar puntero y región de entrada en KWin.",
         "Prueba de comportamiento, no aprobación de pestañas/controles finales.",
         "Cierre 60 s / Ctrl+C.")
 }
