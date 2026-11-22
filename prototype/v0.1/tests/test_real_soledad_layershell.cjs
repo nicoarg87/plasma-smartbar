@@ -32,7 +32,7 @@ for (const text of [
     "demoWindowControlsEnabled: false",
     "soLogoMode: \"default\"",
     "themeScheduleRuntimeEnabled: false",
-    "interval: 60000",
+    "interval: 90000",
     "onTriggered:"
 ]) assert(qml.includes(text), "Falta la condición de ensayo: " + text);
 assert.equal((qml.match(/SmartBar\.SmartBarContent\s*\{/g)||[]).length, 1,
