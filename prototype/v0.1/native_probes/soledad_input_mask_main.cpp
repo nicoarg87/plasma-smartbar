@@ -67,6 +67,11 @@ int main(int argc, char *argv[]) {
         qCritical() << "SmartBar: objeto raíz no es una ventana Qt Quick.";
         return 4;
     }
+    // Crear la superficie NATIVA aún oculta. Qt guarda QWindow::mask()
+    // antes de crearla, pero QtWayland requiere recibir setMask() cuando
+    // QWaylandWindow ya existe: si no, podría conservar input de pantalla
+    // COMPLETA durante la primera exposición (nunca permitir ese estado).
+    window->create();
     // No mostrar el Window antes de aplicar su input mask inicial.
     input.attach(window);
     if (!QMetaObject::invokeMethod(window, "refreshInputRegion",
