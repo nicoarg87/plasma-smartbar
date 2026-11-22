@@ -83,7 +83,7 @@ Window {
     Timer {
         running: true
         repeat: false
-        interval: 60000
+        interval: 90000
         onTriggered: {
             console.log("SmartBar SO REAL visual: autocierre de prueba")
             probe.close()
@@ -95,5 +95,5 @@ Window {
         "y agarre de seis puntos; isla SÓLIDA, no click-through.",
         "Solo es un ensayo: NO guarda posición ni copia preferencias personales.",
         "No se instaló ni se reemplazó ningún panel KDE.",
-        "Mover solo desde el agarre; cierre automático 60s o Ctrl+C.")
+        "Mover solo desde el agarre; cierre automático 90s o Ctrl+C.")
 }
