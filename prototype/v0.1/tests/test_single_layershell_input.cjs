@@ -15,7 +15,7 @@ for (const marker of [
     "Window {", "LayerShell.Window.AnchorTop", "LayerShell.Window.AnchorRight",
     "LayerShell.Window.LayerTop", "LayerShell.Window.exclusionZone: -1",
     "LayerShell.Window.KeyboardInteractivityNone",
-    "flags: Qt.FramelessWindowHint",
+    "flags: Qt.Window | Qt.FramelessWindowHint",
     "width: 64", "height: 48",
     'source: Qt.resolvedUrl("package/contents/ui/assets/so-tropical.gif")',
     "AnimatedImage {", "MouseArea {", "hoverEnabled: true",
