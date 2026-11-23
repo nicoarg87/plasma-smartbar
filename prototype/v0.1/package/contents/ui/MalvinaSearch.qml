@@ -135,6 +135,10 @@ Item {
         // Emitir hacia el coordinador sin romper los bindings de KConfig/visor.
         requestOrderChange(firstWeb, webList, aiList)
         resetDefault()
+        // El DragHandler y la reconstrucción de Repeater/Popup pueden
+        // dejar foco en una ficha de proveedor. Enter debe seguir llegando
+        // al editor SIN exigir otro clic del usuario.
+        activeEditorFocus()
     }
     function swapRows() {
         applyOrder(!webFirst, webOrder, aiOrder)
@@ -258,8 +262,16 @@ Item {
         queryInput.insert(p, "\n")
         queryInput.cursorPosition = p + 1
     }
+    function restoreEditorFocusAfterLayout() {
+        if (search.expanded && fieldPopup.visible)
+            queryInput.forceActiveFocus()
+    }
     function activeEditorFocus() {
         queryInput.forceActiveFocus()
+        // Qt puede cambiar foco al terminar el pointer release o al
+        // reconstruir la fila de proveedores. Recuperarlo en el turno
+        // siguiente, sin enviar ninguna consulta ni cambiar la selección.
+        Qt.callLater(search.restoreEditorFocusAfterLayout)
     }
     function handleEditorKey(event) {
         if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
@@ -747,6 +759,10 @@ Item {
                                                         index + Math.round(delta / Math.max(1, step))))
                                                     search.reorderProvider(sectionRow.section,index,dest)
                                                 }
+                                                // Al SOLTAR el arrastre, incluso si
+                                                // no alcanzó el umbral de orden,
+                                                // devolver Enter al único TextArea.
+                                                search.activeEditorFocus()
                                             }
                                         }
                                     }
