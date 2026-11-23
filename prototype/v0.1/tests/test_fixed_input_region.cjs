@@ -272,20 +272,46 @@ simulation.rows = [steamMain, {...steamChat, appId: "steamwebhelper"}];
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 320,
              "Foco auxiliar tardío no fuerza derecha durante estabilización");
-simulation.fullscreenFocusSettled = true; // venció ventana breve de estabilización
+// Steam sigue maximizado detrás de Brave; un chat puede desaparecer
+// sin que se haya agotado el tiempo de transición de fullscreen.
 simulation.rows = [{...steamMain, active: true}];
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 320,
              "Cerrar chat conserva posición de Steam principal");
-simulation.rows = [{
+// REGRESIÓN del mantenedor: clic en Brave con YouTube reproduciéndose
+// DURANTE la estabilización, mientras Steam permanece maximizado detrás.
+simulation.fullscreenFocusSettled = false;
+simulation.rows = [steamMain, {
     appId: "brave-browser", appName: "Brave", active: true,
     maximized: true, minimized: false, fullscreen: false
 }];
 simulation.refreshExternalWindow();
 assert.equal(simulation.fullscreenAnchorHeld, false,
-             "Cambiar DE VERDAD de aplicación termina memoria fullscreen");
+             "Brave maximizado libera memoria de Steam incluso durante 1,8 s");
 assert.equal(simulation.bar.islandOffset, 115,
-             "Después del cambio se recupera el perfil propio de Brave");
+             "El cambio real a Brave recupera SU perfil sin minimizar Steam");
+// El simulador no emite onIslandOffsetChanged automáticamente: imitar
+// la señal de QML para actualizar la memoria visual de Brave.
+simulation.rememberVisibleIslandOffset();
+assert.equal(simulation.lastVisibleIslandOffset, 115,
+             "La última posición visible ahora pertenece a Brave");
+simulation.rows = [steamMain, {
+    appId: "brave-browser", appName: "Brave", active: true,
+    maximized: false, minimized: false, fullscreen: true
+}];
+simulation.refreshExternalWindow();
+assert.equal(simulation.fullscreenSavedIslandOffset, 115,
+             "YouTube fullscreen captura posición de Brave, NO Steam");
+simulation.bar.islandOffset = 0;
+simulation.rows = [steamMain, {
+    appId: "brave-browser", appName: "Brave", active: true,
+    maximized: true, minimized: false, fullscreen: false
+}];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 115,
+             "Salir de YouTube sin clic devuelve la posición de Brave");
+assert.equal(simulation.fullscreenAnchorHeld, true,
+             "La salida fullscreen conserva momentáneamente anclaje de Brave");
 simulation.fullscreenAnchorHeld = true;
 simulation.fullscreenExited = true;
 simulation.bar.draggingIslandGrip = true;
@@ -306,6 +332,9 @@ for (const marker of [
     "fullscreenExited = true",
     "function snapshotRealWindows()",
     "fullscreenTransitionFocusIds[active.appId] = true",
+    "active.maximized && !active.fullscreen",
+    "active.appId !== fullscreenPriorAppId",
+    'console.log("SmartBar fullscreen: nueva aplicacion maximizada"',
     "if (!probe.fullscreenAnchorHeld)",
     "probe.restoreLastFullscreenPosition()",
     "probe.rememberVisibleIslandOffset()"
