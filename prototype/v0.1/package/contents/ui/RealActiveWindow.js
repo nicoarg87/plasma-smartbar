@@ -83,25 +83,61 @@ function fallbackAfterActiveUnmaximize(rows, active, previousAppId,
         active.appId !== previousAppId || previousMaximized !== true ||
         !Array.isArray(rows)) return normal;
 
-    const maximizedIds = Object.create(null);
-    let ambiguousIdentity = false;
-    for (const row of rows) {
-        if (!row || row.maximized !== true || row.minimized === true ||
-            row.fullscreen === true) continue;
-        const id = typeof row.appId === "string" ? row.appId.trim() : "";
-        if (!id) { ambiguousIdentity = true; continue; }
-        if (id !== active.appId) maximizedIds[id] = true;
-    }
-    const ids = Object.keys(maximizedIds);
-    if (ids.length === 0 && !ambiguousIdentity) return normal;
+    // En la transición, elegir la maximizada visible más alta,
+    // nunca una aplicación de fondo por ser la única con perfil.
+    const remaining = rows.filter(function(row) {
+        return row && row.appId !== active.appId;
+    });
+    return topmostMaximizedProfile(remaining, savedProfiles);
+}
+
+
+ // Prioridad: ventana MAXIMIZADA más alta en el apilamiento visual.
+ // StackingOrder: número creciente hacia delante. -1 significa que
+ // Wayland no lo informó; en empate/ausencia no inferir un ganador.
+ // Una sola maximizada es inequívoca aun sin rol de apilamiento.
+ // No se utiliza foco, orden alfabético ni último perfil visitado.
+function topmostMaximizedProfile(rows, savedProfiles) {
+    const none = {kind: "none", appId: "", offset: 0};
     const hold = {kind: "hold", appId: "", offset: 0};
-    if (ids.length !== 1 || ambiguousIdentity) return hold;
-    const id = ids[0];
-    if (!savedProfiles || typeof savedProfiles !== "object" ||
-        !Object.prototype.hasOwnProperty.call(savedProfiles, id)) return hold;
-    const offset = savedProfiles[id];
-    if (typeof offset !== "number" || !Number.isFinite(offset) || offset < 0)
+    if (!Array.isArray(rows)) return hold;
+    const candidates = rows.filter(function(row) {
+        return row && row.maximized === true &&
+            row.minimized !== true && row.fullscreen !== true;
+    });
+    if (candidates.length === 0) return none;
+    let winner;
+    if (candidates.length === 1) {
+        winner = candidates[0];
+    } else {
+        // Los índices incompletos/duplicados son frecuentes mientras
+        // KWin comunica un nuevo apilamiento de forma asíncrona.
+        if (candidates.some(function(row) {
+            return typeof row.stackingOrder !== "number" ||
+                !Number.isInteger(row.stackingOrder) ||
+                row.stackingOrder < 0;
+        })) return hold;
+        let highest = -1;
+        let countHighest = 0;
+        for (const row of candidates) {
+            if (row.stackingOrder > highest) {
+                highest = row.stackingOrder;
+                winner = row;
+                countHighest = 1;
+            } else if (row.stackingOrder === highest) {
+                countHighest++;
+            }
+        }
+        if (countHighest !== 1) return hold;
+    }
+    const id = typeof winner.appId === "string"
+        ? winner.appId.trim() : "";
+    if (!id || !savedProfiles || typeof savedProfiles !== "object" ||
+        !Object.prototype.hasOwnProperty.call(savedProfiles, id))
         return hold;
+    const offset = savedProfiles[id];
+    if (typeof offset !== "number" || !Number.isFinite(offset) ||
+        offset < 0) return hold;
     return {kind: "profile", appId: id, offset: offset};
 }
 
