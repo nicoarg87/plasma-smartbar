@@ -77,7 +77,7 @@
     <entry name="malvinaCompactAi" type="Bool"><default>false</default></entry>
     <entry name="malvinaWebFirst" type="Bool"><default>true</default></entry>
     <entry name="malvinaWebOrder" type="String"><default>duck,yahoo,google</default></entry>
-    <entry name="malvinaAiOrder" type="String"><default>chatgpt,gemini,claude</default></entry>
+    <entry name="malvinaAiOrder" type="String"><default>chatgpt,claude,gemini</default></entry>
     <entry name="malvinaGoogleUrl" type="String"><default>https://www.google.com/search?q={query}</default></entry>
     <entry name="malvinaDuckUrl" type="String"><default>https://duckduckgo.com/?q={query}</default></entry>
     <entry name="malvinaYahooUrl" type="String"><default>https://search.yahoo.com/search?p={query}</default></entry>
