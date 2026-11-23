@@ -22,7 +22,7 @@ for (const label of ["Cancelar", "Cerrar", "Aplicar"]) {
 assert.match(settings, /text: "Cerrar"\s*onClicked: settings\.close\(\)/);
 assert.match(settings, /onClosing: function\(event\).*discardPendingEdits\(\)/);
 assert.match(settings, /text: "Aplicar"\s*highlighted: true\s*onClicked: settings\.applyChanges\(\)/);
-assert.match(settings, /onSettingsApplied:\s*root\.requestPersistCurrentSettings\(\)/);
+assert.match(bar, /onSettingsApplied:\s*root\.requestPersistCurrentSettings\(\)/);
 assert.match(bar, /function openMalvinaSettings\(\)\s*\{\s*root\.openSoledadSettings\(0, 2\)/);
 assert.match(bar, /function openSoledadSettings\(tabIndex, islandSubtabIndex\)/);
 assert.match(bar, /if \(soledadSettings\.visibility === Window\.Minimized\)\s*soledadSettings\.showNormal\(\)/);
