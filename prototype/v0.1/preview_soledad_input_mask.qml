@@ -66,6 +66,12 @@ Window {
     property bool trackedMaximized: false
     property bool trackedFullscreen: false
     property bool trackedKnown: false
+    // Última app REGULAR maximizada con perfil que se observó ANTES
+    // de fullscreen. No inferir Steam por el título de su ventana.
+    property string lastRegularProfileAppId: ""
+    property string fullscreenReturnAppId: ""
+    property bool fullscreenObserved: false
+    property bool fullscreenExitPending: false
     // Durante arranque y cambios de fullscreen KWin puede actualizar sus
     // roles después de crear/eliminar las ventanas. Releer unos segundos,
     // sin controlar ventanas ni usar polling permanente.
@@ -84,6 +90,7 @@ Window {
         onTriggered: {
             probe.refreshExternalWindow()
             probe.recoverProfileAfterSettling()
+            Qt.callLater(probe.recoverFullscreenExit)
             probe.remainingStateRechecks--
             if (probe.remainingStateRechecks <= 0) stop()
         }
@@ -100,6 +107,43 @@ Window {
         console.log("SmartBar sincronizacion:", trackedAppName,
                     "recuperando perfil tras evento KDE")
         bar.applyRealPositionProfile()
+    }
+
+    function snapshotRealWindows() {
+        const rows = []
+        for (let i = 0; i < kdeWindowObservers.count; ++i) {
+            const item = kdeWindowObservers.itemAt(i)
+            if (item !== null) rows.push(item.snapshot())
+        }
+        return rows
+    }
+
+    // Cuando desaparece fullscreen y KWin no informa todavía NINGUNA ventana
+    // activa, recuperar exclusivamente la app conocida justo ANTES de entrar.
+    // No se la declara activa ni se habilita guardado: es anclaje transitorio.
+    function recoverFullscreenExit() {
+        if (!fullscreenExitPending || bar.draggingIslandGrip ||
+                bar.islandOffset !== 0) return
+        const candidate = RealActiveWindow.fullscreenExitCandidate(
+            snapshotRealWindows(), fullscreenReturnAppId)
+        if (candidate === null) return
+        const saved = SoledadPositionProfiles.readProfiles(positionProfilesJson)
+        if (!Object.prototype.hasOwnProperty.call(saved, candidate.appId)) {
+            fullscreenExitPending = false
+            return
+        }
+        const savedOffset = SoledadPositionProfiles.resolveOffset(
+            positionProfilesJson, candidate.appId, true, true,
+            0, bar.maxIslandOffset)
+        bar.setIslandOffset(savedOffset)
+        bar.alignRightSelected = savedOffset === 0
+        bar.ensureExpansionFits()
+        refreshInputRegion()
+        fullscreenExitPending = false
+        console.log("SmartBar salida fullscreen: restaurada posicion previa",
+                    candidate.appName, candidate.appId,
+                    "offset=", savedOffset,
+                    "(KWin sin ventana activa; sin guardar cambios)")
     }
 
     TaskManager.TasksModel {
@@ -156,12 +200,40 @@ Window {
     }
 
     function refreshExternalWindow() {
-        const rows = []
-        for (let i = 0; i < kdeWindowObservers.count; ++i) {
-            const item = kdeWindowObservers.itemAt(i)
-            if (item !== null) rows.push(item.snapshot())
-        }
+        const rows = snapshotRealWindows()
         const active = RealActiveWindow.resolve(rows)
+        const anyFullscreen = rows.some(function(row) {
+            return row.fullscreen && !row.minimized
+        })
+        if (anyFullscreen && !fullscreenObserved) {
+            // Captura de la aplicación antes de que Big Picture tome el foco.
+            fullscreenObserved = true
+            fullscreenReturnAppId = lastRegularProfileAppId
+            fullscreenExitPending = false
+            console.log("SmartBar fullscreen: ingreso, retorno previsto:",
+                        fullscreenReturnAppId || "(sin app previa)")
+        } else if (!anyFullscreen && fullscreenObserved) {
+            fullscreenObserved = false
+            fullscreenExitPending = fullscreenReturnAppId.length > 0
+            console.log("SmartBar fullscreen: salida detectada, app:",
+                        fullscreenReturnAppId || "(ninguna)")
+        }
+        // El perfil de retorno solo se memoriza de una app REAL activa,
+        // maximizada y fuera de fullscreen; no se persiste ni se cambia foco.
+        if (active.known && !anyFullscreen && !active.fullscreen &&
+                !fullscreenExitPending) {
+            const saved = SoledadPositionProfiles.readProfiles(positionProfilesJson)
+            lastRegularProfileAppId = active.maximized &&
+                Object.prototype.hasOwnProperty.call(saved, active.appId)
+                ? active.appId : ""
+        }
+        if (fullscreenExitPending && active.known &&
+                active.appId !== fullscreenReturnAppId) {
+            // Otra aplicación ya tiene el foco: no restaurar Steam detrás.
+            fullscreenExitPending = false
+            console.log("SmartBar fullscreen: retorno cancelado por foco en",
+                        active.appId)
+        }
         const previousId = trackedAppId
         const previousMaximized = trackedMaximized
         const previousFullscreen = trackedFullscreen
@@ -211,6 +283,7 @@ Window {
             Qt.callLater(function() {
                 if (probe.trackedKnown) bar.applyRealPositionProfile()
                 else if (!bar.draggingIslandGrip) bar.alignRightNow()
+                probe.recoverFullscreenExit()
             })
         }
     }
