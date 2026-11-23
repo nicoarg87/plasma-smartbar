@@ -35,6 +35,13 @@ Window {
         String(malvinaConsentSettings.value("geminiConsentV1", false)).toLowerCase() === "true"
     property bool testAllowClaude:
         String(malvinaConsentSettings.value("claudeConsentV1", false)).toLowerCase() === "true"
+    // Navegador de Malvina, independiente del predeterminado KDE.
+    QtCore.Settings {
+        id: malvinaBrowserSettings
+        category: "plasma-smartbar-v01-malvina-layer-probe-browser"
+    }
+    property string testBrowserId:
+        String(malvinaBrowserSettings.value("selectedBrowserV1", "system"))
     visible: false
     title: "SmartBar — Malvina por encima, excepto fullscreen real"
     color: "transparent"
@@ -203,6 +210,28 @@ Window {
         malvinaWebFirst: probe.testWebFirst
         malvinaWebOrder: probe.testWebOrder
         malvinaAiOrder: probe.testAiOrder
+        malvinaBrowserId: probe.testBrowserId
+        malvinaBrowserChoices: soledadInputMask.availableBrowsers()
+        malvinaBrowserBackend: soledadInputMask
+        onRequestMalvinaBrowserChange: function(browserId) {
+            // Guardar únicamente el ID de un navegador detectado.
+            const choices = soledadInputMask.availableBrowsers()
+            let permitted = false
+            for (let i = 0; i < choices.length; ++i) {
+                if (choices[i].id === browserId) {
+                    permitted = true
+                    break
+                }
+            }
+            if (!permitted) {
+                console.warn("SmartBar MALVINA: navegador no instalado")
+                return
+            }
+            probe.testBrowserId = browserId
+            malvinaBrowserSettings.setValue("selectedBrowserV1", browserId)
+            malvinaBrowserSettings.sync()
+            console.log("SmartBar MALVINA navegador guardado:", browserId)
+        }
         onRequestMalvinaOrderChange: function(firstWeb, webOrder, aiOrder) {
             probe.testWebFirst = firstWeb
             probe.testWebOrder = webOrder
