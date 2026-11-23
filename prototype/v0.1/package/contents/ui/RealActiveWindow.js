@@ -42,6 +42,33 @@ function shouldKeepNormalFocusPosition(rows, active, previousAppId, heldAppId) {
     return switched || heldAppId === active.appId;
 }
 
+
+ // En un arranque sin perfil visual previo, una ÚNICA aplicación
+ // maximizada (aunque esté detrás de Konsole/Steam restaurada) permite
+ // recuperar su perfil como anclaje inicial. Ambigüedad => no adivinar.
+ // No cambia foco, no guarda nada y nunca elige entre dos apps distintas.
+function uniqueMaximizedProfile(rows, savedProfiles) {
+    const unknown = {known: false, appId: "", offset: 0};
+    if (!Array.isArray(rows) || !savedProfiles ||
+        typeof savedProfiles !== "object") return unknown;
+    const maximizedIds = Object.create(null);
+    for (const row of rows) {
+        if (!row || row.maximized !== true || row.minimized === true ||
+            row.fullscreen === true) continue;
+        const id = typeof row.appId === "string" ? row.appId.trim() : "";
+        if (!id) return unknown;
+        maximizedIds[id] = true;
+    }
+    const ids = Object.keys(maximizedIds);
+    if (ids.length !== 1) return unknown;
+    const id = ids[0];
+    if (!Object.prototype.hasOwnProperty.call(savedProfiles, id)) return unknown;
+    const offset = savedProfiles[id];
+    if (typeof offset !== "number" || !Number.isFinite(offset) || offset < 0)
+        return unknown;
+    return {known: true, appId: id, offset: offset};
+}
+
 function rememberExternal(previous, observed, viewerAppId) {
     const old = previous && previous.known === true ? previous
         : { appId: "", appName: "", maximized: false, fullscreen: false, known: false };
