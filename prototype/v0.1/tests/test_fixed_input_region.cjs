@@ -247,7 +247,7 @@ assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
 // Inicio y regreso de fullscreen: reevaluación corta de roles KDE.
 for (const marker of [
     "property int remainingStateRechecks: 0",
-    "function scheduleWindowRecheck()",
+    "function scheduleWindowRecheck(reason)",
     "remainingStateRechecks = 12",
     "stateRecheckTimer.restart()",
     "interval: 250",
