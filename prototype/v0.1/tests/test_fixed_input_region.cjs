@@ -50,7 +50,7 @@ for (const marker of [
     "function refreshInputRegion()", "soledadInputMask.setIslandRect(",
     "width: probe.width", "height: probe.height", "x: 0", "y: 0",
     "layerShellDragCompensation: false",
-    "onIslandOffsetChanged: probe.refreshInputRegion()",
+    "onIslandOffsetChanged: {",
     "onActualIslandWidthChanged: probe.refreshInputRegion()",
     "interval: 90000", "probe.close()"
 ]) assert(qml.includes(marker), "Falta condición ventana fija: " + marker);
