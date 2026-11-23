@@ -187,7 +187,8 @@ assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)")
 const vm = require("node:vm");
 const realActiveSource = read("package/contents/ui/RealActiveWindow.js")
     .replace(/^\s*\.pragma library\s*\n/, "");
-const activePolicy = vm.runInNewContext(realActiveSource + "\n;resolve");
+const activePolicy = vm.runInNewContext(realActiveSource +
+    "\n;({resolve, shouldKeepNormalFocusPosition})");
 function qmlFunction(name) {
     const marker = "    function " + name + "(";
     const start = qml.indexOf(marker);
@@ -216,6 +217,7 @@ const simulation = {
     trackedKnown: true,
     trackedMaximized: true,
     trackedFullscreen: false,
+    heldNormalFocusAppId: "",
     rows: [],
     kdeWindows: {count: 3},
     bar: {
@@ -229,7 +231,7 @@ const simulation = {
     },
     Qt: {callLater(callback) {callback();}},
     fullscreenFocusTimer: {restart() {}, stop() {}},
-    RealActiveWindow: {resolve: activePolicy},
+    RealActiveWindow: activePolicy,
     console: {log() {}},
     logPositionStorage() {},
     refreshInputRegion() {},
@@ -321,6 +323,109 @@ assert.equal(simulation.fullscreenAnchorHeld, false,
              "Arrastre manual cancela la posición temporal");
 assert.equal(simulation.lastVisibleIslandOffset, 470,
              "Arrastre actualiza última posición visible");
+// Regresión real CachyOS 23/11: Brave max detrás, foco en Steam restaurada.
+ // El cambio de FOCO conserva la coordenada de Brave, pero maximizar Steam
+ // aplica su perfil; desmaximizar la propia Steam retorna a la derecha.
+const braveMax = {
+    appId: "brave-browser", appName: "Brave", active: true,
+    maximized: true, minimized: false, fullscreen: false
+};
+const steamNormal = {
+    appId: "steam", appName: "Steam", active: false,
+    maximized: false, minimized: false, fullscreen: false
+};
+const steamFocus = {...steamNormal, active: true};
+assert.equal(activePolicy.shouldKeepNormalFocusPosition(
+    [{...braveMax, active: false}, steamFocus],
+    {appId: "steam", maximized: false, fullscreen: false, known: true},
+    "brave-browser", ""), true,
+    "Enfocar Steam restaurada con Brave maximizada debe conservar la posición");
+assert.equal(activePolicy.shouldKeepNormalFocusPosition(
+    [{...braveMax, active: false}, steamFocus],
+    {appId: "steam", maximized: false, fullscreen: false, known: true},
+    "steam", "steam"), true,
+    "La siguiente lectura KDE no debe perder la retención temporal");
+assert.equal(activePolicy.shouldKeepNormalFocusPosition(
+    [steamFocus],
+    {appId: "steam", maximized: false, fullscreen: false, known: true},
+    "brave-browser", "steam"), false,
+    "Sin ninguna maximizada detrás se recupera retorno general");
+assert.equal(activePolicy.shouldKeepNormalFocusPosition(
+    [{...braveMax, active: false}, {...steamFocus, maximized: true}],
+    {appId: "steam", maximized: true, fullscreen: false, known: true},
+    "brave-browser", "steam"), false,
+    "Maximizar Steam debe liberar el retén y cargar su perfil");
+assert.equal(activePolicy.shouldKeepNormalFocusPosition(
+    [{...braveMax, active: false}, steamFocus],
+    {appId: "steam", maximized: false, fullscreen: false, known: true},
+    "steam", ""), false,
+    "Desmaximizar la MISMA ventana no es un cambio de foco");
+assert.equal(activePolicy.shouldKeepNormalFocusPosition(
+    [{...braveMax, active: false}, steamFocus],
+    {appId: "steam", maximized: false, fullscreen: true, known: true},
+    "brave-browser", ""), false,
+    "Fullscreen nunca usa la retención de foco normal");
+
+// Reproducir la cadena con las mismas funciones QML del ensayo.
+simulation.bar.draggingIslandGrip = false;
+simulation.fullscreenObserved = false;
+simulation.fullscreenAnchorHeld = false;
+simulation.fullscreenExited = false;
+simulation.heldNormalFocusAppId = "";
+simulation.trackedAppId = "brave-browser";
+simulation.trackedAppName = "Brave";
+simulation.trackedMaximized = true;
+simulation.trackedFullscreen = false;
+simulation.trackedKnown = true;
+simulation.bar.islandOffset = 125.4140625;
+simulation.bar.mockProfileOffset = 125.4140625;
+simulation.rows = [braveMax, steamNormal];
+simulation.refreshExternalWindow();
+simulation.rows = [{...braveMax, active: false}, steamFocus];
+simulation.bar.mockProfileOffset = 0; // perfil cero si se aplicara erróneamente
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+    "Foco Steam restaurada NO debe mover Soledad a la derecha");
+assert.equal(simulation.heldNormalFocusAppId, "steam");
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+    "Relectura de KWin conserva la posición mientras Brave sigue maximizada");
+simulation.rows = [{...braveMax, active: false}, {...steamFocus, maximized: true}];
+simulation.bar.mockProfileOffset = 369;
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 369,
+    "Maximizar Steam recupera el perfil de Steam");
+assert.equal(simulation.heldNormalFocusAppId, "");
+simulation.rows = [{...braveMax, active: false}, steamFocus];
+simulation.bar.mockProfileOffset = 0;
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 0,
+    "Desmaximizar Steam activa aplica retorno general, NO conserva Steam");
+simulation.rows = [braveMax, steamNormal];
+simulation.bar.mockProfileOffset = 125.4140625;
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+    "Volver a Brave maximizada recupera su perfil");
+simulation.rows = [{...braveMax, active: false}, steamFocus];
+simulation.bar.mockProfileOffset = 0;
+simulation.refreshExternalWindow();
+assert.equal(simulation.heldNormalFocusAppId, "steam");
+simulation.rows = [
+    {...braveMax, active: false, maximized: false}, steamFocus
+];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 0,
+    "Al desaparecer la última maximizada se retorna a derecha");
+assert.equal(simulation.heldNormalFocusAppId, "",
+    "Sin ventana maximizada no debe quedar retención temporal");
+
+assert(qml.includes('property string heldNormalFocusAppId: ""') &&
+       qml.includes("RealActiveWindow.shouldKeepNormalFocusPosition(") &&
+       qml.includes('console.log("SmartBar foco restaurado: conserva posicion"'),
+       "La política de foco normal debe estar conectada al ensayo aislado");
+assert.equal((qml.match(/profileSettings\\.setValue\\(/g) || []).length, 1,
+    "Conservar retención de foco no debe escribir perfiles");
+
 for (const marker of [
     "property real lastVisibleIslandOffset: 0",
     "property real fullscreenSavedIslandOffset: 0",
