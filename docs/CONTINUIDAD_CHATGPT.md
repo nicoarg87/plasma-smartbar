@@ -1093,3 +1093,20 @@ Steam max, Brave restaurada. Inicial Steam → maximizar Brave encima (Brave) �
 **DISTINGUIR ESTADOS:** regla confirmada y ya implementada en la rama `prototype/v0.1-islas-so`; prueba visual nativa positiva en CachyOS/KWin/Wayland para Steam/Brave. Las 275 verificaciones V8 son pruebas simuladas previas, no resultado Node nativo comunicado; no se recibieron logs de la ejecución positiva. Persisten pendientes el orden de apilamiento ambiguo, ventanas sin perfil, varias pantallas y escritorios, escalado y la combinación con fullscreen real. No se cambió código por este resultado; panel KDE intacto, posiciones, GIF y temas no modificados. [Issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) abierto; PR #3 borrador.
 
 **SIGUIENTE PRUEBA AISLADA SIN NUEVOS CAMBIOS:** conservar ambas apps maximizadas y Brave en primer plano; abrir Soledad con `cd ~/plasma-smartbar; and git switch prototype/v0.1-islas-so; and git pull --ff-only; and node prototype/v0.1/tests/test_fixed_input_region.cjs; and bash prototype/v0.1/probar_soledad_entrada_fija.sh` (Fish). Confirmar Brave; fullscreen real de un video YouTube con `F`, luego `Esc` sin clic: Soledad debe regresar a la última posición visible de Brave; activar Steam maximizada: perfil Steam. Si falla recoger `SmartBar ESTADO KDE:`, `SmartBar maximizada superior:`, `SmartBar fullscreen:` y `SmartBar retorno fullscreen:`. No regrabar perfiles ni instalar panel.
+
+## 23/11/2026 — Fullscreen YouTube con Steam maximizada detrás: validación manual positiva
+
+**PROBADO NATIVAMENTE EN CACHYOS/KWIN/WAYLAND (relato directo del mantenedor):** con Brave y Steam maximizadas y Brave en primer plano, arrancó Soledad; el perfil Brave se recuperó. Abrió YouTube en fullscreen real y Soledad desapareció, sin interferir con el video; volvió con `Esc` sin clic y Soledad mantuvo su posición de Brave. Activó Steam max y pasó al perfil Steam; volvió a Brave y recuperó su perfil. Resultado informado: correcto, sin errores observados. **CONFIRMADO/PUESTO A PRUEBA:** la nueva prioridad por apilamiento convive correctamente con la restauración de fullscreen de YouTube para este escenario. **NO inferir** que Steam Big Picture con varias maximizadas ya fue probado en este ciclo.
+
+**ESTADO:** código sin cambios después de la prueba; `prototype/v0.1-islas-so` experimental. Conservados panel KDE, perfiles, GIF, temas. [Issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) continúa para los casos pendientes; PR #3 borrador. Evidencia visual relatada por el mantenedor, sin logs nuevos. La prueba lógica de 275 aserciones V8 sigue siendo simulada.
+
+**SIGUIENTE PRUEBA SIN REDISEÑAR:** desde Fish:
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/test_fixed_input_region.cjs
+and bash prototype/v0.1/probar_soledad_entrada_fija.sh
+```
+Preparar **Steam maximizada y delante de Brave maximizada**, iniciar ensayo desde Konsole y minimizar Konsole. Confirmar perfil Steam; abrir Big Picture en fullscreen real desde Steam, comprobar que Soledad no se superponga; salir desde la opción de Steam de «Salir de Big Picture» y observar sin clic adicional si regresa perfil Steam; activar Brave maximizada, debe recuperar Brave; volver a Steam, debe recuperar Steam. La barra tiene autocierre a 90 segundos. Si hay fallo, copiar logs `SmartBar ESTADO KDE:`, `SmartBar fullscreen:`, `SmartBar retorno fullscreen:`, `SmartBar maximizada superior:`. No guardar perfiles ni tocar panel KDE.
+
