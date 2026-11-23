@@ -146,6 +146,9 @@ Item {
         const arr = (section === 1 ? orderedWebIds : orderedAiIds).slice()
         const moved = arr.splice(fromIndex, 1)[0]
         arr.splice(destinationIndex, 0, moved)
+        console.log("SmartBar MALVINA gesto reordenar:",
+                    section === 1 ? "Web" : "IA",
+                    moved, "desde", fromIndex, "a", destinationIndex)
         if (section === 1) applyOrder(webFirst, arr.join(","), aiOrder)
         else applyOrder(webFirst, webOrder, arr.join(","))
     }
