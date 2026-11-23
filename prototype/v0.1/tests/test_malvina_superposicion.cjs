@@ -72,7 +72,16 @@ for (const expected of [
     "onTaskMinimizedChanged: probe.scheduleCheck()",
     "launcherIslandVisible: true",
     "autoHideMalvina: false",
-    "interval: 90000",
+    'property string testWebOrder: "google,duck,yahoo"',
+    'property string testAiOrder: "chatgpt,gemini,claude"',
+    "malvinaWebFirst: probe.testWebFirst",
+    "malvinaWebOrder: probe.testWebOrder",
+    "malvinaAiOrder: probe.testAiOrder",
+    "onRequestMalvinaOrderChange: function(firstWeb, webOrder, aiOrder)",
+    "probe.testWebOrder = webOrder",
+    "probe.testAiOrder = aiOrder",
+    'console.log("SmartBar MALVINA orden temporal:"',
+    "interval: 180000",
     "probe.close()"
 ]) assert(qml.includes(expected), "Falta protección en ensayo: " + expected);
 
@@ -96,6 +105,8 @@ for (const text of [
     "property real optionsViewportWidthOverride: 0",
     "optionsViewportWidthOverride > 0",
     "function focusSearch()",
+    "function reorderProvider(section, fromIndex, destinationIndex)",
+    'console.log("SmartBar MALVINA gesto reordenar:"',
     "queryInput.forceActiveFocus()"
 ]) assert(search.includes(text), "Editor debe exponer region sin duplicarse: " + text);
 for (const text of [
@@ -108,6 +119,27 @@ for (const text of [
     "property real malvinaOptionsViewportWidth: 0",
     "optionsViewportWidthOverride: root.malvinaOptionsViewportWidth"
 ]) assert(shared.includes(text), "Falta geometria de popup compartido: " + text);
+// El visor común y el plasmoide procesan RequestMalvinaOrderChange,
+// pero este experimento temporal antes dejaba la señal sin receptor.
+// Verificar el enlace sin escribir KConfig o preferencias de Qt.
+const orderIndex = qml.indexOf("onRequestMalvinaOrderChange: function(");
+const orderWindow = qml.slice(orderIndex, orderIndex + 420);
+assert(orderIndex >= 0 &&
+       orderWindow.includes("probe.testWebFirst = firstWeb") &&
+       orderWindow.includes("probe.testWebOrder = webOrder") &&
+       orderWindow.includes("probe.testAiOrder = aiOrder"),
+       "La reordenación del ensayo actualiza los tres estados en memoria");
+assert(qml.includes("malvinaWebFirst: probe.testWebFirst") &&
+       qml.includes("malvinaWebOrder: probe.testWebOrder") &&
+       qml.includes("malvinaAiOrder: probe.testAiOrder"),
+       "Los valores temporales deben llegar a SmartBarContent");
+assert(!qml.includes("Plasmoid.configuration") &&
+       !qml.includes("localPreviewSettings.") &&
+       !qml.includes("profileSettings."),
+       "Arrastrar proveedores en el ensayo no puede persistir preferencias");
+assert(script.includes("180 segundos") &&
+       !script.includes("90 segundos"),
+       "El lanzador informa el plazo de 3 minutos del ensayo reversible");
 assert(qml.includes("malvinaOptionsViewportWidth: width"),
        "Evitar binding circular del menu LayerShell al propio Window.width");
 assert(!qml.includes("malvinaOptionsViewportWidth: probe.width"),
