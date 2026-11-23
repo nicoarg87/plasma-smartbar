@@ -6,7 +6,9 @@ import QtQuick
 import QtQuick.Window
 import org.kde.layershell 1.0 as LayerShell
 import org.kde.taskmanager 0.1 as TaskManager
+import QtCore as QtCore
 import "package/contents/ui" as SmartBar
+import "package/contents/ui/RealActiveWindow.js" as RealActiveWindow
 
 Window {
     id: probe
@@ -28,12 +30,23 @@ Window {
         LayerShell.Window.KeyboardInteractivityNone
     LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })
 
-    // DIAGNÓSTICO provisional: no es la medida real de los botones de Brave.
-    // Solo se aplica si KDE informa una ventana EXTERNA activa maximizada.
-    // El objetivo es verificar si la reserva evita la superposición sin
-    // reconfigurar el Window fijo ni tocar ventanas o preferencias.
-    readonly property real trialControlsReservePx: 176
-    property bool externalActiveMaximized: false
+    // Reutilizar ÚNICAMENTE la clave de perfiles reales ya usada por el
+    // visor Qt. Nunca leer ni sobrescribir temas, GIF, KConfig ni el panel KDE.
+    // Los cambios se escriben SOLO al elegir «Recordar esta posición…».
+    QtCore.Settings {
+        id: profileSettings
+        category: "plasma-smartbar-v01-preview-appearance"
+    }
+    property string positionProfilesJson:
+        String(profileSettings.value("soledadRealPositionProfilesV1", "{}"))
+
+    // Estado de la última ventana EXTERNA identificada. El popup/agarre
+    // no debe borrar Brave/Steam al perderse transitoriamente el foco.
+    property string trackedAppId: ""
+    property string trackedAppName: ""
+    property bool trackedMaximized: false
+    property bool trackedFullscreen: false
+    property bool trackedKnown: false
 
     TaskManager.TasksModel {
         id: kdeWindows
@@ -43,53 +56,107 @@ Window {
         filterByVirtualDesktop: false
         filterByActivity: false
         filterByScreen: false
-        onCountChanged: Qt.callLater(probe.refreshExternalMaximized)
+        onCountChanged: Qt.callLater(probe.refreshExternalWindow)
     }
 
-    // Delegados INVISIBLES: observan roles de KDE. No pintan nada,
-    // no participan del mouse y no activan/minimizan/cierran ventanas.
+    // El cajón SO conserva agrupación por aplicación; el segundo modelo
+    // sin agrupar es SOLO para observar una ventana real concreta.
+    TaskManager.TasksModel {
+        id: groupedKdeWindows
+        groupMode: TaskManager.TasksModel.GroupApplications
+        sortMode: TaskManager.TasksModel.SortAlpha
+        launcherList: []
+        filterByVirtualDesktop: false
+        filterByActivity: false
+        filterByScreen: false
+    }
+
     Repeater {
         id: kdeWindowObservers
         model: kdeWindows
-        onItemAdded: Qt.callLater(probe.refreshExternalMaximized)
-        onItemRemoved: Qt.callLater(probe.refreshExternalMaximized)
+        onItemAdded: Qt.callLater(probe.refreshExternalWindow)
+        onItemRemoved: Qt.callLater(probe.refreshExternalWindow)
         delegate: Item {
             required property var model
             width: 0
             height: 0
             visible: false
-            readonly property bool taskWindow: model.IsWindow === true
+            readonly property string appId: String(model.AppId || "")
+            readonly property string appName: String(model.AppName || "")
             readonly property bool taskActive: model.IsActive === true
             readonly property bool taskMaximized: model.IsMaximized === true
+            readonly property bool taskMinimized: model.IsMinimized === true
             readonly property bool taskFullScreen: model.IsFullScreen === true
-            readonly property string taskName: String(model.AppName || "")
-            onTaskWindowChanged: Qt.callLater(probe.refreshExternalMaximized)
-            onTaskActiveChanged: Qt.callLater(probe.refreshExternalMaximized)
-            onTaskMaximizedChanged: Qt.callLater(probe.refreshExternalMaximized)
-            onTaskFullScreenChanged: Qt.callLater(probe.refreshExternalMaximized)
-            Component.onCompleted: Qt.callLater(probe.refreshExternalMaximized)
+            function snapshot() {
+                return { appId: appId, appName: appName,
+                    active: taskActive, maximized: taskMaximized,
+                    minimized: taskMinimized, fullscreen: taskFullScreen }
+            }
+            onAppIdChanged: Qt.callLater(probe.refreshExternalWindow)
+            onTaskActiveChanged: Qt.callLater(probe.refreshExternalWindow)
+            onTaskMaximizedChanged: Qt.callLater(probe.refreshExternalWindow)
+            onTaskMinimizedChanged: Qt.callLater(probe.refreshExternalWindow)
+            onTaskFullScreenChanged: Qt.callLater(probe.refreshExternalWindow)
+            Component.onCompleted: Qt.callLater(probe.refreshExternalWindow)
         }
     }
 
-    function refreshExternalMaximized() {
-        let activeMaximized = false
-        let activeName = ""
+    function refreshExternalWindow() {
+        const rows = []
         for (let i = 0; i < kdeWindowObservers.count; ++i) {
-            const task = kdeWindowObservers.itemAt(i)
-            if (task && task.taskWindow && task.taskActive &&
-                    task.taskMaximized && !task.taskFullScreen) {
-                activeMaximized = true
-                activeName = task.taskName
-                break
+            const item = kdeWindowObservers.itemAt(i)
+            if (item !== null) rows.push(item.snapshot())
+        }
+        const active = RealActiveWindow.resolve(rows)
+        const previousId = trackedAppId
+        const previousMaximized = trackedMaximized
+        const previousFullscreen = trackedFullscreen
+        const previousKnown = trackedKnown
+
+        if (active.known && active.appId !== "org.qt-project.qml6" &&
+                active.appId !== "smartbar_input_mask_probe") {
+            // Activación de una ventana externa: perfil de ESA aplicación.
+            trackedAppId = active.appId
+            trackedAppName = active.appName
+            trackedMaximized = active.maximized
+            trackedFullscreen = active.fullscreen
+            trackedKnown = true
+        } else if (trackedKnown) {
+            // Al abrir un menú la aplicación de fondo pierde foco, pero
+            // NO se minimiza: conservar su perfil mientras siga maximizada.
+            const stillThere = rows.filter(function(row) {
+                return row.appId === trackedAppId
+            })
+            if (stillThere.length > 0) {
+                trackedMaximized = stillThere.some(function(row) {
+                    return row.maximized && !row.minimized && !row.fullscreen
+                })
+                trackedFullscreen = stillThere.some(function(row) {
+                    return row.fullscreen && !row.minimized
+                })
+            } else if (kdeWindows.count > 0) {
+                // La última ventana conocida ya no está: retorno general.
+                trackedAppId = ""
+                trackedAppName = ""
+                trackedMaximized = false
+                trackedFullscreen = false
+                trackedKnown = false
             }
         }
-        if (externalActiveMaximized !== activeMaximized) {
-            externalActiveMaximized = activeMaximized
-            console.log("SmartBar KDE solo lectura:",
-                        activeMaximized ? "ventana maximizada" : "sin maximizada activa",
-                        activeName,
-                        "reserva provisional =", activeMaximized
-                            ? trialControlsReservePx : 0, "px")
+        const changed = previousId !== trackedAppId ||
+            previousMaximized !== trackedMaximized ||
+            previousFullscreen !== trackedFullscreen ||
+            previousKnown !== trackedKnown
+        if (changed) {
+            console.log("SmartBar perfil real:", trackedAppName || "(sin aplicación)",
+                        "AppId:", trackedAppId || "(ninguno)",
+                        "maximizada:", trackedMaximized,
+                        "fullscreen:", trackedFullscreen,
+                        "perfil guardado:", trackedKnown)
+            Qt.callLater(function() {
+                if (probe.trackedKnown) bar.applyRealPositionProfile()
+                else if (!bar.gripDrag.active) bar.alignRightNow()
+            })
         }
     }
 
@@ -122,10 +189,26 @@ Window {
         launcherIslandVisible: false
         showBackground: false
         previewMaximized: false
-        demoWindowControlsEnabled: false
-        // Solo este ensayo inyecta la reserva; el visor normal conserva 0.
-        externalWindowControlsReserve: probe.externalActiveMaximized
-            ? probe.trialControlsReservePx : 0
+        // Activar el menú CONTEXTUAL ya existente de «Recordar posición…»
+        // sin crear botones ni controlar ventanas externas.
+        demoWindowControlsEnabled: true
+        realTaskModel: groupedKdeWindows
+        realTrackedAppId: probe.trackedAppId
+        realTrackedAppName: probe.trackedAppName
+        realTrackedMaximized: probe.trackedMaximized
+        realTrackedFullscreen: probe.trackedFullscreen
+        realTrackedKnown: probe.trackedKnown
+        realPositionProfilesJson: probe.positionProfilesJson
+        onRequestRealPositionProfilesChange: function(json) {
+            // Persistencia SOLO por clic explícito sobre menú existente.
+            probe.positionProfilesJson = json
+            profileSettings.setValue("soledadRealPositionProfilesV1", json)
+            profileSettings.sync()
+            console.log("SmartBar: posición guardada por aplicación real")
+        }
+        // No inventar ancho de botones de Brave/Steam. El usuario posiciona
+        // libremente y fija por aplicación; general: extremo derecho.
+        externalWindowControlsReserve: 0
         soLogoMode: "default"
         themeScheduleRuntimeEnabled: false
         // Mantener el DragHandler ORIGINAL: ventana/escena permanecen FIJAS.
@@ -149,13 +232,14 @@ Window {
         }
     }
     Component.onCompleted: {
-        Qt.callLater(probe.refreshExternalMaximized)
+        Qt.callLater(probe.refreshExternalWindow)
         console.log(
         "SmartBar: ventana LayerShellQt FIJA, input limitado por QWindow::setMask.",
         "Arrastrar SOLO los seis puntos de la Soledad auténtica;",
         "el espacio invisible fuera de la isla debería dejar usar Brave.",
-        "Reserva de prueba:", trialControlsReservePx,
-        "px SOLO para ventana externa activa y maximizada.",
-        "Sin perfiles ni instalación de panel. Autocierre 90 s / Ctrl+C.")
+        "Sin margen fijo por controles de Brave.",
+        "Clic derecho en el agarre: Recordar esta posición para [aplicación].",
+        "Se conserva memoria real del visor Qt, SIN cambiar temas ni panel.",
+        "Autocierre 90 s / Ctrl+C.")
     }
 }
