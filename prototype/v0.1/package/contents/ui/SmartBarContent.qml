@@ -1275,6 +1275,10 @@ Item {
     // Sólo lectura para el visor Qt de pruebas: mostrar cuánto ocupa
     // Soledad frente al espacio real disponible, sin alterar su aspecto.
     readonly property real actualIslandWidth: systemIsland.width
+    // Ancho efectivo de Malvina para las máscaras nativas de entrada
+    // experimentales; solo lectura, no cambia geometría ni preferencias.
+    readonly property real actualMalvinaWidth: malvinaHotspot.width
+    readonly property real actualMalvinaHeight: malvinaHotspot.height
     onAvailableIslandWidthChanged: ensureExpansionFits()
 
     function setIslandOffset(offset) {
