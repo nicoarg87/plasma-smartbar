@@ -573,7 +573,7 @@ Window {
     // Límite del ensayo. La aplicación termina con la última ventana.
     Timer {
         interval: 90000
-        running: true
+        running: !smartbarContinuousMode
         repeat: false
         onTriggered: {
             console.log("SmartBar región fija: cierre automático, sin cambios")
