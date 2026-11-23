@@ -100,6 +100,15 @@ QQC2.Popup {
                                 QQC2.Popup.CloseOnPressOutside)
     signal requestShowMalvina()
     signal appSelected(string name, bool realCatalog)
+    signal launchDesktopEntry(string desktopId)
+    function selectApplication(entry) {
+        if (!entry || typeof entry !== "object") return
+        if (realLaunchEnabled && catalogIsReal && entry.desktopId) {
+            launchDesktopEntry(String(entry.desktopId))
+            return
+        }
+        appSelected(entry.name, catalogIsReal)
+    }
     function categoryOptions() {
         const cats = primaryCategories.slice()
         if (showMoreCategories)
