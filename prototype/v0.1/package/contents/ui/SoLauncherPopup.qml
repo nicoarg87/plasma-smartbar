@@ -266,7 +266,7 @@ QQC2.Popup {
                             display: launcher.iconsWithNames
                                 ? QQC2.AbstractButton.TextBesideIcon
                                 : QQC2.AbstractButton.TextOnly
-                            onClicked: launcher.appSelected(modelData.name, launcher.catalogIsReal)
+                            onClicked: launcher.selectApplication(modelData)
                         }
                     }
                 }
