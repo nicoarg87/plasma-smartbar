@@ -69,6 +69,42 @@ function uniqueMaximizedProfile(rows, savedProfiles) {
     return {known: true, appId: id, offset: offset};
 }
 
+
+ // Excepción APROBADA: desmaximizar la MISMA aplicación activa no debe
+ // mandar SO a la derecha si hay otra app maximizada detrás.
+ // Una única app distinta con perfil habilita anclaje temporal; con varias
+ // candidatas o sin perfil se conserva la posición visual, sin adivinar.
+ // Si no queda otra maximizada, se mantiene el retorno general habitual.
+function fallbackAfterActiveUnmaximize(rows, active, previousAppId,
+                                       previousMaximized, savedProfiles) {
+    const normal = {kind: "normal", appId: "", offset: 0};
+    if (!active || active.known !== true || !active.appId ||
+        active.fullscreen === true || active.maximized === true ||
+        active.appId !== previousAppId || previousMaximized !== true ||
+        !Array.isArray(rows)) return normal;
+
+    const maximizedIds = Object.create(null);
+    let ambiguousIdentity = false;
+    for (const row of rows) {
+        if (!row || row.maximized !== true || row.minimized === true ||
+            row.fullscreen === true) continue;
+        const id = typeof row.appId === "string" ? row.appId.trim() : "";
+        if (!id) { ambiguousIdentity = true; continue; }
+        if (id !== active.appId) maximizedIds[id] = true;
+    }
+    const ids = Object.keys(maximizedIds);
+    if (ids.length === 0 && !ambiguousIdentity) return normal;
+    const hold = {kind: "hold", appId: "", offset: 0};
+    if (ids.length !== 1 || ambiguousIdentity) return hold;
+    const id = ids[0];
+    if (!savedProfiles || typeof savedProfiles !== "object" ||
+        !Object.prototype.hasOwnProperty.call(savedProfiles, id)) return hold;
+    const offset = savedProfiles[id];
+    if (typeof offset !== "number" || !Number.isFinite(offset) || offset < 0)
+        return hold;
+    return {kind: "profile", appId: id, offset: offset};
+}
+
 function rememberExternal(previous, observed, viewerAppId) {
     const old = previous && previous.known === true ? previous
         : { appId: "", appName: "", maximized: false, fullscreen: false, known: false };
