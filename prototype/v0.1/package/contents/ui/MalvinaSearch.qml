@@ -247,6 +247,19 @@ Item {
         // Apertura exclusivamente al pulsar Enter; nada se transmite en Tab/Espacio.
         // q= es experimental, NO es garantía de precarga ni de envío controlado.
         if (result.warning) console.warn("Malvina: " + result.warning)
+        if (isAi) {
+            // Diagnóstico de la prueba: registrar SOLO el proveedor, el permiso
+            // efectivo y si la URL lleva q=. Nunca imprimir texto, URL completa
+            // ni datos del usuario en la consola.
+            const permissionGranted = officialAi >= 0 &&
+                                      aiPrefillAllowed[officialAi] === true
+            const queryAttached = result.url.indexOf("?q=" + encodeURIComponent(query)) >= 0
+            console.log("SmartBar MALVINA diagnóstico IA:",
+                        "proveedor=", providerId,
+                        "permiso=", permissionGranted,
+                        "consultaEnEnlace=", queryAttached,
+                        "experimental=", result.experimental === true)
+        }
         if (result.experimental) console.log("Malvina: enlace IA experimental con permiso explícito")
         Qt.openUrlExternally(result.url)
     }
