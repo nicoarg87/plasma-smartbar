@@ -21,32 +21,6 @@ function resolve(items) {
     };
 }
 
-/*
- * Restauración visual TRANSITORIA al cerrar fullscreen: KWin puede dejar
- * IsActive vacío hasta el próximo clic. Nunca inferir a partir del título
- * ni usar un programa abierto en segundo plano si hay OTRA ventana activa.
- * Se exige el AppId previamente identificado antes del fullscreen.
- */
-function fullscreenExitCandidate(items, previousAppId) {
-    if (!Array.isArray(items) || typeof previousAppId !== "string" ||
-        previousAppId.trim().length === 0) return null;
-    const appId = previousAppId.trim();
-    // Si KWin sí identifica una ventana activa, corresponde al flujo normal.
-    if (items.some(function(row) {
-        return row && row.active === true && row.minimized !== true;
-    })) return null;
-    // Nunca mostrar Soledad por encima de ningún fullscreen todavía presente.
-    if (items.some(function(row) {
-        return row && row.fullscreen === true && row.minimized !== true;
-    })) return null;
-    const match = items.filter(function(row) {
-        return row && row.appId === appId && row.maximized === true &&
-            row.minimized !== true && row.fullscreen !== true;
-    });
-    if (match.length === 0) return null;
-    return {appId: appId, appName: match[0].appName || ""};
-}
-
 function rememberExternal(previous, observed, viewerAppId) {
     const old = previous && previous.known === true ? previous
         : { appId: "", appName: "", maximized: false, fullscreen: false, known: false };
