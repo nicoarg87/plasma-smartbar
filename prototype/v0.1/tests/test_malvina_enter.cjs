@@ -28,6 +28,11 @@ assert(qml.includes("navigationSection !== 0 && event.key === Qt.Key_Space") &&
 assert(qml.includes("event.modifiers & Qt.ShiftModifier") &&
        qml.includes("addLine()"),
        "Shift+Enter mantiene la edición multilínea");
-assert(qml.includes("Qt.openUrlExternally(result.url)"),
-       "Solo openSelected puede abrir el destino");
+assert(qml.includes("requestOpenUrl(result.url)"),
+       "Solo openSelected remite la URL al navegador elegido por Malvina");
+const shared = fs.readFileSync(path.join(ui, "SmartBarContent.qml"),"utf8");
+assert(shared.includes("onRequestOpenUrl: function(url)"),
+       "El componente compartido recibe la solicitud de apertura");
+assert(shared.includes("Qt.openUrlExternally(url)"),
+       "Sin puente nativo se conserva navegador predeterminado KDE");
 console.log("OK: Enter elige primero y busca después; Espacio y Shift+Enter intactos.");
