@@ -295,11 +295,24 @@ Window {
                         fullscreenSavedIslandOffset)
             Qt.callLater(probe.restoreLastFullscreenPosition)
         }
-        // Ventanas auxiliares pueden adquirir foco durante la propia salida:
-        // registrar esos AppId durante 1,8 s sin suponer que hubo un clic.
-        // Una activación de OTRA aplicación fuera de esa transición restablece
-        // las reglas habituales por perfil / posición derecha.
-        if (fullscreenAnchorHeld && fullscreenExited && active.known) {
+        // La memoria visual de salida fullscreen NO puede bloquear una
+        // aplicación DIFERENTE, explícitamente activa y maximizada: el
+        // perfil de Brave prevalece aunque Steam continúe maximizado atrás
+        // y aunque el cambio suceda durante los 1,8 s de estabilización.
+        // Un chat NO maximizado no anula la posición recuperada de Steam.
+        if (fullscreenAnchorHeld && fullscreenExited && active.known &&
+                active.maximized && !active.fullscreen &&
+                active.appId !== fullscreenPriorAppId) {
+            fullscreenAnchorHeld = false
+            fullscreenExited = false
+            fullscreenFocusTimer.stop()
+            fullscreenTransitionFocusIds = ({})
+            console.log("SmartBar fullscreen: nueva aplicacion maximizada",
+                        active.appId, "retomando perfiles normales")
+        } else if (fullscreenAnchorHeld && fullscreenExited && active.known) {
+            // Durante los primeros eventos de cierre de fullscreen pueden
+            // reaparecer ventanas auxiliares sin maximizar. No asumir que
+            // pertenecen a otra app ni crear perfiles para ellas.
             if (!fullscreenFocusSettled) {
                 fullscreenTransitionFocusIds[active.appId] = true
             } else if (!fullscreenTransitionFocusIds[active.appId]) {
