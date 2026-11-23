@@ -27,6 +27,8 @@ printf 'Nuevo ensayo: ventanas KDE reales en SOLO LECTURA; SIN margen derecho fi
 printf 'Posición por aplicación: arrastrar agarre; clic derecho y elegir RECORDAR.\n'
 printf 'Memoria propia de posiciones, AISLADA del visor Qt y panel.\n'
 printf 'Solo guarda esa posición si elegís RECORDAR, nunca por arrastre ni tema.\n'
+printf 'Diagnostico Steam: si no recupera su posicion, NO la vuelvas a guardar.\n'
+printf 'Compartir solo lineas SmartBar DIAGNOSTICO memoria y SmartBar perfil real.\n'
 printf 'Al desmaximizar/minimizar: retorna a derecha por defecto.\n'
 printf 'No instala paquetes, no cambia el panel ni modifica temas.\n'
 printf 'Requiere cabeceras de Qt6 (Gui, Qml, Quick), cmake y compilador C++.\n'
