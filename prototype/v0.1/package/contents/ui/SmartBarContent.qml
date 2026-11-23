@@ -672,6 +672,9 @@ Item {
     property bool malvinaOptionsOpacityOverride: false
     property real malvinaOptionsOpacity: 0.9
     property real launcherAvailableHeight: 450
+    // Predeterminado seguro: solo una sesión nativa autorizada puede ejecutar apps.
+    property bool realAppLaunchEnabled: false
+    signal requestLaunchDesktopEntry(string desktopId)
     property var localAppCatalog: []
     property bool localCatalogReady: false
     // El visor carga metadatos .desktop locales de solo lectura, si existen.
