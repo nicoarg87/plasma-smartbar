@@ -5,6 +5,8 @@
 #include <QDesktopServices>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QFileInfo>
+#include <QDir>
 #include <QSet>
 #include <QList>
 #include <QVariantList>
@@ -45,6 +47,12 @@ public:
                                        {"name", QString::fromUtf8(item.name)}});
             discovered.insert(id);
         }
+        // Brave se distribuye también como Flatpak: puede tener escritorio
+        // com.brave.Browser.desktop pero ningún binario "brave" en PATH.
+        // Solo ofrecerlo si detectamos su exportación y el runtime flatpak.
+        if (!discovered.contains(QLatin1String("brave")) &&
+            !flatpakBraveExecutable().isEmpty())
+            choices.append(QVariantMap{{"id", "brave"}, {"name", "Brave"}});
         return choices;
     }
 
@@ -72,6 +80,19 @@ public:
                 qWarning() << "SmartBar Malvina: el navegador elegido no arrancó:"
                            << browserId;
             return started;
+        }
+        if (browserId == QLatin1String("brave")) {
+            const QString flatpak = flatpakBraveExecutable();
+            if (!flatpak.isEmpty()) {
+                // ID Flatpak fijo, nunca obtenido de una URL, archivo
+                // .desktop ni campo libre del usuario.
+                const bool started = QProcess::startDetached(
+                    flatpak, QStringList{"run", "com.brave.Browser",
+                                         url.toString(QUrl::FullyEncoded)});
+                if (!started)
+                    qWarning() << "SmartBar Malvina: no arrancó Brave Flatpak";
+                return started;
+            }
         }
         qWarning() << "SmartBar Malvina: navegador no disponible:" << browserId;
         return false;
@@ -134,6 +155,26 @@ public:
     }
 
 private:
+    // Comprobar únicamente rutas estándar de exportación de Brave Flatpak;
+    // no interpretar el campo Exec del .desktop ni ejecutarlo como shell.
+    static QString flatpakBraveExecutable() {
+        const QString flatpak = QStandardPaths::findExecutable("flatpak");
+        if (flatpak.isEmpty()) return {};
+        QStringList desktopFiles;
+        for (const QString &dataDir :
+             QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation)) {
+            desktopFiles.append(dataDir + "/applications/com.brave.Browser.desktop");
+        }
+        desktopFiles.append(QDir::homePath() +
+                            "/.local/share/flatpak/exports/share/applications/com.brave.Browser.desktop");
+        desktopFiles.append(
+            "/var/lib/flatpak/exports/share/applications/com.brave.Browser.desktop");
+        for (const QString &file : desktopFiles) {
+            if (QFileInfo::isFile(file)) return flatpak;
+        }
+        return {};
+    }
+
     struct BrowserCandidate {
         const char *id;
         const char *name;
@@ -144,6 +185,9 @@ private:
             {"falkon", "Falkon", "falkon"},
             {"brave", "Brave", "brave"},
             {"brave", "Brave", "brave-browser"},
+            {"brave", "Brave", "brave-browser-stable"},
+            {"brave", "Brave", "brave-bin"},
+            {"brave", "Brave", "com.brave.Browser"},
             {"firefox", "Firefox", "firefox"},
             {"chromium", "Chromium", "chromium"},
             {"chrome", "Google Chrome", "google-chrome-stable"},
