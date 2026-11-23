@@ -744,3 +744,10 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [x] **Prueba lógica:** 275 aserciones PASS en V8 con fuentes actuales de GitHub, incluyendo cambios de apilamiento sin cambiar foco; no confundir con Qt/KWin nativos.
 - [ ] **Prueba real CachyOS/Wayland:** Steam maximizada → Brave maximizada encima → desmaximizar Brave dejando Steam maximizada → Steam de nuevo; después alternar entre **dos maximizadas** y comprobar `StackingOrder`. Verificar perfiles, estabilidad, ausencia de solapamiento y fullscreen. Si los roles no son fiables, registrar trazas y revisar alcance antes de integrar.
 - [ ] Validar por separado multi-monitor, escritorios virtuales, perfiles ausentes, escala y navegadores; no cerrar [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) ni fusionar PR #3 todavía.
+
+## 23/11/2026 — Islas sin hueco superior
+
+- [x] **Aprobado:** Soledad y Malvina deben aparecer pegadas al borde superior del contenedor de la barra; en el ensayo LayerShell anclado a la pantalla, margen físico superior 0 px. No cambiar alto configurable, geometrías, posición horizontal ni panel KDE del usuario.
+- [x] **Código experimental:** eliminar `top:6` de ambos ensayos LayerShell de Soledad y cambiar `malvinaHotspot`/`systemIsland` de centrado vertical a anclaje superior en `SmartBarContent.qml`. Tests estáticos/de política JS/V8 con fuentes vigentes: 281 comprobaciones PASS.
+- [ ] **Prueba real:** `node prototype/v0.1/tests/test_fixed_input_region.cjs` y `bash prototype/v0.1/probar_soledad_entrada_fija.sh` para comprobar Soledad en el límite físico superior, y `bash prototype/v0.1/probar_ancho.sh` para comprobar simultáneamente Soledad y Malvina en el visor, sin reemplazar el panel instalado. Si la barra instalada es flotante, no asumir que alinear componentes mueve el contenedor.
+
