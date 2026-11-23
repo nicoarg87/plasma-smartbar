@@ -223,9 +223,14 @@ Window {
         if (active.known && !anyFullscreen && !active.fullscreen &&
                 !fullscreenExitPending) {
             const saved = SoledadPositionProfiles.readProfiles(positionProfilesJson)
-            lastRegularProfileAppId = active.maximized &&
-                Object.prototype.hasOwnProperty.call(saved, active.appId)
-                ? active.appId : ""
+            if (active.maximized &&
+                    Object.prototype.hasOwnProperty.call(saved, active.appId)) {
+                lastRegularProfileAppId = active.appId
+            } else if (active.appId !== lastRegularProfileAppId) {
+                // Un estado normal temporal de la MISMA Steam al abrir
+                // Big Picture no debe borrar el destino de retorno.
+                lastRegularProfileAppId = ""
+            }
         }
         if (fullscreenExitPending && active.known &&
                 active.appId !== fullscreenReturnAppId) {
