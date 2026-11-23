@@ -1058,6 +1058,9 @@ Item {
         }
     }
     property real islandOffset: 0          // Distancia horizontal desde la derecha.
+    // Observación de solo lectura para ensayos externos de posición:
+    // nunca aplicar cambios automáticos durante un arrastre del agarre.
+    readonly property bool draggingIslandGrip: gripDrag.active
     property real offsetAtDragStart: 0
     // Solo para una ventana LayerShellQt ACOTADA que se mueve durante
     // el agarre. El visor principal y el plasmoide mantienen el cálculo
