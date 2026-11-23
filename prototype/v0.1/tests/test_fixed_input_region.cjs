@@ -731,7 +731,7 @@ assert(real.includes('Qt.resolvedUrl("assets/so-tropical.gif")'));
 
 for (const marker of [
     "CMAKE_AUTOMOC ON", "find_package(Qt6",
-    "COMPONENTS Gui Qml Quick", "Qt6::Quick",
+    "COMPONENTS Core Gui Qml Quick", "Qt6::Core", "Qt6::Quick",
     "soledad_input_mask_main.cpp"
 ]) assert(cmake.includes(marker), "Falta compilación Qt: " + marker);
 for (const marker of [
