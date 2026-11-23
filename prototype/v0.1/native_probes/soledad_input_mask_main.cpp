@@ -6,6 +6,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QDir>
 #include <QSet>
 #include <QList>
@@ -54,6 +55,44 @@ public:
             !flatpakBraveExecutable().isEmpty())
             choices.append(QVariantMap{{"id", "brave"}, {"name", "Brave"}});
         return choices;
+    }
+
+    // La selección procede exclusivamente de un catálogo .desktop local.
+    // Delegar a KDE (KIO) la interpretación del Exec, sin shell ni sudo.
+    // No permitir rutas, argumentos ni IDs arbitrarios procedentes de QML.
+    Q_INVOKABLE bool launchDesktopEntry(const QString &desktopId) const {
+        static const QRegularExpression safeId(
+            QStringLiteral("^[A-Za-z0-9][A-Za-z0-9._+-]*\\.desktop$"));
+        if (desktopId.size() > 200 || !safeId.match(desktopId).hasMatch()) {
+            qWarning() << "SmartBar: ID de aplicación inválido";
+            return false;
+        }
+        const QString kioclient = QStandardPaths::findExecutable(QStringLiteral("kioclient6"));
+        if (kioclient.isEmpty()) {
+            qWarning() << "SmartBar: kioclient6 no disponible; sin ejecución";
+            return false;
+        }
+        QStringList directories =
+            QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
+        directories << QDir::homePath() +
+                       QStringLiteral("/.local/share/flatpak/exports/share/applications")
+                    << QStringLiteral("/var/lib/flatpak/exports/share/applications");
+        directories.removeDuplicates();
+        for (const QString &root : directories) {
+            const QFileInfo entry(QDir(root).absoluteFilePath(desktopId));
+            if (!entry.exists() || !entry.isFile() || !entry.isReadable()) continue;
+            // Mantener la búsqueda confinada a una entrada directa de la raíz.
+            // Enlaces simbólicos legítimos de Flatpak son resueltos por KDE.
+            if (entry.fileName() != desktopId) continue;
+            if (!QProcess::startDetached(
+                    kioclient, QStringList{QStringLiteral("exec"), entry.absoluteFilePath()})) {
+                qWarning() << "SmartBar: el lanzador KDE no pudo iniciarse";
+                return false;
+            }
+            return true;
+        }
+        qWarning() << "SmartBar: entrada .desktop no encontrada" << desktopId;
+        return false;
     }
 
     // Un navegador elegido aplica indistintamente a Web y chat IA.
