@@ -26,6 +26,27 @@ assert(!cpp.includes("system(") && !cpp.includes("/bin/sh") &&
        "Sin shell, sin ejecutar comandos arbitrarios");
 for(const name of ["Falkon","Brave","Firefox","Chromium","Google Chrome"])
     assert(cpp.includes('"'+name+'"'), "Detectar "+name+" si está instalado");
+
+for (const executable of [
+    "brave", "brave-browser", "brave-browser-stable", "brave-bin", "com.brave.Browser"
+]) assert(cpp.includes('{"brave", "Brave", "'+executable+'"}'),
+          "Reconocer alias ejecutable de Brave: "+executable);
+for (const marker of [
+    'QStandardPaths::findExecutable("flatpak")',
+    "QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation)",
+    ".local/share/flatpak/exports/share/applications/com.brave.Browser.desktop",
+    "/var/lib/flatpak/exports/share/applications/com.brave.Browser.desktop",
+    "QFileInfo(file).isFile()",
+    'if (!discovered.contains(QLatin1String("brave"))',
+    'if (browserId == QLatin1String("brave"))',
+    'QStringList{"run", "com.brave.Browser"',
+    "static QString flatpakBraveExecutable()"
+]) assert(cpp.includes(marker), "Brave Flatpak debe detectarse y abrirse de modo controlado: "+marker);
+assert(!cpp.includes("QProcess::execute(") &&
+       !cpp.includes("desktopFile.exec(") &&
+       !cpp.includes("QProcess::startDetached('sh'"),
+       "No ejecutar órdenes desconocidas a partir de archivos de escritorio");
+
 assert(probe.includes('category: "plasma-smartbar-v01-malvina-layer-probe-browser"'));
 assert(probe.includes('malvinaBrowserSettings.value("selectedBrowserV1", "system")'));
 assert(probe.includes('malvinaBrowserSettings.setValue("selectedBrowserV1", browserId)'));
