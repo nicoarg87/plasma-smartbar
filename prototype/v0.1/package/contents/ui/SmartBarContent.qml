@@ -2,6 +2,7 @@
 // Los cambios de ancho se aplican a la geometría REAL de este Item.
 // Prototipo VISUAL: los controles NO modifican ventanas reales.
 import QtQuick
+import QtQuick.Window
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import "ThemeSchedule.js" as ThemeSchedule
@@ -1767,7 +1768,12 @@ Item {
             soledadSettings.showThemes()
         else
             soledadSettings.currentTab = tabIndex
-        soledadSettings.show()
+        // Si el usuario la minimizó para probar Malvina, el engranaje
+        // recupera la misma ventana y conserva sus cambios ya aplicados.
+        if (soledadSettings.visibility === Window.Minimized)
+            soledadSettings.showNormal()
+        else
+            soledadSettings.show()
         soledadSettings.raise()
         soledadSettings.requestActivate()
     }
