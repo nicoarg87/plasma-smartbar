@@ -46,7 +46,7 @@ for (const marker of [
     "LayerShell.Window.AnchorRight", "LayerShell.Window.LayerTop",
     "LayerShell.Window.exclusionZone: -1",
     "LayerShell.Window.KeyboardInteractivityNone",
-    "LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })",
+    "LayerShell.Window.margins: ({ left: 0, top: 0, right: 0, bottom: 0 })",
     "function refreshInputRegion()", "soledadInputMask.setIslandRect(",
     "width: probe.width", "height: probe.height", "x: 0", "y: 0",
     "layerShellDragCompensation: false",
@@ -108,8 +108,38 @@ assert(!qml.includes("themeDayJson") && !qml.includes("themeNightJson") &&
        "No modificar temas ni KConfig del usuario");
 assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
        "La prueba solo puede persistir la clave de posiciones reales");
-assert(qml.includes("LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })"),
+assert(qml.includes("LayerShell.Window.margins: ({ left: 0, top: 0, right: 0, bottom: 0 })"),
        "La ventana debe seguir fija y sin obstruir Brave");
+// Ambas islas deben comenzar en el borde físico superior, SIN
+// aumentar alturas ni alterar el anclaje horizontal o los controles.
+// Malvina no se muestra en este ensayo, pero comparte SmartBarContent.
+const malvinaStart = real.indexOf("id: malvinaHotspot");
+const malvinaEnd = real.indexOf("id: launcherIsland", malvinaStart);
+const soledadStart = real.indexOf("id: systemIsland");
+const soledadEnd = real.indexOf("id: soTipBackground", soledadStart);
+assert(malvinaStart >= 0 && malvinaEnd > malvinaStart &&
+       soledadStart >= 0 && soledadEnd > soledadStart,
+       "Deben existir las dos islas originales sin recrearlas");
+const malvinaBlock = real.slice(malvinaStart, malvinaEnd);
+const soledadBlock = real.slice(soledadStart, soledadEnd);
+assert(malvinaBlock.includes("anchors.top: parent.top") &&
+       !malvinaBlock.includes("anchors.verticalCenter: parent.verticalCenter"),
+       "Malvina debe anclarse arriba, no centrarse dejando margen");
+assert(soledadBlock.includes("anchors.top: parent.top") &&
+       !soledadBlock.includes("anchors.verticalCenter: parent.verticalCenter"),
+       "Soledad debe anclarse arriba sin cambiar alto/ancho");
+assert(previous.includes("left: 0, top: 0,") &&
+       !previous.includes("left: 0, top: 6,"),
+       "El ensayo LayerShell anterior tampoco debe separar Soledad del borde");
+assert(qml.includes("height: 44") &&
+       qml.includes("soledadHeight: 44") &&
+       real.includes("height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))") &&
+       real.includes("height: Math.max(32, Math.min(root.fixedHeight - 4, root.soledadHeight))"),
+       "Mover las islas hacia arriba no modifica sus alturas");
+assert(!qml.includes("profileSettings.remove(") &&
+       !qml.includes("profileSettings.clear("),
+       "Mover ambas islas arriba no borra preferencias");
+
 assert(real.includes("property real externalWindowControlsReserve: 0") &&
        real.includes("readonly property bool draggingIslandGrip: gripDrag.active"),
        "No alterar producción, exponer únicamente estado del agarre");
