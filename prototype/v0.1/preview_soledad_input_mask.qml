@@ -29,7 +29,9 @@ Window {
     LayerShell.Window.exclusionZone: -1
     LayerShell.Window.keyboardInteractivity:
         LayerShell.Window.KeyboardInteractivityNone
-    LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })
+    // Alineación al borde físico superior: sin el hueco previo de 6 px.
+    // El Window continúa fijo; la máscara de entrada solo cubre Soledad.
+    LayerShell.Window.margins: ({ left: 0, top: 0, right: 0, bottom: 0 })
 
     // Reutilizar la LÓGICA de perfiles del visor Qt, pero con preferencias
     // separadas para este ejecutable experimental. No tocar los perfiles
