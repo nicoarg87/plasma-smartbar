@@ -110,14 +110,15 @@ apply(probeObject,mockBridge,storage,"system",logger);
 assert.equal(data.get("selectedBrowserV1"),"system");
 assert.equal(synced,2,"Se puede restaurar KDE con Aplicar");
 
-const launchCalls=[],defaultCalls=[];
+const launchCalls=[],defaultCalls=[],dismissCalls=[];
 const sender = new Function("root","Qt","url","console",
                             qmlHandler(shared,"RequestOpenUrl"));
 const simulatedRoot={
     malvinaBrowserChoices:choices, malvinaBrowserId:"brave",
-    malvinaBrowserBackend:{launchWebUrl(id,url){launchCalls.push([id,url]);return true;}}
+    malvinaBrowserBackend:{launchWebUrl(id,url){launchCalls.push([id,url]);return true;}},
+    dismissMalvinaAfterSearch(){dismissCalls.push("closed");}
 };
-const qt={openUrlExternally(url){defaultCalls.push(url);}};
+const qt={openUrlExternally(url){defaultCalls.push(url);return true;}};
 sender(simulatedRoot,qt,"https://www.google.com/search?q=cerveza",logger);
 sender(simulatedRoot,qt,"https://chatgpt.com/?q=cerveza",logger);
 assert.deepEqual(launchCalls.map(x=>x[0]),["brave","brave"],
@@ -129,4 +130,8 @@ assert.deepEqual(launchCalls[2],["system","https://claude.ai/new?q=cerveza"]);
 simulatedRoot.malvinaBrowserBackend=null;
 sender(simulatedRoot,qt,"https://duckduckgo.com/?q=cerveza",logger);
 assert.equal(defaultCalls.length,1, "Visor sin puente conserva la apertura KDE");
-console.log("OK: navegador Web/IA único, persistente, permitido y opción KDE.");
+assert.equal(dismissCalls.length,4, "Cerrar Malvina tras Web e IA, también con KDE");
+simulatedRoot.malvinaBrowserBackend={launchWebUrl(){return false;}};
+sender(simulatedRoot,qt,"https://duckduckgo.com/?q=fallo",logger);
+assert.equal(dismissCalls.length,4, "Si falla abrir el navegador, conservar el buscador");
+console.log("OK: navegador Web/IA único, persistente, permitido; cierre al iniciar correctamente.");
