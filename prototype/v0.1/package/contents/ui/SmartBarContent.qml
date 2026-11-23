@@ -2008,7 +2008,9 @@ Item {
                             root.malvinaWidth)
             height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
             anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
+            // Ambas islas alineadas al borde superior, sin margen visual.
+            // Mantener sus alturas independientes y el grosor general fijo.
+            anchors.top: parent.top
 
             HoverHandler {
                 id: malvinaHotspotHover
@@ -2438,7 +2440,8 @@ Item {
                 : root.width - width - root.islandOffset -
                   root.controlsReservation
             // Controles maximizados permanecen fijos al extremo derecho.
-            anchors.verticalCenter: parent.verticalCenter
+            // La isla, en cambio, empieza en y=0 como Malvina.
+            anchors.top: parent.top
 
             // Punta triangular opcional. Solo se pinta cuando cambia algo,
             // sin animación ni una fila extra. Botón de bandeja queda a la
