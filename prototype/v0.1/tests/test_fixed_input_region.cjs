@@ -182,67 +182,141 @@ assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)")
        profiles.includes("function resolveOffset(") &&
        profiles.includes("function clampOffset("),
        "Reutilizar la política ya probada de posiciones por aplicación");
-// Regresión real: al SALIR de Big Picture IsActive puede quedar vacío
-// aunque la ventana principal maximizada de Steam siga en TasksModel.
-// No forzar Steam si KWin identifica otra ventana activa o un fullscreen.
+// Regla confirmada: fullscreen conserva la ÚLTIMA posición visible, incluso
+// si un chat auxiliar obtiene foco al salir. No crear perfiles extra por chat.
 const vm = require("node:vm");
 const realActiveSource = read("package/contents/ui/RealActiveWindow.js")
     .replace(/^\s*\.pragma library\s*\n/, "");
-const getExitCandidate = vm.runInNewContext(
-    realActiveSource + "\n;fullscreenExitCandidate");
+const activePolicy = vm.runInNewContext(realActiveSource + "\n;resolve");
+function qmlFunction(name) {
+    const marker = "    function " + name + "(";
+    const start = qml.indexOf(marker);
+    assert(start >= 0, "Falta función QML: " + name);
+    const open = qml.indexOf("{", start);
+    let depth = 0;
+    for (let i = open; i < qml.length; ++i) {
+        if (qml[i] === "{") ++depth;
+        else if (qml[i] === "}" && --depth === 0)
+            return qml.slice(start, i + 1);
+    }
+    throw new Error("Función QML sin cierre: " + name);
+}
+const simulation = {
+    lastVisibleIslandOffset: 0,
+    lastVisibleIslandKnown: false,
+    fullscreenSavedIslandOffset: 0,
+    fullscreenObserved: false,
+    fullscreenAnchorHeld: false,
+    fullscreenExited: false,
+    fullscreenPriorAppId: "",
+    fullscreenFocusSettled: false,
+    fullscreenTransitionFocusIds: {},
+    trackedAppId: "steam",
+    trackedAppName: "Steam",
+    trackedKnown: true,
+    trackedMaximized: true,
+    trackedFullscreen: false,
+    rows: [],
+    kdeWindows: {count: 3},
+    bar: {
+        islandOffset: 320, maxIslandOffset: 1000,
+        draggingIslandGrip: false, activeRealAppHasSavedPosition: true,
+        alignRightSelected: false, mockProfileOffset: 115,
+        setIslandOffset(value) { this.islandOffset = Math.max(0, Math.min(1000, value)); },
+        ensureExpansionFits() {},
+        applyRealPositionProfile() { this.islandOffset = this.mockProfileOffset; },
+        alignRightNow() { this.islandOffset = 0; }
+    },
+    Qt: {callLater(callback) {callback();}},
+    fullscreenFocusTimer: {restart() {}, stop() {}},
+    RealActiveWindow: {resolve: activePolicy},
+    console: {log() {}},
+    logPositionStorage() {},
+    refreshInputRegion() {},
+};
+simulation.probe = simulation;
+simulation.snapshotRealWindows = () => simulation.rows;
+vm.runInNewContext([
+    qmlFunction("rememberVisibleIslandOffset"),
+    qmlFunction("restoreLastFullscreenPosition"),
+    qmlFunction("refreshExternalWindow")
+].join("\n\n"), simulation);
+simulation.rememberVisibleIslandOffset();
+assert.equal(simulation.lastVisibleIslandOffset, 320,
+             "Antes de fullscreen se recuerda la coordenada VISIBLE");
 const steamMain = {
     appId: "steam", appName: "Steam", active: false,
     maximized: true, minimized: false, fullscreen: false
 };
-const braveMain = {
-    appId: "brave-browser", appName: "Brave", active: false,
-    maximized: true, minimized: false, fullscreen: false
+const steamBigPicture = {
+    appId: "steam", appName: "Steam", active: true,
+    maximized: false, minimized: false, fullscreen: true
 };
-assert.equal(getExitCandidate([steamMain, braveMain], "steam").appId,
-             "steam", "Solo retomar Steam si era el AppId anterior");
-assert.equal(getExitCandidate([steamMain, braveMain], "brave-browser").appId,
-             "brave-browser", "La regla también debe funcionar con Brave");
-assert.equal(getExitCandidate([steamMain], "no-guardada"), null,
-             "No inventar aplicación distinta de la previamente activa");
-assert.equal(getExitCandidate([steamMain], ""), null,
-             "Sin identidad anterior no inferir una posición");
-assert.equal(getExitCandidate([steamMain, {
-    appId: "org.kde.konsole", active: true, minimized: false
-}], "steam"), null, "Nunca sobreponer el perfil de Steam si Konsole es activa");
-assert.equal(getExitCandidate([steamMain, {
-    appId: "steam", active: true, minimized: false
-}], "steam"), null, "Ventana activa conocida debe usar flujo normal");
-assert.equal(getExitCandidate([steamMain, {
-    appId: "steam", fullscreen: true, minimized: false
-}], "steam"), null, "No reponer isla mientras siga fullscreen");
-assert.equal(getExitCandidate([{
-    appId: "steam", maximized: true, minimized: true, fullscreen: false
-}], "steam"), null, "No elegir Steam minimizado");
-assert.equal(getExitCandidate([{
-    appId: "steam", maximized: false, minimized: false, fullscreen: false
-}], "steam"), null, "Exigir ventana principal maximizada");
-assert.equal(getExitCandidate([], "steam"), null, "Sin ventanas no hay retorno");
+const steamChat = {
+    appId: "steam-chat", appName: "Steam Chat", active: true,
+    maximized: false, minimized: false, fullscreen: false
+};
+simulation.rows = [steamMain, steamBigPicture];
+simulation.refreshExternalWindow();
+assert.equal(simulation.fullscreenSavedIslandOffset, 320,
+             "Entrar a fullscreen captura el último desplazamiento visible");
+assert.equal(simulation.fullscreenAnchorHeld, true);
+simulation.bar.islandOffset = 0; // simular retorno a derecha durante transición
+simulation.rows = [steamMain, steamChat];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 320,
+             "Salir a chat no maximizado restaura la última ubicación sin clic");
+assert.equal(simulation.fullscreenTransitionFocusIds["steam-chat"], true,
+             "Foco del chat es contexto de salida, no aplicación configurada aparte");
+simulation.rows = [steamMain, {...steamChat, appId: "steamwebhelper"}];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 320,
+             "Foco auxiliar tardío no fuerza derecha durante estabilización");
+simulation.fullscreenFocusSettled = true; // venció ventana breve de estabilización
+simulation.rows = [{...steamMain, active: true}];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 320,
+             "Cerrar chat conserva posición de Steam principal");
+simulation.rows = [{
+    appId: "brave-browser", appName: "Brave", active: true,
+    maximized: true, minimized: false, fullscreen: false
+}];
+simulation.refreshExternalWindow();
+assert.equal(simulation.fullscreenAnchorHeld, false,
+             "Cambiar DE VERDAD de aplicación termina memoria fullscreen");
+assert.equal(simulation.bar.islandOffset, 115,
+             "Después del cambio se recupera el perfil propio de Brave");
+simulation.fullscreenAnchorHeld = true;
+simulation.fullscreenExited = true;
+simulation.bar.draggingIslandGrip = true;
+simulation.bar.islandOffset = 470;
+simulation.rememberVisibleIslandOffset();
+assert.equal(simulation.fullscreenAnchorHeld, false,
+             "Arrastre manual cancela la posición temporal");
+assert.equal(simulation.lastVisibleIslandOffset, 470,
+             "Arrastre actualiza última posición visible");
 for (const marker of [
-    "property string lastRegularProfileAppId:",
-    "property string fullscreenReturnAppId:",
-    "property bool fullscreenObserved:",
-    "property bool fullscreenExitPending:",
-    "fullscreenReturnAppId = lastRegularProfileAppId",
-    "fullscreenExitPending = fullscreenReturnAppId.length > 0",
-    "function recoverFullscreenExit()",
-    "RealActiveWindow.fullscreenExitCandidate(",
-    "snapshotRealWindows(), fullscreenReturnAppId",
-    "bar.draggingIslandGrip",
-    "bar.islandOffset !== 0",
-    "SoledadPositionProfiles.resolveOffset(",
-    "bar.setIslandOffset(savedOffset)",
-    "bar.alignRightSelected = savedOffset === 0",
-    "fullscreenExitPending = false",
-    "probe.recoverFullscreenExit()",
-    "Qt.callLater(probe.recoverFullscreenExit)"
-]) assert(qml.includes(marker), "Falta recuperación conservadora: " + marker);
+    "property real lastVisibleIslandOffset: 0",
+    "property real fullscreenSavedIslandOffset: 0",
+    "property bool fullscreenAnchorHeld: false",
+    "function rememberVisibleIslandOffset()",
+    "function restoreLastFullscreenPosition()",
+    "fullscreenSavedIslandOffset = lastVisibleIslandKnown",
+    "fullscreenAnchorHeld = true",
+    "fullscreenExited = true",
+    "function snapshotRealWindows()",
+    "fullscreenTransitionFocusIds[active.appId] = true",
+    "if (!probe.fullscreenAnchorHeld)",
+    "probe.restoreLastFullscreenPosition()",
+    "probe.rememberVisibleIslandOffset()"
+]) assert(qml.includes(marker), "Falta retener posición visible: " + marker);
+assert(!qml.includes("fullscreenExitCandidate(") &&
+       !realActiveSource.includes("fullscreenExitCandidate"),
+       "No volver a inferir un perfil de aplicación a partir del fullscreen");
+assert(!qml.includes("steam-chat") && !qml.includes("steamwebhelper"),
+       "No introducir excepciones rígidas por ventana auxiliar de Steam");
 assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
-       "El retorno de Big Picture no debe guardar ninguna nueva preferencia");
+       "La memoria de fullscreen NO debe escribir preferencias locales");
 
 // Inicio y regreso de fullscreen: reevaluación corta de roles KDE.
 for (const marker of [
