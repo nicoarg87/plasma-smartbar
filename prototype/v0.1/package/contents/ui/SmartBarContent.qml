@@ -541,16 +541,17 @@ Item {
             root.malvinaVisibilityCue = false
         }
     }
-    // Política general para islas que se autoactivan: nunca aparecer sobre
-    // una superficie maximizada/fullscreen. Si KWin aún NO informó estado
-    // real, bloquear por seguridad (fail-closed) en el plasmoide.
+    // Malvina puede mostrarse por ENCIMA de ventanas normales y
+    // maximizadas. Fullscreen real prevalece: nunca revelarla sobre vídeo,
+    // juego o presentación en pantalla completa. Un estado externo aún
+    // desconocido bloquea por seguridad; la preferencia de autoocultamiento
+    // sigue siendo independiente.
     property bool windowStateKnown: true  // true solo en visor simulado
     property bool previewFullscreen: false
     property bool hostMaximized: false
     property bool hostFullscreen: false
     readonly property bool autoRevealBlocked:
-        !windowStateKnown || previewMaximized || previewFullscreen ||
-        hostMaximized || hostFullscreen
+        !windowStateKnown || previewFullscreen || hostFullscreen
     onAutoRevealBlockedChanged: {
         if (autoRevealBlocked) {
             malvinaVisibilityCueTimer.stop()
@@ -1456,8 +1457,8 @@ Item {
     }
     function openInstalledLauncher(source) {
         const requestedSource = source === "malvina" ? "malvina" : "so"
-        // No permitir abrir lanzadores por autoaparición sobre un juego,
-        // video o ventana maximizada: la protección va antes del popup.
+        // Solo bloquear una aparición sobre fullscreen real o cuando aún
+        // no se conoce el estado; ventanas maximizadas son admisibles.
         if (requestedSource === "malvina" && autoRevealBlocked)
             return
         // Un segundo clic sobre Malvina debe cerrar el popup existente.
