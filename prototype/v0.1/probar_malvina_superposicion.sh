@@ -36,5 +36,10 @@ if ! cmake --build "$BUILD_DIR" --parallel 2; then
     exit 5
 fi
 
-env QT_QPA_PLATFORM=wayland QT_WAYLAND_SHELL_INTEGRATION=layer-shell \
+# La raíz QML usa LayerShell.Window.* (por ventana). No forzar
+# QT_WAYLAND_SHELL_INTEGRATION=layer-shell para TODAS las ventanas Qt:
+# ese modo también atrapaba Configuración y la volvía una superficie
+# LayerShell sin barra de título ni controles del gestor de ventanas.
+# Si la sesión ya trae esa variable, quitarla SOLO del proceso temporal.
+env -u QT_WAYLAND_SHELL_INTEGRATION QT_QPA_PLATFORM=wayland \
     "$BUILD_DIR/smartbar_input_mask_probe" "$HERE/preview_malvina_input_mask.qml"
