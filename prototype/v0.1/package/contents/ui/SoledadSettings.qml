@@ -968,7 +968,7 @@ Window {
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
     property bool malvinaWebFirst: true
-    property string malvinaWebOrder: "google,duck,yahoo"
+    property string malvinaWebOrder: "duck,yahoo,google"
     property string malvinaAiOrder: "chatgpt,gemini,claude"
     property string malvinaExtraWeb: "[]"
     property string malvinaExtraAi: "[]"
