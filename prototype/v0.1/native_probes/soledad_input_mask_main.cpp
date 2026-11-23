@@ -2,6 +2,12 @@
 // Ensayo diagnóstico nativo: ventana LayerShellQt FIJA + región de entrada.
 // NO instala plasmoides, no modifica ventanas externas ni guarda preferencias.
 #include <QGuiApplication>
+#include <QDesktopServices>
+#include <QProcess>
+#include <QStandardPaths>
+#include <QSet>
+#include <QVariantList>
+#include <QVariantMap>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
@@ -21,6 +27,54 @@ public:
     explicit InputMaskBridge(QObject *parent = nullptr) : QObject(parent) {}
 
     void attach(QQuickWindow *window) { m_window = window; }
+
+    // Selección EXCLUSIVA del ensayo nativo de Malvina: los nombres y las
+    // rutas de ejecutables son fijos. El usuario nunca introduce comandos.
+    // Solo se muestran navegadores encontrados realmente en PATH.
+    Q_INVOKABLE QVariantList availableBrowsers() const {
+        QVariantList choices;
+        choices.append(QVariantMap{{"id", "system"}, {"name", "Predeterminado del sistema (KDE)"}});
+        QSet<QString> discovered;
+        for (const BrowserCandidate &item : browserCandidates()) {
+            const QString id = QString::fromLatin1(item.id);
+            if (discovered.contains(id)) continue;
+            if (QStandardPaths::findExecutable(QString::fromLatin1(item.executable)).isEmpty())
+                continue;
+            choices.append(QVariantMap{{"id", id},
+                                       {"name", QString::fromUtf8(item.name)}});
+            discovered.insert(id);
+        }
+        return choices;
+    }
+
+    // Un navegador elegido aplica indistintamente a Web y chat IA.
+    // Nunca usar shell, concatenación de comandos ni una URL como ejecutable.
+    Q_INVOKABLE bool launchWebUrl(const QString &browserId,
+                                 const QString &urlText) const {
+        const QUrl url(urlText, QUrl::StrictMode);
+        if (!url.isValid() || url.scheme() != QLatin1String("https") ||
+            url.host().isEmpty() || !url.userInfo().isEmpty() ||
+            url.port() != -1) {
+            qWarning() << "SmartBar Malvina: se rechazó una URL no HTTPS válida";
+            return false;
+        }
+        if (browserId == QLatin1String("system"))
+            return QDesktopServices::openUrl(url);
+        for (const BrowserCandidate &item : browserCandidates()) {
+            if (browserId != QLatin1String(item.id)) continue;
+            const QString program =
+                QStandardPaths::findExecutable(QString::fromLatin1(item.executable));
+            if (program.isEmpty()) continue;
+            const bool started = QProcess::startDetached(
+                program, QStringList{url.toString(QUrl::FullyEncoded)});
+            if (!started)
+                qWarning() << "SmartBar Malvina: el navegador elegido no arrancó:"
+                           << browserId;
+            return started;
+        }
+        qWarning() << "SmartBar Malvina: navegador no disponible:" << browserId;
+        return false;
+    }
 
     Q_INVOKABLE void setIslandRect(qreal x, qreal y, qreal width, qreal height) {
         if (!m_window || !std::isfinite(x) || !std::isfinite(y) ||
@@ -79,6 +133,31 @@ public:
     }
 
 private:
+    struct BrowserCandidate {
+        const char *id;
+        const char *name;
+        const char *executable;
+    };
+    static const QList<BrowserCandidate> &browserCandidates() {
+        static const QList<BrowserCandidate> candidates = {
+            {"falkon", "Falkon", "falkon"},
+            {"brave", "Brave", "brave"},
+            {"brave", "Brave", "brave-browser"},
+            {"firefox", "Firefox", "firefox"},
+            {"chromium", "Chromium", "chromium"},
+            {"chrome", "Google Chrome", "google-chrome-stable"},
+            {"chrome", "Google Chrome", "google-chrome"},
+            {"vivaldi", "Vivaldi", "vivaldi-stable"},
+            {"vivaldi", "Vivaldi", "vivaldi"},
+            {"opera", "Opera", "opera"},
+            {"librewolf", "LibreWolf", "librewolf"},
+            {"zen", "Zen Browser", "zen-browser"},
+            {"floorp", "Floorp", "floorp"},
+            {"epiphany", "GNOME Web", "epiphany"},
+            {"qutebrowser", "qutebrowser", "qutebrowser"}
+        };
+        return candidates;
+    }
     QQuickWindow *m_window = nullptr; // propiedad del motor QQmlApplicationEngine
 };
 
