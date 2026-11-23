@@ -81,9 +81,9 @@ for (const marker of [
     "model.IsMinimized === true",
     "model.IsFullScreen === true",
     "RealActiveWindow.resolve(rows)",
-    "onTaskMaximizedChanged: probe.scheduleWindowRecheck()",
-    "onTaskActiveChanged: probe.scheduleWindowRecheck()",
-    "onTaskMinimizedChanged: probe.scheduleWindowRecheck()",
+    "onTaskMaximizedChanged: probe.scheduleWindowRecheck(\"maximizada\")",
+    "onTaskActiveChanged: probe.scheduleWindowRecheck(\"foco\")",
+    "onTaskMinimizedChanged: probe.scheduleWindowRecheck(\"minimizada\")",
     "kdeWindowObservers.itemAt(i)",
     "realTaskModel: groupedKdeWindows",
     "realTrackedAppId: probe.trackedAppId",
@@ -125,6 +125,34 @@ assert(viewer.includes('setValue("soledadRealPositionProfilesV1", json)') &&
 assert(!viewer.includes('plasma-smartbar-v01-fixed-input-positions') &&
        !qml.includes('category: "plasma-smartbar-v01-preview-appearance"'),
        "La prueba no debe alterar los perfiles existentes del visor");
+
+// Traza de KWin solo en ensayo: no cambia foco ni configuraciones.
+for (const marker of [
+    "function reportKdeState(reason, force)",
+    "snapshotRealWindows()",
+    "hasProfile: Object.prototype.hasOwnProperty.call(saved, row.appId)",
+    'console.log("SmartBar ESTADO KDE:"',
+    "SoledadOffset=",
+    'probe.reportKdeState("auditoria sin clic", false)',
+    'onTaskFullScreenChanged: probe.scheduleWindowRecheck("fullscreen")',
+    'onTaskActiveChanged: probe.scheduleWindowRecheck("foco")',
+    'onItemRemoved: probe.scheduleWindowRecheck("ventana retirada")',
+    'probe.scheduleWindowRecheck("inicio")'
+]) assert(qml.includes(marker), "Falta traza de roles KDE: " + marker);
+const traceStart = qml.indexOf("    function reportKdeState(reason, force)");
+const traceEnd = qml.indexOf("    // Durante arranque", traceStart);
+assert(traceStart >= 0 && traceEnd > traceStart);
+const traceBlock = qml.slice(traceStart, traceEnd);
+for (const forbidden of [
+    "profileSettings.setValue(", "profileSettings.remove(",
+    "profileSettings.clear(", "requestActivate(", "requestClose(",
+    "requestToggleMaximized("
+]) assert(!traceBlock.includes(forbidden), "Traza invasiva: " + forbidden);
+assert(traceBlock.includes("interval: 1000") &&
+       traceBlock.includes("running: true") && traceBlock.includes("repeat: true"),
+       "La traza es de un segundo, solo durante el ensayo");
+assert(qml.includes("interval: 90000") && qml.includes("probe.close()"),
+       "La traza termina con el ensayo");
 
 // Diagnóstico de regresión: Steam perdió su posición al REABRIR la isla
 // (sin entrar en Big Picture en esta última prueba). Solo lectura, sin
@@ -231,10 +259,10 @@ for (const marker of [
     "bar.draggingIslandGrip || bar.islandOffset !== 0",
     "!bar.activeRealAppHasSavedPosition",
     "bar.applyRealPositionProfile()",
-    "onCountChanged: probe.scheduleWindowRecheck()",
-    "onItemAdded: probe.scheduleWindowRecheck()",
-    "onItemRemoved: probe.scheduleWindowRecheck()",
-    "onTaskFullScreenChanged: probe.scheduleWindowRecheck()",
+    "onCountChanged: probe.scheduleWindowRecheck(\"cantidad ventanas\")",
+    "onItemAdded: probe.scheduleWindowRecheck(\"ventana agregada\")",
+    "onItemRemoved: probe.scheduleWindowRecheck(\"ventana retirada\")",
+    "onTaskFullScreenChanged: probe.scheduleWindowRecheck(\"fullscreen\")",
     "Component.onCompleted: probe.scheduleWindowRecheck()"
 ]) assert(qml.includes(marker), "Falta reconciliación temporal: " + marker);
 assert(!qml.includes("running: true\n        repeat: true"),
