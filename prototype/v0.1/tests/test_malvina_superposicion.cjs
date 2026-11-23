@@ -72,7 +72,7 @@ for (const expected of [
     "onTaskMinimizedChanged: probe.scheduleCheck()",
     "launcherIslandVisible: true",
     "autoHideMalvina: false",
-    'property string testWebOrder: "google,duck,yahoo"',
+    'property string testWebOrder: "duck,yahoo,google"',
     'property string testAiOrder: "chatgpt,gemini,claude"',
     "malvinaWebFirst: probe.testWebFirst",
     "malvinaWebOrder: probe.testWebOrder",
