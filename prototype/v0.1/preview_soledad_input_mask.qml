@@ -76,7 +76,15 @@ Window {
     property bool fullscreenAnchorHeld: false
     property bool fullscreenExited: false
     property string fullscreenPriorAppId: ""
-    property string fullscreenInitialFocusAppId: ""
+    property var fullscreenTransitionFocusIds: ({})
+    property bool fullscreenFocusSettled: false
+    Timer {
+        id: fullscreenFocusTimer
+        interval: 1800
+        repeat: false
+        running: false
+        onTriggered: probe.fullscreenFocusSettled = true
+    }
     function rememberVisibleIslandOffset() {
         if (bar.draggingIslandGrip) {
             lastVisibleIslandOffset = bar.islandOffset
@@ -265,7 +273,9 @@ Window {
             fullscreenSavedIslandOffset = lastVisibleIslandKnown
                 ? lastVisibleIslandOffset : bar.islandOffset
             fullscreenPriorAppId = trackedAppId
-            fullscreenInitialFocusAppId = ""
+            fullscreenTransitionFocusIds = ({})
+            fullscreenFocusSettled = false
+            fullscreenFocusTimer.stop()
             fullscreenObserved = true
             fullscreenAnchorHeld = true
             fullscreenExited = false
@@ -274,22 +284,30 @@ Window {
         } else if (!anyFullscreen && fullscreenObserved) {
             fullscreenObserved = false
             fullscreenExited = true
-            fullscreenInitialFocusAppId = active.known ? active.appId : ""
+            fullscreenTransitionFocusIds = ({})
+            if (fullscreenPriorAppId.length > 0)
+                fullscreenTransitionFocusIds[fullscreenPriorAppId] = true
+            if (active.known)
+                fullscreenTransitionFocusIds[active.appId] = true
+            fullscreenFocusSettled = false
+            fullscreenFocusTimer.restart()
             console.log("SmartBar fullscreen: salida, restaurando posicion visual=",
                         fullscreenSavedIslandOffset)
             Qt.callLater(probe.restoreLastFullscreenPosition)
         }
-        // Tras salir, el primer foco puede ser una ventana auxiliar abierta
-        // por la transición. La posición se conserva hasta pasar a una
-        // aplicación DISTINTA del contexto anterior y del primer foco
-        // observado al salir. No añadir excepciones específicas de Steam.
-        if (fullscreenAnchorHeld && fullscreenExited && active.known &&
-                active.appId !== fullscreenPriorAppId &&
-                active.appId !== fullscreenInitialFocusAppId) {
-            fullscreenAnchorHeld = false
-            fullscreenExited = false
-            console.log("SmartBar fullscreen: fin de restauracion por cambio a",
-                        active.appId)
+        // Ventanas auxiliares pueden adquirir foco durante la propia salida:
+        // registrar esos AppId durante 1,8 s sin suponer que hubo un clic.
+        // Una activación de OTRA aplicación fuera de esa transición restablece
+        // las reglas habituales por perfil / posición derecha.
+        if (fullscreenAnchorHeld && fullscreenExited && active.known) {
+            if (!fullscreenFocusSettled) {
+                fullscreenTransitionFocusIds[active.appId] = true
+            } else if (!fullscreenTransitionFocusIds[active.appId]) {
+                fullscreenAnchorHeld = false
+                fullscreenExited = false
+                console.log("SmartBar fullscreen: nuevo foco de aplicacion",
+                            active.appId)
+            }
         }
         const previousId = trackedAppId
         const previousMaximized = trackedMaximized
