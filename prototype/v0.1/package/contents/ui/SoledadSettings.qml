@@ -18,8 +18,14 @@ import "assets/FactoryDayTheme.js" as FactoryDayTheme
 Window {
     id: settings
     visible: false
-    flags: Qt.Dialog
-    title: "Configuraciones"
+    // Ventana de escritorio independiente: KDE/KWin ofrece título y controles
+    // nativos para mover, minimizar, maximizar, restaurar y cerrar.
+    // No bloquear ni mantener encima el visor de Soledad/Malvina tras Aplicar.
+    flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint |
+           Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
+    transientParent: null
+    modality: Qt.NonModal
+    title: "Plasma SmartBar · Configuración"
     color: "#242236"
 
     // Más ancho para que los botones HEX y el scroll nunca se superpongan.
@@ -5454,7 +5460,8 @@ Window {
             }
         }
 
-        // Pie fijo: Cancelar izquierda y Aplicar derecha, sin botón Cerrar.
+        // Pie compartido por TODOS los menús: el cierre conserva lo ya
+        // aplicado, pero descarta las ediciones pendientes, igual que la X nativa.
         RowLayout {
             Layout.fillWidth: true
             QQC2.Label {
@@ -5469,6 +5476,12 @@ Window {
                 onClicked: settings.close()
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: "Descartar los cambios pendientes desde el último Aplicar"
+            }
+            QQC2.Button {
+                text: "Cerrar"
+                onClicked: settings.close()
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: "Cerrar Configuración; conservar lo ya aplicado"
             }
             QQC2.Button {
                 text: "Aplicar"
