@@ -155,7 +155,7 @@ Window {
                         "perfil guardado:", trackedKnown)
             Qt.callLater(function() {
                 if (probe.trackedKnown) bar.applyRealPositionProfile()
-                else if (!bar.gripDrag.active) bar.alignRightNow()
+                else if (!bar.draggingIslandGrip) bar.alignRightNow()
             })
         }
     }
