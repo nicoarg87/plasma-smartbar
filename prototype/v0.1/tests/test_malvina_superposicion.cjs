@@ -222,6 +222,52 @@ assert(search.includes("if (Keyboard.enterAction(navigationSection) === \"confir
        search.includes("openSelected()"),
        "Enter: primera pulsación confirma, segunda ejecuta búsqueda");
 
+// El flujo acordado después de un arrastre es:
+// Tab → Web/IA, primer Enter CONFIRMA, segundo Enter ABRE la URL.
+// Ejecutar funciones reales del QML con un editor enfocado simulado.
+let searchCalls = 0;
+const doubleEnter = new Function(
+    "search", "fieldPopup", "queryInput", "Qt", "Keyboard",
+    "enabledFor", "webIdAt", "aiIdAt", "openSelected",
+    qmlFunction("restoreEditorFocusAfterLayout") + "\n" +
+    qmlFunction("activeEditorFocus") + "\n" +
+    "let webIndex = 0, aiIndex = 0, currentSection = 1;" +
+    "let navigationSection = 1, navigationIndex = 0;\n" +
+    qmlFunction("chooseProvider") + "\n" +
+    qmlFunction("confirmCandidate") + "\n" +
+    qmlFunction("handleEditorKey") + "\n" +
+    "return {" +
+      " restoreEditorFocusAfterLayout," +
+      " press(event) { handleEditorKey(event); }," +
+      " getNavigation() { return navigationSection; }," +
+      " getWebIndex() { return webIndex; }" +
+    "};"
+)(
+    fakeSearch, {visible:true},
+    {forceActiveFocus() {hasEditorFocus = true;}},
+    {callLater(callback) {focusQueue.push(callback);},
+     Key_Tab: 9, Key_Backtab: 111, Key_Return: 13,
+     Key_Enter: 16777221, Key_Escape: 27, ShiftModifier: 0x02000000},
+    {enterAction(section) {return section === 0 ? "search" : "confirm";}},
+    () => true, index => ["duck","google","yahoo"][index],
+    index => ["chatgpt","gemini","claude"][index],
+    () => {searchCalls++;}
+);
+fakeSearch.restoreEditorFocusAfterLayout =
+    doubleEnter.restoreEditorFocusAfterLayout;
+const firstEnter = {key:13,modifiers:0,isAutoRepeat:false,accepted:false};
+doubleEnter.press(firstEnter);
+assert.equal(firstEnter.accepted,true,"Primer Enter procesado por editor");
+assert.equal(doubleEnter.getNavigation(),0,
+             "Primer Enter confirma el proveedor y vuelve al campo");
+assert.equal(doubleEnter.getWebIndex(),0,
+             "El primer proveedor luego del orden es DuckDuckGo");
+assert.equal(searchCalls,0,"Primer Enter NO abre URL");
+const secondEnter = {key:13,modifiers:0,isAutoRepeat:false,accepted:false};
+doubleEnter.press(secondEnter);
+assert.equal(secondEnter.accepted,true,"Segundo Enter procesado");
+assert.equal(searchCalls,1,"Segundo Enter abre la consulta, sin otro clic");
+
 assert.equal((qml.match(/\bWindow\s*\{/g) || []).length, 1,
     "Una sola ventana Malvina, no banda duplicada");
 assert.equal((qml.match(/SmartBar\.SmartBarContent\s*\{/g) || []).length, 1,
