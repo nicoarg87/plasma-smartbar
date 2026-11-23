@@ -31,7 +31,7 @@ Window {
     // La única variable de anclaje es la posición que calcula el
     // DragHandler ORIGINAL del agarre. No mover aplicaciones externas.
     LayerShell.Window.margins: ({
-        left: 0, top: 6,
+        left: 0, top: 0,
         right: 12 + Math.round(bar.islandOffset), bottom: 0
     })
 
