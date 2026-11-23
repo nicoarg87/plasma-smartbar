@@ -72,12 +72,60 @@ Window {
     property string fullscreenReturnAppId: ""
     property bool fullscreenObserved: false
     property bool fullscreenExitPending: false
+    // Solo diagnostico del ENSAYO: cambios observables de tareas,
+    // sin titulos ni texto de ventanas y sin consultas a APIs privadas.
+    property string lastKdeStateSignature: ""
+    function reportKdeState(reason, force) {
+        const rows = snapshotRealWindows()
+        const saved = SoledadPositionProfiles.readProfiles(positionProfilesJson)
+        const visible = rows.filter(function(row) {
+            return row.active || row.maximized || row.fullscreen ||
+                Object.prototype.hasOwnProperty.call(saved, row.appId)
+        }).map(function(row) {
+            return {
+                appId: row.appId || "(sin ID)",
+                active: row.active === true,
+                maximized: row.maximized === true,
+                minimized: row.minimized === true,
+                fullscreen: row.fullscreen === true,
+                hasProfile: Object.prototype.hasOwnProperty.call(saved, row.appId)
+            }
+        })
+        visible.sort(function(a, b) {
+            return a.appId < b.appId ? -1 : (a.appId > b.appId ? 1 : 0)
+        })
+        const signature = JSON.stringify(visible)
+        if (force !== true && signature === lastKdeStateSignature) return
+        lastKdeStateSignature = signature
+        console.log("SmartBar ESTADO KDE:", reason,
+                    "ventanas=" + rows.length,
+                    "estados=" + signature,
+                    "seguimiento=" + (trackedAppId || "(ninguno)"),
+                    "anteriorFullscreen=" + (lastRegularProfileAppId || "(ninguno)"),
+                    "pendiente=" + fullscreenExitPending,
+                    "SoledadOffset=" + bar.islandOffset)
+    }
+
+    // Temporizador SOLO DE DIAGNOSTICO: observa cada segundo los estados
+    // en los 90s del ensayo; no mueve isla, no escribe preferencias,
+    // no modifica ventanas ni se incorpora al plasmoide o visor.
+    Timer {
+        id: diagnosticWatch
+        interval: 1000
+        repeat: true
+        running: true
+        onTriggered: probe.reportKdeState("auditoria sin clic", false)
+    }
     // Durante arranque y cambios de fullscreen KWin puede actualizar sus
     // roles después de crear/eliminar las ventanas. Releer unos segundos,
     // sin controlar ventanas ni usar polling permanente.
     property int remainingStateRechecks: 0
-    function scheduleWindowRecheck() {
+    function scheduleWindowRecheck(reason) {
         Qt.callLater(probe.refreshExternalWindow)
+        if (typeof reason === "string" && reason.length > 0)
+            Qt.callLater(function() {
+                probe.reportKdeState("senal " + reason, true)
+            })
         remainingStateRechecks = 12
         stateRecheckTimer.restart()
     }
@@ -154,7 +202,7 @@ Window {
         filterByVirtualDesktop: false
         filterByActivity: false
         filterByScreen: false
-        onCountChanged: probe.scheduleWindowRecheck()
+        onCountChanged: probe.scheduleWindowRecheck("cantidad ventanas")
     }
 
     // El cajón SO conserva agrupación por aplicación; el segundo modelo
@@ -172,8 +220,8 @@ Window {
     Repeater {
         id: kdeWindowObservers
         model: kdeWindows
-        onItemAdded: probe.scheduleWindowRecheck()
-        onItemRemoved: probe.scheduleWindowRecheck()
+        onItemAdded: probe.scheduleWindowRecheck("ventana agregada")
+        onItemRemoved: probe.scheduleWindowRecheck("ventana retirada")
         delegate: Item {
             required property var model
             width: 0
@@ -191,10 +239,10 @@ Window {
                     minimized: taskMinimized, fullscreen: taskFullScreen }
             }
             onAppIdChanged: probe.scheduleWindowRecheck()
-            onTaskActiveChanged: probe.scheduleWindowRecheck()
-            onTaskMaximizedChanged: probe.scheduleWindowRecheck()
-            onTaskMinimizedChanged: probe.scheduleWindowRecheck()
-            onTaskFullScreenChanged: probe.scheduleWindowRecheck()
+            onTaskActiveChanged: probe.scheduleWindowRecheck("foco")
+            onTaskMaximizedChanged: probe.scheduleWindowRecheck("maximizada")
+            onTaskMinimizedChanged: probe.scheduleWindowRecheck("minimizada")
+            onTaskFullScreenChanged: probe.scheduleWindowRecheck("fullscreen")
             Component.onCompleted: probe.scheduleWindowRecheck()
         }
     }
@@ -366,7 +414,7 @@ Window {
         }
     }
     Component.onCompleted: {
-        probe.scheduleWindowRecheck()
+        probe.scheduleWindowRecheck("inicio")
         Qt.callLater(function() { probe.logPositionStorage("inicio del ensayo") })
         console.log(
         "SmartBar: ventana LayerShellQt FIJA, input limitado por QWindow::setMask.",
