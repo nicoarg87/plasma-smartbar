@@ -478,7 +478,7 @@ QQC2.Popup {
                             if (label === "+")
                                 launcher.showMoreCategories = true
                             else if (searchInput.text.trim())
-                                launcher.appSelected(label, launcher.catalogIsReal)
+                                launcher.selectApplication(modelData)
                             else {
                                 launcher.selectedCategory = label
                                 launcher.expandedCanvas = true
