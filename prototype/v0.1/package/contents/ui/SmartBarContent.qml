@@ -1277,6 +1277,9 @@ Item {
     readonly property real actualIslandWidth: systemIsland.width
     // Ancho efectivo de Malvina para las máscaras nativas de entrada
     // experimentales; solo lectura, no cambia geometría ni preferencias.
+    // Solo el ensayo LayerShell puede indicar el ancho externo disponible
+    // para el menú Web/IA; con 0 se conserva el visor/plasmoide actual.
+    property real malvinaOptionsViewportWidth: 0
     readonly property real actualMalvinaWidth: malvinaHotspot.width
     readonly property real actualMalvinaHeight: malvinaHotspot.height
     // Las dos superficies Popup de Malvina son el editor y Web/IA.
@@ -2208,6 +2211,7 @@ Item {
             }
             MalvinaSearch {
                 id: malvinaSearch
+                optionsViewportWidthOverride: root.malvinaOptionsViewportWidth
                 gearButtonShape: root.malvinaGearButtonShape
                 searchButtonShape: root.malvinaSearchButtonShape
                 islandShape: root.malvinaShape
