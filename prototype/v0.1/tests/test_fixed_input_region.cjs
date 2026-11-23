@@ -159,9 +159,9 @@ assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)")
 // No forzar Steam si KWin identifica otra ventana activa o un fullscreen.
 const vm = require("node:vm");
 const realActiveSource = read("package/contents/ui/RealActiveWindow.js")
-    .replace(/^\\s*\\.pragma library\\s*\\n/, "");
+    .replace(/^\s*\.pragma library\s*\n/, "");
 const getExitCandidate = vm.runInNewContext(
-    realActiveSource + "\\n;fullscreenExitCandidate");
+    realActiveSource + "\n;fullscreenExitCandidate");
 const steamMain = {
     appId: "steam", appName: "Steam", active: false,
     maximized: true, minimized: false, fullscreen: false
@@ -213,7 +213,7 @@ for (const marker of [
     "probe.recoverFullscreenExit()",
     "Qt.callLater(probe.recoverFullscreenExit)"
 ]) assert(qml.includes(marker), "Falta recuperación conservadora: " + marker);
-assert((qml.match(/profileSettings\\.setValue\\(/g) || []).length === 1,
+assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
        "El retorno de Big Picture no debe guardar ninguna nueva preferencia");
 
 // Inicio y regreso de fullscreen: reevaluación corta de roles KDE.
