@@ -132,6 +132,33 @@ assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)")
        profiles.includes("function resolveOffset(") &&
        profiles.includes("function clampOffset("),
        "Reutilizar la política ya probada de posiciones por aplicación");
+// Regresión reportada en Brave: menú «Alinear a la derecha» con perfil
+// ya guardado debe volver al anclaje de esa app maximizada, NO a x=0.
+for (const expected of [
+    "readonly property bool activeRealAppHasSavedPosition:",
+    "realTrackedMaximized && !realTrackedFullscreen",
+    "realTrackedAppId.length > 0",
+    "SoledadPositionProfiles.readProfiles(realPositionProfilesJson)",
+    "realTrackedAppId)",
+    "else if (activeRealAppHasSavedPosition) {",
+    "soExpanded = false",
+    "trayExpanded = false",
+    "applyRealPositionProfile()",
+    '"Volver a posición de " + root.realTrackedAppName',
+    "root.activeRealAppHasSavedPosition"
+]) assert(real.includes(expected), "Falta retorno contextual por perfil: " + expected);
+const returnStart = real.indexOf("    function returnToConfiguredPosition() {");
+const returnEnd = real.indexOf("    function setPreviewMaximized(", returnStart);
+assert(returnStart >= 0 && returnEnd > returnStart);
+const returnAction = real.slice(returnStart, returnEnd);
+assert(returnAction.indexOf("activeRealAppHasSavedPosition") <
+       returnAction.indexOf("applyRealPositionProfile()"),
+       "La opción contextual debe comprobar perfil real antes de usarlo");
+assert(returnAction.includes("else {\n            alignRightNow()"),
+       "Sin perfil activo, mantener la derecha general");
+assert(!qml.includes("trialControlsReservePx"),
+       "No reintroducir margen horizontal arbitrario");
+
 assert(real.includes("id: moveGrip") && real.includes("model: 6") &&
        real.includes("id: gripDrag"));
 assert(real.includes("property bool layerShellDragCompensation: false") &&
