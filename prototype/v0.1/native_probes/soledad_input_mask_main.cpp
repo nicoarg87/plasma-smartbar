@@ -216,6 +216,10 @@ int main(int argc, char *argv[]) {
     InputMaskBridge input;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("soledadInputMask", &input);
+    // Solo el lanzador conjunto habilita sesiones sin autocierre; el resto
+    // de los ensayos conserva sus límites de tiempo y su seguridad.
+    engine.rootContext()->setContextProperty(
+        "smartbarContinuousMode", qEnvironmentVariableIntValue("SMARTBAR_CONTINUOUS") == 1);
     engine.load(QUrl::fromLocalFile(QString::fromLocal8Bit(argv[1])));
     if (engine.rootObjects().size() != 1) {
         qCritical() << "SmartBar: QML no creó exactamente una superficie.";
