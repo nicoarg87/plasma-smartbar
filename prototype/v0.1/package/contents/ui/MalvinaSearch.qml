@@ -60,7 +60,7 @@ Item {
     readonly property var webEnabled: [webGoogleEnabled, webDuckEnabled, webYahooEnabled]
     property bool webFirst: true
     property string webOrder: "duck,yahoo,google"
-    property string aiOrder: "chatgpt,gemini,claude"
+    property string aiOrder: "chatgpt,claude,gemini"
     // Formato de fichas compartido con la isla de Soledad.
     property string extraWeb: "[]"
     property string extraAi: "[]"
