@@ -205,6 +205,7 @@ function qmlFunction(name) {
 const simulation = {
     lastVisibleIslandOffset: 0,
     lastVisibleIslandKnown: false,
+    positionProfilesJson: '{"brave-browser":125.4140625,"steam":369}',
     fullscreenSavedIslandOffset: 0,
     fullscreenObserved: false,
     fullscreenAnchorHeld: false,
@@ -218,10 +219,12 @@ const simulation = {
     trackedMaximized: true,
     trackedFullscreen: false,
     heldNormalFocusAppId: "",
+    SoledadPositionProfiles: {readProfiles(json) {return JSON.parse(json);}},
     rows: [],
     kdeWindows: {count: 3},
     bar: {
         islandOffset: 320, maxIslandOffset: 1000,
+        width: 1920, actualIslandWidth: 180,
         draggingIslandGrip: false, activeRealAppHasSavedPosition: true,
         alignRightSelected: false, mockProfileOffset: 115,
         setIslandOffset(value) { this.islandOffset = Math.max(0, Math.min(1000, value)); },
@@ -239,6 +242,7 @@ const simulation = {
 simulation.probe = simulation;
 simulation.snapshotRealWindows = () => simulation.rows;
 vm.runInNewContext([
+    qmlFunction("recoverInitialMaximizedAnchor"),
     qmlFunction("rememberVisibleIslandOffset"),
     qmlFunction("restoreLastFullscreenPosition"),
     qmlFunction("refreshExternalWindow")
@@ -425,6 +429,83 @@ assert(qml.includes('property string heldNormalFocusAppId: ""') &&
        "La política de foco normal debe estar conectada al ensayo aislado");
 assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 1,
     "Conservar retención de foco no debe escribir perfiles");
+
+// REGRESIÓN DE ARRANQUE 23/11 (nueva captura): la terminal mantiene
+// foco al ejecutar el ensayo, Brave está maximizada DETRÁS y Steam normal.
+// La primera coordenada debe venir del ÚNICO perfil maximizado, no de 0.
+const consoleFocus = {
+    appId: "Alacritty", appName: "Alacritty", active: true,
+    maximized: false, minimized: false, fullscreen: false
+};
+const savedTwo = JSON.parse(simulation.positionProfilesJson);
+assert.equal(activePolicy.uniqueMaximizedProfile([
+    {...braveMax, active: false}, steamNormal, consoleFocus
+], savedTwo).offset, 125.4140625,
+"Un único fondo maximizado con perfil identifica anclaje de arranque");
+assert.equal(activePolicy.uniqueMaximizedProfile([
+    {...braveMax, active: false}, {...steamNormal, maximized: true},
+    consoleFocus
+], savedTwo).known, false,
+"No adivinar entre Brave y Steam maximizadas al arrancar");
+assert.equal(activePolicy.uniqueMaximizedProfile([
+    {...braveMax, active: false}, steamNormal, consoleFocus
+], {}).known, false,
+"No inventar anclaje si faltan perfiles guardados");
+simulation.fullscreenObserved = false;
+simulation.fullscreenAnchorHeld = false;
+simulation.fullscreenExited = false;
+simulation.lastVisibleIslandKnown = false;
+simulation.lastVisibleIslandOffset = 0;
+simulation.heldNormalFocusAppId = "";
+simulation.trackedAppId = "";
+simulation.trackedAppName = "";
+simulation.trackedMaximized = false;
+simulation.trackedFullscreen = false;
+simulation.trackedKnown = false;
+simulation.bar.islandOffset = 0;
+simulation.bar.mockProfileOffset = 0;
+simulation.rows = [{...braveMax, active: false}, steamNormal, consoleFocus];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+"Arranque con Konsole activa debe recolocar Soledad según Brave max detrás");
+assert.equal(simulation.heldNormalFocusAppId, "Alacritty",
+"No aplicar retorno general al procesar la terminal activa");
+assert.equal(simulation.lastVisibleIslandKnown, true,
+"El anclaje de arranque se conserva como contexto visual");
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+"Relecturas de TasksModel no deben volver a cero desde terminal");
+simulation.rows = [
+    {...braveMax, active: false}, {...steamNormal, active: true},
+    {...consoleFocus, active: false}
+];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+"Minimizar Konsole y enfocar Steam restaurada conserva anclaje Brave");
+simulation.rows = [
+    {...braveMax, active: false}, {...steamNormal, active: true,
+                                    maximized: true}
+];
+simulation.bar.mockProfileOffset = 369;
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 369,
+"Maximizar Steam tras arrancar desde Konsole aplica perfil Steam");
+assert.equal(simulation.heldNormalFocusAppId, "",
+"La retención temporal no bloquea Steam maximizada");
+simulation.rows = [
+    {...braveMax, active: true}, {...steamNormal, active: false,
+                                   maximized: true}
+];
+simulation.bar.mockProfileOffset = 125.4140625;
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+"Cambiar a Brave maximizada recupera su perfil, no Steam");
+assert(qml.includes("function recoverInitialMaximizedAnchor(rows)") &&
+       qml.includes("RealActiveWindow.uniqueMaximizedProfile(") &&
+       qml.includes('console.log("SmartBar inicio anclaje: ventana maximizada unica"'),
+       "El ensayo incluye la reconciliación inicial sin nuevos botones");
+assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 1,
+       "La reconciliación inicial no debe escribir perfiles");
 
 for (const marker of [
     "property real lastVisibleIslandOffset: 0",
