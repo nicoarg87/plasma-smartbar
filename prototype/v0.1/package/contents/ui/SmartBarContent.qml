@@ -60,7 +60,7 @@ Item {
     property string malvinaClaudeUrl: "https://claude.ai/new"
     property bool malvinaWebFirst: true
     property string malvinaWebOrder: "duck,yahoo,google"
-    property string malvinaAiOrder: "chatgpt,gemini,claude"
+    property string malvinaAiOrder: "chatgpt,claude,gemini"
     property string malvinaExtraWeb: "[]"
     property string malvinaExtraAi: "[]"
     property string malvinaHiddenWeb: ""
