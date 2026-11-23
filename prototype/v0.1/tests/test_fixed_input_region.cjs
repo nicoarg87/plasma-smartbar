@@ -188,7 +188,7 @@ const vm = require("node:vm");
 const realActiveSource = read("package/contents/ui/RealActiveWindow.js")
     .replace(/^\s*\.pragma library\s*\n/, "");
 const activePolicy = vm.runInNewContext(realActiveSource +
-    "\n;({resolve, shouldKeepNormalFocusPosition, uniqueMaximizedProfile})");
+    "\n;({resolve, shouldKeepNormalFocusPosition, uniqueMaximizedProfile, fallbackAfterActiveUnmaximize, topmostMaximizedProfile})");
 function qmlFunction(name) {
     const marker = "    function " + name + "(";
     const start = qml.indexOf(marker);
@@ -219,6 +219,8 @@ const simulation = {
     trackedMaximized: true,
     trackedFullscreen: false,
     heldNormalFocusAppId: "",
+    positionTransitionRevision: 0,
+    lastTopMaximizedSignature: "",
     SoledadPositionProfiles: {readProfiles(json) {return JSON.parse(json);}},
     rows: [],
     kdeWindows: {count: 3},
@@ -237,6 +239,7 @@ const simulation = {
     RealActiveWindow: activePolicy,
     console: {log() {}},
     logPositionStorage() {},
+    scheduleWindowRecheck() {},
     refreshInputRegion() {},
 };
 simulation.probe = simulation;
@@ -252,7 +255,8 @@ assert.equal(simulation.lastVisibleIslandOffset, 320,
              "Antes de fullscreen se recuerda la coordenada VISIBLE");
 const steamMain = {
     appId: "steam", appName: "Steam", active: false,
-    maximized: true, minimized: false, fullscreen: false
+    maximized: true, minimized: false, fullscreen: false,
+    stackingOrder: 1
 };
 const steamBigPicture = {
     appId: "steam", appName: "Steam", active: true,
@@ -289,32 +293,34 @@ assert.equal(simulation.bar.islandOffset, 320,
 simulation.fullscreenFocusSettled = false;
 simulation.rows = [steamMain, {
     appId: "brave-browser", appName: "Brave", active: true,
-    maximized: true, minimized: false, fullscreen: false
+    maximized: true, minimized: false, fullscreen: false,
+    stackingOrder: 2
 }];
 simulation.refreshExternalWindow();
 assert.equal(simulation.fullscreenAnchorHeld, false,
              "Brave maximizado libera memoria de Steam incluso durante 1,8 s");
-assert.equal(simulation.bar.islandOffset, 115,
+assert.equal(simulation.bar.islandOffset, 125.4140625,
              "El cambio real a Brave recupera SU perfil sin minimizar Steam");
 // El simulador no emite onIslandOffsetChanged automáticamente: imitar
 // la señal de QML para actualizar la memoria visual de Brave.
 simulation.rememberVisibleIslandOffset();
-assert.equal(simulation.lastVisibleIslandOffset, 115,
+assert.equal(simulation.lastVisibleIslandOffset, 125.4140625,
              "La última posición visible ahora pertenece a Brave");
 simulation.rows = [steamMain, {
     appId: "brave-browser", appName: "Brave", active: true,
     maximized: false, minimized: false, fullscreen: true
 }];
 simulation.refreshExternalWindow();
-assert.equal(simulation.fullscreenSavedIslandOffset, 115,
+assert.equal(simulation.fullscreenSavedIslandOffset, 125.4140625,
              "YouTube fullscreen captura posición de Brave, NO Steam");
 simulation.bar.islandOffset = 0;
 simulation.rows = [steamMain, {
     appId: "brave-browser", appName: "Brave", active: true,
-    maximized: true, minimized: false, fullscreen: false
+    maximized: true, minimized: false, fullscreen: false,
+    stackingOrder: 2
 }];
 simulation.refreshExternalWindow();
-assert.equal(simulation.bar.islandOffset, 115,
+assert.equal(simulation.bar.islandOffset, 125.4140625,
              "Salir de YouTube sin clic devuelve la posición de Brave");
 assert.equal(simulation.fullscreenAnchorHeld, true,
              "La salida fullscreen conserva momentáneamente anclaje de Brave");
@@ -332,11 +338,13 @@ assert.equal(simulation.lastVisibleIslandOffset, 470,
  // aplica su perfil; desmaximizar la propia Steam retorna a la derecha.
 const braveMax = {
     appId: "brave-browser", appName: "Brave", active: true,
-    maximized: true, minimized: false, fullscreen: false
+    maximized: true, minimized: false, fullscreen: false,
+    stackingOrder: 1
 };
 const steamNormal = {
     appId: "steam", appName: "Steam", active: false,
-    maximized: false, minimized: false, fullscreen: false
+    maximized: false, minimized: false, fullscreen: false,
+    stackingOrder: 2
 };
 const steamFocus = {...steamNormal, active: true};
 assert.equal(activePolicy.shouldKeepNormalFocusPosition(
@@ -370,6 +378,42 @@ assert.equal(activePolicy.shouldKeepNormalFocusPosition(
     "brave-browser", ""), false,
     "Fullscreen nunca usa la retención de foco normal");
 
+// KDE StackingOrder: mayor índice significa ventana más arriba.
+const visibleProfiles = JSON.parse(simulation.positionProfilesJson);
+const stackedBrave = {appId: "brave-browser", active: false,
+    maximized: true, minimized: false, fullscreen: false, stackingOrder: 3};
+const stackedSteam = {appId: "steam", active: true,
+    maximized: true, minimized: false, fullscreen: false, stackingOrder: 5};
+assert.equal(activePolicy.topmostMaximizedProfile(
+    [stackedBrave, stackedSteam], visibleProfiles).appId, "steam",
+    "Steam apilada arriba prevalece aunque no sea unica maximizada");
+assert.equal(activePolicy.topmostMaximizedProfile(
+    [{...stackedBrave, stackingOrder: 8}, stackedSteam],
+    visibleProfiles).appId, "brave-browser",
+    "Brave elevada por KWin debe pasar a ser la referencia");
+assert.equal(activePolicy.topmostMaximizedProfile(
+    [stackedBrave, {...stackedSteam, stackingOrder: 3}],
+    visibleProfiles).kind, "hold",
+    "Indices duplicados asincronos no autorizan elegir una ventana");
+assert.equal(activePolicy.topmostMaximizedProfile(
+    [stackedBrave, {...stackedSteam, stackingOrder: -1}],
+    visibleProfiles).kind, "hold",
+    "Indice Wayland -1 no autoriza elegir entre varias maximizadas");
+assert.equal(activePolicy.topmostMaximizedProfile(
+    [stackedBrave, stackedSteam], {"brave-browser":125.4140625}).kind,
+    "hold", "La ventana superior sin perfil no permite usar la inferior");
+assert.equal(activePolicy.topmostMaximizedProfile(
+    [{...stackedBrave, stackingOrder: -1}], visibleProfiles).appId,
+    "brave-browser", "Con una sola maximizada no hace falta StackingOrder");
+assert.equal(activePolicy.topmostMaximizedProfile(
+    [{...stackedBrave, maximized:false}], visibleProfiles).kind,
+    "none", "Sin ninguna maximizada se aplica retorno general");
+assert.equal(activePolicy.fallbackAfterActiveUnmaximize(
+    [stackedSteam], {appId:"brave-browser", known:true,
+                     maximized:false, fullscreen:false},
+    "brave-browser", true, visibleProfiles).appId, "steam",
+    "Desmaximizar Brave debe respetar Steam superior restante");
+
 // Reproducir la cadena con las mismas funciones QML del ensayo.
 simulation.bar.draggingIslandGrip = false;
 simulation.fullscreenObserved = false;
@@ -394,7 +438,8 @@ assert.equal(simulation.heldNormalFocusAppId, "steam");
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 125.4140625,
     "Relectura de KWin conserva la posición mientras Brave sigue maximizada");
-simulation.rows = [{...braveMax, active: false}, {...steamFocus, maximized: true}];
+simulation.rows = [{...braveMax, active: false}, {...steamFocus, maximized: true,
+                    stackingOrder: 3}];
 simulation.bar.mockProfileOffset = 369;
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 369,
@@ -403,9 +448,9 @@ assert.equal(simulation.heldNormalFocusAppId, "");
 simulation.rows = [{...braveMax, active: false}, steamFocus];
 simulation.bar.mockProfileOffset = 0;
 simulation.refreshExternalWindow();
-assert.equal(simulation.bar.islandOffset, 0,
-    "Desmaximizar Steam activa aplica retorno general, NO conserva Steam");
-simulation.rows = [braveMax, steamNormal];
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+    "Desmaximizar Steam activa recupera perfil de Brave maximizada detrás");
+simulation.rows = [{...braveMax, stackingOrder: 4}, steamNormal];
 simulation.bar.mockProfileOffset = 125.4140625;
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 125.4140625,
@@ -484,7 +529,7 @@ assert.equal(simulation.bar.islandOffset, 125.4140625,
 "Minimizar Konsole y enfocar Steam restaurada conserva anclaje Brave");
 simulation.rows = [
     {...braveMax, active: false}, {...steamNormal, active: true,
-                                    maximized: true}
+                                    maximized: true, stackingOrder: 3}
 ];
 simulation.bar.mockProfileOffset = 369;
 simulation.refreshExternalWindow();
@@ -493,16 +538,27 @@ assert.equal(simulation.bar.islandOffset, 369,
 assert.equal(simulation.heldNormalFocusAppId, "",
 "La retención temporal no bloquea Steam maximizada");
 simulation.rows = [
-    {...braveMax, active: true}, {...steamNormal, active: false,
-                                   maximized: true}
+    {...braveMax, active: true, stackingOrder: 4},
+    {...steamNormal, active: false, maximized: true, stackingOrder: 3}
 ];
 simulation.bar.mockProfileOffset = 125.4140625;
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 125.4140625,
 "Cambiar a Brave maximizada recupera su perfil, no Steam");
+// Integración QML: observa el rol KDE sin instalar nada en KWin.
+for (const required of [
+    "readonly property var taskStackingOrder: model.StackingOrder",
+    "stackingOrder: taskStackingOrder",
+    'onTaskStackingOrderChanged: probe.scheduleWindowRecheck("apilamiento")',
+    "RealActiveWindow.topmostMaximizedProfile(",
+    'currentTop.kind === "profile"',
+    'currentTop.kind === "hold"',
+    'console.log("SmartBar maximizada superior:"'
+]) assert(qml.includes(required), "Falta prioridad visual KDE: " + required);
+
 assert(qml.includes("function recoverInitialMaximizedAnchor(rows)") &&
-       qml.includes("RealActiveWindow.uniqueMaximizedProfile(") &&
-       qml.includes('console.log("SmartBar inicio anclaje: ventana maximizada unica"'),
+       qml.includes("RealActiveWindow.topmostMaximizedProfile(") &&
+       qml.includes('console.log("SmartBar inicio anclaje: maximizada superior"'),
        "El ensayo incluye la reconciliación inicial sin nuevos botones");
 assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 1,
        "La reconciliación inicial no debe escribir perfiles");
