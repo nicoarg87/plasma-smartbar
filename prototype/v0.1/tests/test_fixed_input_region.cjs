@@ -63,50 +63,72 @@ assert(!qml.includes("right: 12 + Math.round(bar.islandOffset)"),
 assert(!qml.includes("AnimatedImage {") && !qml.includes("MouseArea {") &&
        !qml.includes("DragHandler {"),
        "Cargar el componente real: no duplicar agarre, GIF ni botones.");
-assert(!qml.includes("Settings {") && !qml.includes("QtCore.Settings"));
-
-// Nueva reserva EXCLUSIVAMENTE en la prueba fija: la observa KDE, no
-// sustituye controles ni cambia la geometría del Window.
+// Perfil real ya existente y probado en visor Qt; solo se escribe mediante
+// la opción contextual REAL «Recordar esta posición para [aplicación]».
 for (const marker of [
     "import org.kde.taskmanager 0.1 as TaskManager",
+    'import QtCore as QtCore',
+    'import "package/contents/ui/RealActiveWindow.js" as RealActiveWindow',
+    'category: "plasma-smartbar-v01-preview-appearance"',
+    'profileSettings.value("soledadRealPositionProfilesV1", "{}")',
     "TaskManager.TasksModel {",
     "groupMode: TaskManager.TasksModel.GroupDisabled",
+    "groupMode: TaskManager.TasksModel.GroupApplications",
     "launcherList: []",
     "required property var model",
-    "model.IsWindow === true",
     "model.IsActive === true",
     "model.IsMaximized === true",
+    "model.IsMinimized === true",
     "model.IsFullScreen === true",
-    "onTaskMaximizedChanged: Qt.callLater(probe.refreshExternalMaximized)",
-    "onTaskActiveChanged: Qt.callLater(probe.refreshExternalMaximized)",
+    "RealActiveWindow.resolve(rows)",
+    "onTaskMaximizedChanged: Qt.callLater(probe.refreshExternalWindow)",
+    "onTaskActiveChanged: Qt.callLater(probe.refreshExternalWindow)",
+    "onTaskMinimizedChanged: Qt.callLater(probe.refreshExternalWindow)",
     "kdeWindowObservers.itemAt(i)",
-    "trialControlsReservePx: 176",
-    "externalWindowControlsReserve: probe.externalActiveMaximized",
-    "onControlsReservationChanged: probe.refreshInputRegion()"
-]) assert(qml.includes(marker), "Falta reserva externa / detección KDE: " + marker);
-assert(/task\.taskWindow\s*&&\s*task\.taskActive\s*&&\s*task\.taskMaximized\s*&&\s*!task\.taskFullScreen/.test(qml),
-    "No reservar por ventanas no activas o fullscreen");
-assert(!/requestActivate\s*\(|requestClose\s*\(|requestToggleMaximized\s*\(/.test(qml),
-    "No alterar estado de ventanas externas");
+    "realTaskModel: groupedKdeWindows",
+    "realTrackedAppId: probe.trackedAppId",
+    "realTrackedAppName: probe.trackedAppName",
+    "realTrackedMaximized: probe.trackedMaximized",
+    "realTrackedKnown: probe.trackedKnown",
+    "onRequestRealPositionProfilesChange: function(json)",
+    'profileSettings.setValue("soledadRealPositionProfilesV1", json)',
+    "profileSettings.sync()",
+    "externalWindowControlsReserve: 0",
+    "onControlsReservationChanged: probe.refreshInputRegion()",
+    "else if (!bar.draggingIslandGrip) bar.alignRightNow()"
+]) assert(qml.includes(marker), "Falta memoria real / diseño de prueba: " + marker);
+assert(!qml.includes("trialControlsReservePx") &&
+       !qml.includes("externalActiveMaximized"),
+       "No conservar reserva artificial de 176 px");
+assert(!qml.includes("Qt.WindowTransparentForInput") &&
+       !/requestActivate\\s*\\(|requestClose\\s*\\(|requestToggleMaximized\\s*\\(/.test(qml),
+       "Nunca modificar ventanas externas ni pasar clics bajo Soledad");
+assert(!qml.includes("themeDayJson") && !qml.includes("themeNightJson") &&
+       !qml.includes("kwriteconfig") && !qml.includes("KConfig"),
+       "No modificar temas ni KConfig del usuario");
+assert((qml.match(/profileSettings\\.setValue\\(/g) || []).length === 1,
+       "La prueba solo puede persistir la clave de posiciones reales");
 assert(qml.includes("LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })"),
-    "La superficie debe seguir fija");
-assert(real.includes("property real externalWindowControlsReserve: 0"),
-    "El visor principal debe conservar reserva externa 0 por defecto");
-assert(real.includes("Math.max(0, root.externalWindowControlsReserve)"),
-    "La reserva debe proteger el espacio real a la derecha");
-assert(real.includes("readonly property real controlsReservation: Math.max("),
-    "La reserva externa no debe eliminar la simulación de controles propia");
+       "La ventana debe seguir fija y sin obstruir Brave");
+assert(real.includes("property real externalWindowControlsReserve: 0") &&
+       real.includes("readonly property bool draggingIslandGrip: gripDrag.active"),
+       "No alterar producción, exponer únicamente estado del agarre");
+assert(real.includes("onRequestRealPositionProfilesChange") === false,
+       "El contenido base solo emite la solicitud de guardado, no debe persistir");
+assert(real.includes("Recordar esta posición para ") &&
+       real.includes("root.saveRealPositionProfile()") &&
+       real.includes("root.deleteRealPositionProfile()"),
+       "Conservar el menú de perfiles existente y la opción de olvido");
+assert(viewer.includes('setValue("soledadRealPositionProfilesV1", json)') &&
+       viewer.includes('category: "plasma-smartbar-v01-preview-appearance"'),
+       "La prueba y el visor deben compartir la misma clave válida");
 
-// Comprobaciones geométricas de contrato (no reemplazan prueba KWin).
-function reserved(previewMaximized, demoWidth, external) {
-    return Math.max(previewMaximized ? demoWidth + 6 : 0,
-                    Math.max(0, external));
-}
-assert.equal(reserved(false, 120, 0), 0);
-assert.equal(reserved(false, 120, 176), 176);
-assert.equal(reserved(true, 120, 0), 126);
-assert.equal(reserved(true, 120, 176), 176);
-assert.equal(reserved(false, 120, -3), 0);
+// La política pura nunca guarda por mover: guardar requiere invocar explícitamente.
+const profiles = read("package/contents/ui/SoledadPositionProfiles.js");
+assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)") &&
+       profiles.includes("function resolveOffset(") &&
+       profiles.includes("function clampOffset("),
+       "Reutilizar la política ya probada de posiciones por aplicación");
 assert(real.includes("id: moveGrip") && real.includes("model: 6") &&
        real.includes("id: gripDrag"));
 assert(real.includes("property bool layerShellDragCompensation: false") &&
@@ -135,4 +157,4 @@ assert(!main.includes("preview_soledad_input_mask"));
 assert(!viewer.includes("preview_soledad_input_mask"));
 assert(previous.includes("right: 12 + Math.round(bar.islandOffset)"),
        "Preservar el ensayo anterior como evidencia para comparar.");
-console.log("OK: ventana LayerShell FIJA con Qt6::setMask en región de la isla, sin cambios a KDE.");
+console.log("OK: superficie fija; perfiles reales existentes por aplicación; sin reserva fija ni cambios al panel.");
