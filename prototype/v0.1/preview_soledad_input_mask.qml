@@ -30,12 +30,13 @@ Window {
         LayerShell.Window.KeyboardInteractivityNone
     LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })
 
-    // Reutilizar ÚNICAMENTE la clave de perfiles reales ya usada por el
-    // visor Qt. Nunca leer ni sobrescribir temas, GIF ni ajustes del panel KDE.
+    // Reutilizar la LÓGICA de perfiles del visor Qt, pero con preferencias
+    // separadas para este ejecutable experimental. No tocar los perfiles
+    // del visor, temas, GIF ni ajustes del panel KDE.
     // Los cambios se escriben SOLO al elegir «Recordar esta posición…».
     QtCore.Settings {
         id: profileSettings
-        category: "plasma-smartbar-v01-preview-appearance"
+        category: "plasma-smartbar-v01-fixed-input-positions"
     }
     property string positionProfilesJson:
         String(profileSettings.value("soledadRealPositionProfilesV1", "{}"))
@@ -239,7 +240,7 @@ Window {
         "el espacio invisible fuera de la isla debería dejar usar Brave.",
         "Sin margen fijo por controles de Brave.",
         "Clic derecho en el agarre: Recordar esta posición para [aplicación].",
-        "Se conserva memoria real del visor Qt, SIN cambiar temas ni panel.",
+        "Los perfiles se guardan solo en ESTE ensayo, sin tocar el visor Qt.",
         "Autocierre 90 s / Ctrl+C.")
     }
 }
