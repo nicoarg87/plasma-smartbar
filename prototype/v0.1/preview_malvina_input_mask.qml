@@ -167,6 +167,9 @@ Window {
         // El contenido es compartido con Soledad: la ventana recorta
         // físicamente todo lo que quede a la derecha de Malvina.
         width: Math.max(760, probe.Screen.width)
+        // No usar el ancho dinámico de probe para calcular optionsWidth:
+        // dependería del propio Popup y generaría un bucle QML.
+        malvinaOptionsViewportWidth: width
         height: 48
         x: 0
         y: 0
