@@ -2083,15 +2083,17 @@ Item {
                 // Margen pasivo: más fácil encontrar la isla escondida,
                 // sin hacer más gruesa la barra ni ensanchar Malvina.
                 margin: 18
-                enabled: !root.autoRevealBlocked &&
-                         root.launcherIslandVisible &&
-                         (root.autoHideMalvina || root.malvinaDismissedAfterSearch)
+                // Seguir leyendo hover también en modo siempre visible:
+                // al buscar desde ese modo necesitamos saber si el cursor
+                // seguía sobre la isla para evitar reaparecer de inmediato.
+                enabled: !root.autoRevealBlocked && root.launcherIslandVisible
                 onHoveredChanged: {
                     if (hovered) {
                         malvinaHideTimer.stop()
                         if (root.malvinaDismissedAfterSearch &&
                                 !root.malvinaDismissRearmed) return
-                        if (!root.autoRevealBlocked)
+                        if (!root.autoRevealBlocked &&
+                                (root.autoHideMalvina || root.malvinaDismissedAfterSearch))
                             malvinaRevealTimer.restart()
                     } else {
                         malvinaRevealTimer.stop()
