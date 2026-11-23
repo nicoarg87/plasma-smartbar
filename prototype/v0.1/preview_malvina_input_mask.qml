@@ -276,7 +276,7 @@ Window {
         // arrastre; sigue cerrándose sin dejar superficies permanentes.
         interval: 180000
         repeat: false
-        running: true
+        running: !smartbarContinuousMode
         onTriggered: {
             console.log("SmartBar MALVINA: autocierre del ensayo")
             probe.close()
