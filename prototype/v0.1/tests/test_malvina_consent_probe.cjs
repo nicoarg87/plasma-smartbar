@@ -1,5 +1,5 @@
-// Verifica la conexión real del permiso entre Configuración y el ensayo
-// temporal de Malvina. No inicia Qt, no abre navegadores ni guarda permisos.
+// Verifica la conexión y persistencia del consentimiento de Configuración
+// en el ensayo Malvina. No inicia Qt, navegador ni modifica permisos reales.
 "use strict";
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -11,20 +11,36 @@ const bar = fs.readFileSync(path.join(base, "package/contents/ui/SmartBarContent
 const policy = fs.readFileSync(path.join(base, "package/contents/ui/MalvinaUrlPolicy.js"), "utf8")
     .replace(/^\.pragma library\s*$/m, "");
 
-for (const provider of ["ChatGpt", "Gemini", "Claude"]) {
-    assert(qml.includes("property bool testAllow" + provider + ": false"),
-        "El permiso del ensayo comienza desactivado: " + provider);
-    assert(qml.includes("malvinaAllow" + provider + ": probe.testAllow" + provider),
-        "El permiso debe llegar a SmartBarContent: " + provider);
-    assert(bar.includes("allow" + provider + "Prefill: root.malvinaAllow" + provider),
-        "El buscador recibe el permiso de SmartBarContent: " + provider);
+const providers = [
+    {name: "ChatGpt", key: "chatGptConsentV1", variable: "chatGpt"},
+    {name: "Gemini", key: "geminiConsentV1", variable: "gemini"},
+    {name: "Claude", key: "claudeConsentV1", variable: "claude"}
+];
+assert(qml.includes("import QtCore as QtCore"));
+assert(qml.includes("QtCore.Settings {"));
+assert(qml.includes('category: "plasma-smartbar-v01-malvina-layer-probe-consents"'),
+       "El ensayo requiere categoría de almacenamiento exclusiva");
+for (const provider of providers) {
+    assert(qml.includes("property bool testAllow" + provider.name + ":"),
+        "El permiso del ensayo se carga desde almacenamiento: " + provider.name);
+    assert(qml.includes('malvinaConsentSettings.value("' + provider.key + '", false)'),
+        "Primera ejecución/revocación predeterminada en false: " + provider.name);
+    assert(qml.includes("malvinaAllow" + provider.name + ": probe.testAllow" + provider.name),
+        "El permiso debe llegar a SmartBarContent: " + provider.name);
+    assert(qml.includes('malvinaConsentSettings.setValue("' + provider.key +
+                        '", ' + provider.variable + ')'),
+        "Aplicar persiste el permiso específico: " + provider.name);
+    assert(bar.includes("allow" + provider.name + "Prefill: root.malvinaAllow" + provider.name),
+        "El buscador recibe el permiso de SmartBarContent: " + provider.name);
 }
+assert(qml.includes("malvinaConsentSettings.sync()"),
+       "Aplicar debe sincronizar las tres autorizaciones al disco");
 assert(qml.includes("onRequestMalvinaConsentsChange: function(chatGpt, gemini, claude)"));
 assert(bar.includes("root.requestMalvinaConsentsChange(chatGpt, gemini, claude)"));
 assert(!qml.includes("Plasmoid.configuration") &&
        !qml.includes("localPreviewSettings.") &&
        !qml.includes("profileSettings."),
-       "El ensayo no persiste permisos personales");
+       "El ensayo no puede reescribir KConfig ni perfiles del visor");
 
 function handler(name) {
     const signature = "on" + name + ": function(";
@@ -40,21 +56,38 @@ function handler(name) {
     throw new Error("Handler incompleto: " + name);
 }
 
-const memory = {
-    testAllowChatGpt: false,
-    testAllowGemini: false,
-    testAllowClaude: false
+const data = new Map();
+let syncCount = 0;
+const storage = {
+    value(key, defaultValue) { return data.has(key) ? data.get(key) : defaultValue; },
+    setValue(key, value) { data.set(key, value); },
+    sync() { syncCount++; }
 };
-const apply = new Function("probe", "chatGpt", "gemini", "claude", "console",
-    handler("RequestMalvinaConsentsChange"));
+function reload() {
+    return {
+        testAllowChatGpt: String(storage.value("chatGptConsentV1", false)).toLowerCase() === "true",
+        testAllowGemini: String(storage.value("geminiConsentV1", false)).toLowerCase() === "true",
+        testAllowClaude: String(storage.value("claudeConsentV1", false)).toLowerCase() === "true"
+    };
+}
+assert.deepEqual(reload(), {
+    testAllowChatGpt: false, testAllowGemini: false, testAllowClaude: false
+}, "Primera ejecución sin permisos");
+const memory = reload();
+const apply = new Function("probe", "malvinaConsentSettings", "chatGpt", "gemini",
+                           "claude", "console", handler("RequestMalvinaConsentsChange"));
 const logs = {log() {}};
-apply(memory, true, false, true, logs);
-assert.equal(memory.testAllowChatGpt, true);
-assert.equal(memory.testAllowGemini, false);
-assert.equal(memory.testAllowClaude, true);
-apply(memory, false, false, false, logs);
-assert.equal(memory.testAllowChatGpt, false, "Revocar permiso ChatGPT funciona");
-assert.equal(memory.testAllowClaude, false, "Revocar permiso Claude funciona");
+apply(memory, storage, true, false, true, logs);
+assert.equal(syncCount, 1, "Aplicar sincroniza inmediatamente");
+assert.deepEqual(reload(), {
+    testAllowChatGpt: true, testAllowGemini: false, testAllowClaude: true
+}, "Las autorizaciones sobreviven a otra ejecución");
+apply(memory, storage, false, false, false, logs);
+assert.equal(syncCount, 2, "Revocar también se persiste con Aplicar");
+assert.deepEqual(reload(), {
+    testAllowChatGpt: false, testAllowGemini: false, testAllowClaude: false
+}, "Se pueden revocar los tres permisos sin perder el resto del perfil");
+assert.equal(data.size, 3, "Solo se guardan tres indicadores de consentimiento");
 
 const sandbox = {};
 vm.createContext(sandbox);
@@ -71,4 +104,4 @@ for (const [index, url, query, expected] of cases) {
 }
 assert.equal(sandbox.resolveAiPrefill(1, "https://gemini.google.com/app", "cerveza", true).url,
              "https://gemini.google.com/app", "Gemini no tiene enlace verificado");
-console.log("OK: permisos temporales IA conectados, revocables y URLs diferenciadas.");
+console.log("OK: permisos IA persistentes del ensayo, desactivados inicialmente y revocables; URLs diferenciadas.");
