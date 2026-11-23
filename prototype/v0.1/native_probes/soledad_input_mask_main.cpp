@@ -170,7 +170,7 @@ private:
         desktopFiles.append(
             "/var/lib/flatpak/exports/share/applications/com.brave.Browser.desktop");
         for (const QString &file : desktopFiles) {
-            if (QFileInfo::isFile(file)) return flatpak;
+            if (QFileInfo(file).isFile()) return flatpak;
         }
         return {};
     }
