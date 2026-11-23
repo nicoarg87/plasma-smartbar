@@ -387,6 +387,11 @@ QQC2.Popup {
                 onAccepted: {
                     if (launcher.filesMode)
                         launcher.openCurrentFolderInManager()
+                    else if (launcher.realLaunchEnabled && launcher.catalogIsReal &&
+                             text.trim().length > 0) {
+                        const matches = launcher.appMatches()
+                        if (matches.length > 0) launcher.selectApplication(matches[0])
+                    }
                 }
                 onTextChanged: {
                     if (!launcher.filesMode && text.length > 0)
