@@ -66,6 +66,41 @@ Window {
     property bool trackedMaximized: false
     property bool trackedFullscreen: false
     property bool trackedKnown: false
+    // Durante arranque y cambios de fullscreen KWin puede actualizar sus
+    // roles después de crear/eliminar las ventanas. Releer unos segundos,
+    // sin controlar ventanas ni usar polling permanente.
+    property int remainingStateRechecks: 0
+    function scheduleWindowRecheck() {
+        Qt.callLater(probe.refreshExternalWindow)
+        remainingStateRechecks = 12
+        stateRecheckTimer.restart()
+    }
+
+    Timer {
+        id: stateRecheckTimer
+        interval: 250
+        repeat: true
+        running: false
+        onTriggered: {
+            probe.refreshExternalWindow()
+            probe.recoverProfileAfterSettling()
+            probe.remainingStateRechecks--
+            if (probe.remainingStateRechecks <= 0) stop()
+        }
+    }
+
+    // Si la aplicación activa ya se conoce y tiene perfil, aplicar de
+    // nuevo SOLO mientras se estabiliza KWin, si SO quedó en cero (derecha).
+    // Nunca reemplazar un arrastre manual que dejó otro desplazamiento.
+    function recoverProfileAfterSettling() {
+        if (!trackedKnown || !trackedMaximized || trackedFullscreen ||
+                bar.draggingIslandGrip || bar.islandOffset !== 0 ||
+                !bar.activeRealAppHasSavedPosition)
+            return
+        console.log("SmartBar sincronizacion:", trackedAppName,
+                    "recuperando perfil tras evento KDE")
+        bar.applyRealPositionProfile()
+    }
 
     TaskManager.TasksModel {
         id: kdeWindows
@@ -75,7 +110,7 @@ Window {
         filterByVirtualDesktop: false
         filterByActivity: false
         filterByScreen: false
-        onCountChanged: Qt.callLater(probe.refreshExternalWindow)
+        onCountChanged: probe.scheduleWindowRecheck()
     }
 
     // El cajón SO conserva agrupación por aplicación; el segundo modelo
@@ -93,8 +128,8 @@ Window {
     Repeater {
         id: kdeWindowObservers
         model: kdeWindows
-        onItemAdded: Qt.callLater(probe.refreshExternalWindow)
-        onItemRemoved: Qt.callLater(probe.refreshExternalWindow)
+        onItemAdded: probe.scheduleWindowRecheck()
+        onItemRemoved: probe.scheduleWindowRecheck()
         delegate: Item {
             required property var model
             width: 0
@@ -111,12 +146,12 @@ Window {
                     active: taskActive, maximized: taskMaximized,
                     minimized: taskMinimized, fullscreen: taskFullScreen }
             }
-            onAppIdChanged: Qt.callLater(probe.refreshExternalWindow)
-            onTaskActiveChanged: Qt.callLater(probe.refreshExternalWindow)
-            onTaskMaximizedChanged: Qt.callLater(probe.refreshExternalWindow)
-            onTaskMinimizedChanged: Qt.callLater(probe.refreshExternalWindow)
-            onTaskFullScreenChanged: Qt.callLater(probe.refreshExternalWindow)
-            Component.onCompleted: Qt.callLater(probe.refreshExternalWindow)
+            onAppIdChanged: probe.scheduleWindowRecheck()
+            onTaskActiveChanged: probe.scheduleWindowRecheck()
+            onTaskMaximizedChanged: probe.scheduleWindowRecheck()
+            onTaskMinimizedChanged: probe.scheduleWindowRecheck()
+            onTaskFullScreenChanged: probe.scheduleWindowRecheck()
+            Component.onCompleted: probe.scheduleWindowRecheck()
         }
     }
 
@@ -253,7 +288,7 @@ Window {
         }
     }
     Component.onCompleted: {
-        Qt.callLater(probe.refreshExternalWindow)
+        probe.scheduleWindowRecheck()
         Qt.callLater(function() { probe.logPositionStorage("inicio del ensayo") })
         console.log(
         "SmartBar: ventana LayerShellQt FIJA, input limitado por QWindow::setMask.",
