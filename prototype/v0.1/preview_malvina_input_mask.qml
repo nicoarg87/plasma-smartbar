@@ -19,8 +19,13 @@ Window {
     // Orden temporal del ensayo, independiente del visor y de KConfig.
     // Los gestos de arrastre NO cambian preferencias persistidas.
     property bool testWebFirst: true
-    property string testWebOrder: "google,duck,yahoo"
+    property string testWebOrder: "duck,yahoo,google"
     property string testAiOrder: "chatgpt,gemini,claude"
+    // Las autorizaciones del ensayo no leen ni alteran el perfil persistido.
+    // Nunca se activan antes de la aceptación expresa en Configuración.
+    property bool testAllowChatGpt: false
+    property bool testAllowGemini: false
+    property bool testAllowClaude: false
     visible: false
     title: "SmartBar — Malvina por encima, excepto fullscreen real"
     color: "transparent"
@@ -196,6 +201,20 @@ Window {
             console.log("SmartBar MALVINA orden temporal:",
                         "Web=", webOrder, "IA=", aiOrder,
                         "(sin guardar preferencias)")
+        }
+        // Bug comprobado: antes faltaban receptor y enlaces al modelo.
+        // Aplicar emitía requestMalvinaConsentsChange, pero se perdía aquí.
+        // Guardar el permiso en RAM solo mientras dura este ensayo.
+        malvinaAllowChatGpt: probe.testAllowChatGpt
+        malvinaAllowGemini: probe.testAllowGemini
+        malvinaAllowClaude: probe.testAllowClaude
+        onRequestMalvinaConsentsChange: function(chatGpt, gemini, claude) {
+            probe.testAllowChatGpt = chatGpt
+            probe.testAllowGemini = gemini
+            probe.testAllowClaude = claude
+            console.log("SmartBar MALVINA permisos IA temporales:",
+                        "ChatGPT=", chatGpt, "Gemini=", gemini,
+                        "Claude=", claude, "(sin guardar preferencias)")
         }
         positionMode: "right"
         demoWindowControlsEnabled: false
