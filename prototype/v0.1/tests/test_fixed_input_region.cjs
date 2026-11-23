@@ -126,6 +126,28 @@ assert(!viewer.includes('plasma-smartbar-v01-fixed-input-positions') &&
        !qml.includes('category: "plasma-smartbar-v01-preview-appearance"'),
        "La prueba no debe alterar los perfiles existentes del visor");
 
+// Diagnóstico de regresión: Steam perdió su posición al REABRIR la isla
+// (sin entrar en Big Picture en esta última prueba). Solo lectura, sin
+// sobrescribir el perfil de Steam, Brave ni la configuración del visor.
+for (const marker of [
+    'import "package/contents/ui/SoledadPositionProfiles.js" as SoledadPositionProfiles',
+    "function logPositionStorage(reason)",
+    "SoledadPositionProfiles.readProfiles(positionProfilesJson)",
+    "SoledadPositionProfiles.validAppId(trackedAppId)",
+    "IDs guardados=",
+    "AppId observado=",
+    "coincidencia=",
+    'probe.logPositionStorage("inicio del ensayo")',
+    'logPositionStorage("cambio de ventana/estado")'
+]) assert(qml.includes(marker), "Falta diagnóstico de memoria Steam: " + marker);
+assert((qml.match(/profileSettings\\.setValue\\(/g) || []).length === 1,
+       "El diagnóstico jamás debe agregar escrituras a las preferencias");
+assert(!qml.includes("profileSettings.remove(") &&
+       !qml.includes("profileSettings.clear("),
+       "No eliminar ni restaurar preferencias durante el diagnóstico");
+assert(qml.includes('category: "plasma-smartbar-v01-fixed-input-positions"'),
+       "Mantener almacenamiento aislado del visor histórico");
+
 // La política pura nunca guarda por mover: guardar requiere invocar explícitamente.
 const profiles = read("package/contents/ui/SoledadPositionProfiles.js");
 assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)") &&
