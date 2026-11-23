@@ -539,6 +539,13 @@ Window {
         // sin crear botones ni controlar ventanas externas.
         demoWindowControlsEnabled: true
         realTaskModel: groupedKdeWindows
+        realAppLaunchEnabled: smartbarContinuousMode
+        onRequestLaunchDesktopEntry: function(desktopId) {
+            if (soledadInputMask.launchDesktopEntry(desktopId))
+                console.log("SmartBar SO: aplicación KDE iniciada por ID", desktopId)
+            else
+                console.warn("SmartBar SO: no se pudo iniciar ID", desktopId)
+        }
         realTrackedAppId: probe.trackedAppId
         realTrackedAppName: probe.trackedAppName
         realTrackedMaximized: probe.trackedMaximized
