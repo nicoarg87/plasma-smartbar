@@ -40,6 +40,8 @@ printf '%s\n' "$SESSION_DIR" > "$LOG_ROOT/ultima_sesion.txt"
 BUILD_DIR="$(mktemp -d "${TMPDIR:-/tmp}/smartbar-juntas.XXXXXXXX")"
 SO_PID=""
 MAL_PID=""
+CATALOG_CREATED=0
+CATALOG_FILE="$HERE/package/contents/ui/.smartbar-app-catalog-preview.json"
 finish() {
     local status=$?
     trap - EXIT INT TERM
@@ -49,6 +51,7 @@ finish() {
     if [[ -n "$SO_PID" ]]; then wait "$SO_PID" 2>/dev/null || true; fi
     if [[ -n "$MAL_PID" ]]; then wait "$MAL_PID" 2>/dev/null || true; fi
     if [[ -d "$BUILD_DIR" ]]; then rm -rf -- "$BUILD_DIR"; fi
+    if (( CATALOG_CREATED == 1 )); then rm -f -- "$CATALOG_FILE"; fi
     printf '\nSesión terminada. Logs conservados en: %s\n' "$SESSION_DIR"
     exit "$status"
 }
@@ -66,18 +69,34 @@ if ! cmake --build "$BUILD_DIR" --parallel 2 >>"$SESSION_DIR/compilacion.log" 2>
     exit 5
 fi
 
+# Generar solo el catálogo efímero ausente; no sobreescribir datos existentes.
+if [[ ! -e "$CATALOG_FILE" ]]; then
+    if command -v python3 >/dev/null 2>&1 &&
+       python3 "$HERE/catalogo_aplicaciones.py" "$CATALOG_FILE" \
+           >"$SESSION_DIR/catalogo.log" 2>&1; then
+        CATALOG_CREATED=1
+    else
+        printf 'AVISO: catálogo local no disponible; launcher de muestra.\n' >&2
+    fi
+else
+    printf 'Catálogo ya existente: se preserva sin reescrituras.\n'
+fi
+
 BIN="$BUILD_DIR/smartbar_input_mask_probe"
 MESSAGE_PATTERN='[%{time yyyy-MM-dd hh:mm:ss.zzz}] %{type}: %{message}'
 # Soledad: ventana fija y máscara de entrada ya ensayadas; posiciones por AppId.
-env SMARTBAR_CONTINUOUS=1 QT_QPA_PLATFORM=wayland \
-    QT_WAYLAND_SHELL_INTEGRATION=layer-shell QT_MESSAGE_PATTERN="$MESSAGE_PATTERN" \
+# LayerShell se declara en el QML raíz; no forzarlo sobre las ventanas Popup.
+env -u QT_WAYLAND_SHELL_INTEGRATION SMARTBAR_CONTINUOUS=1 \
+    QT_QPA_PLATFORM=wayland QML_XHR_ALLOW_FILE_READ=1 \
+    QT_MESSAGE_PATTERN="$MESSAGE_PATTERN" \
     "$BIN" "$HERE/preview_soledad_input_mask.qml" \
     >"$SESSION_DIR/soledad.log" 2>&1 &
 SO_PID=$!
 # Malvina: capa Top independiente y teclado OnDemand. No imponer LayerShell
 # globalmente a Configuración; su ventana conserva decoración KDE normal.
 env -u QT_WAYLAND_SHELL_INTEGRATION SMARTBAR_CONTINUOUS=1 \
-    QT_QPA_PLATFORM=wayland QT_MESSAGE_PATTERN="$MESSAGE_PATTERN" \
+    QT_QPA_PLATFORM=wayland QML_XHR_ALLOW_FILE_READ=1 \
+    QT_MESSAGE_PATTERN="$MESSAGE_PATTERN" \
     "$BIN" "$HERE/preview_malvina_input_mask.qml" \
     >"$SESSION_DIR/malvina.log" 2>&1 &
 MAL_PID=$!
