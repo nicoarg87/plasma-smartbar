@@ -93,6 +93,8 @@ for (const text of [
     "optionsRegionVisible: options.visible",
     "optionsRegionWidth: options.visible ? options.width : 0",
     "optionsRegionHeight: options.visible ? options.height : 0",
+    "property real optionsViewportWidthOverride: 0",
+    "optionsViewportWidthOverride > 0",
     "function focusSearch()",
     "queryInput.forceActiveFocus()"
 ]) assert(search.includes(text), "Editor debe exponer region sin duplicarse: " + text);
@@ -102,8 +104,14 @@ for (const text of [
     "malvinaFieldInputHeight: malvinaSearch.fieldRegionHeight",
     "malvinaOptionsInputX:", "malvinaOptionsInputY:",
     "malvinaOptionsInputWidth: malvinaSearch.optionsRegionWidth",
-    "malvinaOptionsInputHeight: malvinaSearch.optionsRegionHeight"
+    "malvinaOptionsInputHeight: malvinaSearch.optionsRegionHeight",
+    "property real malvinaOptionsViewportWidth: 0",
+    "optionsViewportWidthOverride: root.malvinaOptionsViewportWidth"
 ]) assert(shared.includes(text), "Falta geometria de popup compartido: " + text);
+assert(qml.includes("malvinaOptionsViewportWidth: width"),
+       "Evitar binding circular del menu LayerShell al propio Window.width");
+assert(!qml.includes("malvinaOptionsViewportWidth: probe.width"),
+       "Nunca calcular opciones desde ancho dinamico del mismo Window");
 for (const text of [
     "Q_INVOKABLE void setMalvinaInputRegions(",
     "includeRect(0, 0, islandWidth, islandHeight);",
