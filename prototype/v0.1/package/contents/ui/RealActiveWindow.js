@@ -21,6 +21,27 @@ function resolve(items) {
     };
 }
 
+
+ // Política transitoria, SOLO para ensayo de superficie fija:
+ // enfocar una ventana restaurada NO equivale a desmaximizar la anterior.
+ // Con una ventana maximizada detrás, preservar la posición visible hasta
+ // maximizar la nueva, desmaximizar explícitamente la activa o agotar las
+ // ventanas maximizadas. No crea perfiles ni consulta APIs de KWin.
+function shouldKeepNormalFocusPosition(rows, active, previousAppId, heldAppId) {
+    if (!active || active.known !== true || !active.appId ||
+        active.maximized === true || active.fullscreen === true ||
+        !Array.isArray(rows)) return false;
+    const maximizedBehind = rows.some(function(row) {
+        return row && row.appId !== active.appId &&
+            row.maximized === true && row.minimized !== true &&
+            row.fullscreen !== true;
+    });
+    if (!maximizedBehind) return false;
+    const switched = typeof previousAppId === "string" &&
+        previousAppId.length > 0 && previousAppId !== active.appId;
+    return switched || heldAppId === active.appId;
+}
+
 function rememberExternal(previous, observed, viewerAppId) {
     const old = previous && previous.known === true ? previous
         : { appId: "", appName: "", maximized: false, fullscreen: false, known: false };
