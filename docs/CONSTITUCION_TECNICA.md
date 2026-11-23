@@ -73,6 +73,19 @@ Construir un complemento libre para **Linux con KDE Plasma 6** que administre ve
 - **Estado de desarrollo:** **CONFIRMADO COMO REQUISITO FUNCIONAL, NO IMPLEMENTADO NI PROBADO**. Su construcción depende de poder identificar ventanas reales y su aplicación, todavía pendiente de la prueba v0.1. Se registra en [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4).
 - **Altura:** **no se autoriza** cambiar automáticamente el grosor según Steam u otra aplicación; permanece la altura común y constante aprobada. Medir o alinear visualmente títulos de aplicaciones será investigación separada, sin cambios de diseño hasta nueva aprobación.
 
+
+### Aclaración funcional posterior — maximizada visible superior (23/11/2026)
+
+**CONFIRMADO EXPRESAMENTE POR EL MANTENEDOR y prioritario sobre las frases anteriores que supeditaban el perfil exclusivamente al foco de una ventana maximizada.** Soledad debe alinearse con la **ventana maximizada que esté visualmente más arriba en el apilamiento** del escritorio visible, incluso cuando otra ventana normal tenga el foco y aunque existan otras ventanas maximizadas detrás. No usar por defecto la última aplicación enfocada ni elegir una maximizada arbitraria del fondo.
+
+- **Una o más maximizadas:** si KDE confirma el orden de superposición, aplicar la posición guardada del **programa de la maximizada superior**. Al elevar otra ventana maximizada, recuperar su perfil; al desmaximizar la superior, pasar a la siguiente maximizada que permanezca arriba. Conservar el requisito de evitar tapar controles, sin mover ni redimensionar otras ventanas.
+- **Ventana normal activa:** al hacer foco sobre una ventana restaurada mientras existe otra maximizada, no ejecutar automáticamente «Volver a la derecha»; mantener el perfil de la maximizada superior.
+- **Ninguna maximizada:** aplicar la preferencia general de retorno a la derecha, si está activada.
+- **Orden desconocido / posiciones de apilamiento duplicadas:** nunca elegir arbitrariamente entre varias maximizadas; conservar provisionalmente la última posición segura y diagnosticar el orden. Tampoco suponer que una ventana superior sin perfil admite el perfil de una inferior. No guardar perfiles nuevos sin el clic explícito del usuario.
+- **Fullscreen real:** continúa teniendo su política independiente de ocultamiento y restitución de la última posición visible. El arrastre manual, posiciones guardadas, altura constante y la separación de controles originales permanecen.
+- **Límite técnico:** Qt/KDE dispone del rol `TaskManager.StackingOrder`, pero su actualización asíncrona y compatibilidad efectiva en CachyOS/KWin/Wayland deben validarse. En el ensayo aislado hay código y tests lógicos; **NO está probado todavía** el nuevo criterio de apilamiento real, ni múltiples pantallas/escritorios. Referencia [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4). Esta excepción sustituye el retorno inmediato al desmaximizar si otra maximizada sigue visible arriba.
+
+
 ## 2.6. Alineación derecha de isla 1 — control de estado y arrastre (14/11/2026)
 
 **CONFIRMADO:** la casilla contextual **«Alinear isla 1 a la derecha»** representa la alineación **actual** y comienza marcada en la posición predeterminada. No es la misma opción que la preferencia persistente «Volver automáticamente a la derecha al desmaximizar».
