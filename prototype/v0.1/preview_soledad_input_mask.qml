@@ -9,6 +9,7 @@ import org.kde.taskmanager 0.1 as TaskManager
 import QtCore as QtCore
 import "package/contents/ui" as SmartBar
 import "package/contents/ui/RealActiveWindow.js" as RealActiveWindow
+import "package/contents/ui/SoledadPositionProfiles.js" as SoledadPositionProfiles
 
 Window {
     id: probe
@@ -40,6 +41,23 @@ Window {
     }
     property string positionProfilesJson:
         String(profileSettings.value("soledadRealPositionProfilesV1", "{}"))
+
+    // Solo diagnóstico de lectura: comparar AppId de Steam/Brave con las
+    // claves efectivamente guardadas. Nunca crear/borrar perfiles aquí.
+    function logPositionStorage(reason) {
+        const saved = SoledadPositionProfiles.readProfiles(positionProfilesJson)
+        const ids = Object.keys(saved)
+        const id = SoledadPositionProfiles.validAppId(trackedAppId)
+        const found = id.length > 0 &&
+            Object.prototype.hasOwnProperty.call(saved, id)
+        console.log("SmartBar DIAGNOSTICO memoria:", reason,
+                    "perfiles=" + ids.length,
+                    "IDs guardados=" + JSON.stringify(ids),
+                    "AppId observado=" + (id || "(ninguno)"),
+                    "coincidencia=" + found,
+                    "desplazamiento guardado=" + (found ? saved[id] : "(ninguno)"),
+                    "maximizada=" + trackedMaximized)
+    }
 
     // Estado de la última ventana EXTERNA identificada. El popup/agarre
     // no debe borrar Brave/Steam al perderse transitoriamente el foco.
@@ -153,7 +171,8 @@ Window {
                         "AppId:", trackedAppId || "(ninguno)",
                         "maximizada:", trackedMaximized,
                         "fullscreen:", trackedFullscreen,
-                        "perfil guardado:", trackedKnown)
+                        "ventana identificada:", trackedKnown)
+            logPositionStorage("cambio de ventana/estado")
             Qt.callLater(function() {
                 if (probe.trackedKnown) bar.applyRealPositionProfile()
                 else if (!bar.draggingIslandGrip) bar.alignRightNow()
@@ -206,6 +225,7 @@ Window {
             profileSettings.setValue("soledadRealPositionProfilesV1", json)
             profileSettings.sync()
             console.log("SmartBar: posición guardada por aplicación real")
+            probe.logPositionStorage("guardado explicito")
         }
         // No inventar ancho de botones de Brave/Steam. El usuario posiciona
         // libremente y fija por aplicación; general: extremo derecho.
@@ -234,6 +254,7 @@ Window {
     }
     Component.onCompleted: {
         Qt.callLater(probe.refreshExternalWindow)
+        Qt.callLater(function() { probe.logPositionStorage("inicio del ensayo") })
         console.log(
         "SmartBar: ventana LayerShellQt FIJA, input limitado por QWindow::setMask.",
         "Arrastrar SOLO los seis puntos de la Soledad auténtica;",
