@@ -59,7 +59,7 @@ Item {
     property bool webYahooEnabled: true
     readonly property var webEnabled: [webGoogleEnabled, webDuckEnabled, webYahooEnabled]
     property bool webFirst: true
-    property string webOrder: "google,duck,yahoo"
+    property string webOrder: "duck,yahoo,google"
     property string aiOrder: "chatgpt,gemini,claude"
     // Formato de fichas compartido con la isla de Soledad.
     property string extraWeb: "[]"
