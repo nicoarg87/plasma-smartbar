@@ -1118,3 +1118,22 @@ Preparar **Steam maximizada y delante de Brave maximizada**, iniciar ensayo desd
 
 **PRÓXIMAS PRUEBAS:** en Fish, `cd ~/plasma-smartbar; and git switch prototype/v0.1-islas-so; and git pull --ff-only; and node prototype/v0.1/tests/test_fixed_input_region.cjs; and bash prototype/v0.1/probar_soledad_entrada_fija.sh` para Soledad en borde real, después `bash prototype/v0.1/probar_ancho.sh` para inspeccionar Soledad/Malvina juntas en el visor Qt sin instalar el panel. El ensayo fijo oculta Malvina por diseño: no afirmar que se probó su visual en Wayland. Verificar clics, drag, hueco superior y que los perfiles siguen respondiendo. No guardar ni borrar posiciones.
 
+## 23/11/2026 — Malvina LayerTop sobre ventanas comunes/maximizadas, fullscreen excluido
+
+**NUEVA DECISIÓN CONFIRMADA:** el mantenedor aclaró que Malvina tiene que aparecer por encima de las aplicaciones, estén maximizadas o restauradas. **Fullscreen real la oculta**. No confundir prioridad de capa con opción de siempre visible: la preferencia histórica `autoHideMalvina` (hover 600ms) sigue independiente de `launcherIslandVisible` (habilitada). El usuario informó que Malvina NO se ve ni con hover ni con atajos en el visor; Soledad sí se posiciona bien. No se recibieron registros para precisar si está deshabilitada por preferencias guardadas, bloqueada por simulación o si falla la captura de hover. `Meta+Space` solo funciona en ventana Qt enfocada, no es global.
+
+**IMPLEMENTADO EN EXPERIMENTO, NO EN PANEL INSTALADO:** en `SmartBarContent.qml`, `autoRevealBlocked` deja de bloquear por `previewMaximized`/`hostMaximized`; conserva desconocido/fullscreen. Se añadieron `actualMalvinaWidth/Height` de solo lectura. Nuevo `preview_malvina_input_mask.qml` usa el `SmartBarContent.qml` original en una ventana LayerShell LayerTop de ancho Malvina; como prueba se la mantiene visible sin persistir opciones personales y sin superficie ancha que capture clics. El C++ compartido no la muestra antes de fijar máscara y comenzar a observar `TasksModel.IsFullScreen`; con modelo KDE desconocido permanece oculta. Nuevo lanzador `probar_malvina_superposicion.sh`. Commits de política [8b98508](https://github.com/nicoarg87/plasma-smartbar/commit/8b98508d6897b793823bd0ffa9888aa03d9d338a), [b7e6c18](https://github.com/nicoarg87/plasma-smartbar/commit/b7e6c185dff68b4bb4d0bd05bd3d5a9a1336d271), [becb476](https://github.com/nicoarg87/plasma-smartbar/commit/becb47656925a26a682d8bc06247af781167d2e9), [36d6c9a](https://github.com/nicoarg87/plasma-smartbar/commit/36d6c9a287cbcb1f49cd3d655761648bc4ea5eed), [4ddc03d](https://github.com/nicoarg87/plasma-smartbar/commit/4ddc03d325e0cb25b0ab847d0025ef6a9289a3dd), [ae93e23](https://github.com/nicoarg87/plasma-smartbar/commit/ae93e2368c643bc4705e8e23784284e8422e9314), test [299df05](https://github.com/nicoarg87/plasma-smartbar/commit/299df059f4688d85dd5a858ff2d686e7d18ca6f2).
+
+**VERIFICACIONES SOLO V8:** 62 comprobaciones de estructura del nuevo ensayo y 281 de regresión fija de Soledad PASS con archivos GitHub. No hay prueba nativa en CachyOS del nuevo ensayo ni garantías sobre el tiempo de actualización de `IsFullScreen`. PR #3 borrador, [issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) abierto. Nada instalado ni cambiada la estética/preferencias, perfiles o panel del usuario.
+
+**PRÓXIMA ACCIÓN FISH:**
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/test_malvina_superposicion.cjs
+and node prototype/v0.1/tests/test_fixed_input_region.cjs
+and bash prototype/v0.1/probar_malvina_superposicion.sh
+```
+Brave y Steam abiertas; comprobar Malvina arriba a la izquierda incluso sobre una ventana maximizada; fullscreen YouTube F la oculta, Esc la devuelve. Test autocierra a 90s. Si Malvina nunca aparece, copiar mensajes `SmartBar MALVINA:` y errores Qt. Después, para el VISOR con preferencias reales, usar la etiqueta inferior que indica `Malvina: visible/oculta`, `deshabilitada`, `BLOQUEADA` o `esperando cursor` sin alterar preferencias. La tecla `Super+Espacio` no es global todavía.
+
