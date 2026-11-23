@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Ensayo aislado de Malvina: LayerShell Top + máscara de entrada exacta.
-# No instala panel, no modifica preferencias y no controla ventanas externas.
+# No instala panel ni modifica preferencias KDE/visor; guarda sólo permisos
+# IA y navegador elegidos dentro del almacenamiento AISLADO del ensayo.
 set -euo pipefail
 HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -24,6 +25,8 @@ printf 'Esta instancia muestra Malvina siempre, SOLO para comprobarla.\n'
 printf 'No cambia el autoocultamiento ni las preferencias del visor.\n'
 printf 'Los permisos IA elegidos con Aplicar se recuerdan solo en este ensayo.\n'
 printf 'Para revocarlos: destildar en Configuración y pulsar Aplicar.\n'
+printf 'En Malvina → General podés elegir KDE o un navegador detectado.\n'
+printf 'La elección afecta Web e IA y se recuerda SOLO en el ensayo.\n'
 printf 'NO instala widgets, NO reemplaza panel y NO mueve aplicaciones.\n'
 printf 'Primero comprobar con Brave/Steam abiertos, luego fullscreen real.\n'
 printf 'Ensayo extendido: 180 segundos o Ctrl+C, sin guardar el orden.\n'
