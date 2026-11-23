@@ -5,6 +5,7 @@
 // Esta prueba fuerza Malvina visible SOLO en memoria; no guarda preferencias.
 import QtQuick
 import QtQuick.Window
+import QtCore as QtCore
 import org.kde.layershell 1.0 as LayerShell
 import org.kde.taskmanager 0.1 as TaskManager
 import "package/contents/ui" as SmartBar
@@ -21,11 +22,19 @@ Window {
     property bool testWebFirst: true
     property string testWebOrder: "duck,yahoo,google"
     property string testAiOrder: "chatgpt,gemini,claude"
-    // Las autorizaciones del ensayo no leen ni alteran el perfil persistido.
-    // Nunca se activan antes de la aceptación expresa en Configuración.
-    property bool testAllowChatGpt: false
-    property bool testAllowGemini: false
-    property bool testAllowClaude: false
+    // Solo estos tres permisos se conservan entre ejecuciones después de
+    // pulsar Aplicar. No compartir categoría con el visor, panel ni temas.
+    // La primera ejecución sigue desactivada; revocar + Aplicar guarda false.
+    QtCore.Settings {
+        id: malvinaConsentSettings
+        category: "plasma-smartbar-v01-malvina-layer-probe-consents"
+    }
+    property bool testAllowChatGpt:
+        String(malvinaConsentSettings.value("chatGptConsentV1", false)).toLowerCase() === "true"
+    property bool testAllowGemini:
+        String(malvinaConsentSettings.value("geminiConsentV1", false)).toLowerCase() === "true"
+    property bool testAllowClaude:
+        String(malvinaConsentSettings.value("claudeConsentV1", false)).toLowerCase() === "true"
     visible: false
     title: "SmartBar — Malvina por encima, excepto fullscreen real"
     color: "transparent"
@@ -202,9 +211,8 @@ Window {
                         "Web=", webOrder, "IA=", aiOrder,
                         "(sin guardar preferencias)")
         }
-        // Bug comprobado: antes faltaban receptor y enlaces al modelo.
-        // Aplicar emitía requestMalvinaConsentsChange, pero se perdía aquí.
-        // Guardar el permiso en RAM solo mientras dura este ensayo.
+        // Aplicar y sólo Aplicar confirma estos tres consentimientos.
+        // Nunca se escribe el texto buscado, cookies ni datos del navegador.
         malvinaAllowChatGpt: probe.testAllowChatGpt
         malvinaAllowGemini: probe.testAllowGemini
         malvinaAllowClaude: probe.testAllowClaude
@@ -212,9 +220,13 @@ Window {
             probe.testAllowChatGpt = chatGpt
             probe.testAllowGemini = gemini
             probe.testAllowClaude = claude
-            console.log("SmartBar MALVINA permisos IA temporales:",
+            malvinaConsentSettings.setValue("chatGptConsentV1", chatGpt)
+            malvinaConsentSettings.setValue("geminiConsentV1", gemini)
+            malvinaConsentSettings.setValue("claudeConsentV1", claude)
+            malvinaConsentSettings.sync()
+            console.log("SmartBar MALVINA permisos IA guardados:",
                         "ChatGPT=", chatGpt, "Gemini=", gemini,
-                        "Claude=", claude, "(sin guardar preferencias)")
+                        "Claude=", claude)
         }
         positionMode: "right"
         demoWindowControlsEnabled: false
