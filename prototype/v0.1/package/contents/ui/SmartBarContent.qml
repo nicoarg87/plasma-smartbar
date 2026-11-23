@@ -1279,6 +1279,21 @@ Item {
     // experimentales; solo lectura, no cambia geometría ni preferencias.
     readonly property real actualMalvinaWidth: malvinaHotspot.width
     readonly property real actualMalvinaHeight: malvinaHotspot.height
+    // Las dos superficies Popup de Malvina son el editor y Web/IA.
+    // Coordenadas respecto del contenido compartido; los límites nativos
+    // recortarán su máscara a la ventana visible, sin bloquear el resto.
+    readonly property real malvinaFieldInputX:
+        malvinaHotspot.x + malvinaSearch.x + malvinaSearch.fieldRegionX
+    readonly property real malvinaFieldInputY:
+        malvinaHotspot.y + malvinaSearch.y + malvinaSearch.fieldRegionY
+    readonly property real malvinaFieldInputWidth: malvinaSearch.fieldRegionWidth
+    readonly property real malvinaFieldInputHeight: malvinaSearch.fieldRegionHeight
+    readonly property real malvinaOptionsInputX:
+        malvinaHotspot.x + malvinaSearch.x + malvinaSearch.optionsRegionX
+    readonly property real malvinaOptionsInputY:
+        malvinaHotspot.y + malvinaSearch.y + malvinaSearch.optionsRegionY
+    readonly property real malvinaOptionsInputWidth: malvinaSearch.optionsRegionWidth
+    readonly property real malvinaOptionsInputHeight: malvinaSearch.optionsRegionHeight
     onAvailableIslandWidthChanged: ensureExpansionFits()
 
     function setIslandOffset(offset) {
