@@ -67,8 +67,15 @@ Item {
     property string hiddenWeb: ""
     property string hiddenAi: ""
     property bool compactAi: false
+    // En una capa LayerShell de tamaño ajustado al Popup, calcular
+    // optionsWidth desde Window.width formaría una dependencia circular.
+    // El ensayo provee el ancho disponible de pantalla por separado.
+    // Valor 0 mantiene INTACTO el cálculo tradicional del visor/panel.
+    property real optionsViewportWidthOverride: 0
     readonly property real fullOptionsWidth: Math.max(396,Math.min(
-        search.Window.window ? Math.max(360, search.Window.window.width - 26) : 970,
+        optionsViewportWidthOverride > 0
+            ? Math.max(360, optionsViewportWidthOverride - 26)
+            : (search.Window.window ? Math.max(360, search.Window.window.width - 26) : 970),
         92 + 96 * Math.max(orderedWebIds.length, compactAi ? 0 : orderedAiIds.length)))
     readonly property real optionsWidth: compactAi
         ? Math.max(396, Math.min(fullOptionsWidth, 92 + 96 * orderedWebIds.length))
