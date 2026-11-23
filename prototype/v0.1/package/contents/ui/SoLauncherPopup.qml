@@ -11,6 +11,11 @@ QQC2.Popup {
     property bool malvinaVisible: true
     property var installedApplications: []
     property bool catalogIsReal: false
+    // Solo el ensayo conjunto autorizado ejecuta aplicaciones KDE reales.
+    property bool realLaunchEnabled: false
+    // LayerShell limita el Window a la altura de la isla; en sesión conjunta
+    // el lanzador usa su propia ventana Qt Popup para verse debajo.
+    popupType: realLaunchEnabled ? QQC2.Popup.Window : QQC2.Popup.Item
     property string selectedCategory: ""
     property bool showMoreCategories: false
     property bool filesMode: false
