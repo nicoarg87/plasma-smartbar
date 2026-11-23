@@ -1233,8 +1233,12 @@ Item {
 
     // Reservar siempre espacio para la expansión MÁS ancha; abrir bandeja o SO
     // no debe empujar el agarre ni SO, aun después de un arrastre.
-    readonly property real controlsReservation: root.previewMaximized
-        ? windowControls.width + 6 : 0
+    // Ensayos de ventanas externas: reserva inyectada desde una lectura KDE
+    // de solo lectura. Por defecto es 0: visor y plasmoide NO cambian.
+    property real externalWindowControlsReserve: 0
+    readonly property real controlsReservation: Math.max(
+        root.previewMaximized ? windowControls.width + 6 : 0,
+        Math.max(0, root.externalWindowControlsReserve))
     // Zona reservada para Malvina aunque esté oculta temporalmente:
     // su hotspot debe quedar alcanzable con el puntero.
     readonly property real leftReserved: launcherIslandVisible
