@@ -6,6 +6,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 #include <QSet>
+#include <QList>
 #include <QVariantList>
 #include <QVariantMap>
 #include <QQmlApplicationEngine>
