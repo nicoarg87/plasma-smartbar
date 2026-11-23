@@ -2041,6 +2041,10 @@ Item {
         malvinaVisible: root.launcherIslandVisible
         installedApplications: root.localAppCatalog
         catalogIsReal: root.localCatalogReady
+        realLaunchEnabled: root.realAppLaunchEnabled
+        onLaunchDesktopEntry: function(desktopId) {
+            root.requestLaunchDesktopEntry(desktopId)
+        }
         triggerButtonHovered: root.installedLauncherSource === "so" && soButton.hovered
         onRequestShowMalvina: {
             root.setLauncherIslandVisible(true)
