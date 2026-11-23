@@ -157,6 +157,19 @@ Item {
     readonly property real desiredEditorHeight: expandedDown
         ? Math.min(multilineMaxHeight, Math.max(56, queryInput.contentHeight + 12))
         : 32
+    // Regiones de entrada de la prueba LayerShell. Estos valores leen la
+    // geometría de los Popup existentes y NO crean controles nuevos.
+    // X/Y son locales al Item de MalvinaSearch.
+    readonly property bool fieldRegionVisible: fieldPopup.visible
+    readonly property real fieldRegionX: fieldPopup.x
+    readonly property real fieldRegionY: fieldPopup.y
+    readonly property real fieldRegionWidth: fieldPopup.visible ? fieldPopup.width : 0
+    readonly property real fieldRegionHeight: fieldPopup.visible ? fieldPopup.height : 0
+    readonly property bool optionsRegionVisible: options.visible
+    readonly property real optionsRegionX: options.x
+    readonly property real optionsRegionY: options.y
+    readonly property real optionsRegionWidth: options.visible ? options.width : 0
+    readonly property real optionsRegionHeight: options.visible ? options.height : 0
     function longestLineLength() {
         const lines = queryText.split("\n")
         let longest = 0
