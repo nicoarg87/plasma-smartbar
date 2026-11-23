@@ -88,6 +88,30 @@ Window {
         running: false
         onTriggered: probe.fullscreenFocusSettled = true
     }
+    function recoverInitialMaximizedAnchor(rows) {
+        // El visor arranca desde Konsole, que tiene el foco. Si hay UNA
+        // ventana maximizada detrás con perfil guardado, no comenzar en 0
+        // tapando los controles de esa ventana. Con dos perfiles posibles
+        // no adivinar cuál corresponde.
+        if (lastVisibleIslandKnown || fullscreenObserved ||
+                fullscreenAnchorHeld || bar.draggingIslandGrip ||
+                bar.width <= 0 || bar.actualIslandWidth <= 0 ||
+                bar.maxIslandOffset <= 0) return false
+        const candidate = RealActiveWindow.uniqueMaximizedProfile(
+            rows, SoledadPositionProfiles.readProfiles(positionProfilesJson))
+        if (!candidate.known) return false
+        const offset = Math.min(bar.maxIslandOffset,
+                                Math.max(0, candidate.offset))
+        bar.setIslandOffset(offset)
+        bar.alignRightSelected = offset === 0
+        bar.ensureExpansionFits()
+        lastVisibleIslandOffset = offset
+        lastVisibleIslandKnown = true
+        refreshInputRegion()
+        console.log("SmartBar inicio anclaje: ventana maximizada unica",
+                    candidate.appId, "offset=", offset, "(sin escribir perfiles)")
+        return true
+    }
     function rememberVisibleIslandOffset() {
         if (bar.draggingIslandGrip) {
             lastVisibleIslandOffset = bar.islandOffset
@@ -330,6 +354,11 @@ Window {
         const previousFullscreen = trackedFullscreen
         const previousKnown = trackedKnown
         const previousHeldNormalFocusId = heldNormalFocusAppId
+        // Primer arranque y observación tardía de TasksModel: una única
+        // ventana maximizada y perfil guardado puede sembrar el anclaje,
+        // aun si la aplicación activa es Konsole o Steam restaurada.
+        const initialAnchorRestored = !anyFullscreen && !active.maximized &&
+            recoverInitialMaximizedAnchor(rows)
         const activeExternal = active.known &&
             active.appId !== "org.qt-project.qml6" &&
             active.appId !== "smartbar_input_mask_probe"
@@ -341,7 +370,8 @@ Window {
             const holdNormalFocus = !fullscreenAnchorHeld && !anyFullscreen &&
                 RealActiveWindow.shouldKeepNormalFocusPosition(
                     rows, active, previousId, previousHeldNormalFocusId)
-            heldNormalFocusAppId = holdNormalFocus ? active.appId : ""
+            heldNormalFocusAppId = (holdNormalFocus || initialAnchorRestored)
+                ? active.appId : ""
             // Activación de una ventana externa: perfil de ESA aplicación.
             trackedAppId = active.appId
             trackedAppName = active.appName
