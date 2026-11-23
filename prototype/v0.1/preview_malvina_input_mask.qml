@@ -206,6 +206,13 @@ Window {
         // La prueba breve mantiene Malvina visible. La sesión conjunta usa
         // el autoocultamiento de fábrica sin modificar KConfig del usuario.
         autoHideMalvina: smartbarContinuousMode
+        realAppLaunchEnabled: smartbarContinuousMode
+        onRequestLaunchDesktopEntry: function(desktopId) {
+            if (soledadInputMask.launchDesktopEntry(desktopId))
+                console.log("SmartBar Malvina: aplicación KDE iniciada por ID", desktopId)
+            else
+                console.warn("SmartBar Malvina: no se pudo iniciar ID", desktopId)
+        }
         // Aplicar inmediatamente la reordenación existente de Malvina.
         // Antes faltaba este receptor: el gesto emitía una señal sin
         // actualizar la lista en este visor aislado.
