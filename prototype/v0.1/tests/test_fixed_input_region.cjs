@@ -330,7 +330,7 @@ for (const marker of [
     "probe.remainingStateRechecks--",
     "if (probe.remainingStateRechecks <= 0) stop()",
     "function recoverProfileAfterSettling()",
-    "bar.draggingIslandGrip || bar.islandOffset !== 0",
+    "trackedFullscreen || bar.draggingIslandGrip",
     "!bar.activeRealAppHasSavedPosition",
     "bar.applyRealPositionProfile()",
     "onCountChanged: probe.scheduleWindowRecheck(\"cantidad ventanas\")",
