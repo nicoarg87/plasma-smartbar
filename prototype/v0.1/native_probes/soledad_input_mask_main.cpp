@@ -43,6 +43,41 @@ public:
         }
     }
 
+
+    // Exclusivo del ensayo de Malvina. Su editor y el menú Web/IA son
+    // Popups: la máscara debe seguir su tamaño real al desplegarlos.
+    // Unir regiones SOLO de elementos interactivos; no hacer clicable
+    // una banda rectangular transparente sobre pestañas/ventanas KDE.
+    Q_INVOKABLE void setMalvinaInputRegions(
+        qreal islandWidth, qreal islandHeight,
+        qreal fieldX, qreal fieldY, qreal fieldWidth, qreal fieldHeight,
+        qreal optionsX, qreal optionsY, qreal optionsWidth, qreal optionsHeight)
+    {
+        if (!m_window) return;
+        QRegion allowed;
+        const auto includeRect = [&](qreal x, qreal y, qreal width, qreal height) {
+            if (!std::isfinite(x) || !std::isfinite(y) ||
+                !std::isfinite(width) || !std::isfinite(height) ||
+                width <= 0 || height <= 0) return;
+            // Evitar cualquier área fuera del rectángulo Qt visible.
+            // Rechazar dimensiones extremas antes de convertir a int.
+            if (std::abs(x) > 100000 || std::abs(y) > 100000 ||
+                width > 100000 || height > 100000) return;
+            const int left = std::max(0, int(std::floor(x)));
+            const int top = std::max(0, int(std::floor(y)));
+            const int right = std::min(m_window->width(), int(std::ceil(x + width)));
+            const int bottom = std::min(m_window->height(), int(std::ceil(y + height)));
+            if (right > left && bottom > top)
+                allowed += QRegion(QRect(left, top, right - left, bottom - top));
+        };
+        includeRect(0, 0, islandWidth, islandHeight);
+        includeRect(fieldX, fieldY, fieldWidth, fieldHeight);
+        includeRect(optionsX, optionsY, optionsWidth, optionsHeight);
+        if (allowed.isEmpty()) return;
+        if (m_window->mask() != allowed)
+            m_window->setMask(allowed);
+    }
+
 private:
     QQuickWindow *m_window = nullptr; // propiedad del motor QQmlApplicationEngine
 };
