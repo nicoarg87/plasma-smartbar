@@ -58,6 +58,13 @@ Item {
     property string malvinaChatGptUrl: "https://chatgpt.com/"
     property string malvinaGeminiUrl: "https://gemini.google.com/app"
     property string malvinaClaudeUrl: "https://claude.ai/new"
+    // Preferencia compartida por Web/IA; no cambia el navegador KDE global.
+    property string malvinaBrowserId: "system"
+    property var malvinaBrowserChoices: [
+        {"id": "system", "name": "Predeterminado del sistema (KDE)"}
+    ]
+    property var malvinaBrowserBackend: null // solo ensayo nativo hasta integrar en plasmoide
+    signal requestMalvinaBrowserChange(string browserId)
     property bool malvinaWebFirst: true
     property string malvinaWebOrder: "duck,yahoo,google"
     property string malvinaAiOrder: "chatgpt,claude,gemini"
@@ -1635,6 +1642,8 @@ Item {
         soledadSettings.malvinaChatGptUrl = root.malvinaChatGptUrl
         soledadSettings.malvinaGeminiUrl = root.malvinaGeminiUrl
         soledadSettings.malvinaClaudeUrl = root.malvinaClaudeUrl
+        soledadSettings.malvinaBrowserId = root.malvinaBrowserId
+        soledadSettings.malvinaBrowserChoices = root.malvinaBrowserChoices
         soledadSettings.malvinaWebFirst = root.malvinaWebFirst
         soledadSettings.malvinaWebOrder = root.malvinaWebOrder
         soledadSettings.malvinaAiOrder = root.malvinaAiOrder
@@ -1830,6 +1839,9 @@ Item {
         }
         onSaveMalvinaOrderRequested: function(firstWeb, webOrder, aiOrder) {
             root.requestMalvinaOrderChange(firstWeb, webOrder, aiOrder)
+        }
+        onSaveMalvinaBrowserRequested: function(browserId) {
+            root.requestMalvinaBrowserChange(browserId)
         }
         onSaveMalvinaConsentsRequested: function(chatGpt, gemini, claude) {
             root.requestMalvinaConsentsChange(chatGpt, gemini, claude)
@@ -2274,6 +2286,26 @@ Item {
                 chatGptUrl: root.malvinaChatGptUrl
                 geminiUrl: root.malvinaGeminiUrl
                 claudeUrl: root.malvinaClaudeUrl
+                onRequestOpenUrl: function(url) {
+                    // Respeta la opción de un navegador para toda Malvina.
+                    // Si el ejecutable elegido desaparece, avisar y usar KDE.
+                    let choice = "system"
+                    for (let i = 0; i < root.malvinaBrowserChoices.length; ++i) {
+                        if (root.malvinaBrowserChoices[i].id === root.malvinaBrowserId) {
+                            choice = root.malvinaBrowserId
+                            break
+                        }
+                    }
+                    if (root.malvinaBrowserBackend !== null &&
+                        typeof root.malvinaBrowserBackend.launchWebUrl === "function") {
+                        if (!root.malvinaBrowserBackend.launchWebUrl(choice, url))
+                            console.warn("Malvina: no se pudo abrir navegador elegido:", choice)
+                    } else {
+                        // El plasmoide/visor QML aún no incluye puente nativo.
+                        // Conservar apertura KDE; no fingir selección específica.
+                        Qt.openUrlExternally(url)
+                    }
+                }
                 onRequestSettings: root.openMalvinaSettings()
                 MouseArea {
                     anchors.fill: parent
