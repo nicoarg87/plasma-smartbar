@@ -768,3 +768,11 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [ ] **Validación nativa inmediata:** `bash prototype/v0.1/probar_malvina_superposicion.sh` tras test Node y git pull: clic lupa→campo no debe activar pestañas detrás, escribir sin Enter; abrir Web/IA y hacer clic; cerrar y verificar clic exterior; repetir fullscreen YouTube para descartar regresiones.
 - [ ] Resolver por separado si la versión con preferencias originales del visor `probar_ancho.sh` sigue sin mostrar Malvina: examinar etiqueta de diagnóstico, no resetear valores.
 
+## 23/11/2026 — Malvina: input validado, consulta IA pendiente
+
+- [x] **PROBADO en CachyOS (mantenedor):** Malvina supera ventanas normales/maximizadas, se oculta en fullscreen de YouTube/Big Picture y después del parche recibe teclado (palabra `cerveza`), Tab/Enter, y **clics/arrastre NO atraviesan a pestañas debajo**.
+- [x] **Aclaración de foco:** Brave se vuelve translúcida por un efecto KWin de ventana inactiva cuando Malvina recibe foco. No cambiar efectos o impedir foco para ocultarlo; sería romper el buscador.
+- [ ] **Consulta Web:** comprobar que `{query}` se entrega al seleccionar Google/DDG mediante la fila Web.
+- [ ] **Consulta IA:** ChatGPT/Gemini abren Falkon pero no reciben `cerveza`. El código preserva consentimiento: sin permiso no añade texto, con permiso el `?q=` de ChatGPT es experimental, Gemini no admite precarga fiable por enlace. Necesita una solución explícita de integración y consentimiento; **no** agregar botones, mecanismos de portapapeles automático ni extensiones sin autorización.
+- [x] **Cierre del ensayo:** después de 90 segundos se cierra intencionalmente, no es evidencia de error.
+
