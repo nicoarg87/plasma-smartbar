@@ -783,3 +783,10 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [x] **Prueba de regresión simulada:** contrato Malvina 115 comprobaciones PASS, Soledad 281 PASS, `MalvinaSlots.order` devuelve `duck,google,yahoo` como corresponde. **No son pruebas QML/Wayland nativas.**
 - [ ] **Comprobar en CachyOS:** arrastrar DuckDuckGo hasta el primer lugar de la fila Web, verificar orden visual y de selección; si falla distinguir ausencia de log del gesto de la señal de orden temporal. Mantener orden de la sesión, no persistirlo desde el ensayo.
 
+## 23/11/2026 — Restauración del foco de Malvina tras reordenar proveedores
+
+- [x] **PROBADO POR EL MANTENEDOR:** el ensayo permite arrastrar un proveedor y cambiar su orden; luego, `Enter` para confirmar y segundo `Enter` para buscar NO hacían nada hasta volver a clicar el campo con la consulta.
+- [x] **FIX EXPERIMENTAL:** `MalvinaSearch.applyOrder` devuelve foco al editor; `activeEditorFocus` reafirma foco después del evento mediante `Qt.callLater`; `DragHandler` hace lo mismo al soltar. No se modifican búsqueda Web, URL, consentimientos IA, máscara de entrada, fullscreen, orden guardado ni panel KDE.
+- [x] **TESTS SIMULADOS:** Malvina 139 PASS, con simulación de `Tab → Enter confirma → Enter busca` después del cambio de orden y restauración inmediata/diferida de foco; Soledad 281 PASS. No sustituye prueba Qt/KWin nativa.
+- [ ] **RETEST EN CACHYOS:** arrastrar DuckDuckGo a primer lugar de Web, mantener el texto `cerveza`, usar `Tab` hasta Web y dos veces `Enter` sin hacer clic en el editor; debe abrir Falkon con resultados de DuckDuckGo. Repetir después de elegir una ficha con el mouse. Si falla, conservar logs de Konsole. Orden temporal del ensayo continúa sin persistirse y autocierre sigue en 180 s.
+
