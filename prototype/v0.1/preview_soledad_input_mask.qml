@@ -66,6 +66,9 @@ Window {
     property bool trackedMaximized: false
     property bool trackedFullscreen: false
     property bool trackedKnown: false
+    // Mantener la posición visible durante cambios de FOCO hacia una
+    // ventana restaurada con otra maximizada detrás. No es un perfil.
+    property string heldNormalFocusAppId: ""
     // Memoria VISUAL y efímera: NO es otro perfil por aplicación.
     // El último desplazamiento estable antes de fullscreen debe volver
     // al salir, aunque un chat auxiliar reciba foco sin maximizar.
@@ -326,9 +329,19 @@ Window {
         const previousMaximized = trackedMaximized
         const previousFullscreen = trackedFullscreen
         const previousKnown = trackedKnown
+        const previousHeldNormalFocusId = heldNormalFocusAppId
+        const activeExternal = active.known &&
+            active.appId !== "org.qt-project.qml6" &&
+            active.appId !== "smartbar_input_mask_probe"
 
-        if (active.known && active.appId !== "org.qt-project.qml6" &&
-                active.appId !== "smartbar_input_mask_probe") {
+        if (activeExternal) {
+            // El CAMBIO de foco hacia una ventana normal no es una orden
+            // de desmaximizar Brave/Steam. Si otra sigue maximizada detrás,
+            // conservar la coordenada visible hasta un cambio relevante.
+            const holdNormalFocus = !fullscreenAnchorHeld && !anyFullscreen &&
+                RealActiveWindow.shouldKeepNormalFocusPosition(
+                    rows, active, previousId, previousHeldNormalFocusId)
+            heldNormalFocusAppId = holdNormalFocus ? active.appId : ""
             // Activación de una ventana externa: perfil de ESA aplicación.
             trackedAppId = active.appId
             trackedAppName = active.appName
@@ -360,7 +373,8 @@ Window {
         const changed = previousId !== trackedAppId ||
             previousMaximized !== trackedMaximized ||
             previousFullscreen !== trackedFullscreen ||
-            previousKnown !== trackedKnown
+            previousKnown !== trackedKnown ||
+            previousHeldNormalFocusId !== heldNormalFocusAppId
         if (changed) {
             console.log("SmartBar perfil real:", trackedAppName || "(sin aplicación)",
                         "AppId:", trackedAppId || "(ninguno)",
@@ -370,7 +384,14 @@ Window {
             logPositionStorage("cambio de ventana/estado")
             Qt.callLater(function() {
                 if (!probe.fullscreenAnchorHeld) {
-                    if (probe.trackedKnown) bar.applyRealPositionProfile()
+                    if (probe.heldNormalFocusAppId.length > 0 &&
+                            probe.heldNormalFocusAppId === probe.trackedAppId &&
+                            !probe.trackedMaximized) {
+                        // No aplicar offset=0 por un simple cambio de foco;
+                        // respetar la coordenada anterior, sin guardar nada.
+                        console.log("SmartBar foco restaurado: conserva posicion",
+                                    probe.trackedAppId, "offset=", bar.islandOffset)
+                    } else if (probe.trackedKnown) bar.applyRealPositionProfile()
                     else if (!bar.draggingIslandGrip) bar.alignRightNow()
                 } else {
                     probe.restoreLastFullscreenPosition()
