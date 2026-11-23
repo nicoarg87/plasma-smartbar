@@ -776,3 +776,10 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [ ] **Consulta IA:** ChatGPT/Gemini abren Falkon pero no reciben `cerveza`. El código preserva consentimiento: sin permiso no añade texto, con permiso el `?q=` de ChatGPT es experimental, Gemini no admite precarga fiable por enlace. Necesita una solución explícita de integración y consentimiento; **no** agregar botones, mecanismos de portapapeles automático ni extensiones sin autorización.
 - [x] **Cierre del ensayo:** después de 90 segundos se cierra intencionalmente, no es evidencia de error.
 
+## 23/11/2026 — Ordenamiento temporal Web/IA en ensayo Malvina
+
+- [x] **Comprobado en CachyOS:** Web Google y DuckDuckGo recibieron la palabra `cerveza` desde Malvina y abrieron resultados correctos en Falkon; comprobación antirrobot de Google corresponde al servicio externo.
+- [x] **Corregido en código experimental:** el ensayo aislado no manejaba `requestMalvinaOrderChange`, a diferencia del visor principal; se agregaron variables de orden exclusivamente de sesión, sin alterar preferencias persistentes ni interfaz. Timeout de este ensayo de 90 a 180 segundos para permitir arrastre, y log de gesto para diagnóstico.
+- [x] **Prueba de regresión simulada:** contrato Malvina 115 comprobaciones PASS, Soledad 281 PASS, `MalvinaSlots.order` devuelve `duck,google,yahoo` como corresponde. **No son pruebas QML/Wayland nativas.**
+- [ ] **Comprobar en CachyOS:** arrastrar DuckDuckGo hasta el primer lugar de la fila Web, verificar orden visual y de selección; si falla distinguir ausencia de log del gesto de la señal de orden temporal. Mantener orden de la sesión, no persistirlo desde el ensayo.
+
