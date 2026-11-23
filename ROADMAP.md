@@ -760,3 +760,11 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [ ] **Ejecutar Node + QML/KWin real en CachyOS:** `node prototype/v0.1/tests/test_malvina_superposicion.cjs`, `node prototype/v0.1/tests/test_fixed_input_region.cjs`, `bash prototype/v0.1/probar_malvina_superposicion.sh`. Comprobar capa sobre Brave/Steam normal/maximizada, fullscreen real oculta y Esc restaura sin clic, entrada solo sobre isla y autocierre a 90 segundos.
 - [ ] Diagnosticar en el visor principal `probar_ancho.sh` las preferencias guardadas `demoLauncherIslandVisible`/`demoAutoHideMalvina`, la simulación de maximización y `Qt.WindowShortcut` de Meta+Space: el ensayo nativo fuerza visibilidad solo para aislar la causa. No dar por corregido el problema del visor hasta observarlo.
 
+## 23/11/2026 — Teclado y clics de Malvina sobre ventanas: regresión prioritaria
+
+- [x] **Probado por mantenedor antes del parche:** Malvina sobre Brave/Steam restauradas y maximizadas; sin interferencia observada durante fullscreen de YouTube y Steam Big Picture.
+- [x] **Bug reproducido:** desplegar búsqueda de Malvina deja clics llegar a pestañas de debajo y el editor no acepta teclado. No confundir con fallo de superposición.
+- [x] **Fix experimental limitado:** cambiar `KeyboardInteractivityNone` por `KeyboardInteractivityOnDemand`; redimensionar la superficie cuando aparecen el editor y Web/IA, actualizar la máscara de entrada con unión de regiones de controles (sin bloquear el resto del escritorio) y evitar bucle de ancho Popup/Window. No modificar el puente de máscara usado por Soledad ni opciones persistidas. Contrato Malvina: 100 PASS V8, Soledad 281 PASS V8.
+- [ ] **Validación nativa inmediata:** `bash prototype/v0.1/probar_malvina_superposicion.sh` tras test Node y git pull: clic lupa→campo no debe activar pestañas detrás, escribir sin Enter; abrir Web/IA y hacer clic; cerrar y verificar clic exterior; repetir fullscreen YouTube para descartar regresiones.
+- [ ] Resolver por separado si la versión con preferencias originales del visor `probar_ancho.sh` sigue sin mostrar Malvina: examinar etiqueta de diagnóstico, no resetear valores.
+
