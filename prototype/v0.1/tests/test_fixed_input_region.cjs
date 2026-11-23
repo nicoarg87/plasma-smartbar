@@ -154,6 +154,68 @@ assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)")
        profiles.includes("function resolveOffset(") &&
        profiles.includes("function clampOffset("),
        "Reutilizar la política ya probada de posiciones por aplicación");
+// Regresión real: al SALIR de Big Picture IsActive puede quedar vacío
+// aunque la ventana principal maximizada de Steam siga en TasksModel.
+// No forzar Steam si KWin identifica otra ventana activa o un fullscreen.
+const vm = require("node:vm");
+const realActiveSource = read("package/contents/ui/RealActiveWindow.js")
+    .replace(/^\\s*\\.pragma library\\s*\\n/, "");
+const getExitCandidate = vm.runInNewContext(
+    realActiveSource + "\\n;fullscreenExitCandidate");
+const steamMain = {
+    appId: "steam", appName: "Steam", active: false,
+    maximized: true, minimized: false, fullscreen: false
+};
+const braveMain = {
+    appId: "brave-browser", appName: "Brave", active: false,
+    maximized: true, minimized: false, fullscreen: false
+};
+assert.equal(getExitCandidate([steamMain, braveMain], "steam").appId,
+             "steam", "Solo retomar Steam si era el AppId anterior");
+assert.equal(getExitCandidate([steamMain, braveMain], "brave-browser").appId,
+             "brave-browser", "La regla también debe funcionar con Brave");
+assert.equal(getExitCandidate([steamMain], "no-guardada"), null,
+             "No inventar aplicación distinta de la previamente activa");
+assert.equal(getExitCandidate([steamMain], ""), null,
+             "Sin identidad anterior no inferir una posición");
+assert.equal(getExitCandidate([steamMain, {
+    appId: "org.kde.konsole", active: true, minimized: false
+}], "steam"), null, "Nunca sobreponer el perfil de Steam si Konsole es activa");
+assert.equal(getExitCandidate([steamMain, {
+    appId: "steam", active: true, minimized: false
+}], "steam"), null, "Ventana activa conocida debe usar flujo normal");
+assert.equal(getExitCandidate([steamMain, {
+    appId: "steam", fullscreen: true, minimized: false
+}], "steam"), null, "No reponer isla mientras siga fullscreen");
+assert.equal(getExitCandidate([{
+    appId: "steam", maximized: true, minimized: true, fullscreen: false
+}], "steam"), null, "No elegir Steam minimizado");
+assert.equal(getExitCandidate([{
+    appId: "steam", maximized: false, minimized: false, fullscreen: false
+}], "steam"), null, "Exigir ventana principal maximizada");
+assert.equal(getExitCandidate([], "steam"), null, "Sin ventanas no hay retorno");
+for (const marker of [
+    "property string lastRegularProfileAppId:",
+    "property string fullscreenReturnAppId:",
+    "property bool fullscreenObserved:",
+    "property bool fullscreenExitPending:",
+    "fullscreenReturnAppId = lastRegularProfileAppId",
+    "fullscreenExitPending = fullscreenReturnAppId.length > 0",
+    "function recoverFullscreenExit()",
+    "RealActiveWindow.fullscreenExitCandidate(",
+    "snapshotRealWindows(), fullscreenReturnAppId",
+    "bar.draggingIslandGrip",
+    "bar.islandOffset !== 0",
+    "SoledadPositionProfiles.resolveOffset(",
+    "bar.setIslandOffset(savedOffset)",
+    "bar.alignRightSelected = savedOffset === 0",
+    "fullscreenExitPending = false",
+    "probe.recoverFullscreenExit()",
+    "Qt.callLater(probe.recoverFullscreenExit)"
+]) assert(qml.includes(marker), "Falta recuperación conservadora: " + marker);
+assert((qml.match(/profileSettings\\.setValue\\(/g) || []).length === 1,
+       "El retorno de Big Picture no debe guardar ninguna nueva preferencia");
+
 // Inicio y regreso de fullscreen: reevaluación corta de roles KDE.
 for (const marker of [
     "property int remainingStateRechecks: 0",
