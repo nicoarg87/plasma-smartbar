@@ -69,6 +69,9 @@ Window {
     // Mantener la posición visible durante cambios de FOCO hacia una
     // ventana restaurada con otra maximizada detrás. No es un perfil.
     property string heldNormalFocusAppId: ""
+    // Versiona acciones diferidas para evitar que un evento KDE antiguo
+    // aplique un perfil cuando ya cambió la ventana o su maximización.
+    property int positionTransitionRevision: 0
     // Memoria VISUAL y efímera: NO es otro perfil por aplicación.
     // El último desplazamiento estable antes de fullscreen debe volver
     // al salir, aunque un chat auxiliar reciba foco sin maximizar.
@@ -362,6 +365,15 @@ Window {
         const activeExternal = active.known &&
             active.appId !== "org.qt-project.qml6" &&
             active.appId !== "smartbar_input_mask_probe"
+        // Excepción aprobada exclusivamente en la transición maximizada
+        // → restaurada de la MISMA aplicación activa. No cambia la
+        // retención anterior por un cambio de foco entre aplicaciones.
+        const unmaximizeFallback = activeExternal && !anyFullscreen &&
+            !fullscreenAnchorHeld
+            ? RealActiveWindow.fallbackAfterActiveUnmaximize(
+                rows, active, previousId, previousMaximized,
+                SoledadPositionProfiles.readProfiles(positionProfilesJson))
+            : {kind: "normal", appId: "", offset: 0}
 
         if (activeExternal) {
             // El CAMBIO de foco hacia una ventana normal no es una orden
@@ -370,7 +382,8 @@ Window {
             const holdNormalFocus = !fullscreenAnchorHeld && !anyFullscreen &&
                 RealActiveWindow.shouldKeepNormalFocusPosition(
                     rows, active, previousId, previousHeldNormalFocusId)
-            heldNormalFocusAppId = (holdNormalFocus || initialAnchorRestored)
+            heldNormalFocusAppId = (holdNormalFocus || initialAnchorRestored ||
+                                    unmaximizeFallback.kind !== "normal")
                 ? active.appId : ""
             // Activación de una ventana externa: perfil de ESA aplicación.
             trackedAppId = active.appId
@@ -406,6 +419,10 @@ Window {
             previousKnown !== trackedKnown ||
             previousHeldNormalFocusId !== heldNormalFocusAppId
         if (changed) {
+            positionTransitionRevision++
+            const eventRevision = positionTransitionRevision
+            const eventAppId = trackedAppId
+            const eventFallback = unmaximizeFallback
             console.log("SmartBar perfil real:", trackedAppName || "(sin aplicación)",
                         "AppId:", trackedAppId || "(ninguno)",
                         "maximizada:", trackedMaximized,
@@ -413,7 +430,39 @@ Window {
                         "ventana identificada:", trackedKnown)
             logPositionStorage("cambio de ventana/estado")
             Qt.callLater(function() {
+                if (probe.positionTransitionRevision !== eventRevision ||
+                        probe.trackedAppId !== eventAppId) return
                 if (!probe.fullscreenAnchorHeld) {
+                    if (eventFallback.kind === "profile" &&
+                            probe.heldNormalFocusAppId === eventAppId &&
+                            !probe.trackedMaximized && !bar.draggingIslandGrip) {
+                        // Confirmar nuevamente los roles antes de aplicar
+                        // un anclaje de FONDO; no usar eventos diferidos
+                        // obsoletos ni cambiar la ventana activa real.
+                        const currentRows = probe.snapshotRealWindows()
+                        const currentActive = RealActiveWindow.resolve(currentRows)
+                        const candidate = RealActiveWindow.uniqueMaximizedProfile(
+                            currentRows, SoledadPositionProfiles.readProfiles(
+                                probe.positionProfilesJson))
+                        if (currentActive.known &&
+                                currentActive.appId === eventAppId &&
+                                !currentActive.maximized && !currentActive.fullscreen &&
+                                candidate.known &&
+                                candidate.appId === eventFallback.appId) {
+                            const offset = Math.min(bar.maxIslandOffset,
+                                                    Math.max(0, candidate.offset))
+                            bar.setIslandOffset(offset)
+                            bar.alignRightSelected = offset === 0
+                            bar.ensureExpansionFits()
+                            probe.lastVisibleIslandOffset = bar.islandOffset
+                            probe.lastVisibleIslandKnown = true
+                            probe.refreshInputRegion()
+                            console.log("SmartBar respaldo desmaximizar:",
+                                        candidate.appId, "offset=", bar.islandOffset,
+                                        "(perfil existente, sin guardado)")
+                            return
+                        }
+                    }
                     if (probe.heldNormalFocusAppId.length > 0 &&
                             probe.heldNormalFocusAppId === probe.trackedAppId &&
                             !probe.trackedMaximized) {
