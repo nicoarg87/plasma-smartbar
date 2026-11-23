@@ -1184,3 +1184,21 @@ and bash prototype/v0.1/probar_malvina_superposicion.sh
 ```
 Malvina aparece siempre solo en este ensayo. Abrir lupa, Tab para mostrar Web/IA, arrastrar **DuckDuckGo a la izquierda de Google** y soltar; debe pasar a la primera posición visual y al orden de navegación/búsqueda, sin aplicar `KConfig`. Si no sucede, solicitar salida de Konsole especialmente `SmartBar MALVINA gesto reordenar:` y `SmartBar MALVINA orden temporal:` para saber si falla capturar drag o propagar señal. Tras cierre a 180 s, este orden temporal se pierde **intencionalmente**; el visor original mantiene preferencias propias. Continuar pruebas automáticamente cuando el mantenedor dé resultado. [Issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4); PR #3 borrador.
 
+## 23/11/2026 — Tras reordenar Malvina se pierde el foco y falla el doble Enter
+
+**PRUEBA REAL DEL MANTENEDOR:** el ensayo LayerShell de Malvina ya permite escribir `cerveza` y **arrastrar el buscador para modificar el orden visual**. Descubrió regresión: tras reordenar, pulsó `Enter` para confirmar el motor y `Enter` de nuevo para buscar; **no pasó nada**. Al clicar otra vez el editor con `cerveza`, `Enter` sí ejecutó la búsqueda. El arrastre está visualmente probado; la ruta de teclado sin clic adicional está **FALLANDO**. No confundir con el problema anterior de ChatGPT/Gemini de precarga de consultas; este caso es Web y de foco.
+
+**DIAGNÓSTICO PROBABLE:** `applyOrder` emitía actualización/recreaba `Repeater`, luego `resetDefault`, pero no recuperaba foco de `queryInput`. El botón arrastrado o un Popup podía conservar foco real, evitando que el handler de Enter del editor ejecutara `confirmCandidate/openSelected`. El clic manual al editor restituía el foco. La secuencia de diseño `Tab → Enter confirma → Enter busca` está confirmada y NO debe cambiarse.
+
+**FIX EXPERIMENTAL [7e6b913](https://github.com/nicoarg87/plasma-smartbar/commit/7e6b913b68a7db905a1def3a2e10ffd8a1f66409):** `MalvinaSearch.applyOrder` llama `activeEditorFocus` después de reordenar; `activeEditorFocus` reafirma foco inmediato y con `Qt.callLater(search.restoreEditorFocusAfterLayout)` si el editor sigue expandido y el popup visible; `DragHandler.onActiveChanged` al soltar restaura foco incluso con arrastre pequeño. `chooseProvider` ya usa el mismo método. No se agregó ningún control, ni envíos automáticos, ni escritura de preferencias; el cambio es compartido con visor/plasmoide pero solo en rama experimental. Test [90eb132](https://github.com/nicoarg87/plasma-smartbar/commit/90eb132b1722affe98fedeea6b4198a6c3d2a94d) ejecuta funciones QML reales extraídas en un entorno JS simulado: **Malvina 128/128 PASS**, **Soledad 281/281 PASS** simuladas; **Qt/KWin nativo PENDIENTE**. Mantener prioridad LayerTop/ocultamiento fullscreen probados y KConfig intactos.
+
+**SIGUIENTE PRUEBA FISH:**
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/test_malvina_superposicion.cjs
+and bash prototype/v0.1/probar_malvina_superposicion.sh
+```
+Escribir `cerveza`, abrir Web, arrastrar DuckDuckGo al primer lugar; **sin volver a clicar el campo**, Tab hasta Web, Enter para confirmar DuckDuckGo, Enter para buscar; verificar Falkon. Si reaparece, conservar log de `SmartBar MALVINA gesto reordenar`, `SmartBar MALVINA orden temporal` y errores de foco QML. Ensayo temporal 180s; orden no persistido en preferencias. No tocar panel, temas, Soledad ni posiciones. Después del éxito seguir probando Web/IA y fullscreen con focos alternados, sin reabrir fallo anterior innecesariamente.
+
