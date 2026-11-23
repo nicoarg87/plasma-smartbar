@@ -72,6 +72,7 @@ Window {
     // Versiona acciones diferidas para evitar que un evento KDE antiguo
     // aplique un perfil cuando ya cambió la ventana o su maximización.
     property int positionTransitionRevision: 0
+    property string lastTopMaximizedSignature: ""
     // Memoria VISUAL y efímera: NO es otro perfil por aplicación.
     // El último desplazamiento estable antes de fullscreen debe volver
     // al salir, aunque un chat auxiliar reciba foco sin maximizar.
@@ -92,17 +93,16 @@ Window {
         onTriggered: probe.fullscreenFocusSettled = true
     }
     function recoverInitialMaximizedAnchor(rows) {
-        // El visor arranca desde Konsole, que tiene el foco. Si hay UNA
-        // ventana maximizada detrás con perfil guardado, no comenzar en 0
-        // tapando los controles de esa ventana. Con dos perfiles posibles
-        // no adivinar cuál corresponde.
+        // Arranque desde Konsole: identificar la maximizada VISIBLE más
+        // alta según StackingOrder, aunque existan otras maximizadas detrás.
+        // No elegir arbitrariamente si KDE no informó el orden.
         if (lastVisibleIslandKnown || fullscreenObserved ||
                 fullscreenAnchorHeld || bar.draggingIslandGrip ||
                 bar.width <= 0 || bar.actualIslandWidth <= 0 ||
                 bar.maxIslandOffset <= 0) return false
-        const candidate = RealActiveWindow.uniqueMaximizedProfile(
+        const candidate = RealActiveWindow.topmostMaximizedProfile(
             rows, SoledadPositionProfiles.readProfiles(positionProfilesJson))
-        if (!candidate.known) return false
+        if (candidate.kind !== "profile") return false
         const offset = Math.min(bar.maxIslandOffset,
                                 Math.max(0, candidate.offset))
         bar.setIslandOffset(offset)
@@ -111,7 +111,7 @@ Window {
         lastVisibleIslandOffset = offset
         lastVisibleIslandKnown = true
         refreshInputRegion()
-        console.log("SmartBar inicio anclaje: ventana maximizada unica",
+        console.log("SmartBar inicio anclaje: maximizada superior",
                     candidate.appId, "offset=", offset, "(sin escribir perfiles)")
         return true
     }
@@ -159,6 +159,7 @@ Window {
                 maximized: row.maximized === true,
                 minimized: row.minimized === true,
                 fullscreen: row.fullscreen === true,
+                stackingOrder: row.stackingOrder,
                 hasProfile: Object.prototype.hasOwnProperty.call(saved, row.appId)
             }
         })
@@ -224,6 +225,10 @@ Window {
                 trackedFullscreen || bar.draggingIslandGrip ||
                 bar.islandOffset !== 0 || !bar.activeRealAppHasSavedPosition)
             return
+        const top = RealActiveWindow.topmostMaximizedProfile(
+            snapshotRealWindows(),
+            SoledadPositionProfiles.readProfiles(positionProfilesJson))
+        if (top.kind !== "profile" || top.appId !== trackedAppId) return
         console.log("SmartBar sincronizacion:", trackedAppName,
                     "recuperando perfil tras evento KDE")
         bar.applyRealPositionProfile()
@@ -277,16 +282,20 @@ Window {
             readonly property bool taskMaximized: model.IsMaximized === true
             readonly property bool taskMinimized: model.IsMinimized === true
             readonly property bool taskFullScreen: model.IsFullScreen === true
+            // Rol oficial de KDE: -1 cuando el orden Wayland es desconocido.
+            readonly property var taskStackingOrder: model.StackingOrder
             function snapshot() {
                 return { appId: appId, appName: appName,
                     active: taskActive, maximized: taskMaximized,
-                    minimized: taskMinimized, fullscreen: taskFullScreen }
+                    minimized: taskMinimized, fullscreen: taskFullScreen,
+                    stackingOrder: taskStackingOrder }
             }
             onAppIdChanged: probe.scheduleWindowRecheck()
             onTaskActiveChanged: probe.scheduleWindowRecheck("foco")
             onTaskMaximizedChanged: probe.scheduleWindowRecheck("maximizada")
             onTaskMinimizedChanged: probe.scheduleWindowRecheck("minimizada")
             onTaskFullScreenChanged: probe.scheduleWindowRecheck("fullscreen")
+            onTaskStackingOrderChanged: probe.scheduleWindowRecheck("apilamiento")
             Component.onCompleted: probe.scheduleWindowRecheck()
         }
     }
@@ -357,6 +366,12 @@ Window {
         const previousFullscreen = trackedFullscreen
         const previousKnown = trackedKnown
         const previousHeldNormalFocusId = heldNormalFocusAppId
+        const previousTopSignature = lastTopMaximizedSignature
+        const topmost = RealActiveWindow.topmostMaximizedProfile(
+            rows, SoledadPositionProfiles.readProfiles(positionProfilesJson))
+        const topSignature = topmost.kind + ":" + topmost.appId +
+                             ":" + topmost.offset
+        lastTopMaximizedSignature = topSignature
         // Primer arranque y observación tardía de TasksModel: una única
         // ventana maximizada y perfil guardado puede sembrar el anclaje,
         // aun si la aplicación activa es Konsole o Steam restaurada.
@@ -417,12 +432,13 @@ Window {
             previousMaximized !== trackedMaximized ||
             previousFullscreen !== trackedFullscreen ||
             previousKnown !== trackedKnown ||
-            previousHeldNormalFocusId !== heldNormalFocusAppId
+            previousHeldNormalFocusId !== heldNormalFocusAppId ||
+            previousTopSignature !== topSignature
         if (changed) {
             positionTransitionRevision++
             const eventRevision = positionTransitionRevision
             const eventAppId = trackedAppId
-            const eventFallback = unmaximizeFallback
+            const eventTopSignature = topSignature
             console.log("SmartBar perfil real:", trackedAppName || "(sin aplicación)",
                         "AppId:", trackedAppId || "(ninguno)",
                         "maximizada:", trackedMaximized,
@@ -433,35 +449,43 @@ Window {
                 if (probe.positionTransitionRevision !== eventRevision ||
                         probe.trackedAppId !== eventAppId) return
                 if (!probe.fullscreenAnchorHeld) {
-                    if (eventFallback.kind === "profile" &&
-                            probe.heldNormalFocusAppId === eventAppId &&
-                            !probe.trackedMaximized && !bar.draggingIslandGrip) {
-                        // Confirmar nuevamente los roles antes de aplicar
-                        // un anclaje de FONDO; no usar eventos diferidos
-                        // obsoletos ni cambiar la ventana activa real.
-                        const currentRows = probe.snapshotRealWindows()
-                        const currentActive = RealActiveWindow.resolve(currentRows)
-                        const candidate = RealActiveWindow.uniqueMaximizedProfile(
-                            currentRows, SoledadPositionProfiles.readProfiles(
-                                probe.positionProfilesJson))
-                        if (currentActive.known &&
-                                currentActive.appId === eventAppId &&
-                                !currentActive.maximized && !currentActive.fullscreen &&
-                                candidate.known &&
-                                candidate.appId === eventFallback.appId) {
-                            const offset = Math.min(bar.maxIslandOffset,
-                                                    Math.max(0, candidate.offset))
+                    // Prioridad de diseño confirmada: seguir la ventana
+                    // MAXIMIZADA más alta de KWin, no el foco de una ventana
+                    // restaurada ni una maximizada arbitraria del fondo.
+                    // Revalidar tras Qt.callLater para descartar eventos viejos.
+                    const currentTop = RealActiveWindow.topmostMaximizedProfile(
+                        probe.snapshotRealWindows(),
+                        SoledadPositionProfiles.readProfiles(
+                            probe.positionProfilesJson))
+                    const currentSignature = currentTop.kind + ":" +
+                        currentTop.appId + ":" + currentTop.offset
+                    if (currentSignature !== eventTopSignature) {
+                        probe.scheduleWindowRecheck("apilamiento cambiado")
+                        return
+                    }
+                    if (currentTop.kind === "profile") {
+                        if (bar.draggingIslandGrip) return
+                        const offset = Math.min(bar.maxIslandOffset,
+                                                Math.max(0, currentTop.offset))
+                        if (Math.abs(bar.islandOffset - offset) >= 0.1) {
                             bar.setIslandOffset(offset)
                             bar.alignRightSelected = offset === 0
                             bar.ensureExpansionFits()
-                            probe.lastVisibleIslandOffset = bar.islandOffset
-                            probe.lastVisibleIslandKnown = true
                             probe.refreshInputRegion()
-                            console.log("SmartBar respaldo desmaximizar:",
-                                        candidate.appId, "offset=", bar.islandOffset,
-                                        "(perfil existente, sin guardado)")
-                            return
                         }
+                        probe.lastVisibleIslandOffset = bar.islandOffset
+                        probe.lastVisibleIslandKnown = true
+                        console.log("SmartBar maximizada superior:",
+                                    currentTop.appId, "offset=", bar.islandOffset,
+                                    "(perfil existente, sin guardar)")
+                        return
+                    }
+                    if (currentTop.kind === "hold") {
+                        // Apilamiento ausente o ambiguo, o app sin perfil:
+                        // conservar última posición visible, no inventar.
+                        console.log("SmartBar apilamiento ambiguo:",
+                                    "conservando offset=", bar.islandOffset)
+                        return
                     }
                     if (probe.heldNormalFocusAppId.length > 0 &&
                             probe.heldNormalFocusAppId === probe.trackedAppId &&
