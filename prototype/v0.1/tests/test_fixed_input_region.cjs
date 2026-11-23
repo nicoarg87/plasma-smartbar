@@ -423,7 +423,7 @@ assert(qml.includes('property string heldNormalFocusAppId: ""') &&
        qml.includes("RealActiveWindow.shouldKeepNormalFocusPosition(") &&
        qml.includes('console.log("SmartBar foco restaurado: conserva posicion"'),
        "La política de foco normal debe estar conectada al ensayo aislado");
-assert.equal((qml.match(/profileSettings\\.setValue\\(/g) || []).length, 1,
+assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 1,
     "Conservar retención de foco no debe escribir perfiles");
 
 for (const marker of [
