@@ -101,12 +101,12 @@ assert(!qml.includes("trialControlsReservePx") &&
        !qml.includes("externalActiveMaximized"),
        "No conservar reserva artificial de 176 px");
 assert(!qml.includes("Qt.WindowTransparentForInput") &&
-       !/requestActivate\\s*\\(|requestClose\\s*\\(|requestToggleMaximized\\s*\\(/.test(qml),
+       !/requestActivate\s*\(|requestClose\s*\(|requestToggleMaximized\s*\(/.test(qml),
        "Nunca modificar ventanas externas ni pasar clics bajo Soledad");
 assert(!qml.includes("themeDayJson") && !qml.includes("themeNightJson") &&
        !qml.includes("kwriteconfig") && !qml.includes("KConfig"),
        "No modificar temas ni KConfig del usuario");
-assert((qml.match(/profileSettings\\.setValue\\(/g) || []).length === 1,
+assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
        "La prueba solo puede persistir la clave de posiciones reales");
 assert(qml.includes("LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })"),
        "La ventana debe seguir fija y sin obstruir Brave");
