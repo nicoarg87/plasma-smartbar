@@ -66,12 +66,45 @@ Window {
     property bool trackedMaximized: false
     property bool trackedFullscreen: false
     property bool trackedKnown: false
-    // Última app REGULAR maximizada con perfil que se observó ANTES
-    // de fullscreen. No inferir Steam por el título de su ventana.
-    property string lastRegularProfileAppId: ""
-    property string fullscreenReturnAppId: ""
+    // Memoria VISUAL y efímera: NO es otro perfil por aplicación.
+    // El último desplazamiento estable antes de fullscreen debe volver
+    // al salir, aunque un chat auxiliar reciba foco sin maximizar.
+    property real lastVisibleIslandOffset: 0
+    property bool lastVisibleIslandKnown: false
+    property real fullscreenSavedIslandOffset: 0
     property bool fullscreenObserved: false
-    property bool fullscreenExitPending: false
+    property bool fullscreenAnchorHeld: false
+    property bool fullscreenExited: false
+    property string fullscreenPriorAppId: ""
+    property string fullscreenInitialFocusAppId: ""
+    function rememberVisibleIslandOffset() {
+        if (bar.draggingIslandGrip) {
+            lastVisibleIslandOffset = bar.islandOffset
+            lastVisibleIslandKnown = true
+            if (fullscreenExited) {
+                // Movimiento explícito del usuario: nueva posición manual.
+                fullscreenAnchorHeld = false
+                fullscreenExited = false
+            }
+        } else if (!fullscreenAnchorHeld && !fullscreenObserved &&
+                   trackedKnown && trackedMaximized && !trackedFullscreen) {
+            lastVisibleIslandOffset = bar.islandOffset
+            lastVisibleIslandKnown = true
+        }
+    }
+    function restoreLastFullscreenPosition() {
+        if (!fullscreenAnchorHeld || !fullscreenExited ||
+                bar.draggingIslandGrip) return
+        const offset = Math.min(bar.maxIslandOffset,
+                                Math.max(0, fullscreenSavedIslandOffset))
+        if (Math.abs(bar.islandOffset - offset) < 0.1) return
+        bar.setIslandOffset(offset)
+        bar.alignRightSelected = offset === 0
+        bar.ensureExpansionFits()
+        refreshInputRegion()
+        console.log("SmartBar retorno fullscreen: ultima posicion visible",
+                    "offset=", offset, "(sin guardar perfiles)")
+    }
     // Solo diagnostico del ENSAYO: cambios observables de tareas,
     // sin titulos ni texto de ventanas y sin consultas a APIs privadas.
     property string lastKdeStateSignature: ""
@@ -101,8 +134,9 @@ Window {
                     "ventanas=" + rows.length,
                     "estados=" + signature,
                     "seguimiento=" + (trackedAppId || "(ninguno)"),
-                    "anteriorFullscreen=" + (lastRegularProfileAppId || "(ninguno)"),
-                    "pendiente=" + fullscreenExitPending,
+                    "appPreviaFullscreen=" + (fullscreenPriorAppId || "(ninguno)"),
+                    "posicionAntesFullscreen=" + fullscreenSavedIslandOffset,
+                    "restauracionActiva=" + fullscreenAnchorHeld,
                     "SoledadOffset=" + bar.islandOffset)
     }
 
@@ -138,7 +172,7 @@ Window {
         onTriggered: {
             probe.refreshExternalWindow()
             probe.recoverProfileAfterSettling()
-            Qt.callLater(probe.recoverFullscreenExit)
+            probe.restoreLastFullscreenPosition()
             probe.remainingStateRechecks--
             if (probe.remainingStateRechecks <= 0) stop()
         }
@@ -148,9 +182,9 @@ Window {
     // nuevo SOLO mientras se estabiliza KWin, si SO quedó en cero (derecha).
     // Nunca reemplazar un arrastre manual que dejó otro desplazamiento.
     function recoverProfileAfterSettling() {
-        if (!trackedKnown || !trackedMaximized || trackedFullscreen ||
-                bar.draggingIslandGrip || bar.islandOffset !== 0 ||
-                !bar.activeRealAppHasSavedPosition)
+        if (fullscreenAnchorHeld || !trackedKnown || !trackedMaximized ||
+                trackedFullscreen || bar.draggingIslandGrip ||
+                bar.islandOffset !== 0 || !bar.activeRealAppHasSavedPosition)
             return
         console.log("SmartBar sincronizacion:", trackedAppName,
                     "recuperando perfil tras evento KDE")
@@ -164,34 +198,6 @@ Window {
             if (item !== null) rows.push(item.snapshot())
         }
         return rows
-    }
-
-    // Cuando desaparece fullscreen y KWin no informa todavía NINGUNA ventana
-    // activa, recuperar exclusivamente la app conocida justo ANTES de entrar.
-    // No se la declara activa ni se habilita guardado: es anclaje transitorio.
-    function recoverFullscreenExit() {
-        if (!fullscreenExitPending || bar.draggingIslandGrip ||
-                bar.islandOffset !== 0) return
-        const candidate = RealActiveWindow.fullscreenExitCandidate(
-            snapshotRealWindows(), fullscreenReturnAppId)
-        if (candidate === null) return
-        const saved = SoledadPositionProfiles.readProfiles(positionProfilesJson)
-        if (!Object.prototype.hasOwnProperty.call(saved, candidate.appId)) {
-            fullscreenExitPending = false
-            return
-        }
-        const savedOffset = SoledadPositionProfiles.resolveOffset(
-            positionProfilesJson, candidate.appId, true, true,
-            0, bar.maxIslandOffset)
-        bar.setIslandOffset(savedOffset)
-        bar.alignRightSelected = savedOffset === 0
-        bar.ensureExpansionFits()
-        refreshInputRegion()
-        fullscreenExitPending = false
-        console.log("SmartBar salida fullscreen: restaurada posicion previa",
-                    candidate.appName, candidate.appId,
-                    "offset=", savedOffset,
-                    "(KWin sin ventana activa; sin guardar cambios)")
     }
 
     TaskManager.TasksModel {
@@ -254,37 +260,35 @@ Window {
             return row.fullscreen && !row.minimized
         })
         if (anyFullscreen && !fullscreenObserved) {
-            // Captura de la aplicación antes de que Big Picture tome el foco.
+            // Capturar posición visual previa, no el estado de maximización
+            // de un chat u otra ventana secundaria creada por Big Picture.
+            fullscreenSavedIslandOffset = lastVisibleIslandKnown
+                ? lastVisibleIslandOffset : bar.islandOffset
+            fullscreenPriorAppId = trackedAppId
+            fullscreenInitialFocusAppId = ""
             fullscreenObserved = true
-            fullscreenReturnAppId = lastRegularProfileAppId
-            fullscreenExitPending = false
-            console.log("SmartBar fullscreen: ingreso, retorno previsto:",
-                        fullscreenReturnAppId || "(sin app previa)")
+            fullscreenAnchorHeld = true
+            fullscreenExited = false
+            console.log("SmartBar fullscreen: ingreso, posicion visual=",
+                        fullscreenSavedIslandOffset)
         } else if (!anyFullscreen && fullscreenObserved) {
             fullscreenObserved = false
-            fullscreenExitPending = fullscreenReturnAppId.length > 0
-            console.log("SmartBar fullscreen: salida detectada, app:",
-                        fullscreenReturnAppId || "(ninguna)")
+            fullscreenExited = true
+            fullscreenInitialFocusAppId = active.known ? active.appId : ""
+            console.log("SmartBar fullscreen: salida, restaurando posicion visual=",
+                        fullscreenSavedIslandOffset)
+            Qt.callLater(probe.restoreLastFullscreenPosition)
         }
-        // El perfil de retorno solo se memoriza de una app REAL activa,
-        // maximizada y fuera de fullscreen; no se persiste ni se cambia foco.
-        if (active.known && !anyFullscreen && !active.fullscreen &&
-                !fullscreenExitPending) {
-            const saved = SoledadPositionProfiles.readProfiles(positionProfilesJson)
-            if (active.maximized &&
-                    Object.prototype.hasOwnProperty.call(saved, active.appId)) {
-                lastRegularProfileAppId = active.appId
-            } else if (active.appId !== lastRegularProfileAppId) {
-                // Un estado normal temporal de la MISMA Steam al abrir
-                // Big Picture no debe borrar el destino de retorno.
-                lastRegularProfileAppId = ""
-            }
-        }
-        if (fullscreenExitPending && active.known &&
-                active.appId !== fullscreenReturnAppId) {
-            // Otra aplicación ya tiene el foco: no restaurar Steam detrás.
-            fullscreenExitPending = false
-            console.log("SmartBar fullscreen: retorno cancelado por foco en",
+        // Tras salir, el primer foco puede ser una ventana auxiliar abierta
+        // por la transición. La posición se conserva hasta pasar a una
+        // aplicación DISTINTA del contexto anterior y del primer foco
+        // observado al salir. No añadir excepciones específicas de Steam.
+        if (fullscreenAnchorHeld && fullscreenExited && active.known &&
+                active.appId !== fullscreenPriorAppId &&
+                active.appId !== fullscreenInitialFocusAppId) {
+            fullscreenAnchorHeld = false
+            fullscreenExited = false
+            console.log("SmartBar fullscreen: fin de restauracion por cambio a",
                         active.appId)
         }
         const previousId = trackedAppId
@@ -334,9 +338,12 @@ Window {
                         "ventana identificada:", trackedKnown)
             logPositionStorage("cambio de ventana/estado")
             Qt.callLater(function() {
-                if (probe.trackedKnown) bar.applyRealPositionProfile()
-                else if (!bar.draggingIslandGrip) bar.alignRightNow()
-                probe.recoverFullscreenExit()
+                if (!probe.fullscreenAnchorHeld) {
+                    if (probe.trackedKnown) bar.applyRealPositionProfile()
+                    else if (!bar.draggingIslandGrip) bar.alignRightNow()
+                } else {
+                    probe.restoreLastFullscreenPosition()
+                }
             })
         }
     }
@@ -396,7 +403,10 @@ Window {
         // Mantener el DragHandler ORIGINAL: ventana/escena permanecen FIJAS.
         layerShellDragCompensation: false
 
-        onIslandOffsetChanged: probe.refreshInputRegion()
+        onIslandOffsetChanged: {
+            probe.refreshInputRegion()
+            probe.rememberVisibleIslandOffset()
+        }
         onActualIslandWidthChanged: probe.refreshInputRegion()
         onControlsReservationChanged: probe.refreshInputRegion()
         onSoExpandedChanged: probe.refreshInputRegion()
