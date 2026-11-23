@@ -13,6 +13,7 @@ const cpp = read("native_probes/soledad_input_mask_main.cpp");
 const shared = read("package/contents/ui/SmartBarContent.qml");
 const viewer = read("preview_redimensionable.qml");
 const soledadProbe = read("preview_soledad_input_mask.qml");
+const search = read("package/contents/ui/MalvinaSearch.qml");
 
 assert(shared.includes("readonly property bool autoRevealBlocked:"));
 const blocking = shared.slice(
@@ -47,11 +48,17 @@ for (const expected of [
     "LayerShell.Window.AnchorTop",
     "LayerShell.Window.AnchorLeft",
     "LayerShell.Window.exclusionZone: -1",
-    "LayerShell.Window.KeyboardInteractivityNone",
+    "LayerShell.Window.KeyboardInteractivityOnDemand",
     "LayerShell.Window.margins: ({left: 0, top: 0, right: 0, bottom: 0})",
-    "width: Math.max(1, Math.ceil(bar.actualMalvinaWidth))",
-    "height: Math.max(1, Math.ceil(bar.actualMalvinaHeight))",
-    "soledadInputMask.setIslandRect(0, 0, bar.actualMalvinaWidth,",
+    "width: Math.max(1, Math.ceil(bar.actualMalvinaWidth),",
+    "height: Math.max(1, Math.ceil(bar.actualMalvinaHeight),",
+    "inputGeometrySignature",
+    "onInputGeometrySignatureChanged: Qt.callLater(probe.refreshInputRegion)",
+    "onWidthChanged: Qt.callLater(probe.refreshInputRegion)",
+    "onHeightChanged: Qt.callLater(probe.refreshInputRegion)",
+    "soledadInputMask.setMalvinaInputRegions(",
+    "bar.malvinaFieldInputWidth, bar.malvinaFieldInputHeight",
+    "bar.malvinaOptionsInputWidth, bar.malvinaOptionsInputHeight",
     "function bridgeReady()",
     "function refreshVisibility()",
     "if (kdeWindows.count === 0 || observedWindows.count < kdeWindows.count)",
@@ -65,11 +72,47 @@ for (const expected of [
     "onTaskMinimizedChanged: probe.scheduleCheck()",
     "launcherIslandVisible: true",
     "autoHideMalvina: false",
-    "onActualMalvinaWidthChanged: probe.refreshInputRegion()",
-    "onActualMalvinaHeightChanged: probe.refreshInputRegion()",
     "interval: 90000",
     "probe.close()"
 ]) assert(qml.includes(expected), "Falta protección en ensayo: " + expected);
+
+// Estado nativo y editor: antes se usaba KeyboardInteractivityNone y
+// setIslandRect que era recortado al ancho colapsado. No basta dibujar el
+// campo: debe recibir clic y poder aceptar teclado, aun con popup abierto.
+assert(!qml.includes("LayerShell.Window.KeyboardInteractivityNone") &&
+       !qml.includes("LayerShell.Window.KeyboardInteractivityExclusive"),
+       "Foco a demanda, jamás NONE ni exclusivo");
+assert(!qml.includes("soledadInputMask.setIslandRect("),
+       "El ensayo Malvina debe incluir las regiones de editor y Web/IA");
+for (const text of [
+    "fieldRegionVisible: fieldPopup.visible",
+    "fieldRegionX: fieldPopup.x",
+    "fieldRegionY: fieldPopup.y",
+    "fieldRegionWidth: fieldPopup.visible ? fieldPopup.width : 0",
+    "fieldRegionHeight: fieldPopup.visible ? fieldPopup.height : 0",
+    "optionsRegionVisible: options.visible",
+    "optionsRegionWidth: options.visible ? options.width : 0",
+    "optionsRegionHeight: options.visible ? options.height : 0",
+    "function focusSearch()",
+    "queryInput.forceActiveFocus()"
+]) assert(search.includes(text), "Editor debe exponer region sin duplicarse: " + text);
+for (const text of [
+    "malvinaFieldInputX:", "malvinaFieldInputY:",
+    "malvinaFieldInputWidth: malvinaSearch.fieldRegionWidth",
+    "malvinaFieldInputHeight: malvinaSearch.fieldRegionHeight",
+    "malvinaOptionsInputX:", "malvinaOptionsInputY:",
+    "malvinaOptionsInputWidth: malvinaSearch.optionsRegionWidth",
+    "malvinaOptionsInputHeight: malvinaSearch.optionsRegionHeight"
+]) assert(shared.includes(text), "Falta geometria de popup compartido: " + text);
+for (const text of [
+    "Q_INVOKABLE void setMalvinaInputRegions(",
+    "includeRect(0, 0, islandWidth, islandHeight);",
+    "includeRect(fieldX, fieldY, fieldWidth, fieldHeight);",
+    "includeRect(optionsX, optionsY, optionsWidth, optionsHeight);",
+    "std::isfinite(x)", "right > left && bottom > top",
+    "allowed += QRegion(QRect(",
+    "m_window->setMask(allowed);"
+]) assert(cpp.includes(text), "Máscara de clic debe cubrir controles y no zona vacía: " + text);
 
 assert.equal((qml.match(/\bWindow\s*\{/g) || []).length, 1,
     "Una sola ventana Malvina, no banda duplicada");
