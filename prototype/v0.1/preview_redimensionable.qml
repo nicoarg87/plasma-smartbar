@@ -601,7 +601,7 @@ Window {
     property string demoMalvinaGeminiUrl: "https://gemini.google.com/app"
     property string demoMalvinaClaudeUrl: "https://claude.ai/new"
     property bool demoMalvinaWebFirst: true
-    property string demoMalvinaWebOrder: "google,duck,yahoo"
+    property string demoMalvinaWebOrder: "duck,yahoo,google"
     property string demoMalvinaAiOrder: "chatgpt,gemini,claude"
     property string demoMalvinaExtraWeb: "[]"
     property string demoMalvinaExtraAi: "[]"
