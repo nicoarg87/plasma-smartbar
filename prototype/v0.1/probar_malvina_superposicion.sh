@@ -22,6 +22,8 @@ printf 'Plasma SmartBar: MALVINA delante de ventanas, excepto fullscreen real.\n
 printf 'Superficie superior limitada al ancho real de Malvina.\n'
 printf 'Esta instancia muestra Malvina siempre, SOLO para comprobarla.\n'
 printf 'No cambia el autoocultamiento ni las preferencias del visor.\n'
+printf 'Los permisos IA elegidos con Aplicar se recuerdan solo en este ensayo.\n'
+printf 'Para revocarlos: destildar en Configuración y pulsar Aplicar.\n'
 printf 'NO instala widgets, NO reemplaza panel y NO mueve aplicaciones.\n'
 printf 'Primero comprobar con Brave/Steam abiertos, luego fullscreen real.\n'
 printf 'Ensayo extendido: 180 segundos o Ctrl+C, sin guardar el orden.\n'
