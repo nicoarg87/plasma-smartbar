@@ -73,6 +73,7 @@ def desktop_info(filename):
         elif icon_value and "/" not in icon_value and "\\" not in icon_value:
             icon_name = icon_value[:180]
         return {"name": name[:160], "category": category,
+                "desktopId": filename.name,
                 "icon": icon_name, "iconSource": icon_source}
     except (OSError, UnicodeError, configparser.Error):
         return None
