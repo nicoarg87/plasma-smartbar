@@ -657,7 +657,7 @@ Item {
     property bool autoCollapseSO: true
     // Corrección del mantenedor 18/11: izquierdo = cajón (ventanas abiertas),
     // derecho = launcher de aplicaciones. Es reversible en Configuración.
-    property bool soLeftClickOpensLauncher: false
+    property bool soLeftClickOpensLauncher: true
     property bool soTooltipSuppressed: false
     // Estética del launcher heredada de Soledad; solo el interruptor
     // tiene opciones independientes, desactivadas por defecto.
@@ -2017,8 +2017,13 @@ Item {
             return Math.max(0, Math.min(Math.max(0, root.width - width),
                 center - width / 2))
         }
-        y: root.fixedHeight + 5
-        popupHeightLimit: root.launcherAvailableHeight
+        // Anclaje propio del Popup.Window: la ventana aparece inmediatamente
+        // debajo de SO, no reubicada desde el origen del Window LayerShell.
+        y: root.fixedHeight + 8
+        popupHeightLimit: root.realAppLaunchEnabled
+            ? Math.max(320, Math.min(root.launcherAvailableHeight,
+                                      root.Window.window ? root.Window.window.Screen.height - root.fixedHeight - 70 : 450))
+            : root.launcherAvailableHeight
         categoryLayout: root.launcherCategoryLayout
         maxVisibleSlots: root.launcherMaxSlots
         iconsWithNames: root.launcherIconsWithNames
@@ -3028,7 +3033,7 @@ Item {
                     QQC2.ToolTip.delay: 850
                     QQC2.ToolTip.text: root.launcherIslandVisible
                         ? "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
-                        : "Malvina desactivada · Derecho: opciones → Activar Malvina"
+                        : "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
 
                     // target=null: el gesto modifica el margen, nunca la
                     // geometría vertical ni el panel real de KDE.
@@ -3153,28 +3158,8 @@ Item {
                         // el segundo clic derecho debe cerrar, no reabrir.
                         closePolicy: QQC2.Popup.CloseOnEscape
                             | QQC2.Popup.CloseOnPressOutsideParent
-                        // La recuperación de Malvina debe ser fácil de
-                        // descubrir aun si no queda ningún botón a la
-                        // izquierda. El agarre siempre sigue visible.
-                        QQC2.MenuItem {
-                            id: gripMalvinaVisibility
-                            text: root.launcherIslandVisible
-                                ? "Desactivar Malvina (isla 2)"
-                                : "Activar Malvina (isla 2)"
-                            onTriggered: root.setLauncherIslandVisible(
-                                !root.launcherIslandVisible, true
-                            )
-                        }
-                        QQC2.MenuItem {
-                            text: "Mantener Malvina siempre visible"
-                            checkable: true
-                            checked: !root.autoHideMalvina
-                            enabled: root.launcherIslandVisible
-                            onTriggered: root.requestAutoHideMalvinaChange(
-                                !root.autoHideMalvina
-                            )
-                        }
-                        QQC2.MenuSeparator {}
+                        // La visibilidad de Malvina se administra únicamente
+                        // desde Configuración, sin acciones duplicadas aquí.
                         QQC2.MenuItem {
                             text: "Configuración de Soledad…"
                             // Logo, colores, contorno, autocontracción,
