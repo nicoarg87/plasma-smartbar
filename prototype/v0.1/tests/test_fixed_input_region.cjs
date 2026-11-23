@@ -545,6 +545,57 @@ simulation.bar.mockProfileOffset = 125.4140625;
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 125.4140625,
 "Cambiar a Brave maximizada recupera su perfil, no Steam");
+// Integración de QML: dos ventanas maximizadas, cambia SOLO el
+// apilamiento de KWin sin cambiar el foco de Steam. La isla debe seguir
+// la que pasó al frente (Brave) aun con Steam todavía activa.
+simulation.fullscreenObserved = false;
+simulation.fullscreenAnchorHeld = false;
+simulation.fullscreenExited = false;
+simulation.positionTransitionRevision = 0;
+simulation.lastTopMaximizedSignature = "";
+simulation.heldNormalFocusAppId = "";
+simulation.trackedAppId = "steam";
+simulation.trackedAppName = "Steam";
+simulation.trackedKnown = true;
+simulation.trackedMaximized = true;
+simulation.trackedFullscreen = false;
+simulation.bar.draggingIslandGrip = false;
+simulation.bar.islandOffset = 369;
+simulation.rows = [stackedBrave, stackedSteam];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 369,
+    "Steam al frente mantiene su perfil");
+simulation.rows = [{...stackedBrave, stackingOrder: 8}, stackedSteam];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+    "Cambio de apilamiento sin cambio de foco debe recuperar Brave superior");
+simulation.rows = [stackedBrave, stackedSteam];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 369,
+    "Steam vuelve al frente y recupera su propio perfil");
+simulation.rows = [{...stackedBrave, stackingOrder: 5}, stackedSteam];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 369,
+    "Empate de apilamiento conserva coordenada, no inventa ganador");
+simulation.rows = [{...stackedBrave, stackingOrder: 8}, stackedSteam];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 125.4140625,
+    "Cuando KDE resuelve el empate retoma el perfil superior");
+simulation.rows = [
+    {...stackedBrave, stackingOrder: 3, maximized: false, active: true},
+    {...stackedSteam, active: false, stackingOrder: 5}
+];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 369,
+    "Brave restaurada sobre Steam maximizada usa perfil de Steam visible");
+simulation.rows = [
+    {...stackedBrave, stackingOrder: 3, maximized: false, active: true},
+    {...stackedSteam, maximized: false, active: false}
+];
+simulation.refreshExternalWindow();
+assert.equal(simulation.bar.islandOffset, 0,
+    "Solo sin maximizadas restantes se vuelve a extrema derecha");
+
 // Integración QML: observa el rol KDE sin instalar nada en KWin.
 for (const required of [
     "readonly property var taskStackingOrder: model.StackingOrder",
