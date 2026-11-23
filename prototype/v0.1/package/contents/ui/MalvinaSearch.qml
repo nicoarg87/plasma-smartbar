@@ -50,6 +50,9 @@ Item {
     property bool allowChatGptPrefill: false
     property bool allowGeminiPrefill: false
     property bool allowClaudePrefill: false
+    // Un único navegador para búsquedas Web y accesos a IA.
+    // El componente compartido delega la apertura en su anfitrión.
+    signal requestOpenUrl(string url)
     readonly property var aiPrefillAllowed: [allowChatGptPrefill, allowGeminiPrefill, allowClaudePrefill]
     property int currentSection: 1 // 1: Web, 2: IA; se reinicia a fila superior al abrir
     property int webIndex: 0
@@ -261,7 +264,7 @@ Item {
                         "experimental=", result.experimental === true)
         }
         if (result.experimental) console.log("Malvina: enlace IA experimental con permiso explícito")
-        Qt.openUrlExternally(result.url)
+        requestOpenUrl(result.url)
     }
     // Navegacion por filas. El foco real permanece en TextArea para que Tab
     // no dependa del manejo de foco entre Popup y ventana en Qt/Wayland.
