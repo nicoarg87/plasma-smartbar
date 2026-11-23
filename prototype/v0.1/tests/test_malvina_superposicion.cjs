@@ -73,7 +73,7 @@ for (const expected of [
     "launcherIslandVisible: true",
     "autoHideMalvina: false",
     'property string testWebOrder: "duck,yahoo,google"',
-    'property string testAiOrder: "chatgpt,gemini,claude"',
+    'property string testAiOrder: "chatgpt,claude,gemini"',
     "malvinaWebFirst: probe.testWebFirst",
     "malvinaWebOrder: probe.testWebOrder",
     "malvinaAiOrder: probe.testAiOrder",
