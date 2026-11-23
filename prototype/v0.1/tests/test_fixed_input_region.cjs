@@ -592,6 +592,9 @@ simulation.rows = [
     {...stackedBrave, stackingOrder: 3, maximized: false, active: true},
     {...stackedSteam, maximized: false, active: false}
 ];
+// El mock no implementa resolveOffset: simular el retorno real para
+// una ventana activa que ya no está maximizada.
+simulation.bar.mockProfileOffset = 0;
 simulation.refreshExternalWindow();
 assert.equal(simulation.bar.islandOffset, 0,
     "Solo sin maximizadas restantes se vuelve a extrema derecha");
