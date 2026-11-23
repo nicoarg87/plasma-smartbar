@@ -128,9 +128,14 @@ QQC2.ScrollView {
             enabled: panel.settingsTarget.malvinaBrowserChoices.length > 1
             currentIndex: {
                 const choices = panel.settingsTarget.malvinaBrowserChoices
-                for (let i = 0; i < choices.length; ++i)
-                    if (choices[i].id === panel.settingsTarget.malvinaBrowserId) return i
-                return 0 // Si se desinstaló, se muestra el navegador KDE.
+                let selected = 0
+                for (let i = 0; i < choices.length; ++i) {
+                    if (choices[i].id === panel.settingsTarget.malvinaBrowserId) {
+                        selected = i
+                        break
+                    }
+                }
+                selected // Si se desinstaló, se muestra el navegador KDE.
             }
             onActivated: function(index) {
                 panel.settingsTarget.malvinaBrowserId =
