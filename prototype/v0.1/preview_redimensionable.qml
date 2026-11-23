@@ -602,7 +602,7 @@ Window {
     property string demoMalvinaClaudeUrl: "https://claude.ai/new"
     property bool demoMalvinaWebFirst: true
     property string demoMalvinaWebOrder: "duck,yahoo,google"
-    property string demoMalvinaAiOrder: "chatgpt,gemini,claude"
+    property string demoMalvinaAiOrder: "chatgpt,claude,gemini"
     property string demoMalvinaExtraWeb: "[]"
     property string demoMalvinaExtraAi: "[]"
     property string demoMalvinaHiddenWeb: ""
