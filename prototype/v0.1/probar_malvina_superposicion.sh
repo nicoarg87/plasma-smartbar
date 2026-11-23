@@ -24,7 +24,7 @@ printf 'Esta instancia muestra Malvina siempre, SOLO para comprobarla.\n'
 printf 'No cambia el autoocultamiento ni las preferencias del visor.\n'
 printf 'NO instala widgets, NO reemplaza panel y NO mueve aplicaciones.\n'
 printf 'Primero comprobar con Brave/Steam abiertos, luego fullscreen real.\n'
-printf 'El visor se autodestruye tras 90 segundos o Ctrl+C.\n'
+printf 'Ensayo extendido: 180 segundos o Ctrl+C, sin guardar el orden.\n'
 
 if ! cmake -S "$HERE/native_probes" -B "$BUILD_DIR" \
            -DCMAKE_BUILD_TYPE=Release; then
