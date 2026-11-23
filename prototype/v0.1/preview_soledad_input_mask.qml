@@ -31,7 +31,7 @@ Window {
     LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })
 
     // Reutilizar ÚNICAMENTE la clave de perfiles reales ya usada por el
-    // visor Qt. Nunca leer ni sobrescribir temas, GIF, KConfig ni el panel KDE.
+    // visor Qt. Nunca leer ni sobrescribir temas, GIF ni ajustes del panel KDE.
     // Los cambios se escriben SOLO al elegir «Recordar esta posición…».
     QtCore.Settings {
         id: profileSettings
