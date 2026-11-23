@@ -291,12 +291,18 @@ assert(cpp.includes("} else {\n        window->show();"),
 for (const expected of [
     "XDG_SESSION_TYPE", "WAYLAND_DISPLAY", "mktemp -d",
     "trap cleanup EXIT", "cmake --build", "QT_QPA_PLATFORM=wayland",
-    "QT_WAYLAND_SHELL_INTEGRATION=layer-shell",
+    "env -u QT_WAYLAND_SHELL_INTEGRATION QT_QPA_PLATFORM=wayland",
     "preview_malvina_input_mask.qml"
 ]) assert(script.includes(expected), "Falta guarda en el lanzador: " + expected);
 for (const forbidden of [
     "sudo ", "pacman -S", "paru ", "yay ", "plasmapkg", "kpackagetool",
     "kwriteconfig", "qdbus", "systemctl", "pkill", "killall", "git reset"
 ]) assert(!script.includes(forbidden), "Lanzador invasivo: " + forbidden);
+assert(script.includes('env -u QT_WAYLAND_SHELL_INTEGRATION'),
+       "No convertir Configuración ni otras ventanas Qt en LayerShell");
+assert(qml.includes("LayerShell.Window.anchors:") &&
+       qml.includes("LayerShell.Window.layer:"),
+       "Malvina conserva su capa por ventana, no por variable global");
+
 
 console.log("OK: Malvina LayerTop y fullscreen; máscara antes de mostrar; sin tocar preferencias ni panel.");
