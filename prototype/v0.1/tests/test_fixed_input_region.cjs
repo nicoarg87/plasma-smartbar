@@ -188,7 +188,7 @@ const vm = require("node:vm");
 const realActiveSource = read("package/contents/ui/RealActiveWindow.js")
     .replace(/^\s*\.pragma library\s*\n/, "");
 const activePolicy = vm.runInNewContext(realActiveSource +
-    "\n;({resolve, shouldKeepNormalFocusPosition})");
+    "\n;({resolve, shouldKeepNormalFocusPosition, uniqueMaximizedProfile})");
 function qmlFunction(name) {
     const marker = "    function " + name + "(";
     const start = qml.indexOf(marker);
