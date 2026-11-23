@@ -121,12 +121,28 @@ QQC2.ScrollView {
         QQC2.ComboBox {
             id: browserChoice
             Layout.fillWidth: true
-            model: ["Predeterminado del sistema (KDE)"]
-            currentIndex: 0
-            enabled: false
+            model: panel.settingsTarget.malvinaBrowserChoices
+            textRole: "name"
+            valueRole: "id"
+            // No inventar navegadores: el anfitrión entrega los realmente instalados.
+            enabled: panel.settingsTarget.malvinaBrowserChoices.length > 1
+            currentIndex: {
+                const choices = panel.settingsTarget.malvinaBrowserChoices
+                for (let i = 0; i < choices.length; ++i)
+                    if (choices[i].id === panel.settingsTarget.malvinaBrowserId) return i
+                return 0 // Si se desinstaló, se muestra el navegador KDE.
+            }
+            onActivated: function(index) {
+                panel.settingsTarget.malvinaBrowserId =
+                    panel.settingsTarget.malvinaBrowserChoices[index].id
+            }
         }
         QQC2.Label {
-            text: "Se utiliza el navegador predeterminado configurado en KDE. Elegir otro navegador desde Malvina requiere una integración nativa adicional; no se ejecutan comandos arbitrarios."
+            text: "Este navegador se usa tanto para Web como para IA. La opción " +
+                  "«Predeterminado del sistema (KDE)» respeta la configuración " +
+                  "global; elegir otro solo cambia Malvina. Pulsá Aplicar para " +
+                  "recordar tu elección. En el ensayo nativo se muestran los " +
+                  "navegadores detectados; sin ese soporte se conserva KDE."
             color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
         }
