@@ -54,6 +54,9 @@ Window {
         // de que el fullscreen se haya detectado: permanecer invisible.
         if (kdeWindows.count === 0 || observedWindows.count < kdeWindows.count) {
             if (visible) visible = false
+            if (stateSamples === 8)
+                console.warn("SmartBar MALVINA: aun sin estado KDE fiable;",
+                             "se mantiene oculta, sin riesgo de tapar fullscreen")
             return
         }
         const full = snapshotFullscreen()
@@ -65,7 +68,11 @@ Window {
             if (visible) visible = false
         } else {
             refreshInputRegion()
-            if (!visible) visible = true
+            if (!visible) {
+                visible = true
+                console.log("SmartBar MALVINA: visible sobre ventanas,",
+                            "sin fullscreen KDE; ancho=", width)
+            }
         }
     }
 
