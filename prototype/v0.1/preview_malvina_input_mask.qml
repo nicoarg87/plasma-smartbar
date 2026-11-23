@@ -20,23 +20,53 @@ Window {
     title: "SmartBar — Malvina por encima, excepto fullscreen real"
     color: "transparent"
     flags: Qt.Window | Qt.FramelessWindowHint
-    width: Math.max(1, Math.ceil(bar.actualMalvinaWidth))
-    height: Math.max(1, Math.ceil(bar.actualMalvinaHeight))
+    // La ventana nativa aumenta SOLO cuando Malvina abre el editor o
+    // Web/IA. Los píxeles del resto de la ventana siguen sin entrada.
+    width: Math.max(1, Math.ceil(bar.actualMalvinaWidth),
+                    Math.ceil(bar.malvinaFieldInputX +
+                              bar.malvinaFieldInputWidth),
+                    Math.ceil(bar.malvinaOptionsInputX +
+                              bar.malvinaOptionsInputWidth))
+    height: Math.max(1, Math.ceil(bar.actualMalvinaHeight),
+                     Math.ceil(bar.malvinaFieldInputY +
+                               bar.malvinaFieldInputHeight),
+                     Math.ceil(bar.malvinaOptionsInputY +
+                               bar.malvinaOptionsInputHeight))
+    // Reactivar la máscara al completar el resize Wayland, no antes.
+    // Evita que el campo visible quede fuera de la región clicable.
+    readonly property string inputGeometrySignature: [
+        width, height, bar.actualMalvinaWidth, bar.actualMalvinaHeight,
+        bar.malvinaFieldInputX, bar.malvinaFieldInputY,
+        bar.malvinaFieldInputWidth, bar.malvinaFieldInputHeight,
+        bar.malvinaOptionsInputX, bar.malvinaOptionsInputY,
+        bar.malvinaOptionsInputWidth, bar.malvinaOptionsInputHeight
+    ].join("|")
+    onInputGeometrySignatureChanged: Qt.callLater(probe.refreshInputRegion)
+    onWidthChanged: Qt.callLater(probe.refreshInputRegion)
+    onHeightChanged: Qt.callLater(probe.refreshInputRegion)
 
     LayerShell.Window.anchors: LayerShell.Window.AnchorTop |
                                LayerShell.Window.AnchorLeft
     LayerShell.Window.layer: LayerShell.Window.LayerTop
     LayerShell.Window.exclusionZone: -1
+    // El modo None impedía escribir: Qt podía dibujar el TextArea, pero
+    // KWin no le permitía recibir foco. OnDemand permite foco al clicar
+    // sin apropiarse permanentemente del teclado del escritorio.
     LayerShell.Window.keyboardInteractivity:
-        LayerShell.Window.KeyboardInteractivityNone
+        LayerShell.Window.KeyboardInteractivityOnDemand
     LayerShell.Window.margins: ({left: 0, top: 0, right: 0, bottom: 0})
 
     function refreshInputRegion() {
         if (bar.actualMalvinaWidth <= 0 || bar.actualMalvinaHeight <= 0)
             return
-        // El rectángulo de entrada solo comprende Malvina, no el escritorio.
-        soledadInputMask.setIslandRect(0, 0, bar.actualMalvinaWidth,
-                                      bar.actualMalvinaHeight)
+        // Una región para la isla y otras para los Popups existentes.
+        // Nada fuera de ellas captura clics sobre Brave, Steam o pestañas.
+        soledadInputMask.setMalvinaInputRegions(
+            bar.actualMalvinaWidth, bar.actualMalvinaHeight,
+            bar.malvinaFieldInputX, bar.malvinaFieldInputY,
+            bar.malvinaFieldInputWidth, bar.malvinaFieldInputHeight,
+            bar.malvinaOptionsInputX, bar.malvinaOptionsInputY,
+            bar.malvinaOptionsInputWidth, bar.malvinaOptionsInputHeight)
     }
 
     function snapshotFullscreen() {
@@ -152,8 +182,9 @@ Window {
         windowStateKnown: true
         hostMaximized: false
         hostFullscreen: probe.fullscreenDetected
-        onActualMalvinaWidthChanged: probe.refreshInputRegion()
-        onActualMalvinaHeightChanged: probe.refreshInputRegion()
+        // Los nuevos popup/ventana pueden redimensionarse después del
+        // cambio de binding; la firma geométrica de la Window actualiza
+        // la región final cuando Wayland acepta las nuevas dimensiones.
     }
 
     Timer {
