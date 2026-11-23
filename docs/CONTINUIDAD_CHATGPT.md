@@ -1137,3 +1137,22 @@ and bash prototype/v0.1/probar_malvina_superposicion.sh
 ```
 Brave y Steam abiertas; comprobar Malvina arriba a la izquierda incluso sobre una ventana maximizada; fullscreen YouTube F la oculta, Esc la devuelve. Test autocierra a 90s. Si Malvina nunca aparece, copiar mensajes `SmartBar MALVINA:` y errores Qt. Después, para el VISOR con preferencias reales, usar la etiqueta inferior que indica `Malvina: visible/oculta`, `deshabilitada`, `BLOQUEADA` o `esperando cursor` sin alterar preferencias. La tecla `Super+Espacio` no es global todavía.
 
+## 23/11/2026 — Malvina no puede escribir y deja pasar clics: fix de máscara y foco pendiente CachyOS
+
+**REPORTE:** la superposición de Malvina sobre ventanas normales y maximizadas funciona visualmente con Brave y Steam. Durante fullscreen real tanto de YouTube como de Steam Big Picture el mantenedor confirmó que no molestó (versión antes de este fix). Sin embargo, después de pulsar lupa **clics sobre el buscador atravesaban hasta las pestañas inferiores y NO podía escribir**. No dar por validada la interactividad de Malvina aún; no preguntar al usuario de nuevo si ya lo observó.
+
+**DIAGNÓSTICO REAL DE CÓDIGO:** `preview_malvina_input_mask.qml` tenía `LayerShell.Window.KeyboardInteractivityNone`; los eventos de teclado no podían enfocarse. `QWindow::setMask` solo incluía inicialmente el ancho colapsado de Malvina; los Popup del editor/Web/IA extendían la visualización, pero no estaban incluidos en la máscara de entrada. La QWindow nativa también necesitaba crecer en ancho/alto mientras se desplegaran, refrescando máscara luego de Wayland configure. Un Popup calculaba `optionsWidth` usando Window.width y había riesgo de dependencia circular si el Window dinámico adoptaba optionsWidth.
+
+**IMPLEMENTADO SOLO EN ENSAYO:** modo KDE LayerShell `KeyboardInteractivityOnDemand`; `MalvinaSearch` expone regiones de editor/opciones; `SmartBarContent` expone sus coordenadas; C++ agrega `setMalvinaInputRegions` con unión y recorte al Window para isla, editor y panel Web/IA (no se modifica `setIslandRect` de Soledad); el Window se extiende bajo demanda y pide refresco de máscara tras cambiar geometría; nuevo valor opcional `malvinaOptionsViewportWidth` evita ciclo y por defecto vale 0 (visor/panel sin cambiar). Tests del ensayo extendidos. **Validación simulada de 100 aserciones PASS para Malvina y 281 para Soledad**, NO Node/Qt nativos. PR #3 sigue borrador, issue #4 abierto.
+
+**SIGUIENTE PRUEBA FISH:**
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/test_malvina_superposicion.cjs
+and node prototype/v0.1/tests/test_fixed_input_region.cjs
+and bash prototype/v0.1/probar_malvina_superposicion.sh
+```
+Con Brave o Steam maximizadas, minimizar terminal, clicar lupa y luego editor: las pestañas inferiores NO deben reaccionar y el campo debe aceptar por ejemplo `cerveza` sin pulsar Enter (Enter abre URL externa). Comprobar panel Web/IA, salida con Esc y clic fuera pasa a aplicaciones. Como el fix afecta foco y máscara, volver a probar YouTube fullscreen (F/Esc) y registrar fallo si aparece; Big Picture ya había sido verificado ANTES del fix. Si no funciona, solicitar salida de Konsole (Qt/QML, `SmartBar MALVINA`) para distinguir orden de foco/región; no modificar panel, preferencias, GIF ni perfiles.
+
