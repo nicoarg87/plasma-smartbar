@@ -154,6 +154,74 @@ for (const text of [
     "m_window->setMask(allowed);"
 ]) assert(cpp.includes(text), "Máscara de clic debe cubrir controles y no zona vacía: " + text);
 
+// Regresión de teclado tras reordenar: el DragHandler rehace Repeater
+// y el sistema de botones/Popup puede volver a tomar el foco DESPUÉS de
+// requestOrderChange. Se necesita foco inmediato y otro diferido.
+// Extraer las tres funciones QML reales para probar las dos etapas sin KDE.
+function qmlFunction(name) {
+    const start = search.indexOf("    function " + name + "(");
+    assert(start >= 0, "Falta función real " + name);
+    const brace = search.indexOf("{", start);
+    let depth = 0;
+    for (let i = brace; i < search.length; i++) {
+        if (search[i] === "{") depth++;
+        if (search[i] === "}" && --depth === 0)
+            return search.slice(start, i + 1);
+    }
+    throw new Error("Función QML incompleta: " + name);
+}
+const focusQueue = [];
+let hasEditorFocus = false;
+let orderRequests = 0;
+let sentQueries = 0;
+const fakeSearch = {expanded:true};
+const fakeField = {visible:true};
+const fakeInput = {forceActiveFocus() {hasEditorFocus = true;}};
+const fakeQt = {callLater(callback) {focusQueue.push(callback);}};
+const focusMethods = new Function(
+    "search","fieldPopup","queryInput","Qt","requestOrderChange","resetDefault",
+    qmlFunction("restoreEditorFocusAfterLayout") + "\n" +
+    qmlFunction("activeEditorFocus") + "\n" +
+    qmlFunction("applyOrder") +
+    "\nreturn {restoreEditorFocusAfterLayout, activeEditorFocus, applyOrder};"
+)(
+    fakeSearch, fakeField, fakeInput, fakeQt,
+    () => {orderRequests++; hasEditorFocus = false;},
+    () => {hasEditorFocus = false;}
+);
+fakeSearch.restoreEditorFocusAfterLayout =
+    focusMethods.restoreEditorFocusAfterLayout;
+focusMethods.applyOrder(true,"duck,google,yahoo","chatgpt,gemini,claude");
+assert.equal(orderRequests,1,"Arrastre debe emitir una solicitud de orden");
+assert.equal(hasEditorFocus,true,
+             "Restaurar foco tras el reordenamiento en mismo turno");
+hasEditorFocus = false; // Qt entrega el foco a la ficha en pointer release
+for (const callback of focusQueue.splice(0)) callback();
+assert.equal(hasEditorFocus,true,
+             "Después de reconstruir el popup el editor recupera el foco");
+assert.equal(sentQueries,0,
+             "Restaurar foco jamás dispara búsqueda automáticamente");
+hasEditorFocus = false;
+fakeSearch.expanded = false;
+focusMethods.restoreEditorFocusAfterLayout();
+assert.equal(hasEditorFocus,false,
+             "No robar foco tras cerrar el buscador");
+fakeSearch.expanded = true;
+fakeField.visible = false;
+focusMethods.restoreEditorFocusAfterLayout();
+assert.equal(hasEditorFocus,false,
+             "No enfocar editor de Popup oculto");
+for (const required of [
+    "activeEditorFocus()",
+    "Qt.callLater(search.restoreEditorFocusAfterLayout)",
+    "search.activeEditorFocus()"
+]) assert(search.includes(required),
+          "Reordenar, elegir y soltar deben devolver foco: " + required);
+assert(search.includes("if (Keyboard.enterAction(navigationSection) === \"confirm\")") &&
+       search.includes("confirmCandidate()") &&
+       search.includes("openSelected()"),
+       "Enter: primera pulsación confirma, segunda ejecuta búsqueda");
+
 assert.equal((qml.match(/\bWindow\s*\{/g) || []).length, 1,
     "Una sola ventana Malvina, no banda duplicada");
 assert.equal((qml.match(/SmartBar\.SmartBarContent\s*\{/g) || []).length, 1,
