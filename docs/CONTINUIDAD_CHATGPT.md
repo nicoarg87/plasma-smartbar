@@ -1061,3 +1061,11 @@ and node prototype/v0.1/tests/test_fixed_input_region.cjs
 and bash prototype/v0.1/probar_soledad_entrada_fija.sh
 ```
 Si se reproduce un fallo, guardar `SmartBar ESTADO KDE:`, `SmartBar inicio anclaje:`, `SmartBar perfil real:` y `SmartBar foco restaurado:`. No regrabar perfiles ni alterar panel.
+
+## 23/11/2026 — Nuevo bug: desmaximizar Brave, Steam todavía maximizada
+
+**REPORTE:** tras la prueba exitosa de arranque invertido (Steam max, Brave restaurada), Soledad se posicionó correctamente en Steam al minimizar Konsole y en Brave al maximizar Brave. **Al desmaximizar Brave sin desmaximizar Steam que seguía detrás, Soledad volvió a la derecha y TAPÓ los controles de ventana de Steam.** Regresión nueva, no cerrada. No hay nuevo log de Konsole de esta transición para confirmar cuál ventana tenía foco en KWin.
+
+**LECTURA DE CÓDIGO:** la política `shouldKeepNormalFocusPosition` no se activa si Brave pierde maximización conservando su propio AppId activo; `applyRealPositionProfile` retorna a `offset=0` cuando no está maximizada y el retorno automático general está activado, aunque Steam siga maximizada. La regla aprobada de «retornar a la derecha al desmaximizar» contradice en este caso la restricción de no tapar controles de la ventana que permanece maximizada. **Hace falta decisión del mantenedor antes de permitir que una ventana maximizada de fondo determine un anclaje seguro cuando la activa está restaurada.** Una opción es usar su perfil solo cuando sea la única maximizada remanente, sin escribir en Qt Settings y manteniendo prioridad de la activa si vuelve a maximizarse. Mantener solución futura genérica; no fijar valores por nombre de app ni adivinar entre múltiples maximizadas. [Issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) contiene la regresión; [ESTADO_PROYECTO.md](ESTADO_PROYECTO.md) actualizado.
+
+**ESTADO ACTUAL:** NO se modificó QML/JS funcional por este reporte, ni panel KDE, temas o perfiles. PR #3 en borrador. Si se reproduce, recolectar solo `SmartBar ESTADO KDE:`, `SmartBar perfil real:`, `SmartBar foco restaurado:` del evento. No regrabar posiciones. Tras decisión funcional, agregar test regresión Brave max→normal con Steam max detrás y prueba manual en CachyOS.
