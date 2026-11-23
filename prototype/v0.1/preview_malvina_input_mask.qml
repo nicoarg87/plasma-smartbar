@@ -203,7 +203,9 @@ Window {
         malvinaHeight: 44
         soledadHeight: 44
         launcherIslandVisible: true
-        autoHideMalvina: false // SOLO el ensayo, no las preferencias guardadas
+        // La prueba breve mantiene Malvina visible. La sesión conjunta usa
+        // el autoocultamiento de fábrica sin modificar KConfig del usuario.
+        autoHideMalvina: smartbarContinuousMode
         // Aplicar inmediatamente la reordenación existente de Malvina.
         // Antes faltaba este receptor: el gesto emitía una señal sin
         // actualizar la lista en este visor aislado.
