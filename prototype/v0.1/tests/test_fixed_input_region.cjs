@@ -64,6 +64,49 @@ assert(!qml.includes("AnimatedImage {") && !qml.includes("MouseArea {") &&
        !qml.includes("DragHandler {"),
        "Cargar el componente real: no duplicar agarre, GIF ni botones.");
 assert(!qml.includes("Settings {") && !qml.includes("QtCore.Settings"));
+
+// Nueva reserva EXCLUSIVAMENTE en la prueba fija: la observa KDE, no
+// sustituye controles ni cambia la geometría del Window.
+for (const marker of [
+    "import org.kde.taskmanager 0.1 as TaskManager",
+    "TaskManager.TasksModel {",
+    "groupMode: TaskManager.TasksModel.GroupDisabled",
+    "launcherList: []",
+    "required property var model",
+    "model.IsWindow === true",
+    "model.IsActive === true",
+    "model.IsMaximized === true",
+    "model.IsFullScreen === true",
+    "onTaskMaximizedChanged: Qt.callLater(probe.refreshExternalMaximized)",
+    "onTaskActiveChanged: Qt.callLater(probe.refreshExternalMaximized)",
+    "kdeWindowObservers.itemAt(i)",
+    "trialControlsReservePx: 176",
+    "externalWindowControlsReserve: probe.externalActiveMaximized",
+    "onControlsReservationChanged: probe.refreshInputRegion()"
+]) assert(qml.includes(marker), "Falta reserva externa / detección KDE: " + marker);
+assert(/task\.taskWindow\s*&&\s*task\.taskActive\s*&&\s*task\.taskMaximized\s*&&\s*!task\.taskFullScreen/.test(qml),
+    "No reservar por ventanas no activas o fullscreen");
+assert(!/requestActivate\s*\(|requestClose\s*\(|requestToggleMaximized\s*\(/.test(qml),
+    "No alterar estado de ventanas externas");
+assert(qml.includes("LayerShell.Window.margins: ({ left: 0, top: 6, right: 0, bottom: 0 })"),
+    "La superficie debe seguir fija");
+assert(real.includes("property real externalWindowControlsReserve: 0"),
+    "El visor principal debe conservar reserva externa 0 por defecto");
+assert(real.includes("Math.max(0, root.externalWindowControlsReserve)"),
+    "La reserva debe proteger el espacio real a la derecha");
+assert(real.includes("readonly property real controlsReservation: Math.max("),
+    "La reserva externa no debe eliminar la simulación de controles propia");
+
+// Comprobaciones geométricas de contrato (no reemplazan prueba KWin).
+function reserved(previewMaximized, demoWidth, external) {
+    return Math.max(previewMaximized ? demoWidth + 6 : 0,
+                    Math.max(0, external));
+}
+assert.equal(reserved(false, 120, 0), 0);
+assert.equal(reserved(false, 120, 176), 176);
+assert.equal(reserved(true, 120, 0), 126);
+assert.equal(reserved(true, 120, 176), 176);
+assert.equal(reserved(false, 120, -3), 0);
 assert(real.includes("id: moveGrip") && real.includes("model: 6") &&
        real.includes("id: gripDrag"));
 assert(real.includes("property bool layerShellDragCompensation: false") &&
