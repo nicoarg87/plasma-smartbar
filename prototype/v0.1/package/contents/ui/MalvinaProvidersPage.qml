@@ -203,79 +203,187 @@ QQC2.ScrollView {
         ColumnLayout {
             visible: panel.sectionIndex === 2
             Layout.fillWidth: true
-            spacing: 9
-        QQC2.Label { text: "Chats IA: sitios HTTPS"; font.bold: true; color: "white" }
-        QQC2.Label {
-            text: "El permiso autoriza únicamente a Malvina a enviar la consulta escrita al proveedor indicado al presionar Enter, mediante una URL experimental. La página podría procesarlo o enviarlo automáticamente. No autoriza acceso a archivos, contraseñas ni ventanas. Podés revocarlo destildando la casilla y pulsando Aplicar. El proveedor procesa datos bajo sus propias condiciones."
-            color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-        }
-        QQC2.Label {
-            text: "EXPERIMENTAL: ChatGPT y Claude pueden recibir la consulta por un enlace con q al pulsar Enter si están autorizados. La web puede precargar, ignorar o incluso enviarla automáticamente. Gemini no admite esta precarga en la prueba realizada: se abre su página sin adjuntar el texto. Nunca se necesita sudo."
-            color: "#ffe29a"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-        }
-        QQC2.CheckBox {
-            text: panel.isHidden("ai","chatgpt") ? "Restaurar ChatGPT en el selector" : "Mostrar ChatGPT en el selector"
-            checked: !panel.isHidden("ai","chatgpt")
-            onToggled: panel.toggleHidden("ai","chatgpt",checked)
-        }
-        QQC2.Label { text: "Nombre visible (ChatGPT)"; color: "#ddd6e8" }
-        QQC2.TextField {
+            spacing: 12
+            QQC2.Label {
+                text: "Buscadores IA"
+                font.bold: true
+                font.pixelSize: 17
+                color: "white"
+            }
+            QQC2.Label {
+                text: "Cada proveedor reúne nombre, dirección, visibilidad y autorización. " +
+                      "La consulta se abre solamente al confirmar con Enter. " +
+                      "Aplicar guarda los permisos; destildar y Aplicar los revoca. " +
+                      "Ninguna autorización permite leer archivos, contraseñas o ventanas."
+                color: "#ddd6e8"
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+            }
+            QQC2.Label {
+                // Una sola advertencia en el encabezado, no intercalada
+                // entre los formularios de proveedores.
+                text: "Compatibilidad de enlaces IA: ChatGPT recibió consultas en la " +
+                      "prueba CachyOS. Claude precargó el texto, pero requirió iniciar " +
+                      "sesión y confirmar el envío. Gemini todavía abre su página " +
+                      "sin la consulta: su permiso se puede guardar, pero no habilita " +
+                      "un envío que aún no existe. Los enlaces experimentales pueden " +
+                      "cambiar de comportamiento según el proveedor."
+                color: "#ffe29a"
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+            }
+        Rectangle {
             Layout.fillWidth: true
-            text: panel.settingsTarget.malvinaChatGptName
-            placeholderText: "ChatGPT"
-            maximumLength: 48
-            onTextEdited: panel.settingsTarget.malvinaChatGptName = text
+            implicitHeight: chatgptFields.implicitHeight + 24
+            radius: 10
+            color: "#292c3f"
+            border.width: 1
+            border.color: "#41475e"
+            ColumnLayout {
+                id: chatgptFields
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 7
+                QQC2.Label {
+                    text: "ChatGPT"
+                    font.bold: true
+                    font.pixelSize: 16
+                    color: "white"
+                }
+                QQC2.Label {
+                    text: "Enlace experimental de consulta; probado en Falkon con el permiso activo."
+                    color: "#d8d9e5"
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                }
+                QQC2.CheckBox {
+                    text: panel.isHidden("ai","chatgpt") ?
+                        "Restaurar ChatGPT en el selector" : "Mostrar ChatGPT en el selector"
+                    checked: !panel.isHidden("ai","chatgpt")
+                    onToggled: panel.toggleHidden("ai","chatgpt",checked)
+                }
+                QQC2.Label { text: "Nombre visible"; color: "#ddd6e8" }
+                QQC2.TextField {
+                    Layout.fillWidth: true
+                    text: panel.settingsTarget.malvinaChatGptName
+                    placeholderText: "ChatGPT"
+                    maximumLength: 48
+                    onTextEdited: panel.settingsTarget.malvinaChatGptName = text
+                }
+                QQC2.Label { text: "Dirección del sitio HTTPS"; color: "#ddd6e8" }
+                QQC2.TextField {
+                    Layout.fillWidth: true
+                    text: panel.settingsTarget.malvinaChatGptUrl
+                    onEditingFinished: panel.settingsTarget.malvinaChatGptUrl = text
+                }
+                QQC2.CheckBox {
+                    text: "Autorizo envío de texto a ChatGPT (enlace experimental)"
+                    checked: panel.settingsTarget.malvinaAllowChatGpt
+                    onToggled: panel.settingsTarget.malvinaAllowChatGpt = checked
+                }
+            }
         }
-        QQC2.Label { text: "ChatGPT"; color: "white"; font.bold: true }
-        QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaChatGptUrl; onEditingFinished: panel.settingsTarget.malvinaChatGptUrl = text }
-        QQC2.CheckBox {
-            text: "Autorizo envío de texto a ChatGPT (enlace experimental)"
-            checked: panel.settingsTarget.malvinaAllowChatGpt
-            onToggled: panel.settingsTarget.malvinaAllowChatGpt = checked
-        }
-        QQC2.CheckBox {
-            text: panel.isHidden("ai","gemini") ? "Restaurar Gemini en el selector" : "Mostrar Gemini en el selector"
-            checked: !panel.isHidden("ai","gemini")
-            onToggled: panel.toggleHidden("ai","gemini",checked)
-        }
-        QQC2.Label { text: "Nombre visible (Gemini)"; color: "#ddd6e8" }
-        QQC2.TextField {
+        Rectangle {
             Layout.fillWidth: true
-            text: panel.settingsTarget.malvinaGeminiName
-            placeholderText: "Gemini"
-            maximumLength: 48
-            onTextEdited: panel.settingsTarget.malvinaGeminiName = text
+            implicitHeight: claudeFields.implicitHeight + 24
+            radius: 10
+            color: "#292c3f"
+            border.width: 1
+            border.color: "#41475e"
+            ColumnLayout {
+                id: claudeFields
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 7
+                QQC2.Label {
+                    text: "Claude"
+                    font.bold: true
+                    font.pixelSize: 16
+                    color: "white"
+                }
+                QQC2.Label {
+                    text: "Puede pedir inicio de sesión y pulsar Enviar mensaje."
+                    color: "#d8d9e5"
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                }
+                QQC2.CheckBox {
+                    text: panel.isHidden("ai","claude") ?
+                        "Restaurar Claude en el selector" : "Mostrar Claude en el selector"
+                    checked: !panel.isHidden("ai","claude")
+                    onToggled: panel.toggleHidden("ai","claude",checked)
+                }
+                QQC2.Label { text: "Nombre visible"; color: "#ddd6e8" }
+                QQC2.TextField {
+                    Layout.fillWidth: true
+                    text: panel.settingsTarget.malvinaClaudeName
+                    placeholderText: "Claude"
+                    maximumLength: 48
+                    onTextEdited: panel.settingsTarget.malvinaClaudeName = text
+                }
+                QQC2.Label { text: "Dirección del sitio HTTPS"; color: "#ddd6e8" }
+                QQC2.TextField {
+                    Layout.fillWidth: true
+                    text: panel.settingsTarget.malvinaClaudeUrl
+                    onEditingFinished: panel.settingsTarget.malvinaClaudeUrl = text
+                }
+                QQC2.CheckBox {
+                    text: "Autorizo envío de texto a Claude (enlace experimental)"
+                    checked: panel.settingsTarget.malvinaAllowClaude
+                    onToggled: panel.settingsTarget.malvinaAllowClaude = checked
+                }
+            }
         }
-        QQC2.Label { text: "Gemini"; color: "white"; font.bold: true }
-        QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaGeminiUrl; onEditingFinished: panel.settingsTarget.malvinaGeminiUrl = text }
-        QQC2.CheckBox {
-            text: "Permiso para Gemini (sin envío disponible todavía)"
-            checked: panel.settingsTarget.malvinaAllowGemini
-            onToggled: panel.settingsTarget.malvinaAllowGemini = checked
-        }
-        QQC2.Label {
-            text: "Gemini: el parámetro q no funcionó en CachyOS. Tu permiso queda guardado para una integración futura, pero Malvina NO envía texto a Gemini. La sesión del navegador no cambia esta limitación."
-            color: "#ffe29a"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-        }
-        QQC2.CheckBox {
-            text: panel.isHidden("ai","claude") ? "Restaurar Claude en el selector" : "Mostrar Claude en el selector"
-            checked: !panel.isHidden("ai","claude")
-            onToggled: panel.toggleHidden("ai","claude",checked)
-        }
-        QQC2.Label { text: "Nombre visible (Claude)"; color: "#ddd6e8" }
-        QQC2.TextField {
+        Rectangle {
             Layout.fillWidth: true
-            text: panel.settingsTarget.malvinaClaudeName
-            placeholderText: "Claude"
-            maximumLength: 48
-            onTextEdited: panel.settingsTarget.malvinaClaudeName = text
-        }
-        QQC2.Label { text: "Claude"; color: "white"; font.bold: true }
-        QQC2.TextField { Layout.fillWidth: true; text: panel.settingsTarget.malvinaClaudeUrl; onEditingFinished: panel.settingsTarget.malvinaClaudeUrl = text }
-        QQC2.CheckBox {
-            text: "Autorizo envío de texto a Claude (enlace experimental)"
-            checked: panel.settingsTarget.malvinaAllowClaude
-            onToggled: panel.settingsTarget.malvinaAllowClaude = checked
+            implicitHeight: geminiFields.implicitHeight + 24
+            radius: 10
+            color: "#292c3f"
+            border.width: 1
+            border.color: "#41475e"
+            ColumnLayout {
+                id: geminiFields
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 7
+                QQC2.Label {
+                    text: "Gemini"
+                    font.bold: true
+                    font.pixelSize: 16
+                    color: "white"
+                }
+                QQC2.Label {
+                    text: "Sin enlace verificado para precargar texto; pendiente de integración."
+                    color: "#d8d9e5"
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                }
+                QQC2.CheckBox {
+                    text: panel.isHidden("ai","gemini") ?
+                        "Restaurar Gemini en el selector" : "Mostrar Gemini en el selector"
+                    checked: !panel.isHidden("ai","gemini")
+                    onToggled: panel.toggleHidden("ai","gemini",checked)
+                }
+                QQC2.Label { text: "Nombre visible"; color: "#ddd6e8" }
+                QQC2.TextField {
+                    Layout.fillWidth: true
+                    text: panel.settingsTarget.malvinaGeminiName
+                    placeholderText: "Gemini"
+                    maximumLength: 48
+                    onTextEdited: panel.settingsTarget.malvinaGeminiName = text
+                }
+                QQC2.Label { text: "Dirección del sitio HTTPS"; color: "#ddd6e8" }
+                QQC2.TextField {
+                    Layout.fillWidth: true
+                    text: panel.settingsTarget.malvinaGeminiUrl
+                    onEditingFinished: panel.settingsTarget.malvinaGeminiUrl = text
+                }
+                QQC2.CheckBox {
+                    text: "Permiso para Gemini (sin envío disponible todavía)"
+                    checked: panel.settingsTarget.malvinaAllowGemini
+                    onToggled: panel.settingsTarget.malvinaAllowGemini = checked
+                }
+            }
         }
         }
         ColumnLayout {
@@ -397,10 +505,6 @@ QQC2.ScrollView {
             text: panel.feedback
             visible: panel.feedback.length > 0
             color: "#ffe29a"; Layout.fillWidth: true; wrapMode: Text.WordWrap
-        }
-        QQC2.Label {
-            text: "Los tres permisos comienzan desactivados. Aplicar guarda tus preferencias sin cerrar la configuración. Seleccionar un proveedor con Tab/Espacio no envía datos."
-            color: "#ddd6e8"; Layout.fillWidth: true; wrapMode: Text.WordWrap
         }
         QQC2.Label {
             text: "Tab selecciona Web y después IA. Las flechas cambian proveedor. Super + Espacio global en Wayland queda pendiente."
