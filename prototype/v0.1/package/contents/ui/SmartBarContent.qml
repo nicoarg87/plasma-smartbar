@@ -898,6 +898,16 @@ Item {
         Object.prototype.hasOwnProperty.call(
             SoledadPositionProfiles.readProfiles(realPositionProfilesJson),
             realProfileTarget.appId)
+    // «Volver a posición» debe consultar la aplicación EXTERNA activa,
+    // no una ficha de SO seleccionada anteriormente ni el foco del popup.
+    readonly property bool activeRealAppHasSavedPosition:
+        demoWindowControlsEnabled && usingRealTasks &&
+        positionMode === "right" && realTrackedKnown &&
+        realTrackedMaximized && !realTrackedFullscreen &&
+        realTrackedAppId.length > 0 &&
+        Object.prototype.hasOwnProperty.call(
+            SoledadPositionProfiles.readProfiles(realPositionProfilesJson),
+            realTrackedAppId)
     function applyRealPositionProfile() {
         if (!demoWindowControlsEnabled || !usingRealTasks ||
             positionMode !== "right" || gripDrag.active) return
@@ -1291,8 +1301,20 @@ Item {
 
     function returnToConfiguredPosition() {
         // El menú no cambia la preferencia right/center.
-        if (positionMode === "center") alignCenterNow()
-        else alignRightNow()
+        if (positionMode === "center") {
+            alignCenterNow()
+        } else if (activeRealAppHasSavedPosition) {
+            // Si Brave/Steam sigue maximizada, «volver» equivale al anclaje
+            // guardado de ESA aplicación; el extremo derecho físico solo
+            // corresponde al escritorio general o a apps sin perfil.
+            soExpanded = false
+            trayExpanded = false
+            applyRealPositionProfile()
+            console.log("SmartBar v0.1: restaurada posición de",
+                        realTrackedAppName, "(perfil real)")
+        } else {
+            alignRightNow()
+        }
     }
 
     function setPreviewMaximized(value) {
@@ -3124,9 +3146,13 @@ Item {
                         // Atajo contextual del agarre: respeta la preferencia
                         // elegida en Islas y posición, sin cambiar de modo.
                         QQC2.MenuItem {
+                            // MISMA acción existente, con etiqueta contextual:
+                            // no prometer «derecha» si hay perfil de Brave/Steam.
                             text: root.positionMode === "center"
                                 ? "Centrar isla 1 ahora"
-                                : "Alinear isla 1 a la derecha ahora"
+                                : (root.activeRealAppHasSavedPosition
+                                    ? "Volver a posición de " + root.realTrackedAppName
+                                    : "Alinear isla 1 a la derecha ahora")
                             onTriggered: root.returnToConfiguredPosition()
                         }
                         QQC2.MenuItem {
