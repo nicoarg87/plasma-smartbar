@@ -534,6 +534,21 @@ Item {
     property bool launcherIslandVisible: true
     property bool autoHideMalvina: true
     property bool malvinaHoverRevealed: false
+    // Después de iniciar una búsqueda, ocultar Malvina por esta ocasión,
+    // incluso en el ensayo "siempre visible". La opción original del
+    // usuario no se modifica: vuelve tras un nuevo hover o atajo.
+    property bool malvinaDismissedAfterSearch: false
+    property bool malvinaDismissRearmed: false
+    function dismissMalvinaAfterSearch() {
+        malvinaSearch.closeSearch()
+        malvinaRevealTimer.stop()
+        malvinaHideTimer.stop()
+        malvinaHoverRevealed = false
+        // Si el puntero seguía en la isla, exigir salir antes de volver
+        // a entrar para no reabrirla por el mismo movimiento.
+        malvinaDismissRearmed = !malvinaHotspotHover.hovered
+        malvinaDismissedAfterSearch = true
+    }
     // Confirmación breve de la acción Mostrar/Ocultar del menú de seis puntos.
     // Es visible solo en el visor permitido; no añade animaciones ni altura.
     property bool malvinaVisibilityCue: false
@@ -583,6 +598,7 @@ Item {
          soledadSettings.currentIslandSubtab === 2)
     readonly property bool malvinaActuallyVisible:
         !autoRevealBlocked && launcherIslandVisible &&
+        !malvinaDismissedAfterSearch &&
         (!autoHideMalvina || malvinaHoverRevealed || malvinaPopupActive ||
          malvinaVisibilityCue)
     onLauncherIslandVisibleChanged: {
@@ -593,6 +609,8 @@ Item {
             malvinaRevealTimer.stop()
             malvinaHideTimer.stop()
             malvinaHoverRevealed = false
+            malvinaDismissedAfterSearch = false
+            malvinaDismissRearmed = false
         }
     }
     onAutoHideMalvinaChanged: {
@@ -609,9 +627,16 @@ Item {
         onTriggered: {
             // El puntero debe permanecer todo el intervalo sobre el lugar
             // de la isla. No usar un MouseArea que capture clics.
-            if (!root.autoRevealBlocked && root.autoHideMalvina &&
-                    root.launcherIslandVisible && malvinaHotspotHover.hovered)
-                root.malvinaHoverRevealed = true
+            if (!root.autoRevealBlocked && root.launcherIslandVisible &&
+                    malvinaHotspotHover.hovered &&
+                    (root.autoHideMalvina || root.malvinaDismissedAfterSearch)) {
+                if (root.malvinaDismissedAfterSearch) {
+                    if (!root.malvinaDismissRearmed) return
+                    root.malvinaDismissedAfterSearch = false
+                    root.malvinaDismissRearmed = false
+                }
+                if (root.autoHideMalvina) root.malvinaHoverRevealed = true
+            }
         }
     }
     Timer {
@@ -2059,14 +2084,19 @@ Item {
                 // sin hacer más gruesa la barra ni ensanchar Malvina.
                 margin: 18
                 enabled: !root.autoRevealBlocked &&
-                         root.launcherIslandVisible && root.autoHideMalvina
+                         root.launcherIslandVisible &&
+                         (root.autoHideMalvina || root.malvinaDismissedAfterSearch)
                 onHoveredChanged: {
                     if (hovered) {
                         malvinaHideTimer.stop()
+                        if (root.malvinaDismissedAfterSearch &&
+                                !root.malvinaDismissRearmed) return
                         if (!root.autoRevealBlocked)
                             malvinaRevealTimer.restart()
                     } else {
                         malvinaRevealTimer.stop()
+                        if (root.malvinaDismissedAfterSearch)
+                            root.malvinaDismissRearmed = true
                         if (!root.malvinaPopupActive)
                             malvinaHideTimer.restart()
                     }
@@ -2286,6 +2316,13 @@ Item {
                 chatGptUrl: root.malvinaChatGptUrl
                 geminiUrl: root.malvinaGeminiUrl
                 claudeUrl: root.malvinaClaudeUrl
+                onExpandedChanged: {
+                    // Reapertura explícita por lupa/teclado: mostrarla.
+                    if (expanded) {
+                        root.malvinaDismissedAfterSearch = false
+                        root.malvinaDismissRearmed = false
+                    }
+                }
                 onRequestOpenUrl: function(url) {
                     // Respeta la opción de un navegador para toda Malvina.
                     // Si el ejecutable elegido desaparece, avisar y usar KDE.
@@ -2296,14 +2333,19 @@ Item {
                             break
                         }
                     }
+                    let accepted = false
                     if (root.malvinaBrowserBackend !== null &&
                         typeof root.malvinaBrowserBackend.launchWebUrl === "function") {
-                        if (!root.malvinaBrowserBackend.launchWebUrl(choice, url))
-                            console.warn("Malvina: no se pudo abrir navegador elegido:", choice)
+                        accepted = root.malvinaBrowserBackend.launchWebUrl(choice, url)
                     } else {
                         // El plasmoide/visor QML aún no incluye puente nativo.
                         // Conservar apertura KDE; no fingir selección específica.
-                        Qt.openUrlExternally(url)
+                        accepted = Qt.openUrlExternally(url)
+                    }
+                    if (accepted) {
+                        root.dismissMalvinaAfterSearch()
+                    } else {
+                        console.warn("Malvina: no se pudo iniciar el navegador:", choice)
                     }
                 }
                 onRequestSettings: root.openMalvinaSettings()
