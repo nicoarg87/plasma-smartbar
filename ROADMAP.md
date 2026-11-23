@@ -751,3 +751,12 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [x] **Código experimental:** eliminar `top:6` de ambos ensayos LayerShell de Soledad y cambiar `malvinaHotspot`/`systemIsland` de centrado vertical a anclaje superior en `SmartBarContent.qml`. Tests estáticos/de política JS/V8 con fuentes vigentes: 281 comprobaciones PASS.
 - [ ] **Prueba real:** `node prototype/v0.1/tests/test_fixed_input_region.cjs` y `bash prototype/v0.1/probar_soledad_entrada_fija.sh` para comprobar Soledad en el límite físico superior, y `bash prototype/v0.1/probar_ancho.sh` para comprobar simultáneamente Soledad y Malvina en el visor, sin reemplazar el panel instalado. Si la barra instalada es flotante, no asumir que alinear componentes mueve el contenedor.
 
+## 23/11/2026 — Malvina LayerTop sobre ventanas, excepto fullscreen
+
+- [x] **Política confirmada:** Malvina debe poder aparecer delante de ventanas normales y maximizadas; en fullscreen real debe ocultarse. Mantener habilitación y autoocultamiento como preferencias separadas, sin alterar ajustes personales.
+- [x] Eliminar `previewMaximized` y `hostMaximized` de bloqueo de visibilidad en `SmartBarContent.qml`, conservando `!windowStateKnown`, `previewFullscreen` y `hostFullscreen`.
+- [x] Preparar un ensayo **independiente y descartable** de Malvina con LayerShell LayerTop, exclusión -1, anclaje superior izquierdo y máscara de entrada del tamaño de la isla; el nuevo visor fuerza visibilidad SOLO para diagnosticar, sin modificar valores persistidos. El puente nativo espera una lectura segura de `TasksModel.IsFullScreen` antes de mostrar.
+- [x] Pruebas JS/V8 simuladas con fuentes GitHub: nuevo contrato 62/62 PASS; regresión de Soledad 281/281 PASS.
+- [ ] **Ejecutar Node + QML/KWin real en CachyOS:** `node prototype/v0.1/tests/test_malvina_superposicion.cjs`, `node prototype/v0.1/tests/test_fixed_input_region.cjs`, `bash prototype/v0.1/probar_malvina_superposicion.sh`. Comprobar capa sobre Brave/Steam normal/maximizada, fullscreen real oculta y Esc restaura sin clic, entrada solo sobre isla y autocierre a 90 segundos.
+- [ ] Diagnosticar en el visor principal `probar_ancho.sh` las preferencias guardadas `demoLauncherIslandVisible`/`demoAutoHideMalvina`, la simulación de maximización y `Qt.WindowShortcut` de Meta+Space: el ensayo nativo fuerza visibilidad solo para aislar la causa. No dar por corregido el problema del visor hasta observarlo.
+
