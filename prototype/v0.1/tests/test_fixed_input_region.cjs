@@ -140,7 +140,7 @@ for (const marker of [
     'probe.logPositionStorage("inicio del ensayo")',
     'logPositionStorage("cambio de ventana/estado")'
 ]) assert(qml.includes(marker), "Falta diagnóstico de memoria Steam: " + marker);
-assert((qml.match(/profileSettings\\.setValue\\(/g) || []).length === 1,
+assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
        "El diagnóstico jamás debe agregar escrituras a las preferencias");
 assert(!qml.includes("profileSettings.remove(") &&
        !qml.includes("profileSettings.clear("),
