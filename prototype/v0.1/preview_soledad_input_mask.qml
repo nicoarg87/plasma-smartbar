@@ -28,7 +28,8 @@ Window {
     LayerShell.Window.layer: LayerShell.Window.LayerTop
     LayerShell.Window.exclusionZone: -1
     LayerShell.Window.keyboardInteractivity:
-        LayerShell.Window.KeyboardInteractivityNone
+        smartbarContinuousMode ? LayerShell.Window.KeyboardInteractivityOnDemand
+                               : LayerShell.Window.KeyboardInteractivityNone
     // Alineación al borde físico superior: sin el hueco previo de 6 px.
     // El Window continúa fijo; la máscara de entrada solo cubre Soledad.
     LayerShell.Window.margins: ({ left: 0, top: 0, right: 0, bottom: 0 })
