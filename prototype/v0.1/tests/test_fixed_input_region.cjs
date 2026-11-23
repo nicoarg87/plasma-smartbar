@@ -69,7 +69,7 @@ for (const marker of [
     "import org.kde.taskmanager 0.1 as TaskManager",
     'import QtCore as QtCore',
     'import "package/contents/ui/RealActiveWindow.js" as RealActiveWindow',
-    'category: "plasma-smartbar-v01-preview-appearance"',
+    'category: "plasma-smartbar-v01-fixed-input-positions"',
     'profileSettings.value("soledadRealPositionProfilesV1", "{}")',
     "TaskManager.TasksModel {",
     "groupMode: TaskManager.TasksModel.GroupDisabled",
@@ -121,7 +121,10 @@ assert(real.includes("Recordar esta posición para ") &&
        "Conservar el menú de perfiles existente y la opción de olvido");
 assert(viewer.includes('setValue("soledadRealPositionProfilesV1", json)') &&
        viewer.includes('category: "plasma-smartbar-v01-preview-appearance"'),
-       "La prueba y el visor deben compartir la misma clave válida");
+       "Conservar memoria actual del visor independiente");
+assert(!viewer.includes('plasma-smartbar-v01-fixed-input-positions') &&
+       !qml.includes('category: "plasma-smartbar-v01-preview-appearance"'),
+       "La prueba no debe alterar los perfiles existentes del visor");
 
 // La política pura nunca guarda por mover: guardar requiere invocar explícitamente.
 const profiles = read("package/contents/ui/SoledadPositionProfiles.js");
