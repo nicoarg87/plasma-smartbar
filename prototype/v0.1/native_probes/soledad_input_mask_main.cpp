@@ -81,7 +81,19 @@ int main(int argc, char *argv[]) {
         return 5;
     }
 
-    window->show();
+    // Malvina exige prioridad absoluta de fullscreen real. Su ensayo
+    // comienza OCULTO y lo muestra exclusivamente después de leer el
+    // estado de ventanas KDE; nunca forzar show() sobre un fullscreen
+    // todavía desconocido. Soledad conserva su flujo ya probado.
+    if (window->property("malvinaMaskProbe").toBool()) {
+        if (!QMetaObject::invokeMethod(window, "bridgeReady",
+                                        Qt::DirectConnection)) {
+            qCritical() << "SmartBar Malvina: sin control seguro de fullscreen.";
+            return 6;
+        }
+    } else {
+        window->show();
+    }
     // Volver a aplicar después del primer configure Wayland (tamaño real).
     QTimer::singleShot(0, window, [window]() {
         QMetaObject::invokeMethod(window, "refreshInputRegion",
