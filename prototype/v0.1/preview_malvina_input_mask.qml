@@ -21,7 +21,7 @@ Window {
     // Los gestos de arrastre NO cambian preferencias persistidas.
     property bool testWebFirst: true
     property string testWebOrder: "duck,yahoo,google"
-    property string testAiOrder: "chatgpt,gemini,claude"
+    property string testAiOrder: "chatgpt,claude,gemini"
     // Solo estos tres permisos se conservan entre ejecuciones después de
     // pulsar Aplicar. No compartir categoría con el visor, panel ni temas.
     // La primera ejecución sigue desactivada; revocar + Aplicar guarda false.
