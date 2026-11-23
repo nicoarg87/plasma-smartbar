@@ -16,6 +16,11 @@ Window {
     property bool bridgePrepared: false
     property bool fullscreenDetected: false
     property int stateSamples: 0
+    // Orden temporal del ensayo, independiente del visor y de KConfig.
+    // Los gestos de arrastre NO cambian preferencias persistidas.
+    property bool testWebFirst: true
+    property string testWebOrder: "google,duck,yahoo"
+    property string testAiOrder: "chatgpt,gemini,claude"
     visible: false
     title: "SmartBar — Malvina por encima, excepto fullscreen real"
     color: "transparent"
@@ -178,6 +183,20 @@ Window {
         soledadHeight: 44
         launcherIslandVisible: true
         autoHideMalvina: false // SOLO el ensayo, no las preferencias guardadas
+        // Aplicar inmediatamente la reordenación existente de Malvina.
+        // Antes faltaba este receptor: el gesto emitía una señal sin
+        // actualizar la lista en este visor aislado.
+        malvinaWebFirst: probe.testWebFirst
+        malvinaWebOrder: probe.testWebOrder
+        malvinaAiOrder: probe.testAiOrder
+        onRequestMalvinaOrderChange: function(firstWeb, webOrder, aiOrder) {
+            probe.testWebFirst = firstWeb
+            probe.testWebOrder = webOrder
+            probe.testAiOrder = aiOrder
+            console.log("SmartBar MALVINA orden temporal:",
+                        "Web=", webOrder, "IA=", aiOrder,
+                        "(sin guardar preferencias)")
+        }
         positionMode: "right"
         demoWindowControlsEnabled: false
         themeScheduleRuntimeEnabled: false
@@ -191,7 +210,9 @@ Window {
     }
 
     Timer {
-        interval: 90000
+        // Tiempo de ensayo ampliado a 3 min para probar búsqueda y
+        // arrastre; sigue cerrándose sin dejar superficies permanentes.
+        interval: 180000
         repeat: false
         running: true
         onTriggered: {
