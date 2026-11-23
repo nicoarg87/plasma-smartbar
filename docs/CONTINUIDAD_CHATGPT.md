@@ -1166,3 +1166,21 @@ Con Brave o Steam maximizadas, minimizar terminal, clicar lupa y luego editor: l
 
 **SIGUIENTE PRUEBA SIN RECOMPILACIÓN EXTRA:** al repetir el mismo ensayo (si se quiere) seleccionar fila **Web** y Google o DuckDuckGo para `cerveza`; confirmar resultados en navegador. Como siguiente hito documental discutir integración futura de IA (deep link estable, API autorizada o copia explícita) sin añadir botones ni cambiar consentimiento hasta obtener aprobación. [Issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4) abierto, PR #3 borrador. No tocar panel KDE, recursos CC0 o posiciones de Soledad.
 
+## 23/11/2026 — Google y DuckDuckGo probados; ordenar proveedores corregido solo en ensayo aislado
+
+**PRUEBA REAL DEL MANTENEDOR:** Malvina, estando arriba de otras ventanas, recibió `cerveza`, abrió Falkon y Google realizó la búsqueda con resultados tras pedir verificación antirrobot; después DuckDuckGo devolvió correctamente resultados para `cerveza`. **VALIDADO** el transporte de `{query}` para Google/DDG y la navegación Web Tab/Enter. Los proveedores IA ChatGPT/Gemini permanecen pendientes de un mecanismo de precarga/enlace aprobado; no alterar permisos.
+
+**FALLO NUEVO:** intentó arrastrar DuckDuckGo hasta primer lugar de Web y el cambio no se reflejó; el ensayo se autocerró a los 90 s. En GitHub, `MalvinaSearch.qml` ya implementa `DragHandler`, `reorderProvider` y señal `requestOrderChange`, y `SmartBarContent.qml` propaga `requestMalvinaOrderChange`. La variante aislada `preview_malvina_input_mask.qml` **no conectaba esa señal** (en cambio visor principal y plasmoide sí). Parche publicado para conectar **solo en memoria** `testWebFirst/testWebOrder/testAiOrder` y reflejar el orden en el mismo ensayo, sin escribir preferencias ([cea07ce](https://github.com/nicoarg87/plasma-smartbar/commit/cea07ce0bcded0982d19c2d4c17d9e22e99c1ce2)). Autocierre aumentado a 180 s solo en este ensayo ([8e2028a](https://github.com/nicoarg87/plasma-smartbar/commit/8e2028a72c47f0164a755127fa1499c1b5d00c67)). Diagnóstico de gesto `SmartBar MALVINA gesto reordenar:` ([567786a](https://github.com/nicoarg87/plasma-smartbar/commit/567786a79341caf360446f5cda1dcad60c5f212e)). Test de receptor y no persistencia ([19c38f4](https://github.com/nicoarg87/plasma-smartbar/commit/19c38f427f3a5a22fe6995375014155ae60f1a17)).
+
+**VALIDACIÓN LIMITADA:** contrato Malvina **115 PASS** en JS/V8; regresión Soledad **281 PASS** en simulación JS/V8. `MalvinaSlots.order` devuelve `duck,google,yahoo` correctamente con nueva preferencia temporal. El gesto real de mouse en KWin **todavía no se ha validado después del parche**. No tocar panel KDE instalado ni las preferencias existentes del visor.
+
+**SIGUIENTE TEST DIRIGIDO:**
+```fish
+cd ~/plasma-smartbar
+and git switch prototype/v0.1-islas-so
+and git pull --ff-only
+and node prototype/v0.1/tests/test_malvina_superposicion.cjs
+and bash prototype/v0.1/probar_malvina_superposicion.sh
+```
+Malvina aparece siempre solo en este ensayo. Abrir lupa, Tab para mostrar Web/IA, arrastrar **DuckDuckGo a la izquierda de Google** y soltar; debe pasar a la primera posición visual y al orden de navegación/búsqueda, sin aplicar `KConfig`. Si no sucede, solicitar salida de Konsole especialmente `SmartBar MALVINA gesto reordenar:` y `SmartBar MALVINA orden temporal:` para saber si falla capturar drag o propagar señal. Tras cierre a 180 s, este orden temporal se pierde **intencionalmente**; el visor original mantiene preferencias propias. Continuar pruebas automáticamente cuando el mantenedor dé resultado. [Issue #4](https://github.com/nicoarg87/plasma-smartbar/issues/4); PR #3 borrador.
+
