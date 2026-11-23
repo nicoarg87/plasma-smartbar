@@ -81,9 +81,9 @@ for (const marker of [
     "model.IsMinimized === true",
     "model.IsFullScreen === true",
     "RealActiveWindow.resolve(rows)",
-    "onTaskMaximizedChanged: Qt.callLater(probe.refreshExternalWindow)",
-    "onTaskActiveChanged: Qt.callLater(probe.refreshExternalWindow)",
-    "onTaskMinimizedChanged: Qt.callLater(probe.refreshExternalWindow)",
+    "onTaskMaximizedChanged: probe.scheduleWindowRecheck()",
+    "onTaskActiveChanged: probe.scheduleWindowRecheck()",
+    "onTaskMinimizedChanged: probe.scheduleWindowRecheck()",
     "kdeWindowObservers.itemAt(i)",
     "realTaskModel: groupedKdeWindows",
     "realTrackedAppId: probe.trackedAppId",
@@ -154,6 +154,29 @@ assert(profiles.includes("function saveProfile(json, appId, offset, maxOffset)")
        profiles.includes("function resolveOffset(") &&
        profiles.includes("function clampOffset("),
        "Reutilizar la política ya probada de posiciones por aplicación");
+// Inicio y regreso de fullscreen: reevaluación corta de roles KDE.
+for (const marker of [
+    "property int remainingStateRechecks: 0",
+    "function scheduleWindowRecheck()",
+    "remainingStateRechecks = 12",
+    "stateRecheckTimer.restart()",
+    "interval: 250",
+    "probe.refreshExternalWindow()",
+    "probe.recoverProfileAfterSettling()",
+    "probe.remainingStateRechecks--",
+    "if (probe.remainingStateRechecks <= 0) stop()",
+    "function recoverProfileAfterSettling()",
+    "bar.draggingIslandGrip || bar.islandOffset !== 0",
+    "!bar.activeRealAppHasSavedPosition",
+    "bar.applyRealPositionProfile()",
+    "onCountChanged: probe.scheduleWindowRecheck()",
+    "onItemAdded: probe.scheduleWindowRecheck()",
+    "onItemRemoved: probe.scheduleWindowRecheck()",
+    "onTaskFullScreenChanged: probe.scheduleWindowRecheck()",
+    "Component.onCompleted: probe.scheduleWindowRecheck()"
+]) assert(qml.includes(marker), "Falta reconciliación temporal: " + marker);
+assert(!qml.includes("running: true\n        repeat: true"),
+       "La observación de ventanas no debe ser sondeo permanente");
 // Regresión reportada en Brave: menú «Alinear a la derecha» con perfil
 // ya guardado debe volver al anclaje de esa app maximizada, NO a x=0.
 for (const expected of [
