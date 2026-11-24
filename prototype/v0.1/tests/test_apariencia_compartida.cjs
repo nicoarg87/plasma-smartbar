@@ -104,6 +104,22 @@ for (const field of ["setOrganizationName(", "setOrganizationDomain(", "setAppli
     assert(native.includes(field), "Falta identidad Qt para Settings: " + field);
 assert(native.indexOf("setApplicationName(") < native.indexOf("engine.load("),
        "QSettings se inicializa al cargar QML: identidad obligatoria antes");
+// El orden Web/IA de Malvina debe sobrevivir reinicios del ensayo conjunto.
+const malvinaProbe=probes[1];
+assert(malvinaProbe.includes("plasma-smartbar-v01-malvina-layer-probe-order"));
+for (const key of ["webFirstV1","webOrderV1","aiOrderV1"]) {
+    assert(malvinaProbe.includes('value("'+key+'"'),
+           "Malvina no recupera "+key);
+    assert(malvinaProbe.includes('setValue("'+key+'"'),
+           "Malvina no guarda "+key);
+}
+assert(malvinaProbe.includes("malvinaOrderSettings.sync()"));
+assert(malvinaProbe.includes("if (smartbarContinuousMode) {"),
+       "El modo aislado debe seguir sin escritura del orden");
+assert(malvinaProbe.includes('validOrder(value, ["duck","yahoo","google"])'),
+       "Validar prioridad Web recuperada");
+assert(malvinaProbe.includes('validOrder(value, ["chatgpt","claude","gemini"])'),
+       "Validar prioridad IA recuperada");
 assert(native.includes("Q_INVOKABLE QString readAppearanceJson() const"));
 assert(native.includes("Q_INVOKABLE bool saveAppearancePatch("));
 assert(native.includes("QSaveFile out(path)"));
