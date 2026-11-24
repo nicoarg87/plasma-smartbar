@@ -2155,6 +2155,7 @@ Item {
             ? Math.max(270, Math.min(root.launcherAvailableHeight, 760))
             : root.launcherAvailableHeight
         categoryLayout: root.launcherCategoryLayout
+        availableScreenWidth: root.width
         maxVisibleSlots: root.launcherMaxSlots
         iconsWithNames: root.launcherIconsWithNames
         switchShape: root.launcherSwitchShape
