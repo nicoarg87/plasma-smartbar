@@ -233,4 +233,25 @@ assert(groupPicker.includes("chooser.groupUuids.indexOf(uuid) >= 0"),
        "No capturar ventanas ajenas al grupo");
 assert(groupPicker.includes("onClicked: {"));
 assert(groupPicker.includes("chooser.selectWindow(option.uuid)"));
+assert.equal(source.split("root.requestHideRealTaskGroup()").length - 1, 4,
+       "Los dos chips deben mantener y soltar el panel con hover");
+assert.equal(source.split("root.requestRealTaskGroup(").length - 1, 2);
+assert(source.includes("if (isGrouped && taskWindowIds.length > 1) return"),
+       "Clic grupal no debe activar ventana arbitraria ni abrir selector");
+assert(source.includes("realTaskChip.isGrouped && realTaskChip.taskWindowIds.length > 1"),
+       "El hover de grupo, no el clic, abre las miniaturas");
+assert(soProbe.includes("onRequestHideRealTaskGroup: groupDismiss.restart()"));
+assert(soProbe.includes("onCursorEntered: groupDismiss.stop()"));
+assert(soProbe.includes("onCursorExited: groupDismiss.restart()"));
+assert(soProbe.includes("interval: 650"), "Tiempo para pasar de SO al panel");
+assert(groupPicker.includes('layoutMode: String(layoutSettings.value("orientation", "horizontal"))'),
+       "Horizontal predeterminado sin modificar preferencias anteriores");
+assert(groupPicker.includes('layoutSettings.setValue("orientation", value)'),
+       "Preferencia de orientación persistente");
+assert(groupPicker.includes("columns: chooser.isVertical ? 1 :"));
+assert(groupPicker.includes("contentWidth: chooser.isVertical ? width :"),
+       "Desplazamiento horizontal con muchas miniaturas");
+assert(groupPicker.includes('text: "Miniaturas verticales"'));
+assert(groupPicker.includes("acceptedButtons: Qt.RightButton"));
+assert(groupPicker.includes("HoverHandler"));
 console.log("OK: apariencia, activación SO, miniatura y selector experimental de grupos");
