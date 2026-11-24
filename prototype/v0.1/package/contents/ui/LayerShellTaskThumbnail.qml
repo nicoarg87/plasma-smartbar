@@ -18,6 +18,9 @@ Window {
     // Entrar en la miniatura no activa ni enfoca otra ventana.
     signal cursorEntered()
     signal cursorExited()
+    // Estado del puntero sobre TODA la superficie LayerShell, no solo
+    // sobre el contenido capturado por PipeWire.
+    property bool cursorInside: false
 
     visible: runtimeActive && requested && windowUuid.length > 0
     // Reducción visual del 25 % aprobada: 328×222 → 246×166.
@@ -80,14 +83,25 @@ Window {
             style: Text.Outline
             styleColor: "#172331"
         }
-        HoverHandler {
-            onHoveredChanged: {
-                if (hovered) preview.cursorEntered()
-                else preview.cursorExited()
+        // No intercepta clics: futuros controles de volumen o botones
+        // dentro de la miniatura siguen siendo interactivos.
+        MouseArea {
+            id: previewPointer
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+            onEntered: {
+                preview.cursorInside = true
+                preview.cursorEntered()
+            }
+            onExited: {
+                preview.cursorInside = false
+                preview.cursorExited()
             }
         }
     }
     onVisibleChanged: {
-        if (visible) console.log("SmartBar SO miniatura: solicitud para", appLabel)
+        if (!visible) cursorInside = false
+        else console.log("SmartBar SO miniatura: solicitud para", appLabel)
     }
 }
