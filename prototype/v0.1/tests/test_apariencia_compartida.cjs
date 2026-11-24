@@ -233,8 +233,8 @@ assert(groupPicker.includes("chooser.groupUuids.indexOf(uuid) >= 0"),
        "No capturar ventanas ajenas al grupo");
 assert(groupPicker.includes("onClicked: {"));
 assert(groupPicker.includes("chooser.selectWindow(option.uuid)"));
-assert.equal(source.split("root.requestHideRealTaskGroup()").length - 1, 4,
-       "Los dos chips deben mantener y soltar el panel con hover");
+assert.equal(source.split("root.requestHideRealTaskGroup()").length - 1, 6,
+       "Los dos chips deben mantener y soltar panel con hover y clic individual");
 assert.equal(source.split("root.requestRealTaskGroup(").length - 1, 2);
 assert(source.includes("if (isGrouped && taskWindowIds.length > 1) return"),
        "Clic grupal no debe activar ventana arbitraria ni abrir selector");
