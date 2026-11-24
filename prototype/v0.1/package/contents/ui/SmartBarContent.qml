@@ -3032,46 +3032,16 @@ Item {
                             taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
                         // El selector configurado se aplica también a tareas REALES.
                         // La X pertenece a la ficha, no al cuerpo de la miniatura.
-                        taskTrailingControlWidth: closeRealTaskChip.visible ? 30 : 0
+                        taskTrailingControlWidth: taskCloseVisible ? 30 : 0
                         taskNameExtraWidth: root.taskNameExtraWidth
-                        QQC2.ToolButton {
-                            id: closeRealTaskChip
-                            visible: root.realTaskActivationEnabled &&
-                                     root.taskCloseMode !== "preview" &&
-                                     realTaskChip.taskWindowIds.length > 0
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.rightMargin: 3
-                            width: 26
-                            height: 28
-                            z: 3
-                            text: "×"
-                            focusPolicy: Qt.StrongFocus
-                            // Solo glifo: área de clic 26×28, sin caja, borde
-                            // ni relleno ajeno al fondo ya dibujado por Soledad.
-                            background: Item {}
-                            contentItem: Text {
-                                text: closeRealTaskChip.text
-                                color: closeRealTaskChip.hovered ? "#ffffff" : "#eaf7ff"
-                                font.family: "Sans Serif"
-                                font.pixelSize: 20
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            Accessible.name: realTaskChip.taskWindowIds.length > 1
-                                ? "Cerrar todas las ventanas de " + realTaskChip.appName
-                                : "Cerrar ventana de " + realTaskChip.appName
-                            QQC2.ToolTip.visible: hovered
-                            QQC2.ToolTip.text: Accessible.name
-                            onClicked: {
-                                // El UUID se vuelve a comprobar en el host;
-                                // nunca se usa un índice guardado en QML.
-                                root.requestRealTaskClose(
-                                    Array.from(realTaskChip.taskWindowIds, function(uuid) {
-                                        return String(uuid)
-                                    }))
-                            }
+                        taskCloseVisible: root.realTaskActivationEnabled &&
+                            root.taskCloseMode !== "preview" &&
+                            taskWindowIds.length > 0
+                        onTaskCloseRequested: {
+                            root.requestRealTaskClose(
+                                Array.from(taskWindowIds, function(uuid) {
+                                    return String(uuid)
+                                }))
                         }
                         Timer {
                             id: realTaskHoverDelay
@@ -3745,46 +3715,16 @@ Item {
                             taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
                         // El selector configurado se aplica también a tareas REALES.
                         // La X pertenece a la ficha, no al cuerpo de la miniatura.
-                        taskTrailingControlWidth: closeRealTaskChip.visible ? 30 : 0
+                        taskTrailingControlWidth: taskCloseVisible ? 30 : 0
                         taskNameExtraWidth: root.taskNameExtraWidth
-                        QQC2.ToolButton {
-                            id: closeRealTaskChip
-                            visible: root.realTaskActivationEnabled &&
-                                     root.taskCloseMode !== "preview" &&
-                                     realTaskChip.taskWindowIds.length > 0
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.rightMargin: 3
-                            width: 26
-                            height: 28
-                            z: 3
-                            text: "×"
-                            focusPolicy: Qt.StrongFocus
-                            // Solo glifo: área de clic 26×28, sin caja, borde
-                            // ni relleno ajeno al fondo ya dibujado por Soledad.
-                            background: Item {}
-                            contentItem: Text {
-                                text: closeRealTaskChip.text
-                                color: closeRealTaskChip.hovered ? "#ffffff" : "#eaf7ff"
-                                font.family: "Sans Serif"
-                                font.pixelSize: 20
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            Accessible.name: realTaskChip.taskWindowIds.length > 1
-                                ? "Cerrar todas las ventanas de " + realTaskChip.appName
-                                : "Cerrar ventana de " + realTaskChip.appName
-                            QQC2.ToolTip.visible: hovered
-                            QQC2.ToolTip.text: Accessible.name
-                            onClicked: {
-                                // El UUID se vuelve a comprobar en el host;
-                                // nunca se usa un índice guardado en QML.
-                                root.requestRealTaskClose(
-                                    Array.from(realTaskChip.taskWindowIds, function(uuid) {
-                                        return String(uuid)
-                                    }))
-                            }
+                        taskCloseVisible: root.realTaskActivationEnabled &&
+                            root.taskCloseMode !== "preview" &&
+                            taskWindowIds.length > 0
+                        onTaskCloseRequested: {
+                            root.requestRealTaskClose(
+                                Array.from(taskWindowIds, function(uuid) {
+                                    return String(uuid)
+                                }))
                         }
                         Timer {
                             id: realTaskHoverDelay
