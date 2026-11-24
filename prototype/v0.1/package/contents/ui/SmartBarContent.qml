@@ -595,7 +595,7 @@ Item {
             malvinaHideTimer.stop()
             malvinaHoverRevealed = false
             if (malvinaPopupActive) {
-                installedAppsPopup.close()
+                closeInstalledLauncher()
                 malvinaSearch.expanded = false
             }
         }
@@ -666,35 +666,39 @@ Item {
     // tras elegir un programa. Ajuste independiente de autoCollapseSO.
     property bool autoCollapseLauncher: false
     signal requestAutoCollapseLauncherChange(bool newValue)
-    // Al lanzar una aplicación KDE, el cambio de foco puede cerrar
-    // involuntariamente el Popup.Item dentro de la superficie LayerShell.
-    // Reintento limitado exclusivamente a la selección que acaba de ocurrir.
-    property bool launcherKeepOpenAfterSelection: false
-    function cancelLauncherKeepOpen() {
-        launcherKeepOpenAfterSelection = false
-        launcherKeepOpenTimer.stop()
+    // Estado deseado, independiente de la visibilidad del Popup.Item.
+    // Evita que cerrar accidentalmente el popup oculte también su ventana
+    // física LayerShell y haga imposible recuperarlo tras perder foco.
+    property bool launcherRequestedOpen: false
+    property int launcherRecoveryAttempts: 0
+    function closeInstalledLauncher() {
+        launcherRequestedOpen = false
+        launcherRecoveryTimer.stop()
+        launcherRecoveryAttempts = 0
+        installedAppsPopup.close()
     }
-    function verifyLauncherStillOpen() {
-        if (!launcherKeepOpenAfterSelection || autoCollapseLauncher ||
+    function ensureLauncherOpen() {
+        if (!launcherRequestedOpen || autoCollapseLauncher ||
             !realAppLaunchEnabled || !layerShellLauncherHost ||
-            realTrackedFullscreen) {
-            cancelLauncherKeepOpen()
-            return
-        }
-        // No usar resetAndFocus(): conserva categoría, búsqueda y selección.
+            realTrackedFullscreen) return
         if (!installedAppsPopup.visible) {
-            console.warn("SmartBar launcher: cerrado por cambio de foco; reabriendo sin reiniciar selección")
+            if (launcherRecoveryAttempts >= 6) {
+                console.warn("SmartBar launcher: recuperación no lograda; verificar eventos QML/Wayland")
+                return
+            }
+            launcherRecoveryAttempts++
+            console.warn("SmartBar launcher: popup cerrado sin solicitud; recuperación",
+                         launcherRecoveryAttempts)
             installedAppsPopup.open()
-        }
+            if (!installedAppsPopup.visible)
+                launcherRecoveryTimer.restart()
+        } else launcherRecoveryAttempts = 0
     }
     Timer {
-        id: launcherKeepOpenTimer
-        interval: 750
+        id: launcherRecoveryTimer
+        interval: 260
         repeat: false
-        onTriggered: {
-            root.verifyLauncherStillOpen()
-            root.cancelLauncherKeepOpen()
-        }
+        onTriggered: root.ensureLauncherOpen()
     }
     // Corrección del mantenedor 18/11: izquierdo = cajón (ventanas abiertas),
     // derecho = launcher de aplicaciones. Es reversible en Configuración.
@@ -718,7 +722,9 @@ Item {
     // Alojamiento exclusivo del ensayo LayerShell: otra ventana física
     // acotada, colocada debajo de SO por el compositor y NO por x/y de Popup.
     property var layerShellLauncherHost: null
-    readonly property bool installedLauncherPopupVisible: installedAppsPopup.visible
+    readonly property bool installedLauncherPopupVisible:
+        (realAppLaunchEnabled && layerShellLauncherHost !== null)
+            ? launcherRequestedOpen : installedAppsPopup.visible
     readonly property real installedLauncherPopupWidth: installedAppsPopup.width
     readonly property real installedLauncherPopupHeight: installedAppsPopup.height
     readonly property real installedLauncherScreenLeft: calculateInstalledLauncherScreenLeft()
@@ -1614,10 +1620,8 @@ Item {
         // El selector de ventanas y el lanzador son independientes.
         // Si cambia el gesto mientras el lanzador está abierto,
         // permitir abrir las ventanas en el MISMO clic.
-        if (installedAppsPopup.visible) {
-            cancelLauncherKeepOpen()
-            installedAppsPopup.close()
-        }
+        if (installedAppsPopup.visible || launcherRequestedOpen)
+            closeInstalledLauncher()
         // No enviar al lanzador por falta de ventanas: el gesto elegido
         // para "ventanas abiertas" conserva su significado.
         if (soWindowCount === 0 &&
@@ -1637,9 +1641,8 @@ Item {
     function triggerSOButton(leftClick, wasOpenAtPress) {
         // Clic derecho explícito sobre SO: cancelar cualquier recuperación.
         if (!leftClick && installedLauncherSource === "so" &&
-            (installedAppsPopup.visible || launcherKeepOpenAfterSelection)) {
-            cancelLauncherKeepOpen()
-            installedAppsPopup.close()
+            (installedAppsPopup.visible || launcherRequestedOpen)) {
+            closeInstalledLauncher()
             return
         }
         const launch = leftClick === soLeftClickOpensLauncher
@@ -1647,7 +1650,7 @@ Item {
             // El estado se captura al PRESIONAR; un CloseOnPressOutside
             // no puede transformar el mismo gesto de cierre en reapertura.
             if (wasOpenAtPress)
-                installedAppsPopup.close()
+                closeInstalledLauncher()
             else
                 openInstalledLauncher("so")
         } else {
@@ -1677,12 +1680,14 @@ Item {
         if (source === "malvina") return
         const requestedSource = "so"
         // Un segundo clic sobre SO cierra el popup existente.
-        if (installedAppsPopup.visible && installedLauncherSource === requestedSource) {
-            cancelLauncherKeepOpen()
-            installedAppsPopup.close()
+        if ((installedAppsPopup.visible || launcherRequestedOpen) &&
+            installedLauncherSource === requestedSource) {
+            closeInstalledLauncher()
             return
         }
         installedLauncherSource = requestedSource
+        launcherRequestedOpen = true
+        launcherRecoveryAttempts = 0
         // El lanzador es un panel FLOTANTE independiente de las fichas de
         // SO y los iconos de bandeja: abrirlo desde cualquiera de las islas
         // NO debe modificar soExpanded ni trayExpanded.
@@ -1736,8 +1741,7 @@ Item {
     }
 
     function toggleTray() {
-        cancelLauncherKeepOpen()
-        installedAppsPopup.close()
+        closeInstalledLauncher()
         if (trayExpanded) {
             trayExpanded = false
         } else {
@@ -2288,23 +2292,22 @@ Item {
         layerSurfaceHosted: root.realAppLaunchEnabled &&
                             root.layerShellLauncherHost !== null
         onLaunchDesktopEntry: function(desktopId) {
-            // Registrar la intención ANTES de que iniciar la app altere foco.
-            root.cancelLauncherKeepOpen()
-            const keep = !root.autoCollapseLauncher &&
-                         root.realAppLaunchEnabled &&
-                         root.layerShellLauncherHost !== null
-            root.launcherKeepOpenAfterSelection = keep
             console.log("SmartBar SO: clic en aplicación instalada; autocontraer =",
                         root.autoCollapseLauncher)
+            if (root.autoCollapseLauncher) root.launcherRequestedOpen = false
             root.requestLaunchDesktopEntry(desktopId)
-            if (keep) launcherKeepOpenTimer.restart()
+            if (!root.autoCollapseLauncher && root.realAppLaunchEnabled &&
+                root.layerShellLauncherHost !== null)
+                launcherRecoveryTimer.restart()
         }
+        onRequestDismiss: root.closeInstalledLauncher()
         triggerButtonHovered: root.installedLauncherSource === "so" && soButton.hovered
         onRequestShowMalvina: {
             root.setLauncherIslandVisible(true)
-            installedAppsPopup.close()
+            root.closeInstalledLauncher()
         }
         onAppSelected: function(name, realCatalog) {
+            if (root.autoCollapseLauncher) root.launcherRequestedOpen = false
             // En maqueta hacer visible la selección, sin ejecutar procesos.
             if (!realCatalog && root.demoOpenedApps.indexOf(name) >= 0)
                 root.selectDemoApp(name)
@@ -2313,8 +2316,14 @@ Item {
                         name)
         }
         onClosed: {
-            // No cancelar aquí: el foco robado por la nueva aplicación
-            // también puede provocar esta señal sin cierre voluntario.
+            // El estado deseado se conserva: Qt puede cerrar el popup al
+            // iniciar una aplicación sin que el usuario quiera cerrarlo.
+            console.log("SmartBar launcher: Popup.closed; solicitado =",
+                        root.launcherRequestedOpen,
+                        "autocontraer =", root.autoCollapseLauncher)
+            if (root.launcherRequestedOpen && !root.autoCollapseLauncher &&
+                root.realAppLaunchEnabled && root.layerShellLauncherHost !== null)
+                launcherRecoveryTimer.restart()
             if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
                 malvinaHideTimer.restart()
         }
