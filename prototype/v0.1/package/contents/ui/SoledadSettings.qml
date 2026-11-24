@@ -1364,7 +1364,7 @@ Window {
     readonly property bool outlineUsesGlow: effectStyle === "glow" || effectStyle === "breathe" || effectStyle === "orbitGlow"
     readonly property bool outlineCanMove: outlineIsOrbit || effectStyle === "breathe"
 
-    property bool autoCollapseSO: false
+    property bool autoCollapseSO: true
     property bool soLeftClickOpensLauncher: false
     property int launcherCategoryLayout: 0
     property string launcherSwitchShape: "capsule"
@@ -2677,7 +2677,7 @@ Window {
                     }
                     QQC2.Label {
                         visible: settings.behaviorScope === "soledad"
-                        text: "Desactivado por defecto: SO permanece abierto. Marcá esta opción para contraer después de elegir una ventana."
+                        text: "Activado por defecto. Podés dejar SO abierto desmarcando esta opción."
                         color: "#ddd6e8"
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -2711,7 +2711,7 @@ Window {
                     QQC2.Button {
                         visible: settings.behaviorScope === "soledad"
                         text: "Restablecer autocontracción SO"
-                        onClicked: settings.autoCollapseSO = false
+                        onClicked: settings.autoCollapseSO = true
                     }
                     QQC2.Button {
                         visible: settings.behaviorScope === "shared"
