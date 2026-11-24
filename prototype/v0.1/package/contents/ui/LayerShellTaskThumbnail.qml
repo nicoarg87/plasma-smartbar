@@ -18,6 +18,7 @@ Window {
     // Entrar en la miniatura no activa ni enfoca otra ventana.
     signal cursorEntered()
     signal cursorExited()
+    signal selectWindow(string uuid)
     // Estado del puntero sobre TODA la superficie LayerShell, no solo
     // sobre el contenido capturado por PipeWire.
     property bool cursorInside: false
@@ -83,13 +84,19 @@ Window {
             style: Text.Outline
             styleColor: "#172331"
         }
-        // No intercepta clics: futuros controles de volumen o botones
-        // dentro de la miniatura siguen siendo interactivos.
+        // Clic izquierdo sobre la captura: activar esta ventana por UUID.
+        // Los futuros controles deben ser hijos interactivos por encima de
+        // esta área, para que no se confunda volumen con selección.
         MouseArea {
             id: previewPointer
             anchors.fill: parent
             hoverEnabled: true
-            acceptedButtons: Qt.NoButton
+            acceptedButtons: Qt.LeftButton
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                if (preview.visible && preview.windowUuid.length > 0)
+                    preview.selectWindow(preview.windowUuid)
+            }
             onEntered: {
                 preview.cursorInside = true
                 preview.cursorEntered()
