@@ -52,9 +52,11 @@ assert(!bar.includes("id: gripMalvinaVisibility"),
        "No volver a añadir el control duplicado de Malvina");
 assert(editor.includes("model: editor.realTasksModel"));
 assert(editor.includes("import QtQuick.Layouts"));
-assert(!/QQC2\\.(?:RowLayout|ColumnLayout|GridLayout|StackLayout)\\b/.test(editor),
-       "Los Layouts pertenecen a QtQuick.Layouts, no QtQuick.Controls");
-assert.equal((editor.match(/^\\s*RowLayout\\s*\\{/gm) || []).length, 2,
+assert(!editor.split("\n").some(line =>
+    ["QQC2.RowLayout", "QQC2.ColumnLayout", "QQC2.GridLayout",
+     "QQC2.StackLayout"].some(type => line.includes(type))),
+    "Los Layouts pertenecen a QtQuick.Layouts, no QtQuick.Controls");
+assert.equal(editor.split("\n").filter(line => line.trim() === "RowLayout {").length, 2,
              "Los dos paneles horizontales deben usar RowLayout de QtQuick.Layouts");
 assert(editor.includes("editor.savedIds"));
 assert(editor.includes("positionSlider.value"));
