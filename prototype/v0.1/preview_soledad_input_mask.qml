@@ -603,6 +603,7 @@ Window {
         id: taskThumbnail
         runtimeActive: smartbarContinuousMode
         topOffset: probe.height + 4
+        taskCloseMode: bar.taskCloseMode
         onCursorEntered: thumbnailDismiss.stop()
         onCursorExited: thumbnailDismiss.restart()
         onCloseWindow: function(uuid) {
@@ -677,6 +678,7 @@ Window {
         runtimeActive: smartbarContinuousMode
         taskModel: kdeWindows
         topOffset: probe.height + 4
+        taskCloseMode: bar.taskCloseMode
         onCursorEntered: groupDismiss.stop()
         onCursorExited: groupDismiss.restart()
         onCloseWindow: function(uuid) {
@@ -767,6 +769,20 @@ Window {
             groupPicker.leftOffset = Math.max(0, Math.min(
                 probe.width - groupPicker.width, centerX - groupPicker.width / 2))
             groupPicker.requested = true
+        }
+        onRequestRealTaskClose: function(uuids) {
+            if (!smartbarContinuousMode || bar.realTrackedFullscreen ||
+                !uuids || uuids.length === 0) return
+            // Si la X estaba en una ficha agrupada, el menú explica que
+            // cerrará todas sus ventanas. Cada UUID se valida individualmente
+            // contra el modelo actual antes de solicitar cierre.
+            for (var i = 0; i < uuids.length; ++i)
+                probe.closeRealWindowUuid(String(uuids[i]))
+            thumbnailDismiss.stop()
+            taskThumbnail.requested = false
+            taskThumbnail.windowUuid = ""
+            groupDismiss.stop()
+            groupPicker.closePicker()
         }
         onRequestHideRealTaskGroup: groupDismiss.restart()
         onRequestHideRealTaskPreview: function(uuid) {
