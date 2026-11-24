@@ -29,8 +29,14 @@ assert(island.includes("property int taskTrailingControlWidth: 0"));
 assert(island.includes("+ taskTrailingControlWidth"), "El ancho extra debe sumarse al tamaño natural de ficha");
 assert(island.includes("+ control.taskTrailingControlWidth"), "El texto respeta espacio de la X");
 assert(island.includes("parent.width - control.taskTrailingControlWidth"), "El icono no crece al agregar X");
-assert.equal((bar.match(/color: closeRealTaskChip\.hovered \? "#a12e3b" : "#304756"/g)||[]).length, 2);
-assert.equal((bar.match(/palette\.buttonText: "#ffffff"/g)||[]).length, 2);
+assert.equal((bar.match(/background: Item \{\}/g)||[]).length, 2,
+             "La X debe usar el fondo original de Soledad, sin caja");
+assert.equal((bar.match(/text: closeRealTaskChip\.text/g)||[]).length, 2,
+             "El glifo X debe dibujarse directamente");
+assert.equal((bar.match(/color: closeRealTaskChip\.hovered \? "#ffffff" : "#eaf7ff"/g)||[]).length, 2,
+             "Solo cambia el color del glifo al posar el mouse");
+assert.equal((bar.match(/width: 26\n\s*height: 28\n\s*z: 3\n\s*text: "×"/g)||[]).length, 2,
+             "Conservar superficie clickeable sin aumentar la altura");
 assert.equal((bar.match(/root\.taskCloseMode !== "preview" &&/g)||[]).length, 2);
 assert.equal((bar.match(/root\.requestRealTaskClose\(/g)||[]).length, 2);
 assert(bar.includes("signal requestRealTaskClose(var windowUuids)"));
