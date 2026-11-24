@@ -125,9 +125,13 @@ QQC2.Popup {
     // y el onClicked de SO lo volvía a abrir en el mismo gesto.
     // Fuera del botón se conserva clic exterior y Escape.
     property bool triggerButtonHovered: false
+    // Default: elegir una aplicación no cierra la caja de instaladas.
+    // Escape y el botón SO cierran el launcher de forma explícita.
+    property bool autoCollapseOnSelection: false
     closePolicy: QQC2.Popup.CloseOnEscape |
-        (triggerButtonHovered ? QQC2.Popup.NoAutoClose :
-                                QQC2.Popup.CloseOnPressOutside)
+        (autoCollapseOnSelection && !triggerButtonHovered
+            ? QQC2.Popup.CloseOnPressOutside
+            : QQC2.Popup.NoAutoClose)
     signal requestShowMalvina()
     signal appSelected(string name, bool realCatalog)
     signal launchDesktopEntry(string desktopId)
@@ -138,9 +142,11 @@ QQC2.Popup {
         lastChosenApplication = entry.name
         if (realLaunchEnabled && catalogIsReal && entry.desktopId) {
             launchDesktopEntry(String(entry.desktopId))
+            if (autoCollapseOnSelection) close()
             return
         }
         appSelected(entry.name, catalogIsReal)
+        if (autoCollapseOnSelection) close()
     }
     function categoryOptions() {
         // Todas las categorías visibles en cualquier modo: sin botón "+".
