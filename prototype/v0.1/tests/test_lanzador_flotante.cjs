@@ -44,10 +44,13 @@ assert(launcherBlock.includes("if (root.layerShellLauncherHost) return 0") &&
        "El popup comienza en 0,0 dentro de la nueva superficie");
 assert(launcherBlock.includes("Math.min(root.launcherAvailableHeight, 760)"),
        "El cajón debe poder crecer hasta 760px si hay altura disponible");
-assert(popup.includes("primaryWidth: realLaunchEnabled ? 385 : 285") &&
-       popup.includes("categoryWidth: realLaunchEnabled ? 330 : 280") &&
+assert(popup.includes("primaryWidth: realLaunchEnabled ? sharedColumnWidth : 285") &&
+       popup.includes("categoryWidth: realLaunchEnabled ? sharedColumnWidth : 280") &&
        popup.includes("realLaunchEnabled ? 540 : 170"),
-       "Aumentar ancho y alto mínimo en el launcher real");
+       "Aumentar alto y mantener ambas columnas con la misma proporción");
+assert(popup.includes("Math.ceil(maxInstalledTextWidth() + 62)") &&
+       popup.includes("Math.floor((Math.max(480, availableScreenWidth) - 42) / 2)"),
+       "Adaptar anchura sin cortar bordes ni dejar espacio innecesario");
 assert(bar.includes("calculateInstalledLauncherScreenLeft()") &&
        bar.includes("Math.max(0, screenWidth - popupWidth)"),
        "El ancho completo debe permanecer dentro de pantalla");
