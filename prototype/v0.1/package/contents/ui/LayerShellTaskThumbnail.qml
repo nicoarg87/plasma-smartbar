@@ -10,6 +10,8 @@ import org.kde.pipewire as KPipeWire
 Window {
     id: preview
     property bool runtimeActive: false
+    // Preferencia vigente de Soledad: both, preview, chip.
+    property string taskCloseMode: "both"
     property bool requested: false
     property string windowUuid: ""
     property string appLabel: ""
@@ -110,6 +112,7 @@ Window {
         // Control independiente: no propaga el clic al selector de ventana.
         Rectangle {
             id: closeThumbnailButton
+            visible: preview.taskCloseMode !== "chip"
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.margins: 7
