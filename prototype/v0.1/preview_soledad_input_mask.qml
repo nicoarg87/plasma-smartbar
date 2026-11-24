@@ -267,6 +267,11 @@ Window {
         onCountChanged: probe.scheduleWindowRecheck("cantidad ventanas")
     }
 
+    // La superficie de la isla puede alterar momentáneamente IsActive.
+    // Recordar qué ventana única activó SO evita perder el segundo clic.
+    // Solo se conserva mientras no se observe otra ventana activa.
+    property string lastSoActivatedUuid: ""
+
     // El cajón SO conserva agrupación por aplicación; el segundo modelo
     // sin agrupar es SOLO para observar una ventana real concreta.
     TaskManager.TasksModel {
@@ -305,7 +310,13 @@ Window {
                     stackingOrder: taskStackingOrder }
             }
             onAppIdChanged: probe.scheduleWindowRecheck()
-            onTaskActiveChanged: probe.scheduleWindowRecheck("foco")
+            onTaskActiveChanged: {
+                if (taskActive && windowUuids.length === 1 &&
+                    probe.lastSoActivatedUuid.length > 0 &&
+                    String(windowUuids[0]) !== probe.lastSoActivatedUuid)
+                    probe.lastSoActivatedUuid = ""
+                probe.scheduleWindowRecheck("foco")
+            }
             onTaskMaximizedChanged: probe.scheduleWindowRecheck("maximizada")
             onTaskMinimizedChanged: probe.scheduleWindowRecheck("minimizada")
             onTaskFullScreenChanged: probe.scheduleWindowRecheck("fullscreen")
@@ -751,25 +762,41 @@ Window {
                 // y esa misma ventana sigue activa y no minimizada.
                 // En grupos de varias ventanas NO minimizar al azar.
                 var canMinimize = false
-                if (taskActive && windowUuid.length > 0) {
+                var singleFound = false
+                var isMinimized = false
+                if (windowUuid.length > 0) {
                     for (var i = 0; i < kdeWindowObservers.count; ++i) {
                         var row = kdeWindowObservers.itemAt(i)
                         if (row && row.windowUuids.length === 1 &&
                             String(row.windowUuids[0]) === windowUuid) {
-                            canMinimize = row.taskActive && !row.taskMinimized
+                            singleFound = true
+                            isMinimized = row.taskMinimized
+                            // El segundo clic funciona aunque la propia isla
+                            // haya causado una pérdida transitoria de IsActive.
+                            canMinimize = !isMinimized &&
+                                (row.taskActive || (taskActive &&
+                                 probe.lastSoActivatedUuid === windowUuid) ||
+                                 probe.lastSoActivatedUuid === windowUuid)
                             break
                         }
                     }
                 }
                 if (canMinimize) {
-                    groupedKdeWindows.requestToggleMinimized(target)
-                    console.log("SmartBar SO: minimizar ventana activa", windowUuid)
+                    // Usar la fila individual resuelta por UUID, nunca
+                    // minimizar otra ventana o una agrupación por accidente.
+                    kdeWindows.requestToggleMinimized(kdeWindows.index(i, 0))
+                    probe.lastSoActivatedUuid = ""
+                    console.log("SmartBar SO: minimizar ventana seleccionada", windowUuid)
                 } else {
                     groupedKdeWindows.requestActivate(target)
-                    console.log("SmartBar SO: activar ficha KDE, fila", taskRow)
+                    probe.lastSoActivatedUuid = singleFound ? windowUuid : ""
+                    console.log("SmartBar SO: activar ficha KDE, fila", taskRow,
+                                "uuid", probe.lastSoActivatedUuid,
+                                "minimizada", isMinimized)
                 }
                 bar.realTaskActivationDispatched = true
             } catch (error) {
+                probe.lastSoActivatedUuid = ""
                 console.warn("SmartBar SO: fallo al alternar ficha KDE:", String(error))
             }
         }
