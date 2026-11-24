@@ -552,6 +552,13 @@ Window {
     onWidthChanged: refreshInputRegion()
     onHeightChanged: refreshInputRegion()
 
+    SmartBar.RuntimeAppearanceBridge {
+        id: appearanceBridge
+        target: bar
+        backend: soledadInputMask
+        appearanceActive: smartbarContinuousMode
+    }
+
     SmartBar.SmartBarContent {
         id: bar
         objectName: "smartbarFixedInputRealSoledad"
@@ -573,6 +580,10 @@ Window {
         demoWindowControlsEnabled: true
         realTaskModel: groupedKdeWindows
         realAppLaunchEnabled: smartbarContinuousMode
+        runtimeAppearanceEnabled: smartbarContinuousMode
+        onRequestRuntimeAppearancePatch: function(json) {
+            appearanceBridge.commitPatch(json)
+        }
         onRequestLaunchDesktopEntry: function(desktopId) {
             if (soledadInputMask.launchDesktopEntry(desktopId))
                 console.log("SmartBar SO: aplicación KDE iniciada por ID", desktopId)
