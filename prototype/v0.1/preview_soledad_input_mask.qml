@@ -73,6 +73,8 @@ Window {
     property bool trackedMaximized: false
     property bool trackedFullscreen: false
     property bool trackedKnown: false
+    // Estado REAL del conjunto de ventanas de KWin, no del foco actual.
+    property bool anyVisibleMaximized: false
     // Mantener la posición visible durante cambios de FOCO hacia una
     // ventana restaurada con otra maximizada detrás. No es un perfil.
     property string heldNormalFocusAppId: ""
@@ -317,6 +319,10 @@ Window {
         const anyFullscreen = rows.some(function(row) {
             return row.fullscreen && !row.minimized
         })
+        anyVisibleMaximized = rows.some(function(row) {
+            return row.maximized === true && row.minimized !== true &&
+                   row.fullscreen !== true
+        })
         if (anyFullscreen && !fullscreenObserved) {
             // Capturar posición visual previa, no el estado de maximización
             // de un chat u otra ventana secundaria creada por Big Picture.
@@ -491,10 +497,26 @@ Window {
                         return
                     }
                     if (currentTop.kind === "hold") {
-                        // Apilamiento ausente o ambiguo, o app sin perfil:
-                        // conservar última posición visible, no inventar.
+                        // Con alguna maximizada en pantalla pero sin orden
+                        // inequívoco, conservar posición sin inventar ganador.
                         console.log("SmartBar apilamiento ambiguo:",
                                     "conservando offset=", bar.islandOffset)
+                        return
+                    }
+                    if (currentTop.kind === "none") {
+                        // No hay ninguna ventana maximizada. La preferencia
+                        // de retorno tiene prioridad por encima del anclaje
+                        // general y de TODAS las excepciones guardadas.
+                        if (bar.autoReturnRight && !bar.draggingIslandGrip) {
+                            bar.setIslandOffset(0)
+                            bar.alignRightSelected = true
+                            bar.ensureExpansionFits()
+                            probe.refreshInputRegion()
+                            probe.lastVisibleIslandOffset = 0
+                            probe.lastVisibleIslandKnown = true
+                            probe.heldNormalFocusAppId = ""
+                            console.log("SmartBar escritorio normal: retorno a la derecha")
+                        }
                         return
                     }
                     if (probe.heldNormalFocusAppId.length > 0 &&
@@ -562,6 +584,7 @@ Window {
         realTrackedMaximized: probe.trackedMaximized
         realTrackedFullscreen: probe.trackedFullscreen
         realTrackedKnown: probe.trackedKnown
+        realAnyVisibleMaximized: probe.anyVisibleMaximized
         realPositionProfilesJson: probe.positionProfilesJson
         generalSoledadOffset: probe.generalOffset
         onRequestGeneralSoledadOffsetChange: function(offset) {
@@ -607,7 +630,10 @@ Window {
         }
     }
     Component.onCompleted: {
-        bar.setIslandOffset(generalOffset)
+        // Sin estado KDE confirmado, iniciar en escritorio normal a derecha;
+        // el primer TaskManager estable aplicará la general o específica
+        // únicamente si detecta una ventana maximizada.
+        bar.setIslandOffset(0)
         refreshInputRegion()
         probe.scheduleWindowRecheck("inicio")
         Qt.callLater(function() { probe.logPositionStorage("inicio del ensayo") })
