@@ -31,6 +31,8 @@ QQC2.Button {
     property real taskActiveBorderWidth: 1
     property string taskDisplayMode: "icon" // text, both, icon
     property var taskIconSource: ""
+    // Espacio extra para controles de ficha; no se resta del texto ni del icono.
+    property int taskTrailingControlWidth: 0
     readonly property bool taskUsesIcon: inheritIslandFill && taskDisplayMode !== "text"
     readonly property bool taskUsesText: !inheritIslandFill || taskDisplayMode !== "icon"
     // Medir el texto independientemente del tamaño calculado del Button:
@@ -190,6 +192,7 @@ QQC2.Button {
         (inheritIslandFill
             ? (taskDisplayMode === "icon" ? 38 :
                 Math.max(72, Math.ceil(taskLabelMetrics.advanceWidth) + (taskUsesIcon ? 44 : 18)))
+                + taskTrailingControlWidth
             : (iconSource.toString().length > 0 ? 40 :
                 Math.max(40, label.implicitWidth + 18)))
     // Evitar que el contenido temporal modifique el área útil del botón.
@@ -492,7 +495,8 @@ QQC2.Button {
             anchors.left: parent.left
             anchors.leftMargin: control.taskDisplayMode === "icon" ? 0 : 5
             anchors.verticalCenter: parent.verticalCenter
-            width: control.taskDisplayMode === "icon" ? parent.width : 28
+            width: control.taskDisplayMode === "icon"
+                ? Math.max(28, parent.width - control.taskTrailingControlWidth) : 28
             height: 28
             sourceComponent: Component {
                 TaskAppIcon {
@@ -509,8 +513,9 @@ QQC2.Button {
             anchors.fill: parent
             anchors.leftMargin: control.taskUsesIcon &&
                 control.taskDisplayMode === "both" ? 35 : 0
-            anchors.rightMargin: control.taskUsesIcon &&
-                control.taskDisplayMode === "both" ? 5 : 0
+            anchors.rightMargin: (control.taskUsesIcon &&
+                control.taskDisplayMode === "both" ? 5 : 0)
+                + control.taskTrailingControlWidth
             text: control.text
             opacity: control.previewArtworkBaseOpacity
             // Si la imagen no existe, nunca perder el control SO.
