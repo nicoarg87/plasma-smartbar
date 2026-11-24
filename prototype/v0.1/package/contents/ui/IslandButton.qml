@@ -29,7 +29,7 @@ QQC2.Button {
     property color taskActiveBorderColor: "#4e8499"
     property real taskActiveBorderOpacity: 1
     property real taskActiveBorderWidth: 1
-    property string taskDisplayMode: "icon" // text, both, icon
+    property string taskDisplayMode: "both" // text, both, icon
     property var taskIconSource: ""
     // Espacio extra para controles de ficha; no se resta del texto ni del icono.
     property int taskTrailingControlWidth: 0
