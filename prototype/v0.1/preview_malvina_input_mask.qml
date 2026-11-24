@@ -229,7 +229,9 @@ Window {
             Math.min(760, probe.Screen.height - probe.height - 32))
         runtimeAppearanceEnabled: smartbarContinuousMode
         onRequestRuntimeAppearancePatch: function(json) {
-            appearanceBridge.commitPatch(json)
+            // Qt signals son sincrónicas: confirmar el resultado antes de
+            // que Aplicar avance la línea base de Cancelar.
+            bar.runtimeLastAppearanceCommitOk = appearanceBridge.commitPatch(json)
         }
         onRequestLaunchDesktopEntry: function(desktopId) {
             if (soledadInputMask.launchDesktopEntry(desktopId))
