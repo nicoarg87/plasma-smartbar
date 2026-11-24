@@ -70,6 +70,36 @@ Item {
                             "; ChildCount=" + group.children +
                             "; WinIdList.length=" + group.winIds.length)
             }
+            // Correlación exacta por UUID, sin depender del orden de filas.
+            // Evita activar una ventana equivocada cuando TasksModel reordena.
+            var allSingles = []
+            for (var k = 0; k < individuals.count; ++k) {
+                var one = individuals.itemAt(k)
+                if (one && one.appId === "org.kde.dolphin" && one.winIds.length === 1)
+                    allSingles.push(String(one.winIds[0]))
+            }
+            var missing = 0
+            var extra = 0
+            var duplicate = 0
+            for (var m = 0; m < groups.count; ++m) {
+                var groupedRow = groups.itemAt(m)
+                if (!groupedRow || groupedRow.appId !== "org.kde.dolphin")
+                    continue
+                var observed = []
+                for (var n = 0; n < groupedRow.winIds.length; ++n) {
+                    var uuid = String(groupedRow.winIds[n])
+                    if (observed.indexOf(uuid) !== -1)
+                        duplicate++
+                    observed.push(uuid)
+                    if (allSingles.indexOf(uuid) === -1)
+                        extra++
+                }
+                for (var o = 0; o < allSingles.length; ++o)
+                    if (observed.indexOf(allSingles[o]) === -1)
+                        missing++
+            }
+            console.log("SmartBar grupos: correlación UUID faltantes=" + missing +
+                        ", ajenos=" + extra + ", duplicados=" + duplicate)
             console.log("SmartBar grupos: lectura FINAL fichas=" + groupRows +
                         ", ventanas individuales=" + singles)
             console.log("SmartBar grupos: solo lectura; no cambia KDE ni preferencias")
