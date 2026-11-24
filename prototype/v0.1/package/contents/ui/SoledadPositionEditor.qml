@@ -9,8 +9,8 @@ QQC2.Dialog {
     id: editor
     title: "Posición de Soledad por aplicación"
     popupType: QQC2.Popup.Window
-    width: 460
-    height: 465
+    width: 480
+    height: 560
     padding: 12
     modal: false
     focus: true
