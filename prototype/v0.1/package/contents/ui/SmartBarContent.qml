@@ -663,43 +663,15 @@ Item {
     // Cajón de ventanas abiertas: permanece expandido al seleccionar.
     // Contracción opcional desde la casilla del menú de seis puntos.
     property bool autoCollapseSO: false
-    // Solo el launcher de aplicaciones instaladas permanece abierto
-    // tras elegir un programa. Ajuste independiente de autoCollapseSO.
-    property bool autoCollapseLauncher: false
-    signal requestAutoCollapseLauncherChange(bool newValue)
+    // El launcher de instaladas siempre se cierra al elegir un programa.
+    // Es independiente del cajón SO de ventanas abiertas y de Archivos.
     // Estado deseado, independiente de la visibilidad del Popup.Item.
     // Evita que cerrar accidentalmente el popup oculte también su ventana
     // física LayerShell y haga imposible recuperarlo tras perder foco.
     property bool launcherRequestedOpen: false
-    property int launcherRecoveryAttempts: 0
     function closeInstalledLauncher() {
         launcherRequestedOpen = false
-        launcherRecoveryTimer.stop()
-        launcherRecoveryAttempts = 0
         installedAppsPopup.close()
-    }
-    function ensureLauncherOpen() {
-        if (!launcherRequestedOpen || autoCollapseLauncher ||
-            !realAppLaunchEnabled || !layerShellLauncherHost ||
-            realTrackedFullscreen) return
-        if (!installedAppsPopup.visible) {
-            if (launcherRecoveryAttempts >= 6) {
-                console.warn("SmartBar launcher: recuperación no lograda; verificar eventos QML/Wayland")
-                return
-            }
-            launcherRecoveryAttempts++
-            console.warn("SmartBar launcher: popup cerrado sin solicitud; recuperación",
-                         launcherRecoveryAttempts)
-            installedAppsPopup.open()
-            if (!installedAppsPopup.visible)
-                launcherRecoveryTimer.restart()
-        } else launcherRecoveryAttempts = 0
-    }
-    Timer {
-        id: launcherRecoveryTimer
-        interval: 260
-        repeat: false
-        onTriggered: root.ensureLauncherOpen()
     }
     // Corrección del mantenedor 18/11: izquierdo = cajón (ventanas abiertas),
     // derecho = launcher de aplicaciones. Es reversible en Configuración.
@@ -1688,7 +1660,6 @@ Item {
         }
         installedLauncherSource = requestedSource
         launcherRequestedOpen = true
-        launcherRecoveryAttempts = 0
         // El lanzador es un panel FLOTANTE independiente de las fichas de
         // SO y los iconos de bandeja: abrirlo desde cualquiera de las islas
         // NO debe modificar soExpanded ni trayExpanded.
@@ -2289,17 +2260,14 @@ Item {
         installedApplications: root.localAppCatalog
         catalogIsReal: root.localCatalogReady
         realLaunchEnabled: root.realAppLaunchEnabled
-        autoCollapseOnSelection: root.autoCollapseLauncher
+        autoCollapseOnSelection: true
         layerSurfaceHosted: root.realAppLaunchEnabled &&
                             root.layerShellLauncherHost !== null
         onLaunchDesktopEntry: function(desktopId) {
-            console.log("SmartBar SO: clic en aplicación instalada; autocontraer =",
-                        root.autoCollapseLauncher)
-            if (root.autoCollapseLauncher) root.launcherRequestedOpen = false
+            // Desmontar ambas superficies ANTES de solicitar el inicio KDE.
+            root.closeInstalledLauncher()
+            console.log("SmartBar launcher: aplicación elegida; caja cerrada")
             root.requestLaunchDesktopEntry(desktopId)
-            if (!root.autoCollapseLauncher && root.realAppLaunchEnabled &&
-                root.layerShellLauncherHost !== null)
-                launcherRecoveryTimer.restart()
         }
         onRequestDismiss: root.closeInstalledLauncher()
         triggerButtonHovered: root.installedLauncherSource === "so" && soButton.hovered
@@ -2308,7 +2276,7 @@ Item {
             root.closeInstalledLauncher()
         }
         onAppSelected: function(name, realCatalog) {
-            if (root.autoCollapseLauncher) root.launcherRequestedOpen = false
+            root.closeInstalledLauncher()
             // En maqueta hacer visible la selección, sin ejecutar procesos.
             if (!realCatalog && root.demoOpenedApps.indexOf(name) >= 0)
                 root.selectDemoApp(name)
@@ -2317,14 +2285,6 @@ Item {
                         name)
         }
         onClosed: {
-            // El estado deseado se conserva: Qt puede cerrar el popup al
-            // iniciar una aplicación sin que el usuario quiera cerrarlo.
-            console.log("SmartBar launcher: Popup.closed; solicitado =",
-                        root.launcherRequestedOpen,
-                        "autocontraer =", root.autoCollapseLauncher)
-            if (root.launcherRequestedOpen && !root.autoCollapseLauncher &&
-                root.realAppLaunchEnabled && root.layerShellLauncherHost !== null)
-                launcherRecoveryTimer.restart()
             if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
                 malvinaHideTimer.restart()
         }
@@ -3575,13 +3535,6 @@ Item {
                             checked: root.autoCollapseSO
                             onTriggered: root.requestAutoCollapseSOChange(
                                 !root.autoCollapseSO)
-                        }
-                        QQC2.MenuItem {
-                            text: "Autocontraer launcher al elegir aplicación"
-                            checkable: true
-                            checked: root.autoCollapseLauncher
-                            onTriggered: root.requestAutoCollapseLauncherChange(
-                                !root.autoCollapseLauncher)
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
