@@ -660,9 +660,9 @@ Item {
     // Cada Popup gestiona sus clics exteriores mediante closePolicy de Qt.
     // No cerrar globalmente desde Overlay.onPressed: ese evento también
     // llegaba al pulsar controles DENTRO del launcher en CachyOS.
-    // Preferencias independientes: no contraer por abrir la otra sección
-    // cuando ambas caben. SO se cierra tras seleccionar, por defecto.
-    property bool autoCollapseSO: true
+    // Mantener el cajón SO abierto al seleccionar por defecto.
+    // El menú del agarre permite activar la contracción de forma optativa.
+    property bool autoCollapseSO: false
     // Corrección del mantenedor 18/11: izquierdo = cajón (ventanas abiertas),
     // derecho = launcher de aplicaciones. Es reversible en Configuración.
     property bool soLeftClickOpensLauncher: true
@@ -3503,6 +3503,13 @@ Item {
                             text: "siguiente tema y wallpaper"
                             enabled: root.themeWallpaperPreviewAvailable
                             onTriggered: root.triggerThemeWallpaperPreview()
+                        }
+                        QQC2.MenuItem {
+                            text: "Autocontraer SO después de seleccionar"
+                            checkable: true
+                            checked: root.autoCollapseSO
+                            onTriggered: root.requestAutoCollapseSOChange(
+                                !root.autoCollapseSO)
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
