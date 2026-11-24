@@ -182,7 +182,11 @@ assert(source.includes("signal requestHideRealTaskPreview(string windowUuid)"));
 assert(source.includes("taskWindowIds.length === 1 ? String(taskWindowIds[0]) : \"\""),
        "Un grupo de ventanas NO permite escoger UUID arbitrario");
 assert(source.includes("interval: 420"), "El screencast no comienza sin demora hover");
-assert(source.includes("!root.realTrackedFullscreen"));
+assert(source.includes("root.realTrackedFullscreen ||"),
+       "El hover de miniaturas debe bloquearse en fullscreen");
+assert(soProbe.includes("if (bar.realTrackedFullscreen) {") &&
+       soProbe.includes("groupPicker.closePicker()"),
+       "El selector agrupado debe cerrarse al detectar fullscreen");
 assert(soProbe.includes("SmartBar.LayerShellTaskThumbnail"));
 assert(soProbe.includes("onRequestRealTaskPreview:"));
 assert(soProbe.includes("onRequestHideRealTaskPreview:"));
