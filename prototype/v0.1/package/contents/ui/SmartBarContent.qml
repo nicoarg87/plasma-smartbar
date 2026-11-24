@@ -1891,10 +1891,24 @@ Item {
         onSettingsApplied: {
             root.requestPersistCurrentSettings()
             if (root.runtimeAppearanceEnabled) {
-                // Solo cambios elegidos; evitar pisar el tema de la otra isla.
+                // Registrar el intento incluso si un cambio no llega al disco.
+                // No imprimir el perfil privado, URL, logos ni colores.
                 const diff = RuntimeAppearance.captureChanges(soledadSettings)
                 const unmanaged = RuntimeAppearance.unmappedChanges(soledadSettings)
                 const count = Object.keys(diff).length
+                console.log("SmartBar Aplicar: intento de persistencia",
+                            "baseline=" + soledadSettings.baselineLoaded,
+                            "claves=" + count,
+                            "sinIntegrar=" + unmanaged.length,
+                            "opacidadSO=" + soledadSettings.soledadOpacity,
+                            "opacidadMalvina=" + soledadSettings.malvinaOpacity)
+                if (!soledadSettings.baselineLoaded) {
+                    soledadSettings.runtimeApplyFailed = true
+                    soledadSettings.runtimeApplyNote =
+                        "No se pudo verificar el estado previo; abrí otra vez Configuración."
+                    console.warn("SmartBar Aplicar: sin línea base, no confirmar guardado")
+                    return
+                }
                 soledadSettings.runtimeApplyFailed = false
                 soledadSettings.runtimeApplyNote = ""
                 if (count > 0) {
@@ -1913,6 +1927,8 @@ Item {
                         console.warn("SmartBar Aplicar: guardado local NO confirmado")
                     }
                 }
+                if (count === 0 && unmanaged.length === 0)
+                    console.log("SmartBar Aplicar: no hay cambios respecto del último Aplicar")
                 if (unmanaged.length > 0) {
                     const message = "Sin integración en este ensayo: " +
                                     unmanaged.join(", ")
