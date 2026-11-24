@@ -15,6 +15,9 @@ Window {
     property string appLabel: ""
     property real leftOffset: 0
     property real topOffset: 52
+    // Entrar en la miniatura no activa ni enfoca otra ventana.
+    signal cursorEntered()
+    signal cursorExited()
 
     visible: runtimeActive && requested && windowUuid.length > 0
     // Reducción visual del 25 % aprobada: 328×222 → 246×166.
@@ -76,6 +79,12 @@ Window {
             color: "white"
             style: Text.Outline
             styleColor: "#172331"
+        }
+        HoverHandler {
+            onHoveredChanged: {
+                if (hovered) preview.cursorEntered()
+                else preview.cursorExited()
+            }
         }
     }
     onVisibleChanged: {
