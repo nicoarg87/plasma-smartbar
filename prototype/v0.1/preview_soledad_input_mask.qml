@@ -643,7 +643,11 @@ Window {
                 thumbnailDismiss.stop()
                 taskThumbnail.requested = false
                 taskThumbnail.windowUuid = ""
-                if (bar.autoCollapseSO) bar.soExpanded = false
+                console.log("SmartBar SO miniatura individual: autocontraer =", bar.autoCollapseSO)
+                if (bar.autoCollapseSO) {
+                    console.log("SmartBar SO cierre: selección miniatura individual")
+                    bar.soExpanded = false
+                }
             } catch (error) {
                 console.warn("SmartBar SO: fallo al activar miniatura individual:", String(error))
             }
@@ -709,7 +713,11 @@ Window {
                 kdeWindows.requestActivate(kdeWindows.index(found, 0))
                 console.log("SmartBar SO: activación individual desde grupo", found)
                 groupPicker.closePicker()
-                if (bar.autoCollapseSO) bar.soExpanded = false
+                console.log("SmartBar SO miniatura grupo: autocontraer =", bar.autoCollapseSO)
+                if (bar.autoCollapseSO) {
+                    console.log("SmartBar SO cierre: selección miniatura grupo")
+                    bar.soExpanded = false
+                }
             } catch (error) {
                 console.warn("SmartBar SO: fallo al activar ventana de grupo:", String(error))
                 groupPicker.closePicker()
@@ -877,7 +885,9 @@ Window {
                 console.warn("SmartBar cajón SO: no se guardó autocontracción")
                 return
             }
-            console.log("SmartBar cajón SO: autocontracción =", bar.autoCollapseSO)
+            console.log("SmartBar cajón SO: autocontracción =", bar.autoCollapseSO,
+                        "solicitada =", newValue,
+                        "coincide =", bar.autoCollapseSO === newValue)
         }
         onRequestRuntimeAppearancePatch: function(json) {
             // Qt signals son sincrónicas: confirmar el resultado antes de
