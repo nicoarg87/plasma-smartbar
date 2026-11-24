@@ -15,7 +15,7 @@ const script = source("probar_islas_juntas.sh");
 const catalog = source("catalogo_aplicaciones.py");
 
 for (const token of [
-    "popupType: realLaunchEnabled ? QQC2.Popup.Window : QQC2.Popup.Item",
+    "popupType: layerSurfaceHosted ? QQC2.Popup.Item :",
     "signal launchDesktopEntry(string desktopId)",
     "launcher.selectApplication(modelData)",
     "realLaunchEnabled && launcher.catalogIsReal",
@@ -27,21 +27,50 @@ assert(bar.includes("property bool realAppLaunchEnabled: false"),
        "No cambiar comportamiento del visor habitual");
 assert(bar.includes("signal requestLaunchDesktopEntry(string desktopId)"));
 assert(bar.includes("realLaunchEnabled: root.realAppLaunchEnabled"));
-// Regresión visual informada por el mantenedor: con Popup.Window
-// anclado al root de LayerShell, KWin lo colocaba en y=0 sobre Soledad.
-// El mismo mecanismo del gripMenu (botón como parent) debe usarse aquí.
-const launcherBlock = bar.slice(bar.indexOf("    SoLauncherPopup {"),
-    bar.indexOf("\n    Item {", bar.indexOf("    SoLauncherPopup {")));
-assert(launcherBlock.includes("parent: root.realAppLaunchEnabled") &&
-       launcherBlock.includes("? soButton : launcherIsland)") &&
-       launcherBlock.includes(": root"),
-       "El Popup.Window experimental debe anclarse al botón y preservar el visor");
-assert(launcherBlock.includes("return left - anchor.mapToItem(root, 0, 0).x"),
-       "Convertir el origen del Popup.Window a coordenadas del botón");
-assert(launcherBlock.includes("? soButton.height + 8 : launcherIsland.height + 8"),
-       "En Wayland el Popup debe abrirse DEBAJO del botón, no desde y=0");
-assert(launcherBlock.includes("Math.max(0, root.width - width)"),
-       "La ventana emergente debe mantenerse dentro del ancho de pantalla");
+// Regresión real repetida en KWin/Wayland: ni Popup.Window ni un
+// desplazamiento relativo al botón evitaron la superposición con SO.
+// En el ensayo conjunto, crear un Window LayerShell ACOTADO bajo SO y
+// alojar un Popup.Item dentro de esa nueva superficie.
+const launcherBlock=bar.slice(bar.indexOf("    SoLauncherPopup {"),
+    bar.indexOf("\n    Item {",bar.indexOf("    SoLauncherPopup {")));
+const host=source("package/contents/ui/LayerShellLauncherWindow.qml");
+assert(popup.includes("layerSurfaceHosted ? QQC2.Popup.Item :"),
+       "En ventana LayerShell el launcher debe ser Item, no otro Window");
+assert(launcherBlock.includes("root.layerShellLauncherHost.contentItem") &&
+       launcherBlock.includes("layerSurfaceHosted: root.realAppLaunchEnabled"),
+       "El popup debe habitar el Window LayerShell creado para él");
+assert(launcherBlock.includes("if (root.layerShellLauncherHost) return 0") &&
+       launcherBlock.includes("root.layerShellLauncherHost ? 0 :"),
+       "El popup comienza en 0,0 dentro de la nueva superficie");
+assert(launcherBlock.includes("Math.min(root.launcherAvailableHeight, 760)"),
+       "El cajón debe poder crecer hasta 760px si hay altura disponible");
+assert(popup.includes("primaryWidth: realLaunchEnabled ? 385 : 285") &&
+       popup.includes("categoryWidth: realLaunchEnabled ? 330 : 280") &&
+       popup.includes("realLaunchEnabled ? 540 : 170"),
+       "Aumentar ancho y alto mínimo en el launcher real");
+assert(bar.includes("calculateInstalledLauncherScreenLeft()") &&
+       bar.includes("Math.max(0, screenWidth - popupWidth)"),
+       "El ancho completo debe permanecer dentro de pantalla");
+for(const expected of [
+    "LayerShell.Window.AnchorTop", "LayerShell.Window.AnchorLeft",
+    "LayerShell.Window.layer: LayerShell.Window.LayerTop",
+    "LayerShell.Window.exclusionZone: -1",
+    "LayerShell.Window.KeyboardInteractivityOnDemand",
+    "top: Math.max(48, Math.round(topOffset))",
+    "ownerBar.installedLauncherScreenLeft",
+    "ownerBar.installedLauncherPopupWidth",
+    "ownerBar.installedLauncherPopupHeight",
+    "transientParent: null",
+    "ownerBar.installedLauncherPopupVisible"
+]) assert(host.includes(expected),"Falta superficie flotante segura: "+expected);
+for(const probe of [so,mal]) {
+    assert(probe.includes("SmartBar.LayerShellLauncherWindow {"),
+           "Los dos procesos deben usar alojamiento LayerShell para launcher");
+    assert(probe.includes("layerShellLauncherHost: smartbarContinuousMode ? launcherHost : null"),
+           "El alojamiento no debe estar activo en el visor de 90/180s");
+    assert(probe.includes("Math.min(760, probe.Screen.height - probe.height - 32)"),
+           "Acotar altura al escritorio del usuario");
+}
 assert(bar.includes("parent: moveGrip") &&
        bar.includes("popupType: QQC2.Popup.Window"),
        "No alterar el menú de los seis puntos que ya se ve bien");
