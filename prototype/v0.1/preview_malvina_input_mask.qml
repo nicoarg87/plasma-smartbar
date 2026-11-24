@@ -47,6 +47,30 @@ Window {
             : "chatgpt,claude,gemini"
         return validOrder(value, ["chatgpt","claude","gemini"]) ? value : "chatgpt,claude,gemini"
     }
+    // Visibilidad y habilitación Web: preferencias independientes del orden.
+    // Nunca reutilizar el estado de consentimientos IA ni el navegador KDE.
+    QtCore.Settings {
+        id: malvinaWebSettings
+        category: "plasma-smartbar-v01-malvina-layer-probe-web"
+    }
+    function storedWebEnabled(key) {
+        return smartbarContinuousMode
+            ? String(malvinaWebSettings.value(key, true)).toLowerCase() === "true"
+            : true
+    }
+    function sanitizeHidden(raw, allowed) {
+        const ids = String(raw || "").split(",").filter(x => allowed.indexOf(x) >= 0)
+        return allowed.filter(x => ids.indexOf(x) >= 0).join(",")
+    }
+    property bool testGoogleEnabled: storedWebEnabled("googleEnabledV1")
+    property bool testDuckEnabled: storedWebEnabled("duckEnabledV1")
+    property bool testYahooEnabled: storedWebEnabled("yahooEnabledV1")
+    property string testHiddenWeb: smartbarContinuousMode
+        ? sanitizeHidden(malvinaWebSettings.value("hiddenWebV1", ""), ["google","duck","yahoo"])
+        : ""
+    property string testHiddenAi: smartbarContinuousMode
+        ? sanitizeHidden(malvinaWebSettings.value("hiddenAiV1", ""), ["chatgpt","claude","gemini"])
+        : ""
     // Solo estos tres permisos se conservan entre ejecuciones después de
     // pulsar Aplicar. No compartir categoría con el visor, panel ni temas.
     // La primera ejecución sigue desactivada; revocar + Aplicar guarda false.
@@ -270,6 +294,40 @@ Window {
         malvinaWebFirst: probe.testWebFirst
         malvinaWebOrder: probe.testWebOrder
         malvinaAiOrder: probe.testAiOrder
+        malvinaWebGoogleEnabled: probe.testGoogleEnabled
+        malvinaWebDuckEnabled: probe.testDuckEnabled
+        malvinaWebYahooEnabled: probe.testYahooEnabled
+        malvinaHiddenWeb: probe.testHiddenWeb
+        malvinaHiddenAi: probe.testHiddenAi
+        onRequestMalvinaWebEnabledChange: function(google, duck, yahoo) {
+            probe.testGoogleEnabled = google
+            probe.testDuckEnabled = duck
+            probe.testYahooEnabled = yahoo
+            if (smartbarContinuousMode) {
+                malvinaWebSettings.setValue("googleEnabledV1", google)
+                malvinaWebSettings.setValue("duckEnabledV1", duck)
+                malvinaWebSettings.setValue("yahooEnabledV1", yahoo)
+                malvinaWebSettings.sync()
+                console.log("SmartBar MALVINA Web habilitación guardada:",
+                            "Google=", google, "DuckDuckGo=", duck, "Yahoo=", yahoo)
+            }
+        }
+        onRequestMalvinaExtrasChange: function(webJson, aiJson, hiddenWeb, hiddenAi, compactAi) {
+            // En este ensayo únicamente se integran los controles de
+            // visibilidad canónicos. No sobrescribir opciones personalizadas
+            // ni afirmar que están persistidas.
+            const nextWeb = probe.sanitizeHidden(hiddenWeb, ["google","duck","yahoo"])
+            const nextAi = probe.sanitizeHidden(hiddenAi, ["chatgpt","claude","gemini"])
+            probe.testHiddenWeb = nextWeb
+            probe.testHiddenAi = nextAi
+            if (smartbarContinuousMode) {
+                malvinaWebSettings.setValue("hiddenWebV1", nextWeb)
+                malvinaWebSettings.setValue("hiddenAiV1", nextAi)
+                malvinaWebSettings.sync()
+                console.log("SmartBar MALVINA visibilidad guardada:",
+                            "Web ocultos=", nextWeb, "IA ocultos=", nextAi)
+            }
+        }
         malvinaBrowserId: probe.testBrowserId
         malvinaBrowserChoices: soledadInputMask.availableBrowsers()
         malvinaBrowserBackend: soledadInputMask
