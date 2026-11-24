@@ -2030,30 +2030,53 @@ Item {
     // Lanzador aislado debajo de la barra: no modifica grosor ni ventanas externas.
     SoLauncherPopup {
         id: installedAppsPopup
-        parent: root
+        // En el ensayo real Wayland, Popup.Window debe tener como parent
+        // el BOTÓN que lo abrió, igual que gripMenu (que KWin sí ubica
+        // debajo de los seis puntos). Con parent:root, la superficie de
+        // LayerShell de 44 px hacía que el popup apareciera desde y=0,
+        // cubriendo SO aunque y fuese root.fixedHeight+8.
+        // El visor/maqueta mantienen su anclaje original, sin cambios.
+        parent: root.realAppLaunchEnabled
+            ? ((root.installedLauncherSource === "so" || !root.launcherIslandVisible)
+               ? soButton : launcherIsland)
+            : root
         x: {
-            // Desde Soledad, pegar el borde derecho del launcher al borde
-            // derecho de la isla, sin salirse del visor ni mover la barra.
-            // Los paneles secundarios de A/B quedan dentro del mismo ancho.
-            if (root.installedLauncherSource === "so" || !root.launcherIslandVisible)
-                return Math.max(0, Math.min(Math.max(0, root.width - width),
+            const fromSo = root.installedLauncherSource === "so" ||
+                           !root.launcherIslandVisible
+            // Primero resolver el borde deseado en coordenadas del root,
+            // limitando TODO el popup (categorías incluidas) a la pantalla.
+            // Después convertir a coordenadas LOCALES del botón ancla.
+            let left
+            if (fromSo) {
+                left = Math.max(0, Math.min(Math.max(0, root.width - width),
                     systemIsland.x + systemIsland.width - width))
-            const center = launcherIsland.x + launcherIsland.width / 2
-            if (categoryLayout === 1 && (showCategoryPanel || (filesMode && expandedCanvas))) {
-                // B: conservar el borde derecho del cuadro principal en
-                // su sitio; el segundo cuadro ocupa espacio a la izquierda.
-                const baseX = Math.max(0, Math.min(
-                    Math.max(0, root.width - primaryWidth), center - primaryWidth / 2))
-                return Math.max(0, Math.min(Math.max(0, root.width - width),
-                    baseX - (width - primaryWidth)))
+            } else {
+                const center = launcherIsland.mapToItem(root,
+                    launcherIsland.width / 2, 0).x
+                if (categoryLayout === 1 &&
+                    (showCategoryPanel || (filesMode && expandedCanvas))) {
+                    // Configuración B: expansión de categoría hacia la izquierda.
+                    const baseX = Math.max(0, Math.min(
+                        Math.max(0, root.width - primaryWidth),
+                        center - primaryWidth / 2))
+                    left = Math.max(0, Math.min(Math.max(0, root.width - width),
+                        baseX - (width - primaryWidth)))
+                } else {
+                    left = Math.max(0, Math.min(Math.max(0, root.width - width),
+                        center - width / 2))
+                }
             }
-            // A: mismo cálculo centrado del lanzador original (aprobado).
-            return Math.max(0, Math.min(Math.max(0, root.width - width),
-                center - width / 2))
+            if (!root.realAppLaunchEnabled) return left
+            const anchor = fromSo ? soButton : launcherIsland
+            return left - anchor.mapToItem(root, 0, 0).x
         }
-        // Anclaje propio del Popup.Window: la ventana aparece inmediatamente
-        // debajo de SO, no reubicada desde el origen del Window LayerShell.
-        y: root.fixedHeight + 8
+        // Y relativo al botón ancla; no usar la altura del Window
+        // LayerShell: no es el mismo sistema de coordenadas que Popup.Window.
+        // En modo visor tradicional se preserva el posicionamiento anterior.
+        y: root.realAppLaunchEnabled
+            ? ((root.installedLauncherSource === "so" || !root.launcherIslandVisible)
+               ? soButton.height + 8 : launcherIsland.height + 8)
+            : root.fixedHeight + 8
         popupHeightLimit: root.realAppLaunchEnabled
             ? Math.max(270, Math.min(root.launcherAvailableHeight, 425))
             : root.launcherAvailableHeight
