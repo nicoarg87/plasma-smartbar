@@ -774,8 +774,7 @@ Window {
                             // El segundo clic funciona aunque la propia isla
                             // haya causado una pérdida transitoria de IsActive.
                             canMinimize = !isMinimized &&
-                                (row.taskActive || (taskActive &&
-                                 probe.lastSoActivatedUuid === windowUuid) ||
+                                (row.taskActive ||
                                  probe.lastSoActivatedUuid === windowUuid)
                             break
                         }
