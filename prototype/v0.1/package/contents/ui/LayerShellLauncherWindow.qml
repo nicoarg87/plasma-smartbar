@@ -12,8 +12,12 @@ Window {
     property bool runtimeActive: false
     property real topOffset: 52
 
+    // Mantener mapeada la superficie física mientras se solicita el
+    // launcher. Un cierre involuntario de Popup.Item no debe ocultar
+    // el Window LayerShell que lo contiene.
     visible: runtimeActive && ownerBar !== null &&
-             ownerBar.installedLauncherPopupVisible
+             ownerBar.installedLauncherPopupVisible &&
+             !ownerBar.realTrackedFullscreen
     width: Math.max(1, ownerBar ? Math.ceil(ownerBar.installedLauncherPopupWidth) : 1)
     height: Math.max(1, ownerBar ? Math.ceil(ownerBar.installedLauncherPopupHeight) : 1)
     color: "transparent"
