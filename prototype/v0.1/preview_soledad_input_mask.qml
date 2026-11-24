@@ -580,12 +580,22 @@ Window {
         }
     }
 
+    // Gracia para cruzar la separación física entre SO y el panel flotante.
+    Timer {
+        id: groupDismiss
+        interval: 650
+        repeat: false
+        onTriggered: groupPicker.closePicker()
+    }
+
     // Selector interactivo solo para grupos; usa tareas individuales de KDE.
     SmartBar.LayerShellTaskGroupPicker {
         id: groupPicker
         runtimeActive: smartbarContinuousMode
         taskModel: kdeWindows
-        topOffset: probe.height + 8
+        topOffset: probe.height + 4
+        onCursorEntered: groupDismiss.stop()
+        onCursorExited: groupDismiss.restart()
         onSelectWindow: function(uuid) {
             // Correlación por UUID REAL en el momento de seleccionar.
             var found = -1
@@ -652,23 +662,22 @@ Window {
             taskThumbnail.windowUuid = uuid
             taskThumbnail.requested = true
         }
-        onRequestRealTaskGroup: function(uuids, label, left) {
+        onRequestRealTaskGroup: function(uuids, label, centerX) {
             if (!smartbarContinuousMode || bar.realTrackedFullscreen ||
-                !bar.soExpanded || !uuids || uuids.length <= 1) return
+                !bar.soExpanded || !uuids || uuids.length <= 1 ||
+                bar.installedLauncherPopupVisible) return
             thumbnailDismiss.stop()
+            groupDismiss.stop()
             taskThumbnail.requested = false
             taskThumbnail.windowUuid = ""
-            if (groupPicker.requested && groupPicker.appLabel === label &&
-                groupPicker.groupUuids.join("|") === uuids.join("|")) {
-                groupPicker.closePicker()
-                return
-            }
-            groupPicker.closePicker()
+            // Reposicionar incluso si la lista no cambió.
             groupPicker.appLabel = label
-            groupPicker.leftOffset = left
             groupPicker.groupUuids = uuids
+            groupPicker.leftOffset = Math.max(0, Math.min(
+                probe.width - groupPicker.width, centerX - groupPicker.width / 2))
             groupPicker.requested = true
         }
+        onRequestHideRealTaskGroup: groupDismiss.restart()
         onRequestHideRealTaskPreview: function(uuid) {
             if (uuid === taskThumbnail.windowUuid)
                 thumbnailDismiss.restart()
@@ -680,6 +689,7 @@ Window {
                 thumbnailDismiss.stop()
                 taskThumbnail.requested = false
                 taskThumbnail.windowUuid = ""
+                groupDismiss.stop()
                 groupPicker.closePicker()
             }
         }
@@ -688,6 +698,7 @@ Window {
                 thumbnailDismiss.stop()
                 taskThumbnail.requested = false
                 taskThumbnail.windowUuid = ""
+                groupDismiss.stop()
                 groupPicker.closePicker()
             }
         }
