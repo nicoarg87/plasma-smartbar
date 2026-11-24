@@ -45,6 +45,9 @@ Window {
     property var lastAppliedSettings: ({})
     property var pendingThemeChanges: ({})
     property bool baselineLoaded: false
+    // Solo el ensayo conjunto informa estado verificable de Aplicar.
+    property bool runtimeApplyFailed: false
+    property string runtimeApplyNote: ""
     property string pendingAlignAction: ""
     function preferenceCopy(key, value) {
         if (value === undefined || value === null) return value
@@ -1602,7 +1605,17 @@ Window {
         }
         if (pendingAlignAction === "center") alignCenterNowRequested()
         else if (pendingAlignAction === "right") alignNowRequested()
+        runtimeApplyFailed = false
+        runtimeApplyNote = ""
         settingsApplied()
+        if (runtimeApplyFailed) {
+            // No avanzar el checkpoint ante fallo de disco: el usuario
+            // puede volver a pulsar Aplicar sin perder su edición.
+            appliedLabel.text = runtimeApplyNote
+            console.warn("SmartBar Configuración: Aplicar sin guardar; " +
+                         "punto de recuperación conservado")
+            return
+        }
         const before = lastAppliedSettings
         captureSettingsBaseline()
         // Si URL o nombres no eran válidos, los valores previos siguen
@@ -1622,9 +1635,11 @@ Window {
             }
             lastAppliedSettings = committed
         }
-        appliedLabel.text = validProviderUrls && validProviderNames
-            ? "Cambios aplicados y guardados. Podés seguir configurando."
-            : "Apariencia y opciones aplicadas y guardadas. Corregí las URL o nombres de proveedores para guardarlos."
+        appliedLabel.text = (validProviderUrls && validProviderNames
+            ? "Cambios compatibles aplicados y guardados."
+            : "Apariencia compatible aplicada. Corregí las URL o nombres de proveedores.") +
+            (runtimeApplyNote.length ? " " + runtimeApplyNote :
+             " Podés seguir configurando.")
         // Aplicar deja la ventana abierta; Cancelar/X descarta lo no aplicado.
     }
 
