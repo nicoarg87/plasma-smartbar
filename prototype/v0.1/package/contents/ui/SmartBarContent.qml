@@ -2973,11 +2973,11 @@ Item {
                                     !root.realTrackedFullscreen &&
                                     !root.installedLauncherPopupVisible) {
                                     const local = realTaskChip.mapToItem(root, 0, 0).x
-                                    const maxLeft = Math.max(0, root.width - 328)
+                                    const maxLeft = Math.max(0, root.width - 246)
                                     root.requestRealTaskPreview(realTaskChip.previewUuid,
                                         realTaskChip.appName,
                                         Math.max(0, Math.min(maxLeft,
-                                            local + realTaskChip.width / 2 - 164)))
+                                            local + realTaskChip.width / 2 - 123)))
                                 }
                             }
                         }
@@ -3627,11 +3627,11 @@ Item {
                                     !root.realTrackedFullscreen &&
                                     !root.installedLauncherPopupVisible) {
                                     const local = realTaskChip.mapToItem(root, 0, 0).x
-                                    const maxLeft = Math.max(0, root.width - 328)
+                                    const maxLeft = Math.max(0, root.width - 246)
                                     root.requestRealTaskPreview(realTaskChip.previewUuid,
                                         realTaskChip.appName,
                                         Math.max(0, Math.min(maxLeft,
-                                            local + realTaskChip.width / 2 - 164)))
+                                            local + realTaskChip.width / 2 - 123)))
                                 }
                             }
                         }
