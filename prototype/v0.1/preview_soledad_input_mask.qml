@@ -564,6 +564,29 @@ Window {
     onWidthChanged: refreshInputRegion()
     onHeightChanged: refreshInputRegion()
 
+    // Cierre normal solicitado a KDE, sin matar procesos ni demorar la acción.
+    // El UUID se busca al momento del clic, para evitar índices obsoletos.
+    function closeRealWindowUuid(uuid) {
+        if (!smartbarContinuousMode || bar.realTrackedFullscreen ||
+            !uuid || String(uuid).length === 0) return false
+        for (var i = 0; i < kdeWindowObservers.count; ++i) {
+            var row = kdeWindowObservers.itemAt(i)
+            if (row && row.windowUuids.length === 1 &&
+                String(row.windowUuids[0]) === String(uuid)) {
+                try {
+                    kdeWindows.requestClose(kdeWindows.index(i, 0))
+                    console.log("SmartBar SO: solicitud de cierre KDE", String(uuid))
+                    return true
+                } catch (error) {
+                    console.warn("SmartBar SO: error al solicitar cierre:", String(error))
+                    return false
+                }
+            }
+        }
+        console.warn("SmartBar SO: ventana no disponible para cerrar", String(uuid))
+        return false
+    }
+
     // Launcher separado de la ventana de 44 px: KWin recibe una superficie
     // LayerShell acotada con margen físico bajo la isla, no un xdg_popup
     // cuya posición puede terminar en y=0.
@@ -582,6 +605,15 @@ Window {
         topOffset: probe.height + 4
         onCursorEntered: thumbnailDismiss.stop()
         onCursorExited: thumbnailDismiss.restart()
+        onCloseWindow: function(uuid) {
+            if (uuid !== taskThumbnail.windowUuid || !taskThumbnail.requested)
+                return
+            if (probe.closeRealWindowUuid(uuid)) {
+                thumbnailDismiss.stop()
+                taskThumbnail.requested = false
+                taskThumbnail.windowUuid = ""
+            }
+        }
         onSelectWindow: function(uuid) {
             // Resolver la fila actual por UUID. Nunca activar la fila 0
             // arbitrariamente si la ventana desapareció o cambió de lugar.
@@ -647,6 +679,14 @@ Window {
         topOffset: probe.height + 4
         onCursorEntered: groupDismiss.stop()
         onCursorExited: groupDismiss.restart()
+        onCloseWindow: function(uuid) {
+            if (!groupPicker.requested ||
+                groupPicker.groupUuids.indexOf(uuid) < 0) return
+            if (probe.closeRealWindowUuid(uuid)) {
+                groupDismiss.stop()
+                groupPicker.closePicker()
+            }
+        }
         onSelectWindow: function(uuid) {
             // Correlación por UUID REAL en el momento de seleccionar.
             var found = -1
