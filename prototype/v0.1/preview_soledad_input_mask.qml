@@ -869,6 +869,16 @@ Window {
         launcherAvailableHeight: Math.max(260,
             Math.min(760, probe.Screen.height - probe.height - 32))
         runtimeAppearanceEnabled: smartbarContinuousMode
+        onRequestAutoCollapseSOChange: function(newValue) {
+            // Lista de ventanas abiertas, NO launcher de instaladas.
+            // Respetar el valor guardado en appearance-runtime.json.
+            const patch = JSON.stringify({demoAutoCollapseSO: newValue})
+            if (!appearanceBridge.commitPatch(patch)) {
+                console.warn("SmartBar cajón SO: no se guardó autocontracción")
+                return
+            }
+            console.log("SmartBar cajón SO: autocontracción =", bar.autoCollapseSO)
+        }
         onRequestAutoCollapseLauncherChange: function(newValue) {
             // Preferencia exclusiva del launcher; no modifica SO ni bandeja.
             const patch = JSON.stringify({demoAutoCollapseLauncher: newValue})
