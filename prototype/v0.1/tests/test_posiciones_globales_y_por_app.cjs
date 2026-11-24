@@ -65,5 +65,44 @@ assert(editor.includes("previewRequested(previousOffset)"),
 assert(preview.includes('profileSettings.value("generalSoledadOffsetV1", "")'));
 assert(preview.includes('profileSettings.setValue("generalSoledadOffsetV1", probe.generalOffset)'));
 assert(preview.includes("probe.allPositionProfiles(currentRows)"));
-assert(preview.includes("bar.setIslandOffset(generalOffset)"));
-console.log("OK: referencia Brave, anclaje general, excepciones por app y editor");
+assert(preview.includes("bar.setIslandOffset(0)"),
+       "Al iniciar sin ventanas maximizadas confirmadas, Soledad debe estar a derecha");
+assert(preview.includes('if (currentTop.kind === "none")'),
+       "KWin sin maximizadas requiere una rama de retorno explícita");
+assert(preview.includes("if (bar.autoReturnRight && !bar.draggingIslandGrip)"),
+       "El retorno no debe imponerse con opción apagada ni durante arrastre");
+assert(preview.includes("bar.setIslandOffset(0)\n                            bar.alignRightSelected = true"),
+       "Sin maximizadas, el retorno no puede aplicar la posición general guardada");
+assert(preview.includes("realAnyVisibleMaximized: probe.anyVisibleMaximized"),
+       "Compartir estado global de maximizadas con Soledad");
+assert(bar.includes("if (!realAnyVisibleMaximized) {"),
+       "No usar el perfil de la última app minimizada como posición general");
+const activeJs = read("package/contents/ui/RealActiveWindow.js")
+    .replace(/^\\.pragma library\\s*/, "");
+const topmost = new Function(activeJs + "\\nreturn topmostMaximizedProfile;")();
+const profileRows = [
+    {appId:"org.kde.dolphin",maximized:true,minimized:false,fullscreen:false,
+     stackingOrder:2}
+];
+const maximized = topmost(profileRows,
+    profiles.withGeneralBaseline(profileRows,source,270));
+assert.equal(maximized.kind,"profile");
+assert.equal(maximized.offset,270);
+const minimized = [{...profileRows[0],maximized:true,minimized:true}];
+assert.equal(topmost(minimized,
+    profiles.withGeneralBaseline(minimized,source,270)).kind,"none",
+    "Dolphin minimizada no cuenta como maximizada visible");
+const restored = [{...profileRows[0],maximized:false,minimized:false}];
+assert.equal(topmost(restored,
+    profiles.withGeneralBaseline(restored,source,270)).kind,"none",
+    "Dolphin restaurada no cuenta como maximizada");
+const behind = [...minimized, {
+    appId:"steam",maximized:true,minimized:false,fullscreen:false,
+    stackingOrder:4
+}];
+const secondTop = topmost(behind,
+    profiles.withGeneralBaseline(behind,source,270));
+assert.equal(secondTop.kind,"profile");
+assert.equal(secondTop.offset,390,
+             "Si Steam sigue maximizada, no se debe regresar a la derecha");
+console.log("OK: anclajes Brave, excepciones y retorno sin maximizadas");
