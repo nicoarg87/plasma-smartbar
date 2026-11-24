@@ -128,10 +128,21 @@ QQC2.Popup {
     // Default: elegir una aplicación no cierra la caja de instaladas.
     // Escape y el botón SO cierran el launcher de forma explícita.
     property bool autoCollapseOnSelection: false
-    closePolicy: QQC2.Popup.CloseOnEscape |
-        (autoCollapseOnSelection && !triggerButtonHovered
-            ? QQC2.Popup.CloseOnPressOutside
-            : QQC2.Popup.NoAutoClose)
+    // El launcher nativo se aloja en una superficie LayerShell estable:
+    // cerrar por pérdida de foco no equivale a la intención del usuario.
+    // Escape se maneja explícitamente para conservar el cierre manual.
+    closePolicy: layerSurfaceHosted ? QQC2.Popup.NoAutoClose :
+        (QQC2.Popup.CloseOnEscape |
+         (autoCollapseOnSelection && !triggerButtonHovered
+             ? QQC2.Popup.CloseOnPressOutside
+             : QQC2.Popup.NoAutoClose))
+    signal requestDismiss()
+    Shortcut {
+        sequence: "Escape"
+        context: Qt.WindowShortcut
+        enabled: launcher.visible && launcher.layerSurfaceHosted
+        onActivated: launcher.requestDismiss()
+    }
     signal requestShowMalvina()
     signal appSelected(string name, bool realCatalog)
     signal launchDesktopEntry(string desktopId)
