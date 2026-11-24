@@ -12,6 +12,8 @@ import org.kde.pipewire as KPipeWire
 Window {
     id: chooser
     property bool runtimeActive: false
+    // Preferencia vigente de Soledad: both, preview, chip.
+    property string taskCloseMode: "both"
     property bool requested: false
     property var taskModel: null
     property var groupUuids: []
@@ -196,6 +198,7 @@ Window {
                                     anchors.top: parent.top
                                     anchors.right: parent.right
                                     anchors.margins: 6
+                                    visible: chooser.taskCloseMode !== "chip"
                                     width: 28
                                     height: 28
                                     radius: 6
