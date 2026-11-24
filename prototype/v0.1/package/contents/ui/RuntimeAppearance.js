@@ -39,7 +39,12 @@ var visualKeys = [
     "soActivityShowWhenOpen",
     "soLogoMode","soLogoPath","soLogoShape","soLogoFitMode",
     "soLogoZoom","soLogoPanX","soLogoPanY",
-    "soLogoAnimate","soLogoRotation"
+    "soLogoAnimate","soLogoRotation",
+    // Opciones de interfaz que el editor ya admite, pero el ensayo
+    // conjunto anterior omitía: no controlan procesos ni ventanas ajenas.
+    "taskCloseMode","backgroundColor","backgroundOpacity","showBackground",
+    "autoCollapseSO","autoCollapseTray","autoReturnRight",
+    "soLeftClickOpensLauncher"
 ]
 // Mapeo inverso entre nombre del elemento visual y la propiedad del editor.
 var editorNames = {
@@ -84,7 +89,13 @@ function applyToBar(bar,values) {
         // Aplicar únicamente propiedades declaradas del componente, nunca
         // crear campos dinámicos ni modificar la altura fija de LayerShell.
         if (bar[name] === undefined) continue
-        try { bar[name] = values[key]; changed++ } catch (e) {}
+        try {
+            bar[name] = values[key]
+            changed++
+        } catch (e) {
+            console.warn("SmartBar apariencia: propiedad no aplicada", name,
+                         String(e))
+        }
     }
     return changed
 }
@@ -100,4 +111,21 @@ function captureChanges(editor) {
             patch[savedKey(name)] = value
     }
     return patch
+}
+
+function unmappedChanges(editor) {
+    if (!editor || !editor.baselineLoaded) return []
+    const used = new Set(visualKeys.map(function(name) {
+        return editorNames[name] || name
+    }))
+    const baseline = editor.lastAppliedSettings || ({})
+    const missing = []
+    for (const source of editor.editableSettingsKeys) {
+        if (used.has(source) || !hasOwn(baseline,source) ||
+            editor[source] === undefined) continue
+        const next = editor.preferenceCopy(source,editor[source])
+        if (JSON.stringify(next) !== JSON.stringify(baseline[source]))
+            missing.push(source)
+    }
+    return missing
 }
