@@ -919,6 +919,9 @@ Item {
     property bool realTrackedMaximized: false
     property bool realTrackedFullscreen: false
     property bool realTrackedKnown: false
+    // Observación separada del foco: sigue habiendo una ventana MAXIMIZADA
+    // aunque el usuario cambie a una ventana normal o al propio menú.
+    property bool realAnyVisibleMaximized: false
     property string realPositionProfilesJson: "{}"
     // La referencia general tiene prioridad por debajo de los perfiles por app.
     // En el visor histórico no se escribe ni se habilita por sí sola.
@@ -970,13 +973,21 @@ Item {
     function applyRealPositionProfile() {
         if (!demoWindowControlsEnabled || !usingRealTasks ||
             positionMode !== "right" || gripDrag.active) return
-        // Solo aplicar un estado con ventana externa identificada y no fullscreen.
-        if (!realTrackedKnown || realTrackedFullscreen) return
-        // Una aplicación concreta (restaurada o maximizada) usa su anclaje.
-        // Cuando KWin detecta otra ventana MAXIMIZADA encima, el visor
-        // decide primero cuál prevalece mediante el apilamiento real.
-        if (!realTrackedMaximized && !autoReturnRight &&
-            !activeRealAppHasSavedPosition) return
+        // El retorno al escritorio normal tiene prioridad por encima de
+        // cualquier perfil guardado (incluido el general y Brave/Steam).
+        // No interpretar fullscreen como escritorio normal.
+        if (realTrackedFullscreen) return
+        if (!realAnyVisibleMaximized) {
+            if (autoReturnRight) {
+                setIslandOffset(0)
+                alignRightSelected = true
+                ensureExpansionFits()
+            }
+            return
+        }
+        // Si otra maximizada sigue detrás, su posición la elige el
+        // observador de KWin según StackingOrder, NO el foco normal.
+        if (!realTrackedKnown || !realTrackedMaximized) return
         const next = SoledadPositionProfiles.resolveForApp(
             realPositionProfilesJson, realTrackedAppId, true,
             generalSoledadOffset, maxIslandOffset)
