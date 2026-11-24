@@ -485,7 +485,8 @@ Item {
     property bool taskActiveGlowEnabled: true
     property bool taskActiveDoubleBorderEnabled: false
     signal requestTaskActiveIndicatorChange(bool glowEnabled, bool doubleBorderEnabled)
-    property string taskDisplayMode: "icon" // text, both, icon
+    // Inicio nuevo: icono y nombre legibles; los ajustes guardados prevalecen.
+    property string taskDisplayMode: "both" // text, both, icon
     // "both" conserva el funcionamiento actual y los ajustes personales.
     // Los modos "preview" y "chip" nunca dejan sin acceso al cierre.
     property string taskCloseMode: "both"
@@ -2915,10 +2916,17 @@ Item {
                                 Math.round((root.taskResizeStartX - pt.x) /
                                     root.taskResizeChipCount))
                         }
+                        onDoubleClicked: function(mouse) {
+                            if (mouse.button !== Qt.LeftButton) return
+                            // Restablecer la medida predeterminada y persistirla
+                            // de inmediato, sin cambiar preferencias de fichas.
+                            root.taskNameExtraWidth = 0
+                            root.saveTaskNameExtraWidth()
+                        }
                         onReleased: root.saveTaskNameExtraWidth()
                     }
                     QQC2.ToolTip.visible: resizeHover.hovered
-                    QQC2.ToolTip.text: "Arrastrar para cambiar el ancho de nombres SO"
+                    QQC2.ToolTip.text: "Arrastrar para ajustar nombres SO · doble clic para restablecer"
                     HoverHandler { id: resizeHover }
                 }
 
