@@ -708,6 +708,20 @@ Item {
         return Math.max(0, Math.min(maxLeft, center - popupWidth / 2))
     }
     signal requestLaunchDesktopEntry(string desktopId)
+    // Exclusivo de la prueba KDE real; no ejecutar sobre el panel instalado.
+    signal requestRealTaskActivation(int taskRow)
+    property bool realTaskActivationEnabled: false
+    property bool realTaskActivationDispatched: false
+    function activateRealTask(taskRow, appId, appName) {
+        selectRealTaskApp(appId, appName)
+        if (!realTaskActivationEnabled || !usingRealTasks) return
+        if (!Number.isInteger(taskRow) || taskRow < 0 ||
+            taskRow >= realTaskModel.count) return
+        realTaskActivationDispatched = false
+        requestRealTaskActivation(taskRow)
+        if (realTaskActivationDispatched && autoCollapseSO)
+            soExpanded = false
+    }
     property var localAppCatalog: []
     property bool localCatalogReady: false
     // El visor carga metadatos .desktop locales de solo lectura, si existen.
@@ -2194,6 +2208,7 @@ Item {
         layerSurfaceHosted: root.realAppLaunchEnabled &&
                             root.layerShellLauncherHost !== null
         onLaunchDesktopEntry: function(desktopId) {
+            console.log("SmartBar SO: clic en aplicación instalada, solicitud KDE")
             root.requestLaunchDesktopEntry(desktopId)
         }
         triggerButtonHovered: root.installedLauncherSource === "so" && soButton.hovered
@@ -2202,11 +2217,12 @@ Item {
             installedAppsPopup.close()
         }
         onAppSelected: function(name, realCatalog) {
-            // La v0.1 es solo lectura. No cerramos el launcher al
-            // seleccionar una app porque aún NO la ejecutamos.
-            console.log("SmartBar: aplicación seleccionada:", name,
-                        realCatalog ? "(identificada en el equipo, no se ejecuta)"
-                                    : "(muestra, no se ejecuta)")
+            // En maqueta hacer visible la selección, sin ejecutar procesos.
+            if (!realCatalog && root.demoOpenedApps.indexOf(name) >= 0)
+                root.selectDemoApp(name)
+            console.log("SmartBar: aplicación seleccionada:",
+                        realCatalog ? "(catálogo sin ID ejecutable)" : "(simulación)",
+                        name)
         }
         onClosed: {
             if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
@@ -2933,16 +2949,18 @@ Item {
                         readonly property int windowCount: Number(model.ChildCount) || 0
                         text: appName + (isGrouped && windowCount > 1
                                         ? " (" + windowCount + ")" : "")
-                        // Selección EXCLUSIVAMENTE local del perfil:
-                        // el clic NO cambia el foco ni toca la ventana KDE.
+                        // Clic izquierdo: solicitar foco a KDE en sesión nativa
+                        // y conservar selección de perfil para el menú existente.
                         readonly property string appId: String(model.AppId || "")
-                        onClicked: root.selectRealTaskApp(appId, appName)
+                        required property int index
+                        onClicked: root.activateRealTask(index, appId, appName)
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
                             + (model.IsMaximized === true ? " · maximizada" : "")
                             + (isGrouped ? " · grupo de ventanas" : "")
-                            + " · SOLO LECTURA"
+                            + (root.realTaskActivationEnabled
+                               ? " · clic para activar ventana" : " · SOLO LECTURA")
                     }
                 }
 
@@ -3546,16 +3564,18 @@ Item {
                         readonly property int windowCount: Number(model.ChildCount) || 0
                         text: appName + (isGrouped && windowCount > 1
                                         ? " (" + windowCount + ")" : "")
-                        // Selección EXCLUSIVAMENTE local del perfil:
-                        // el clic NO cambia el foco ni toca la ventana KDE.
+                        // Clic izquierdo: solicitar foco a KDE en sesión nativa
+                        // y conservar selección de perfil para el menú existente.
                         readonly property string appId: String(model.AppId || "")
-                        onClicked: root.selectRealTaskApp(appId, appName)
+                        required property int index
+                        onClicked: root.activateRealTask(index, appId, appName)
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
                             + (model.IsMaximized === true ? " · maximizada" : "")
                             + (isGrouped ? " · grupo de ventanas" : "")
-                            + " · SOLO LECTURA"
+                            + (root.realTaskActivationEnabled
+                               ? " · clic para activar ventana" : " · SOLO LECTURA")
                     }
                 }
 
