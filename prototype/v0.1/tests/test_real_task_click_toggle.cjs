@@ -15,12 +15,18 @@ for (const marker of [
     "onRequestRealTaskActivation: function(taskRow, taskActive, windowUuid)",
     "row.windowUuids.length === 1",
     "String(row.windowUuids[0]) === windowUuid",
-    "canMinimize = row.taskActive && !row.taskMinimized",
-    "groupedKdeWindows.requestToggleMinimized(target)",
+    "property string lastSoActivatedUuid:",
+    "probe.lastSoActivatedUuid === windowUuid",
+    "probe.lastSoActivatedUuid = singleFound ? windowUuid :",
+    "probe.lastSoActivatedUuid = \"\"",
+    "isMinimized = row.taskMinimized",
+    "kdeWindows.requestToggleMinimized(kdeWindows.index(i, 0))",
     "groupedKdeWindows.requestActivate(target)",
     "bar.realTaskActivationDispatched = true",
     "if (!smartbarContinuousMode || bar.realTrackedFullscreen"
 ]) assert(host.includes(marker), "Falta protección de alternancia: " + marker);
 assert(host.indexOf("if (canMinimize)") < host.indexOf("groupedKdeWindows.requestToggleMinimized(target)"));
 assert(host.includes("TaskManager.TasksModel.GroupApplications"));
+assert(host.includes("String(windowUuids[0]) !== probe.lastSoActivatedUuid"),
+       "Cambiar de ventana activa debe invalidar la última activación SO");
 console.log("OK: clic SO activa tareas inactivas y minimiza solo ventana única activa; requiere prueba en CachyOS.");
