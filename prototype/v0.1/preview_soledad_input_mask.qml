@@ -291,6 +291,7 @@ Window {
             visible: false
             readonly property string appId: String(model.AppId || "")
             readonly property string appName: String(model.AppName || "")
+            readonly property var windowUuids: model.WinIdList || []
             readonly property bool taskActive: model.IsActive === true
             readonly property bool taskMaximized: model.IsMaximized === true
             readonly property bool taskMinimized: model.IsMinimized === true
@@ -579,6 +580,40 @@ Window {
         }
     }
 
+    // Selector interactivo solo para grupos; usa tareas individuales de KDE.
+    SmartBar.LayerShellTaskGroupPicker {
+        id: groupPicker
+        runtimeActive: smartbarContinuousMode
+        taskModel: kdeWindows
+        topOffset: probe.height + 8
+        onSelectWindow: function(uuid) {
+            // Correlación por UUID REAL en el momento de seleccionar.
+            var found = -1
+            for (var i = 0; i < kdeWindowObservers.count; ++i) {
+                var row = kdeWindowObservers.itemAt(i)
+                if (row && row.windowUuids.length === 1 &&
+                    String(row.windowUuids[0]) === uuid) {
+                    found = i
+                    break
+                }
+            }
+            if (found < 0) {
+                console.warn("SmartBar SO: UUID de grupo ya no disponible")
+                groupPicker.closePicker()
+                return
+            }
+            try {
+                kdeWindows.requestActivate(kdeWindows.index(found, 0))
+                console.log("SmartBar SO: activación individual desde grupo", found)
+                groupPicker.closePicker()
+                if (bar.autoCollapseSO) bar.soExpanded = false
+            } catch (error) {
+                console.warn("SmartBar SO: fallo al activar ventana de grupo:", String(error))
+                groupPicker.closePicker()
+            }
+        }
+    }
+
     SmartBar.RuntimeAppearanceBridge {
         id: appearanceBridge
         target: bar
@@ -617,6 +652,23 @@ Window {
             taskThumbnail.windowUuid = uuid
             taskThumbnail.requested = true
         }
+        onRequestRealTaskGroup: function(uuids, label, left) {
+            if (!smartbarContinuousMode || bar.realTrackedFullscreen ||
+                !bar.soExpanded || !uuids || uuids.length <= 1) return
+            thumbnailDismiss.stop()
+            taskThumbnail.requested = false
+            taskThumbnail.windowUuid = ""
+            if (groupPicker.requested && groupPicker.appLabel === label &&
+                groupPicker.groupUuids.join("|") === uuids.join("|")) {
+                groupPicker.closePicker()
+                return
+            }
+            groupPicker.closePicker()
+            groupPicker.appLabel = label
+            groupPicker.leftOffset = left
+            groupPicker.groupUuids = uuids
+            groupPicker.requested = true
+        }
         onRequestHideRealTaskPreview: function(uuid) {
             if (uuid === taskThumbnail.windowUuid)
                 thumbnailDismiss.restart()
@@ -628,6 +680,7 @@ Window {
                 thumbnailDismiss.stop()
                 taskThumbnail.requested = false
                 taskThumbnail.windowUuid = ""
+                groupPicker.closePicker()
             }
         }
         onRealTrackedFullscreenChanged: {
@@ -635,6 +688,7 @@ Window {
                 thumbnailDismiss.stop()
                 taskThumbnail.requested = false
                 taskThumbnail.windowUuid = ""
+                groupPicker.closePicker()
             }
         }
         onRequestRealTaskActivation: function(taskRow) {
