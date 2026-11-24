@@ -1,15 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Diagnóstico de grupos de Dolphin en KWin/Wayland: SOLO LECTURA.
-// No captura miniaturas, no modifica ventanas ni almacena UUID.
+// Diagnóstico no invasivo: fotografía del MODELO ESTABILIZADO de Dolphin.
+// No captura, activa, cierra ni modifica ventanas; UUID son efímeros.
 import QtQuick
 import org.kde.taskmanager 0.1 as TaskManager
 
 Item {
     id: probe
-    property int singleCount: 0
-    property int groupCount: 0
-    property int groupChildren: 0
-
     TaskManager.TasksModel {
         id: individual
         groupMode: TaskManager.TasksModel.GroupDisabled
@@ -28,47 +24,55 @@ Item {
         filterByActivity: false
         filterByScreen: false
     }
-
     Repeater {
+        id: individuals
         model: individual
         delegate: Item {
             required property var model
             readonly property string appId: String(model.AppId || "")
             readonly property var winIds: model.WinIdList || []
-            Component.onCompleted: {
-                if (appId === "org.kde.dolphin") {
-                    probe.singleCount++
-                    console.log("SmartBar grupos: Dolphin individual; UUID=" +
-                                (winIds.length ? String(winIds[0]) : "(no disponible)"))
-                }
-            }
         }
     }
     Repeater {
+        id: groups
         model: grouped
         delegate: Item {
             required property var model
             readonly property string appId: String(model.AppId || "")
-            Component.onCompleted: {
-                if (appId === "org.kde.dolphin") {
-                    probe.groupCount++
-                    probe.groupChildren = Number(model.ChildCount) || 0
-                    console.log("SmartBar grupos: Dolphin ficha agrupada; " +
-                                "IsGroupParent=" + (model.IsGroupParent === true) +
-                                "; ChildCount=" + probe.groupChildren)
-                }
-            }
+            readonly property bool isGroup: model.IsGroupParent === true
+            readonly property int children: Number(model.ChildCount) || 0
+            readonly property var winIds: model.WinIdList || []
         }
     }
     Timer {
         running: true
         repeat: false
-        interval: 1700
+        interval: 2500
         onTriggered: {
-            console.log("SmartBar grupos: resumen fichas=" + probe.groupCount +
-                        ", ventanas individuales=" + probe.singleCount +
-                        ", ChildCount=" + probe.groupChildren)
-            console.log("SmartBar grupos: solo lectura, sin capturas ni acciones sobre KDE")
+            var singles = 0
+            var groupRows = 0
+            for (var i = 0; i < individuals.count; ++i) {
+                var item = individuals.itemAt(i)
+                if (!item || item.appId !== "org.kde.dolphin")
+                    continue
+                singles++
+                console.log("SmartBar grupos: Dolphin individual #" + singles +
+                            "; UUID=" + (item.winIds.length ?
+                                         String(item.winIds[0]) : "(no disponible)"))
+            }
+            for (var j = 0; j < groups.count; ++j) {
+                var group = groups.itemAt(j)
+                if (!group || group.appId !== "org.kde.dolphin")
+                    continue
+                groupRows++
+                console.log("SmartBar grupos: Dolphin ficha #" + groupRows +
+                            "; IsGroupParent=" + group.isGroup +
+                            "; ChildCount=" + group.children +
+                            "; WinIdList.length=" + group.winIds.length)
+            }
+            console.log("SmartBar grupos: lectura FINAL fichas=" + groupRows +
+                        ", ventanas individuales=" + singles)
+            console.log("SmartBar grupos: solo lectura; no cambia KDE ni preferencias")
             Qt.quit()
         }
     }
