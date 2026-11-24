@@ -552,6 +552,16 @@ Window {
     onWidthChanged: refreshInputRegion()
     onHeightChanged: refreshInputRegion()
 
+    // Launcher separado de la ventana de 44 px: KWin recibe una superficie
+    // LayerShell acotada con margen físico bajo la isla, no un xdg_popup
+    // cuya posición puede terminar en y=0.
+    SmartBar.LayerShellLauncherWindow {
+        id: launcherHost
+        ownerBar: bar
+        runtimeActive: smartbarContinuousMode
+        topOffset: probe.height + 8
+    }
+
     SmartBar.RuntimeAppearanceBridge {
         id: appearanceBridge
         target: bar
@@ -580,6 +590,9 @@ Window {
         demoWindowControlsEnabled: true
         realTaskModel: groupedKdeWindows
         realAppLaunchEnabled: smartbarContinuousMode
+        layerShellLauncherHost: smartbarContinuousMode ? launcherHost : null
+        launcherAvailableHeight: Math.max(260,
+            Math.min(760, probe.Screen.height - probe.height - 32))
         runtimeAppearanceEnabled: smartbarContinuousMode
         onRequestRuntimeAppearancePatch: function(json) {
             appearanceBridge.commitPatch(json)
