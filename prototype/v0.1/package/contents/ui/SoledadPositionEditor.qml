@@ -89,7 +89,7 @@ QQC2.Dialog {
                 }
             }
         }
-        QQC2.RowLayout {
+        RowLayout {
             Layout.fillWidth: true
             QQC2.Label { text: "Perfiles guardados" }
             QQC2.ComboBox {
@@ -136,7 +136,7 @@ QQC2.Dialog {
                   "Guardar crea una excepción solo para esta aplicación; " +
                   "las demás conservan la posición general."
         }
-        QQC2.RowLayout {
+        RowLayout {
             Layout.fillWidth: true
             spacing: 6
             QQC2.Button {
