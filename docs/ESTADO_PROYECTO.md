@@ -3230,3 +3230,14 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 **RESULTADO RECIBIDO:** el mantenedor ejecutó `git pull` hasta `0164fb1`; `test_apariencia_compartida.cjs` volvió a fallar en línea 161 con `0 !== 2`, por lo que Fish no inició `probar_islas_juntas.sh`. El código QML sí contiene dos invocaciones a `root.activateRealTask(index, appId, appName)`; el test escrito en el commit anterior tenía barras de más en la expresión regular (`/root\\.activateRealTask\\(.../`), que nunca coincidían.
 
 **CORRECCIÓN SOLO DEL TEST:** [14fbb7f](https://github.com/nicoarg87/plasma-smartbar/commit/14fbb7fae3cd0ffbc8f739a282256c4c2072e6af) sustituye ambas regex por comparación literal con `String.split(...).length - 1`. Verificación de contenidos publicada: **2 activaciones y 4 llamadas de cierre de miniatura** en `SmartBarContent.qml`, valores esperados. **No se ejecutó Node/Qt en CachyOS después de esta corrección; hover real aún pendiente.** No se modificó SmartBarContent, preferencias, panel ni audio.
+
+
+## 24/11/2026 — Bloqueo de arranque de islas por doble manejador QML de SO
+
+**LOG REAL DEL MANTENEDOR:** en sesión `sesion-20261124-151757-96gShdsc`, `soledad.log` informó `QQmlApplicationEngine failed to load component`, `preview_soledad_input_mask.qml:704:9: Property value set multiple times`, `SmartBar: QML no creó exactamente una superficie`; `malvina.log` vacío. Esto explica que ninguna isla quedase abierta: el lanzador conjunto termina si falla cualquiera de sus procesos.
+
+**CAUSA VERIFICADA:** `SmartBar.SmartBarContent` contenía dos `onSoExpandedChanged` dentro del mismo objeto, uno introducido al integrar el cierre de miniatura en [38e2200](https://github.com/nicoarg87/plasma-smartbar/commit/38e2200bb94d3ae88cc07cb5cf4f939452db9be0) y otro preexistente para actualizar máscara de entrada. El compilador QML rechaza propiedades duplicadas.
+
+**CORRECCIÓN EN GITHUB, AÚN NO VALIDADA EN CACHYOS:** [2d617f1](https://github.com/nicoarg87/plasma-smartbar/commit/2d617f10815980a583a32dee87e64e3cb636dea8) fusiona ambos manejadores: llama `probe.refreshInputRegion()` al cambiar expansión y cierra/libera miniatura al contraerla. [c18b7a1](https://github.com/nicoarg87/plasma-smartbar/commit/c18b7a1790fe57a5072f6605d165d3de05934edd) agrega regresión para impedir duplicados en `test_apariencia_compartida.cjs`. El código de ventanas/posiciones, ambos temas y panel original no se modifican.
+
+**SIGUIENTE PRUEBA:** `git pull --ff-only`; `node prototype/v0.1/tests/test_apariencia_compartida.cjs`; `bash prototype/v0.1/probar_islas_juntas.sh`. Si vuelven a abrir las islas, validar una ficha Dolphin de una sola ventana con hover y salida sin errores; si hay otro fallo guardar ambos logs. No afirmar miniatura integrada como probada.
