@@ -12,6 +12,7 @@
 #include <QJsonParseError>
 #include <QFile>
 #include <QSaveFile>
+#include <QLockFile>
 #include <QDir>
 #include <QSet>
 #include <QList>
@@ -122,6 +123,15 @@ public:
             return false;
         const QJsonObject patch = incoming.object();
         if (patch.isEmpty() || patch.size() > 100) return false;
+        // Los dos procesos escriben sobre el mismo perfil. Un lock corto
+        // protege el ciclo completo leer-mezclar-guardar de pérdida de
+        // modificaciones por otro Aplicar simultáneo.
+        QLockFile lock(path + QStringLiteral(".lock"));
+        lock.setStaleLockTime(10000);
+        if (!lock.tryLock(2000)) {
+            qWarning() << "SmartBar apariencia: perfil ocupado, no se guardó";
+            return false;
+        }
         // Lista concreta de claves visuales: el origen QML no puede escribir
         // campos de sistema, autorizaciones IA, wallpaper ni perfiles KDE.
         static const QRegularExpression onlyVisual(
