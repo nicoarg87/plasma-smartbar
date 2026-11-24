@@ -125,9 +125,9 @@ QQC2.Popup {
     // y el onClicked de SO lo volvía a abrir en el mismo gesto.
     // Fuera del botón se conserva clic exterior y Escape.
     property bool triggerButtonHovered: false
-    // Default: elegir una aplicación no cierra la caja de instaladas.
-    // Escape y el botón SO cierran el launcher de forma explícita.
-    property bool autoCollapseOnSelection: false
+    // Elegir una aplicación cierra siempre este launcher; la navegación
+    // en Archivos es un flujo separado y no se altera.
+    property bool autoCollapseOnSelection: true
     // El launcher nativo se aloja en una superficie LayerShell estable:
     // cerrar por pérdida de foco no equivale a la intención del usuario.
     // Escape se maneja explícitamente para conservar el cierre manual.
