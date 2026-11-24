@@ -117,8 +117,14 @@ assert(malvinaProbe.includes("malvinaOrderSettings.sync()"));
 // Los tres buscadores canónicos deben respetar ocultar y deshabilitar,
 // ambas opciones distintas, guardadas al pulsar Aplicar.
 for (const key of ["googleEnabledV1","duckEnabledV1","yahooEnabledV1","hiddenWebV1","hiddenAiV1"]) {
-    assert(malvinaProbe.includes('malvinaWebSettings.value("'+key+'"'),
-           "Falta recuperación de "+key);
+    assert(malvinaProbe.includes(key),
+           "Falta clave declarada "+key);
+    if (key.startsWith("hidden"))
+        assert(malvinaProbe.includes('malvinaWebSettings.value("'+key+'"'),
+               "Falta recuperación de "+key);
+    else
+        assert(malvinaProbe.includes('storedWebEnabled("'+key+'")'),
+               "Falta recuperación de "+key);
     assert(malvinaProbe.includes('malvinaWebSettings.setValue("'+key+'"'),
            "Falta persistencia de "+key);
 }
