@@ -3046,15 +3046,18 @@ Item {
                             height: 28
                             z: 3
                             text: "×"
-                            font.pixelSize: 20
-                            font.bold: true
-                            palette.buttonText: "#ffffff"
                             focusPolicy: Qt.StrongFocus
-                            background: Rectangle {
-                                radius: 6
-                                color: closeRealTaskChip.hovered ? "#a12e3b" : "#304756"
-                                border.color: "#9bb8c8"
-                                border.width: 1
+                            // Solo glifo: área de clic 26×28, sin caja, borde
+                            // ni relleno ajeno al fondo ya dibujado por Soledad.
+                            background: Item {}
+                            contentItem: Text {
+                                text: closeRealTaskChip.text
+                                color: closeRealTaskChip.hovered ? "#ffffff" : "#eaf7ff"
+                                font.family: "Sans Serif"
+                                font.pixelSize: 20
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
                             }
                             Accessible.name: realTaskChip.taskWindowIds.length > 1
                                 ? "Cerrar todas las ventanas de " + realTaskChip.appName
@@ -3756,15 +3759,18 @@ Item {
                             height: 28
                             z: 3
                             text: "×"
-                            font.pixelSize: 20
-                            font.bold: true
-                            palette.buttonText: "#ffffff"
                             focusPolicy: Qt.StrongFocus
-                            background: Rectangle {
-                                radius: 6
-                                color: closeRealTaskChip.hovered ? "#a12e3b" : "#304756"
-                                border.color: "#9bb8c8"
-                                border.width: 1
+                            // Solo glifo: área de clic 26×28, sin caja, borde
+                            // ni relleno ajeno al fondo ya dibujado por Soledad.
+                            background: Item {}
+                            contentItem: Text {
+                                text: closeRealTaskChip.text
+                                color: closeRealTaskChip.hovered ? "#ffffff" : "#eaf7ff"
+                                font.family: "Sans Serif"
+                                font.pixelSize: 20
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
                             }
                             Accessible.name: realTaskChip.taskWindowIds.length > 1
                                 ? "Cerrar todas las ventanas de " + realTaskChip.appName
