@@ -17,11 +17,36 @@ Window {
     property bool bridgePrepared: false
     property bool fullscreenDetected: false
     property int stateSamples: 0
-    // Orden temporal del ensayo, independiente del visor y de KConfig.
-    // Los gestos de arrastre NO cambian preferencias persistidas.
-    property bool testWebFirst: true
-    property string testWebOrder: "duck,yahoo,google"
-    property string testAiOrder: "chatgpt,claude,gemini"
+    // Preferencia EXCLUSIVA del ensayo conjunto: prioridad Web/IA persistente.
+    // El visor Qt y KConfig tienen su almacenamiento propio y NO se tocan.
+    // En el ensayo aislado (sin SMARTBAR_CONTINUOUS) el orden sigue en memoria.
+    QtCore.Settings {
+        id: malvinaOrderSettings
+        category: "plasma-smartbar-v01-malvina-layer-probe-order"
+    }
+    function validOrder(raw, required) {
+        if (typeof raw !== "string") return false
+        const entries = raw.split(",")
+        if (entries.length !== required.length) return false
+        for (let i = 0; i < required.length; ++i)
+            if (entries.indexOf(required[i]) < 0) return false
+        return new Set(entries).size === required.length
+    }
+    property bool testWebFirst: smartbarContinuousMode
+        ? String(malvinaOrderSettings.value("webFirstV1", true)).toLowerCase() === "true"
+        : true
+    property string testWebOrder: {
+        const value = smartbarContinuousMode
+            ? String(malvinaOrderSettings.value("webOrderV1", "duck,yahoo,google"))
+            : "duck,yahoo,google"
+        return validOrder(value, ["duck","yahoo","google"]) ? value : "duck,yahoo,google"
+    }
+    property string testAiOrder: {
+        const value = smartbarContinuousMode
+            ? String(malvinaOrderSettings.value("aiOrderV1", "chatgpt,claude,gemini"))
+            : "chatgpt,claude,gemini"
+        return validOrder(value, ["chatgpt","claude","gemini"]) ? value : "chatgpt,claude,gemini"
+    }
     // Solo estos tres permisos se conservan entre ejecuciones después de
     // pulsar Aplicar. No compartir categoría con el visor, panel ni temas.
     // La primera ejecución sigue desactivada; revocar + Aplicar guarda false.
@@ -268,12 +293,29 @@ Window {
             console.log("SmartBar MALVINA navegador guardado:", browserId)
         }
         onRequestMalvinaOrderChange: function(firstWeb, webOrder, aiOrder) {
+            if (!probe.validOrder(webOrder, ["duck","yahoo","google"]) ||
+                !probe.validOrder(aiOrder, ["chatgpt","claude","gemini"])) {
+                console.warn("SmartBar MALVINA: prioridad inválida, no se guardó")
+                return
+            }
             probe.testWebFirst = firstWeb
             probe.testWebOrder = webOrder
             probe.testAiOrder = aiOrder
-            console.log("SmartBar MALVINA orden temporal:",
-                        "Web=", webOrder, "IA=", aiOrder,
-                        "(sin guardar preferencias)")
+            if (smartbarContinuousMode) {
+                // El arrastre de fichas es una elección explícita: guardar
+                // inmediatamente igual que la selección de navegador.
+                malvinaOrderSettings.setValue("webFirstV1", firstWeb)
+                malvinaOrderSettings.setValue("webOrderV1", webOrder)
+                malvinaOrderSettings.setValue("aiOrderV1", aiOrder)
+                malvinaOrderSettings.sync()
+                console.log("SmartBar MALVINA orden guardado:",
+                            "Web=", webOrder, "IA=", aiOrder,
+                            "primeraFilaWeb=", firstWeb)
+            } else {
+                console.log("SmartBar MALVINA orden temporal:",
+                            "Web=", webOrder, "IA=", aiOrder,
+                            "(ensayo aislado, sin guardar)")
+            }
         }
         // Aplicar y sólo Aplicar confirma estos tres consentimientos.
         // Nunca se escribe el texto buscado, cookies ni datos del navegador.
