@@ -746,8 +746,17 @@ Window {
         realTaskModel: groupedKdeWindows
         realTaskActivationEnabled: smartbarContinuousMode
         realTaskPreviewEnabled: smartbarContinuousMode
+        onTaskCloseModeChanged: {
+            // Aplicar "Solo X en ficha" también sobre un popup ya abierto.
+            if (bar.taskCloseMode === "chip") {
+                thumbnailDismiss.stop()
+                taskThumbnail.requested = false
+                taskThumbnail.windowUuid = ""
+            }
+        }
         onRequestRealTaskPreview: function(uuid, label, left) {
-            if (!smartbarContinuousMode || !uuid || bar.realTrackedFullscreen)
+            if (!smartbarContinuousMode || !uuid || bar.realTrackedFullscreen ||
+                bar.taskCloseMode === "chip")
                 return
             thumbnailDismiss.stop()
             taskThumbnail.appLabel = label
