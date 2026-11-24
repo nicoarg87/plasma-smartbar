@@ -666,6 +666,36 @@ Item {
     // tras elegir un programa. Ajuste independiente de autoCollapseSO.
     property bool autoCollapseLauncher: false
     signal requestAutoCollapseLauncherChange(bool newValue)
+    // Al lanzar una aplicación KDE, el cambio de foco puede cerrar
+    // involuntariamente el Popup.Item dentro de la superficie LayerShell.
+    // Reintento limitado exclusivamente a la selección que acaba de ocurrir.
+    property bool launcherKeepOpenAfterSelection: false
+    function cancelLauncherKeepOpen() {
+        launcherKeepOpenAfterSelection = false
+        launcherKeepOpenTimer.stop()
+    }
+    function verifyLauncherStillOpen() {
+        if (!launcherKeepOpenAfterSelection || autoCollapseLauncher ||
+            !realAppLaunchEnabled || !layerShellLauncherHost ||
+            realTrackedFullscreen) {
+            cancelLauncherKeepOpen()
+            return
+        }
+        // No usar resetAndFocus(): conserva categoría, búsqueda y selección.
+        if (!installedAppsPopup.visible) {
+            console.warn("SmartBar launcher: cerrado por cambio de foco; reabriendo sin reiniciar selección")
+            installedAppsPopup.open()
+        }
+    }
+    Timer {
+        id: launcherKeepOpenTimer
+        interval: 750
+        repeat: false
+        onTriggered: {
+            root.verifyLauncherStillOpen()
+            root.cancelLauncherKeepOpen()
+        }
+    }
     // Corrección del mantenedor 18/11: izquierdo = cajón (ventanas abiertas),
     // derecho = launcher de aplicaciones. Es reversible en Configuración.
     property bool soLeftClickOpensLauncher: true
@@ -1584,8 +1614,10 @@ Item {
         // El selector de ventanas y el lanzador son independientes.
         // Si cambia el gesto mientras el lanzador está abierto,
         // permitir abrir las ventanas en el MISMO clic.
-        if (installedAppsPopup.visible)
+        if (installedAppsPopup.visible) {
+            cancelLauncherKeepOpen()
             installedAppsPopup.close()
+        }
         // No enviar al lanzador por falta de ventanas: el gesto elegido
         // para "ventanas abiertas" conserva su significado.
         if (soWindowCount === 0 &&
@@ -1603,10 +1635,10 @@ Item {
     }
 
     function triggerSOButton(leftClick, wasOpenAtPress) {
-        // Clic derecho sobre SO: cerrar el launcher si ya está abierto,
-        // sin invertir el mapeo de gestos configurado para abrirlo.
-        if (!leftClick && installedAppsPopup.visible &&
-            installedLauncherSource === "so") {
+        // Clic derecho explícito sobre SO: cancelar cualquier recuperación.
+        if (!leftClick && installedLauncherSource === "so" &&
+            (installedAppsPopup.visible || launcherKeepOpenAfterSelection)) {
+            cancelLauncherKeepOpen()
             installedAppsPopup.close()
             return
         }
@@ -1646,6 +1678,7 @@ Item {
         const requestedSource = "so"
         // Un segundo clic sobre SO cierra el popup existente.
         if (installedAppsPopup.visible && installedLauncherSource === requestedSource) {
+            cancelLauncherKeepOpen()
             installedAppsPopup.close()
             return
         }
@@ -1703,6 +1736,7 @@ Item {
     }
 
     function toggleTray() {
+        cancelLauncherKeepOpen()
         installedAppsPopup.close()
         if (trayExpanded) {
             trayExpanded = false
@@ -2254,8 +2288,16 @@ Item {
         layerSurfaceHosted: root.realAppLaunchEnabled &&
                             root.layerShellLauncherHost !== null
         onLaunchDesktopEntry: function(desktopId) {
-            console.log("SmartBar SO: clic en aplicación instalada, solicitud KDE")
+            // Registrar la intención ANTES de que iniciar la app altere foco.
+            root.cancelLauncherKeepOpen()
+            const keep = !root.autoCollapseLauncher &&
+                         root.realAppLaunchEnabled &&
+                         root.layerShellLauncherHost !== null
+            root.launcherKeepOpenAfterSelection = keep
+            console.log("SmartBar SO: clic en aplicación instalada; autocontraer =",
+                        root.autoCollapseLauncher)
             root.requestLaunchDesktopEntry(desktopId)
+            if (keep) launcherKeepOpenTimer.restart()
         }
         triggerButtonHovered: root.installedLauncherSource === "so" && soButton.hovered
         onRequestShowMalvina: {
@@ -2271,6 +2313,8 @@ Item {
                         name)
         }
         onClosed: {
+            // No cancelar aquí: el foco robado por la nueva aplicación
+            // también puede provocar esta señal sin cierre voluntario.
             if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
                 malvinaHideTimer.restart()
         }
