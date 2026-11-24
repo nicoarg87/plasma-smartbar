@@ -212,6 +212,18 @@ assert(!source.includes("root.width - 328") && !thumbnailHost.includes("width: 3
 assert(thumbnailHost.includes("uuid: preview.visible ? preview.windowUuid : \"\""),
        "No pedir captura mientras esté oculta");
 assert(thumbnailHost.includes("nodeId: preview.visible ? request.nodeId : 0"));
+assert(thumbnailHost.includes("signal cursorEntered()") &&
+       thumbnailHost.includes("signal cursorExited()"),
+       "La miniatura individual debe avisar entrada y salida de cursor");
+assert(thumbnailHost.includes("HoverHandler") &&
+       thumbnailHost.includes("preview.cursorEntered()") &&
+       thumbnailHost.includes("preview.cursorExited()"),
+       "No ocultar la miniatura mientras el cursor se encuentra en ella");
+assert(soProbe.includes("onCursorEntered: thumbnailDismiss.stop()"));
+assert(soProbe.includes("onCursorExited: thumbnailDismiss.restart()"));
+assert(soProbe.includes("id: thumbnailDismiss") &&
+       soProbe.includes("interval: 650"),
+       "Tiempo de transición entre ficha y miniatura individual");
 // Selector visual de grupos: una ventana individual se busca por UUID actual.
 const groupPicker = read("package/contents/ui/LayerShellTaskGroupPicker.qml");
 assert.equal(source.split("root.requestRealTaskGroup(").length - 1, 2,
