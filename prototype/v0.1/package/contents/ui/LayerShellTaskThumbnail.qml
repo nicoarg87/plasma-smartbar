@@ -17,8 +17,9 @@ Window {
     property real topOffset: 52
 
     visible: runtimeActive && requested && windowUuid.length > 0
-    width: 328
-    height: 222
+    // Reducción visual del 25 % aprobada: 328×222 → 246×166.
+    width: 246
+    height: 166
     color: "transparent"
     flags: Qt.Window | Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus
     transientParent: null
