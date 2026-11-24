@@ -709,7 +709,7 @@ Item {
     }
     signal requestLaunchDesktopEntry(string desktopId)
     // Exclusivo de la prueba KDE real; no ejecutar sobre el panel instalado.
-    signal requestRealTaskActivation(int taskRow)
+    signal requestRealTaskActivation(int taskRow, bool taskActive, string windowUuid)
     // Solo el prototipo LayerShell muestra miniaturas reales.
     signal requestRealTaskPreview(string windowUuid, string appLabel, real left)
     signal requestHideRealTaskPreview(string windowUuid)
@@ -719,13 +719,13 @@ Item {
     property bool realTaskPreviewEnabled: false
     property bool realTaskActivationEnabled: false
     property bool realTaskActivationDispatched: false
-    function activateRealTask(taskRow, appId, appName) {
+    function activateRealTask(taskRow, appId, appName, taskActive, windowUuid) {
         selectRealTaskApp(appId, appName)
         if (!realTaskActivationEnabled || !usingRealTasks) return
         if (!Number.isInteger(taskRow) || taskRow < 0 ||
             taskRow >= realTaskModel.count) return
         realTaskActivationDispatched = false
-        requestRealTaskActivation(taskRow)
+        requestRealTaskActivation(taskRow, taskActive === true, String(windowUuid || ""))
         if (realTaskActivationDispatched && autoCollapseSO)
             soExpanded = false
     }
@@ -3013,7 +3013,7 @@ Item {
                             if (previewUuid.length > 0)
                                 root.requestHideRealTaskPreview(previewUuid)
                             root.requestHideRealTaskGroup()
-                            root.activateRealTask(index, appId, appName)
+                            root.activateRealTask(index, appId, appName, model.IsActive === true && model.IsMinimized !== true, previewUuid)
                         }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
@@ -3682,7 +3682,7 @@ Item {
                             if (previewUuid.length > 0)
                                 root.requestHideRealTaskPreview(previewUuid)
                             root.requestHideRealTaskGroup()
-                            root.activateRealTask(index, appId, appName)
+                            root.activateRealTask(index, appId, appName, model.IsActive === true && model.IsMinimized !== true, previewUuid)
                         }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
