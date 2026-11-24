@@ -13,9 +13,12 @@ QQC2.Popup {
     property bool catalogIsReal: false
     // Solo el ensayo conjunto autorizado ejecuta aplicaciones KDE reales.
     property bool realLaunchEnabled: false
+    // En sesión KDE real se aloja dentro de una superficie LayerShell.
+    property bool layerSurfaceHosted: false
     // LayerShell limita el Window a la altura de la isla; en sesión conjunta
     // el lanzador usa su propia ventana Qt Popup para verse debajo.
-    popupType: realLaunchEnabled ? QQC2.Popup.Window : QQC2.Popup.Item
+    popupType: layerSurfaceHosted ? QQC2.Popup.Item :
+        (realLaunchEnabled ? QQC2.Popup.Window : QQC2.Popup.Item)
     property string selectedCategory: ""
     property bool showMoreCategories: false
     property bool filesMode: false
@@ -25,9 +28,9 @@ QQC2.Popup {
     property real heightOnFileSwitch: 0
     // Iconos de tema KDE (sin modo de solo iconos: el nombre siempre visible).
     property bool iconsWithNames: true
-    property int primaryWidth: 285
-    property int filesWidth: 500
-    property int categoryWidth: 280
+    property int primaryWidth: realLaunchEnabled ? 385 : 285
+    property int filesWidth: realLaunchEnabled ? 645 : 500
+    property int categoryWidth: realLaunchEnabled ? 330 : 280
     // Opción A (predeterminada): las aplicaciones aparecen a la derecha
     // y el panel principal se desplaza hacia la izquierda, como en la prueba.
     // Opción B: aplicaciones a la izquierda, panel principal fijo a la derecha.
@@ -83,8 +86,8 @@ QQC2.Popup {
     width: filesMode ? (expandedCanvas ? primaryWidth + categoryWidth + 1 : filesWidth) :
         (showCategoryPanel ? primaryWidth + categoryWidth + 1 : primaryWidth)
     height: Math.min(Math.max(170, popupHeightLimit),
-        Math.max(filesMode ? Math.max(240, heightOnFileSwitch) :
-                 Math.max(170, heightOnFileSwitch),
+        Math.max(filesMode ? Math.max(realLaunchEnabled ? 540 : 240, heightOnFileSwitch) :
+                 Math.max(realLaunchEnabled ? 540 : 170, heightOnFileSwitch),
                  headerHeight + rowsToShow * rowHeight))
     padding: 9
     modal: false
