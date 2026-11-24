@@ -82,7 +82,15 @@ assert(source.includes("RuntimeAppearance.applyToBar(root, diff)"));
 assert(bridge.includes("return false") && bridge.includes("return true"),
        "Aplicar debe comunicar éxito o fallo real");
 assert(source.includes("onSettingsApplied: {"));
+assert(source.includes("SmartBar Aplicar: intento de persistencia"),
+       "No ocultar Aplicar si no escribió nada");
+assert(source.includes("SmartBar Aplicar: sin línea base"),
+       "No confirmar si no se capturó el estado anterior");
 assert(bridge.includes("RuntimeAppearance.applyToBar(target,parsed)"));
+assert(bridge.includes("RuntimeAppearance.parse(backend.readAppearanceJson())"),
+       "La confirmación requiere releer el perfil guardado");
+assert(bridge.includes("JSON.stringify(saved[key]) !== JSON.stringify(changes[key])"),
+       "Verificar los valores escritos, no solo el éxito de QSaveFile");
 assert(bridge.includes("backend.saveAppearancePatch(patchJson)"));
 assert(bridge.includes("backend.readAppearanceJson()"));
 assert(bridge.includes("interval: 1750"));
