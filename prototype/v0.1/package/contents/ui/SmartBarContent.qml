@@ -710,6 +710,10 @@ Item {
     signal requestLaunchDesktopEntry(string desktopId)
     // Exclusivo de la prueba KDE real; no ejecutar sobre el panel instalado.
     signal requestRealTaskActivation(int taskRow)
+    // Solo el prototipo LayerShell muestra miniaturas reales.
+    signal requestRealTaskPreview(string windowUuid, string appLabel, real left)
+    signal requestHideRealTaskPreview(string windowUuid)
+    property bool realTaskPreviewEnabled: false
     property bool realTaskActivationEnabled: false
     property bool realTaskActivationDispatched: false
     function activateRealTask(taskRow, appId, appName) {
@@ -2953,7 +2957,45 @@ Item {
                         // y conservar selección de perfil para el menú existente.
                         readonly property string appId: String(model.AppId || "")
                         required property int index
-                        onClicked: root.activateRealTask(index, appId, appName)
+                        // Un grupo con más de una ventana necesita selector
+                        // secundario (pendiente): nunca capturar una al azar.
+                        readonly property var taskWindowIds: model.WinIdList || []
+                        readonly property string previewUuid:
+                            taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
+                        Timer {
+                            id: realTaskHoverDelay
+                            interval: 420
+                            repeat: false
+                            onTriggered: {
+                                if (root.realTaskPreviewEnabled && parent.hovered &&
+                                    parent.previewUuid.length > 0 &&
+                                    !root.realTrackedFullscreen &&
+                                    !root.installedLauncherPopupVisible) {
+                                    const local = parent.mapToItem(root, 0, 0).x
+                                    const maxLeft = Math.max(0, root.width - 328)
+                                    root.requestRealTaskPreview(parent.previewUuid,
+                                        parent.appName,
+                                        Math.max(0, Math.min(maxLeft,
+                                            local + parent.width / 2 - 164)))
+                                }
+                            }
+                        }
+                        onHoveredChanged: {
+                            if (hovered && root.realTaskPreviewEnabled &&
+                                previewUuid.length > 0)
+                                realTaskHoverDelay.restart()
+                            else {
+                                realTaskHoverDelay.stop()
+                                if (previewUuid.length > 0)
+                                    root.requestHideRealTaskPreview(previewUuid)
+                            }
+                        }
+                        onClicked: {
+                            realTaskHoverDelay.stop()
+                            if (previewUuid.length > 0)
+                                root.requestHideRealTaskPreview(previewUuid)
+                            root.activateRealTask(index, appId, appName)
+                        }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
@@ -3568,7 +3610,45 @@ Item {
                         // y conservar selección de perfil para el menú existente.
                         readonly property string appId: String(model.AppId || "")
                         required property int index
-                        onClicked: root.activateRealTask(index, appId, appName)
+                        // Un grupo con más de una ventana necesita selector
+                        // secundario (pendiente): nunca capturar una al azar.
+                        readonly property var taskWindowIds: model.WinIdList || []
+                        readonly property string previewUuid:
+                            taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
+                        Timer {
+                            id: realTaskHoverDelay
+                            interval: 420
+                            repeat: false
+                            onTriggered: {
+                                if (root.realTaskPreviewEnabled && parent.hovered &&
+                                    parent.previewUuid.length > 0 &&
+                                    !root.realTrackedFullscreen &&
+                                    !root.installedLauncherPopupVisible) {
+                                    const local = parent.mapToItem(root, 0, 0).x
+                                    const maxLeft = Math.max(0, root.width - 328)
+                                    root.requestRealTaskPreview(parent.previewUuid,
+                                        parent.appName,
+                                        Math.max(0, Math.min(maxLeft,
+                                            local + parent.width / 2 - 164)))
+                                }
+                            }
+                        }
+                        onHoveredChanged: {
+                            if (hovered && root.realTaskPreviewEnabled &&
+                                previewUuid.length > 0)
+                                realTaskHoverDelay.restart()
+                            else {
+                                realTaskHoverDelay.stop()
+                                if (previewUuid.length > 0)
+                                    root.requestHideRealTaskPreview(previewUuid)
+                            }
+                        }
+                        onClicked: {
+                            realTaskHoverDelay.stop()
+                            if (previewUuid.length > 0)
+                                root.requestHideRealTaskPreview(previewUuid)
+                            root.activateRealTask(index, appId, appName)
+                        }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
