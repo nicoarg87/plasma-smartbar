@@ -18,6 +18,17 @@ const importer=read("scripts/importar_apariencia_conjunta.cjs");
 const probes=["preview_soledad_input_mask.qml","preview_malvina_input_mask.qml"].map(read);
 
 assert(api.visualKeys.length>60,"Recuperar colores, degradados, geometrías y cajón");
+const editorQml=read("package/contents/ui/SoledadSettings.qml");
+const viewerQml=read("preview_redimensionable.qml");
+for(const key of api.visualKeys) {
+    const editorKey=api.editorNames[key] || key;
+    const matches=(code,property)=>
+        new RegExp("property\\\\s+\\\\w+\\\\s+"+property+"\\\\s*:").test(code);
+    assert(matches(source,key),"Falta propiedad destino SmartBar: "+key);
+    assert(matches(editorQml,editorKey),"Falta propiedad del editor: "+editorKey);
+    assert(matches(viewerQml,api.savedKey(key)),
+           "Falta clave de apariencia guardada: "+api.savedKey(key));
+}
 for(const p of ["malvinaShape","soledadOpacity","malvinaOpacity",
     "soledadGradientEnabled","malvinaGradientEnabled","launcherIconsWithNames",
     "taskDisplayMode","soLogoShape","soActivityStyle"])
