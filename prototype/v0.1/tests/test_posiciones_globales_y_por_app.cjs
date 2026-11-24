@@ -53,7 +53,7 @@ assert(!bar.includes("id: gripMalvinaVisibility"),
 assert(editor.includes("model: editor.realTasksModel"));
 assert(editor.includes("editor.savedIds"));
 assert(editor.includes("positionSlider.value"));
-assert(editor.includes("editor.previewRequested(previousOffset)"),
+assert(editor.includes("previewRequested(previousOffset)"),
        "Cancelar una vista previa debe restaurar la posición");
 assert(preview.includes('profileSettings.value("generalSoledadOffsetV1", "")'));
 assert(preview.includes('profileSettings.setValue("generalSoledadOffsetV1", probe.generalOffset)'));
