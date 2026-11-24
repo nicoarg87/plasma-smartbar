@@ -196,6 +196,15 @@ assert(soProbe.includes("probe.refreshInputRegion()"));
 assert(thumbnailHost.includes("TaskManager.ScreencastingRequest"));
 assert(thumbnailHost.includes("KPipeWire.PipeWireSourceItem"));
 assert(thumbnailHost.includes("LayerShell.Window.exclusionZone: -1"));
+assert(thumbnailHost.includes("width: 246") &&
+       thumbnailHost.includes("height: 166"),
+       "Miniatura SO debe medir 246×166 tras reducción del 25%");
+assert.equal(source.split("const maxLeft = Math.max(0, root.width - 246)").length - 1, 2,
+       "Centrado y límites del hover en ambos modos SO");
+assert.equal(source.split("local + realTaskChip.width / 2 - 123").length - 1, 2,
+       "Ambos modos SO deben centrar la miniatura reducida");
+assert(!source.includes("root.width - 328") && !thumbnailHost.includes("width: 328"),
+       "No dejar posiciones o tamaños antiguos");
 assert(thumbnailHost.includes("uuid: preview.visible ? preview.windowUuid : \"\""),
        "No pedir captura mientras esté oculta");
 assert(thumbnailHost.includes("nodeId: preview.visible ? request.nodeId : 0"));
