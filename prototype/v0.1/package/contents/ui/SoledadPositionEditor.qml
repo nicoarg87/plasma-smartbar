@@ -157,6 +157,7 @@ QQC2.Dialog {
                     Object.prototype.hasOwnProperty.call(editor.savedProfiles, editor.selectedId)
                 onClicked: {
                     editor.changesSaved = true
+                    editor.previewRequested(editor.previousOffset)
                     editor.removeRequested(editor.selectedId)
                     editor.close()
                 }
