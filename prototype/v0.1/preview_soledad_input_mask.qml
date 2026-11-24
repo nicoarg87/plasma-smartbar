@@ -869,15 +869,14 @@ Window {
         launcherAvailableHeight: Math.max(260,
             Math.min(760, probe.Screen.height - probe.height - 32))
         runtimeAppearanceEnabled: smartbarContinuousMode
-        onRequestAutoCollapseSOChange: function(newValue) {
-            // Actualizar el ajuste compartido existente (appearanceV1).
-            // No inventar un segundo almacén de preferencias SO.
-            const patch = JSON.stringify({demoAutoCollapseSO: newValue})
+        onRequestAutoCollapseLauncherChange: function(newValue) {
+            // Preferencia exclusiva del launcher; no modifica SO ni bandeja.
+            const patch = JSON.stringify({demoAutoCollapseLauncher: newValue})
             if (!appearanceBridge.commitPatch(patch)) {
-                console.warn("SmartBar SO: no se guardó autocontracción")
+                console.warn("SmartBar launcher: no se guardó autocontracción")
                 return
             }
-            console.log("SmartBar SO: autocontracción =", bar.autoCollapseSO)
+            console.log("SmartBar launcher: autocontracción =", bar.autoCollapseLauncher)
         }
         onRequestRuntimeAppearancePatch: function(json) {
             // Qt signals son sincrónicas: confirmar el resultado antes de
