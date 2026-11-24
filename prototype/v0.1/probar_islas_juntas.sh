@@ -82,11 +82,43 @@ else
     printf 'Catálogo ya existente: se preserva sin reescrituras.\n'
 fi
 
+# Usar la apariencia real guardada en el visor original, sin tocar
+# sus Qt Settings, temas inmutables, preferencias de KDE ni wallpapers.
+# La copia compartida local se crea UNA sola vez y después solo cambia
+# mediante Aplicar en las islas; nunca se reinstalan defaults al arrancar.
+APPEARANCE_FILE="$LOG_ROOT/appearance-runtime.json"
+if [[ ! -e "$APPEARANCE_FILE" ]]; then
+    QML_READER=""
+    if command -v qml6 >/dev/null 2>&1; then
+        QML_READER="$(command -v qml6)"
+    elif [[ -x /usr/lib/qt6/bin/qml ]]; then
+        QML_READER=/usr/lib/qt6/bin/qml
+    fi
+    if [[ -n "$QML_READER" ]] && command -v node >/dev/null 2>&1; then
+        if env QT_QPA_PLATFORM=offscreen "$QML_READER" \
+           "$HERE/scripts/leer_apariencia_playa.qml" \
+           >"$SESSION_DIR/apariencia-origen-privado.log" 2>&1; then
+            if ! node "$HERE/scripts/importar_apariencia_conjunta.cjs" \
+                "$SESSION_DIR/apariencia-origen-privado.log" "$APPEARANCE_FILE"; then
+                printf 'AVISO: no se pudo importar la apariencia previa.\n' >&2
+            fi
+        else
+            printf 'AVISO: lector Qt no disponible; no se modificó la apariencia.\n' >&2
+        fi
+        # El registro bruto contiene la apariencia del usuario; eliminar
+        # los datos fuente una vez terminada la importación.
+        rm -f -- "$SESSION_DIR/apariencia-origen-privado.log"
+    else
+        printf 'AVISO: falta qml6/node para importar la apariencia existente.\n' >&2
+    fi
+fi
+
 BIN="$BUILD_DIR/smartbar_input_mask_probe"
 MESSAGE_PATTERN='[%{time yyyy-MM-dd hh:mm:ss.zzz}] %{type}: %{message}'
 # Soledad: ventana fija y máscara de entrada ya ensayadas; posiciones por AppId.
 # LayerShell se declara en el QML raíz; no forzarlo sobre las ventanas Popup.
 env -u QT_WAYLAND_SHELL_INTEGRATION SMARTBAR_CONTINUOUS=1 \
+    SMARTBAR_SHARED_APPEARANCE_PATH="$APPEARANCE_FILE" \
     QT_QPA_PLATFORM=wayland QML_XHR_ALLOW_FILE_READ=1 \
     QT_MESSAGE_PATTERN="$MESSAGE_PATTERN" \
     "$BIN" "$HERE/preview_soledad_input_mask.qml" \
@@ -95,6 +127,7 @@ SO_PID=$!
 # Malvina: capa Top independiente y teclado OnDemand. No imponer LayerShell
 # globalmente a Configuración; su ventana conserva decoración KDE normal.
 env -u QT_WAYLAND_SHELL_INTEGRATION SMARTBAR_CONTINUOUS=1 \
+    SMARTBAR_SHARED_APPEARANCE_PATH="$APPEARANCE_FILE" \
     QT_QPA_PLATFORM=wayland QML_XHR_ALLOW_FILE_READ=1 \
     QT_MESSAGE_PATTERN="$MESSAGE_PATTERN" \
     "$BIN" "$HERE/preview_malvina_input_mask.qml" \
@@ -106,6 +139,7 @@ printf 'KDE y su panel inferior permanecen sin modificaciones.\n'
 printf 'Sin autocierre: mantené esta Konsole abierta o minimizada. Ctrl+C detiene ambas.\n'
 printf 'Malvina se autooculta; acercá el cursor a la esquina superior izquierda.\n'
 printf 'Los perfiles de Soledad y las preferencias de Malvina siguen separados.\n'
+printf 'La apariencia visual se comparte localmente, sin tocar los temas originales.\n'
 printf 'NO es un plasmoide instalado; miniaturas y wallpaper real continúan pendientes.\n'
 printf 'Logs privados: %s\n' "$SESSION_DIR"
 printf 'En otra Konsole: tail -f "%s/soledad.log" "%s/malvina.log"\n' "$SESSION_DIR" 
