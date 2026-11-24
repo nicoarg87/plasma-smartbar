@@ -33,6 +33,10 @@ QQC2.Button {
     property var taskIconSource: ""
     // Espacio extra para controles de ficha; no se resta del texto ni del icono.
     property int taskTrailingControlWidth: 0
+    // Cierre integrado en la capa de contenido para que no lo tape el
+    // contentItem del botón de Qt Quick Controls.
+    property bool taskCloseVisible: false
+    signal taskCloseRequested()
     // Ajuste de lectura para nombres extensos; no altera el tamaño de fuente.
     property int taskNameExtraWidth: 0
     readonly property bool taskUsesIcon: inheritIslandFill && taskDisplayMode !== "text"
@@ -534,11 +538,38 @@ QQC2.Button {
             verticalAlignment: Text.AlignVCenter
             font.family: control.customTextMode ? control.customTextFontFamily : "Sans Serif"
             font.pixelSize: control.customTextMode ? control.customTextFontSize : 13
-            fontSizeMode: Text.Fit
+            fontSizeMode: control.inheritIslandFill ? Text.FixedSize : Text.Fit
             minimumPixelSize: 8
             font.weight: control.customTextMode && control.customTextBold
                 ? Font.Bold : (control.accent ? Font.DemiBold : Font.Normal)
             elide: Text.ElideRight
+        }
+        // X SIN FONDO, siempre encima de la etiqueta y del icono.
+        // No se usa ToolButton anidado: su contentItem podía ocultarlo.
+        Item {
+            id: taskCloseHitArea
+            visible: control.taskCloseVisible && control.inheritIslandFill
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            width: 26
+            height: 28
+            z: 10
+            Text {
+                anchors.centerIn: parent
+                text: "×"
+                color: taskCloseMouse.containsMouse ? "#ffffff" : "#eaf7ff"
+                font.family: "Sans Serif"
+                font.pixelSize: 20
+                font.bold: true
+            }
+            MouseArea {
+                id: taskCloseMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                acceptedButtons: Qt.LeftButton
+                cursorShape: Qt.PointingHandCursor
+                onClicked: control.taskCloseRequested()
+            }
         }
     }
 }
