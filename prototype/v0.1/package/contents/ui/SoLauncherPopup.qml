@@ -32,23 +32,25 @@ QQC2.Popup {
     // Se ajusta al texto más largo hasta el límite físico de pantalla.
     // El visor antiguo conserva sus medidas históricas.
     property real availableScreenWidth: 1366
-    function longestInstalledName() {
-        let result = "Programas de esta categoría"
+    FontMetrics {
+        id: installedNameMetrics
+        font.pixelSize: 14
+    }
+    function maxInstalledTextWidth() {
+        // El ancho se calcula con la fuente real de Qt, no con la
+        // longitud en caracteres (las letras ocupan tamaños diferentes).
+        let widest = installedNameMetrics.advanceWidth("Programas de esta categoría")
         const apps = currentApplications
         for (let i = 0; i < apps.length; i++) {
-            const name = String(apps[i].name || "")
-            if (name.length > result.length) result = name
+            widest = Math.max(widest, installedNameMetrics.advanceWidth(
+                String(apps[i].name || "")))
+            if (widest >= 388) break // Ya alcanza el máximo de 450 con padding.
         }
-        return result
-    }
-    TextMetrics {
-        id: longestNameMetrics
-        font.pixelSize: 14
-        text: launcher.longestInstalledName()
+        return widest
     }
     readonly property int sharedColumnWidth: Math.max(215, Math.min(
         450,
-        Math.max(278, Math.ceil(longestNameMetrics.advanceWidth + 62)),
+        Math.max(278, Math.ceil(maxInstalledTextWidth() + 62)),
         Math.floor((Math.max(480, availableScreenWidth) - 42) / 2)))
     property int primaryWidth: realLaunchEnabled ? sharedColumnWidth : 285
     property int filesWidth: realLaunchEnabled ? 645 : 500
