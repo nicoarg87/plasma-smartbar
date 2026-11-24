@@ -17,7 +17,7 @@ QQC2.ToolButton {
     focusPolicy: Qt.StrongFocus
     Accessible.name: (demoMuted ? "Activar" : "Silenciar") +
                      " audio simulado de " + appName
-    QQC2.ToolTip.visible: hovered
+    QQC2.ToolTip.visible: false
     QQC2.ToolTip.text: (demoMuted ? "Reactivar" : "Silenciar") +
                        " sonido simulado de " + appName +
                        " (no modifica audio real)"
