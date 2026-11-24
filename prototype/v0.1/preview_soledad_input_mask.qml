@@ -579,6 +579,9 @@ Window {
         interval: 650
         repeat: false
         onTriggered: {
+            // Nunca cerrar mientras el puntero esté dentro del panel flotante.
+            // Esto protege el uso futuro de controles interactivos (volumen).
+            if (taskThumbnail.cursorInside) return
             taskThumbnail.requested = false
             taskThumbnail.windowUuid = ""
         }
