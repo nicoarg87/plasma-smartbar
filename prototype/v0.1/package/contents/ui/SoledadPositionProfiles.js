@@ -82,3 +82,13 @@ function withGeneralBaseline(rows, json, baseOffset) {
     }
     return profiles;
 }
+
+function resolveForApp(json, appId, known, defaultOffset, maxOffset) {
+    const baseline = clampOffset(defaultOffset, maxOffset);
+    if (known !== true) return baseline;
+    const id = validAppId(appId);
+    if (!id) return baseline;
+    const profiles = readProfiles(json);
+    return Object.prototype.hasOwnProperty.call(profiles, id)
+        ? clampOffset(profiles[id], maxOffset) : baseline;
+}
