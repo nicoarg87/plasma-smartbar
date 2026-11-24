@@ -962,7 +962,7 @@ Item {
     readonly property bool activeRealAppHasSavedPosition:
         demoWindowControlsEnabled && usingRealTasks &&
         positionMode === "right" && realTrackedKnown &&
-        realTrackedMaximized && !realTrackedFullscreen &&
+        !realTrackedFullscreen &&
         realTrackedAppId.length > 0 &&
         Object.prototype.hasOwnProperty.call(
             SoledadPositionProfiles.readProfiles(realPositionProfilesJson),
@@ -972,12 +972,14 @@ Item {
             positionMode !== "right" || gripDrag.active) return
         // Solo aplicar un estado con ventana externa identificada y no fullscreen.
         if (!realTrackedKnown || realTrackedFullscreen) return
-        // Desmaximizar solo fuerza el retorno general si esa preferencia
-        // está habilitada; sin ella, respetar la posición manual.
-        if (!realTrackedMaximized && !autoReturnRight) return
-        const next = SoledadPositionProfiles.resolveOffset(
+        // Una aplicación concreta (restaurada o maximizada) usa su anclaje.
+        // Cuando KWin detecta otra ventana MAXIMIZADA encima, el visor
+        // decide primero cuál prevalece mediante el apilamiento real.
+        if (!realTrackedMaximized && !autoReturnRight &&
+            !activeRealAppHasSavedPosition) return
+        const next = SoledadPositionProfiles.resolveForApp(
             realPositionProfilesJson, realTrackedAppId, true,
-            realTrackedMaximized, generalSoledadOffset, maxIslandOffset)
+            generalSoledadOffset, maxIslandOffset)
         setIslandOffset(next)
         alignRightSelected = next === 0
         ensureExpansionFits()
@@ -2042,8 +2044,7 @@ Item {
         // debajo de SO, no reubicada desde el origen del Window LayerShell.
         y: root.fixedHeight + 8
         popupHeightLimit: root.realAppLaunchEnabled
-            ? Math.max(320, Math.min(root.launcherAvailableHeight,
-                                      root.Window.window ? root.Window.window.Screen.height - root.fixedHeight - 70 : 450))
+            ? Math.max(270, Math.min(root.launcherAvailableHeight, 425))
             : root.launcherAvailableHeight
         categoryLayout: root.launcherCategoryLayout
         maxVisibleSlots: root.launcherMaxSlots
