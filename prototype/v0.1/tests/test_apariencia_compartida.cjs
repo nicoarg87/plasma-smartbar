@@ -158,9 +158,9 @@ assert(runner.includes('SMARTBAR_SHARED_APPEARANCE_PATH="$APPEARANCE_FILE"'));
 const soProbe=probes[0];
 const launcherQml=read("package/contents/ui/SoLauncherPopup.qml");
 assert(source.includes("signal requestRealTaskActivation(int taskRow)"));
-assert.equal((source.match(/root\\.activateRealTask\\(index, appId, appName\\)/g) || []).length, 2,
+assert.equal(source.split("root.activateRealTask(index, appId, appName)").length - 1, 2,
        "Ambos delegados SO deben activar la ventana KDE desde su clic");
-assert.equal((source.match(/root\\.requestHideRealTaskPreview\\(previewUuid\\)/g) || []).length, 4,
+assert.equal(source.split("root.requestHideRealTaskPreview(previewUuid)").length - 1, 4,
        "Ambos delegados deben cerrar la miniatura en hover-out y clic");
 assert(source.includes("if (realTaskActivationDispatched && autoCollapseSO)"));
 assert(soProbe.includes("realTaskActivationEnabled: smartbarContinuousMode"));
