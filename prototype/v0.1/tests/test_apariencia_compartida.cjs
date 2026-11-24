@@ -208,4 +208,29 @@ assert(!source.includes("root.width - 328") && !thumbnailHost.includes("width: 3
 assert(thumbnailHost.includes("uuid: preview.visible ? preview.windowUuid : \"\""),
        "No pedir captura mientras esté oculta");
 assert(thumbnailHost.includes("nodeId: preview.visible ? request.nodeId : 0"));
-console.log("OK: apariencia, activación SO y miniatura LayerShell experimental");
+// Selector visual de grupos: una ventana individual se busca por UUID actual.
+const groupPicker = read("package/contents/ui/LayerShellTaskGroupPicker.qml");
+assert.equal(source.split("root.requestRealTaskGroup(").length - 1, 2,
+       "Las dos disposiciones SO deben abrir selector de ventanas agrupadas");
+assert.equal(source.split("root.activateRealTask(index, appId, appName)").length - 1, 2,
+       "Las tareas no agrupadas conservan su activación directa");
+assert(source.includes("if (isGrouped && taskWindowIds.length > 1"));
+assert(soProbe.includes("SmartBar.LayerShellTaskGroupPicker"));
+assert(soProbe.includes("taskModel: kdeWindows"),
+       "El selector utiliza TasksModel sin agrupación");
+assert(soProbe.includes("String(row.windowUuids[0]) === uuid"),
+       "Activación de una ventana individual por UUID actual");
+assert(soProbe.includes("kdeWindows.requestActivate(kdeWindows.index(found, 0))"));
+assert(soProbe.includes("if (bar.autoCollapseSO) bar.soExpanded = false"));
+assert.equal(soProbe.split("onSoExpandedChanged:").length - 1, 1,
+       "El selector no debe duplicar handlers QML existentes");
+assert(soProbe.includes("onRealTrackedFullscreenChanged:"));
+assert(groupPicker.includes("LayerShell.Window.exclusionZone: -1"));
+assert(groupPicker.includes("LayerShell.Window.KeyboardInteractivityOnDemand"));
+assert(groupPicker.includes("TaskManager.ScreencastingRequest"));
+assert(groupPicker.includes("KPipeWire.PipeWireSourceItem"));
+assert(groupPicker.includes("chooser.groupUuids.indexOf(uuid) >= 0"),
+       "No capturar ventanas ajenas al grupo");
+assert(groupPicker.includes("onClicked: {"));
+assert(groupPicker.includes("chooser.selectWindow(option.uuid)"));
+console.log("OK: apariencia, activación SO, miniatura y selector experimental de grupos");
