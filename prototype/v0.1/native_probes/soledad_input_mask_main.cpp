@@ -7,6 +7,11 @@
 #include <QStandardPaths>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
+#include <QFile>
+#include <QSaveFile>
 #include <QDir>
 #include <QSet>
 #include <QList>
@@ -93,6 +98,63 @@ public:
         }
         qWarning() << "SmartBar: entrada .desktop no encontrada" << desktopId;
         return false;
+    }
+
+    // Perfil visual compartido entre dos procesos de ensayo. Ruta definida
+    // por el lanzador, NUNCA por una preferencia QML ni una URL.
+    // No se modifica la configuración del visor histórico ni la de KDE.
+    Q_INVOKABLE QString readAppearanceJson() const {
+        const QString path = qEnvironmentVariable("SMARTBAR_SHARED_APPEARANCE_PATH");
+        if (path.isEmpty() || !QFileInfo(path).isFile()) return {};
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly)) return {};
+        const QByteArray bytes = file.read(200001);
+        if (bytes.size() > 200000) return {};
+        return QString::fromUtf8(bytes);
+    }
+
+    Q_INVOKABLE bool saveAppearancePatch(const QString &text) const {
+        const QString path = qEnvironmentVariable("SMARTBAR_SHARED_APPEARANCE_PATH");
+        if (path.isEmpty() || text.toUtf8().size() > 40000) return false;
+        QJsonParseError err;
+        const auto incoming = QJsonDocument::fromJson(text.toUtf8(), &err);
+        if (err.error != QJsonParseError::NoError || !incoming.isObject())
+            return false;
+        const QJsonObject patch = incoming.object();
+        if (patch.isEmpty() || patch.size() > 100) return false;
+        // Lista concreta de claves visuales: el origen QML no puede escribir
+        // campos de sistema, autorizaciones IA, wallpaper ni perfiles KDE.
+        static const QRegularExpression onlyVisual(
+            QStringLiteral("^demo[A-Za-z][A-Za-z0-9]*$"));
+        for (auto it = patch.begin(); it != patch.end(); ++it) {
+            if (!onlyVisual.match(it.key()).hasMatch() || it.value().isNull())
+                return false;
+        }
+        QJsonObject current;
+        const QString raw = readAppearanceJson();
+        if (!raw.isEmpty()) {
+            const auto parsed = QJsonDocument::fromJson(raw.toUtf8(), &err);
+            if (err.error != QJsonParseError::NoError || !parsed.isObject())
+                return false; // No reescribir un perfil dañado.
+            current = parsed.object();
+        }
+        for (auto it = patch.begin(); it != patch.end(); ++it)
+            current.insert(it.key(), it.value());
+        const QFileInfo info(path);
+        if (!QDir(info.absolutePath()).exists()) return false;
+        QSaveFile out(path);
+        out.setDirectWriteFallback(false);
+        if (!out.open(QIODevice::WriteOnly)) return false;
+        const QByteArray bytes = QJsonDocument(current).toJson(QJsonDocument::Compact);
+        if (bytes.size() > 200000 || out.write(bytes) != bytes.size()) {
+            out.cancelWriting();
+            return false;
+        }
+        if (!out.commit()) return false;
+        QFile::setPermissions(path, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+        qInfo() << "SmartBar apariencia: cambios visuales guardados"
+                << patch.size();
+        return true;
     }
 
     // Un navegador elegido aplica indistintamente a Web y chat IA.
