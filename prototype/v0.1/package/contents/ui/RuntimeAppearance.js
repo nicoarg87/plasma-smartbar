@@ -43,7 +43,7 @@ var visualKeys = [
     // Opciones de interfaz que el editor ya admite, pero el ensayo
     // conjunto anterior omitía: no controlan procesos ni ventanas ajenas.
     "taskCloseMode","backgroundColor","backgroundOpacity","showBackground",
-    "autoCollapseSO","autoCollapseTray","autoReturnRight",
+    "autoCollapseSO","autoCollapseLauncher","autoCollapseTray","autoReturnRight",
     "soLeftClickOpensLauncher"
 ]
 // Mapeo inverso entre nombre del elemento visual y la propiedad del editor.
