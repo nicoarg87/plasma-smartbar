@@ -713,6 +713,8 @@ Item {
     // Solo el prototipo LayerShell muestra miniaturas reales.
     signal requestRealTaskPreview(string windowUuid, string appLabel, real left)
     signal requestHideRealTaskPreview(string windowUuid)
+    // Selector de grupo: segunda superficie LayerShell, nunca otra fila en SO.
+    signal requestRealTaskGroup(var windowIds, string appLabel, real left)
     property bool realTaskPreviewEnabled: false
     property bool realTaskActivationEnabled: false
     property bool realTaskActivationDispatched: false
@@ -2995,7 +2997,18 @@ Item {
                             realTaskHoverDelay.stop()
                             if (previewUuid.length > 0)
                                 root.requestHideRealTaskPreview(previewUuid)
-                            root.activateRealTask(index, appId, appName)
+                            if (isGrouped && taskWindowIds.length > 1 &&
+                                root.realTaskActivationEnabled) {
+                                const local = realTaskChip.mapToItem(root, 0, 0).x
+                                const maxLeft = Math.max(0, root.width - 270)
+                                root.requestRealTaskGroup(
+                                    Array.from(taskWindowIds, function(id) { return String(id) }),
+                                    appName,
+                                    Math.max(0, Math.min(maxLeft,
+                                        local + realTaskChip.width / 2 - 135)))
+                            } else {
+                                root.activateRealTask(index, appId, appName)
+                            }
                         }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
@@ -3649,7 +3662,18 @@ Item {
                             realTaskHoverDelay.stop()
                             if (previewUuid.length > 0)
                                 root.requestHideRealTaskPreview(previewUuid)
-                            root.activateRealTask(index, appId, appName)
+                            if (isGrouped && taskWindowIds.length > 1 &&
+                                root.realTaskActivationEnabled) {
+                                const local = realTaskChip.mapToItem(root, 0, 0).x
+                                const maxLeft = Math.max(0, root.width - 270)
+                                root.requestRealTaskGroup(
+                                    Array.from(taskWindowIds, function(id) { return String(id) }),
+                                    appName,
+                                    Math.max(0, Math.min(maxLeft,
+                                        local + realTaskChip.width / 2 - 135)))
+                            } else {
+                                root.activateRealTask(index, appId, appName)
+                            }
                         }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
