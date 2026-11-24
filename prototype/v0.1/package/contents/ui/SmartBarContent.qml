@@ -14,6 +14,7 @@ import "DemoAudioState.js" as DemoAudioState
 import "SoledadPositionProfiles.js" as SoledadPositionProfiles
 import "LayerShellDragCompensation.js" as LayerShellDragCompensation
 import "RealActiveWindow.js" as RealActiveWindow
+import "RuntimeAppearance.js" as RuntimeAppearance
 
 Item {
     id: root
@@ -101,6 +102,10 @@ Item {
     property string malvinaSearchButtonShape: "square"
     signal requestMalvinaButtonShapesChange(string gearShape, string searchShape)
     signal requestPersistCurrentSettings()
+    // Opt-in de las dos islas LayerShell: el visor normal y el plasmoide
+    // conservan su circuito de Aplicar sin perfil compartido adicional.
+    property bool runtimeAppearanceEnabled: false
+    signal requestRuntimeAppearancePatch(string patchJson)
     // Espacios locales de temas: no cambian posiciones ni permisos de Malvina.
     property string themeDayJson: ""
     property string themeDayPreviousJson: ""
@@ -1857,7 +1862,17 @@ Item {
             if (!visible && root.activeThemeScheduleEnabled && root.themeScheduleRuntimeEnabled)
                 Qt.callLater(function() { root.checkThemeSchedule() })
         }
-        onSettingsApplied: root.requestPersistCurrentSettings()
+        onSettingsApplied: {
+            root.requestPersistCurrentSettings()
+            if (root.runtimeAppearanceEnabled) {
+                // Capturar solo las propiedades realmente editadas respecto
+                // del último Aplicar/Cancelar del diálogo: no sobrescribir
+                // todo el tema original ni los ajustes del otro proceso.
+                const diff = RuntimeAppearance.captureChanges(soledadSettings)
+                if (Object.keys(diff).length > 0)
+                    root.requestRuntimeAppearancePatch(JSON.stringify(diff))
+            }
+        }
         onRestorePersonalDefaultRequested: root.requestRestorePersonalDefault()
         onRestoreFavoriteAppearanceRequested: root.requestRestoreFavoriteAppearance()
         onSaveThemeSlotRequested: function(slot, data) {
