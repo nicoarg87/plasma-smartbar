@@ -23,6 +23,7 @@ Window {
     readonly property int cardWidth: 252
     readonly property int cardHeight: 178
     signal selectWindow(string uuid)
+    signal closeWindow(string uuid)
     signal cursorEntered()
     signal cursorExited()
 
@@ -188,6 +189,35 @@ Window {
                                     cursorShape: Qt.PointingHandCursor
                                     onClicked: {
                                         if (option.belongs) chooser.selectWindow(option.uuid)
+                                    }
+                                }
+                                // La X afecta SOLO a esta ventana del grupo.
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.right: parent.right
+                                    anchors.margins: 6
+                                    width: 28
+                                    height: 28
+                                    radius: 6
+                                    z: 2
+                                    color: closeGroupMouse.containsMouse ? "#a12e3b" : "#263b4a"
+                                    border.color: "#b9d3df"
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "×"
+                                        color: "white"
+                                        font.pixelSize: 20
+                                    }
+                                    MouseArea {
+                                        id: closeGroupMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        acceptedButtons: Qt.LeftButton
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (option.belongs && option.uuid.length > 0)
+                                                chooser.closeWindow(option.uuid)
+                                        }
                                     }
                                 }
                             }
