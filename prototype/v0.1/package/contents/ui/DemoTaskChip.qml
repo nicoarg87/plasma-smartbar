@@ -132,7 +132,7 @@ Row {
                 else chip.openPreview()
             }
         }
-        QQC2.ToolTip.visible: hovered && !previewPopup.visible
+        QQC2.ToolTip.visible: false
         QQC2.ToolTip.text: "Ventana simulada: " + chip.appName
     }
 
@@ -174,7 +174,7 @@ Row {
                 color: closeDemoChip.enabled ? "#ffffff" : "#91a8b8"
             }
         }
-        QQC2.ToolTip.visible: hovered
+        QQC2.ToolTip.visible: false
         QQC2.ToolTip.text: "Cerrar solo la ficha simulada de " + chip.appName
         onClicked: {
             chip.closePreview()
@@ -277,7 +277,7 @@ Row {
                             anchors.top: parent.top
                             anchors.right: parent.right
                             Accessible.name: "Cerrar " + modelData.title + " (simulada)"
-                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.visible: false
                             QQC2.ToolTip.text: "Cerrar solo esta ventana simulada"
                             contentItem: Item {
                                 Rectangle {
