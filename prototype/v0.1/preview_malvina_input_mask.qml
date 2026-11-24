@@ -188,6 +188,13 @@ Window {
         }
     }
 
+    SmartBar.RuntimeAppearanceBridge {
+        id: appearanceBridge
+        target: bar
+        backend: soledadInputMask
+        appearanceActive: smartbarContinuousMode
+    }
+
     SmartBar.SmartBarContent {
         id: bar
         // El contenido es compartido con Soledad: la ventana recorta
@@ -207,6 +214,10 @@ Window {
         // el autoocultamiento de fábrica sin modificar KConfig del usuario.
         autoHideMalvina: smartbarContinuousMode
         realAppLaunchEnabled: smartbarContinuousMode
+        runtimeAppearanceEnabled: smartbarContinuousMode
+        onRequestRuntimeAppearancePatch: function(json) {
+            appearanceBridge.commitPatch(json)
+        }
         onRequestLaunchDesktopEntry: function(desktopId) {
             if (soledadInputMask.launchDesktopEntry(desktopId))
                 console.log("SmartBar Malvina: aplicación KDE iniciada por ID", desktopId)
