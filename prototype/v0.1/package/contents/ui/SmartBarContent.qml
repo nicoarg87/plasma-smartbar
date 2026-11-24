@@ -105,6 +105,8 @@ Item {
     // Opt-in de las dos islas LayerShell: el visor normal y el plasmoide
     // conservan su circuito de Aplicar sin perfil compartido adicional.
     property bool runtimeAppearanceEnabled: false
+    // La confirmación llega sincrónicamente desde la isla que ejecuta Qt.
+    property bool runtimeLastAppearanceCommitOk: false
     signal requestRuntimeAppearancePatch(string patchJson)
     // Espacios locales de temas: no cambian posiciones ni permisos de Malvina.
     property string themeDayJson: ""
@@ -1892,12 +1894,36 @@ Item {
         onSettingsApplied: {
             root.requestPersistCurrentSettings()
             if (root.runtimeAppearanceEnabled) {
-                // Capturar solo las propiedades realmente editadas respecto
-                // del último Aplicar/Cancelar del diálogo: no sobrescribir
-                // todo el tema original ni los ajustes del otro proceso.
+                // Solo cambios elegidos; evitar pisar el tema de la otra isla.
                 const diff = RuntimeAppearance.captureChanges(soledadSettings)
-                if (Object.keys(diff).length > 0)
+                const unmanaged = RuntimeAppearance.unmappedChanges(soledadSettings)
+                const count = Object.keys(diff).length
+                soledadSettings.runtimeApplyFailed = false
+                soledadSettings.runtimeApplyNote = ""
+                if (count > 0) {
+                    root.runtimeLastAppearanceCommitOk = false
                     root.requestRuntimeAppearancePatch(JSON.stringify(diff))
+                    if (root.runtimeLastAppearanceCommitOk) {
+                        // Efecto INMEDIATO además de sincronizar ambos procesos:
+                        // el usuario no debe esperar el siguiente timer.
+                        RuntimeAppearance.applyToBar(root, diff)
+                        console.log("SmartBar Aplicar confirmado:", count,
+                                    "preferencias de interfaz")
+                    } else {
+                        soledadSettings.runtimeApplyFailed = true
+                        soledadSettings.runtimeApplyNote =
+                            "No se pudo guardar la apariencia. Revisá los logs de esta isla."
+                        console.warn("SmartBar Aplicar: guardado local NO confirmado")
+                    }
+                }
+                if (unmanaged.length > 0) {
+                    const message = "Sin integración en este ensayo: " +
+                                    unmanaged.join(", ")
+                    soledadSettings.runtimeApplyNote +=
+                        (soledadSettings.runtimeApplyNote ? " " : "") + message
+                    console.warn("SmartBar Aplicar: opciones pendientes de integrar:",
+                                 unmanaged.join(", "))
+                }
             }
         }
         onRestorePersonalDefaultRequested: root.requestRestorePersonalDefault()
