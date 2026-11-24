@@ -172,4 +172,22 @@ assert(source.includes("root.selectDemoApp(name)"),
        "La maqueta conserva la selección de ventanas ficticias");
 assert(source.includes("root.requestLaunchDesktopEntry(desktopId)"),
        "El launcher KDE conserva el lanzamiento real autorizado");
-console.log("OK: apariencia y selección real/simulada de aplicaciones SO");
+// Miniaturas: UUID efímero de una ventana real; ningún audio ni captura al arrancar.
+const thumbnailHost=read("package/contents/ui/LayerShellTaskThumbnail.qml");
+assert(source.includes("signal requestRealTaskPreview(string windowUuid, string appLabel, real left)"));
+assert(source.includes("signal requestHideRealTaskPreview(string windowUuid)"));
+assert(source.includes("taskWindowIds.length === 1 ? String(taskWindowIds[0]) : \"\""),
+       "Un grupo de ventanas NO permite escoger UUID arbitrario");
+assert(source.includes("interval: 420"), "El screencast no comienza sin demora hover");
+assert(source.includes("!root.realTrackedFullscreen"));
+assert(soProbe.includes("SmartBar.LayerShellTaskThumbnail"));
+assert(soProbe.includes("onRequestRealTaskPreview:"));
+assert(soProbe.includes("onRequestHideRealTaskPreview:"));
+assert(soProbe.includes("onRealTrackedFullscreenChanged:"));
+assert(thumbnailHost.includes("TaskManager.ScreencastingRequest"));
+assert(thumbnailHost.includes("KPipeWire.PipeWireSourceItem"));
+assert(thumbnailHost.includes("LayerShell.Window.exclusionZone: -1"));
+assert(thumbnailHost.includes("uuid: preview.visible ? preview.windowUuid : \"\""),
+       "No pedir captura mientras esté oculta");
+assert(thumbnailHost.includes("nodeId: preview.visible ? request.nodeId : 0"));
+console.log("OK: apariencia, activación SO y miniatura LayerShell experimental");
