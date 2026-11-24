@@ -2918,6 +2918,7 @@ Item {
                     model: root.positionMode === "right" && root.soExpanded &&
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
+                        id: realTaskChip
                         inheritIslandFill: true
                         taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
@@ -2967,16 +2968,16 @@ Item {
                             interval: 420
                             repeat: false
                             onTriggered: {
-                                if (root.realTaskPreviewEnabled && parent.hovered &&
-                                    parent.previewUuid.length > 0 &&
+                                if (root.realTaskPreviewEnabled && realTaskChip.hovered &&
+                                    realTaskChip.previewUuid.length > 0 &&
                                     !root.realTrackedFullscreen &&
                                     !root.installedLauncherPopupVisible) {
-                                    const local = parent.mapToItem(root, 0, 0).x
+                                    const local = realTaskChip.mapToItem(root, 0, 0).x
                                     const maxLeft = Math.max(0, root.width - 328)
-                                    root.requestRealTaskPreview(parent.previewUuid,
-                                        parent.appName,
+                                    root.requestRealTaskPreview(realTaskChip.previewUuid,
+                                        realTaskChip.appName,
                                         Math.max(0, Math.min(maxLeft,
-                                            local + parent.width / 2 - 164)))
+                                            local + realTaskChip.width / 2 - 164)))
                                 }
                             }
                         }
@@ -3571,6 +3572,7 @@ Item {
                     model: root.positionMode === "center" && root.soExpanded &&
                            root.usingRealTasks ? root.realTaskModel : null
                     delegate: IslandButton {
+                        id: realTaskChip
                         inheritIslandFill: true
                         taskDisplayMode: root.taskDisplayMode
                         taskFrameShape: root.taskFrameShape
@@ -3620,16 +3622,16 @@ Item {
                             interval: 420
                             repeat: false
                             onTriggered: {
-                                if (root.realTaskPreviewEnabled && parent.hovered &&
-                                    parent.previewUuid.length > 0 &&
+                                if (root.realTaskPreviewEnabled && realTaskChip.hovered &&
+                                    realTaskChip.previewUuid.length > 0 &&
                                     !root.realTrackedFullscreen &&
                                     !root.installedLauncherPopupVisible) {
-                                    const local = parent.mapToItem(root, 0, 0).x
+                                    const local = realTaskChip.mapToItem(root, 0, 0).x
                                     const maxLeft = Math.max(0, root.width - 328)
-                                    root.requestRealTaskPreview(parent.previewUuid,
-                                        parent.appName,
+                                    root.requestRealTaskPreview(realTaskChip.previewUuid,
+                                        realTaskChip.appName,
                                         Math.max(0, Math.min(maxLeft,
-                                            local + parent.width / 2 - 164)))
+                                            local + realTaskChip.width / 2 - 164)))
                                 }
                             }
                         }
