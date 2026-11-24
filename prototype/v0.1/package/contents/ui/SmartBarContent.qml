@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Layouts
+import QtCore as QtCore
 import QtQuick.Controls as QQC2
 import "ThemeSchedule.js" as ThemeSchedule
 import "ThemePack.js" as ThemePack
@@ -1159,6 +1160,30 @@ Item {
     signal requestAutoCollapseTrayChange(bool newValue)
     onWidthChanged: console.log("SmartBar v0.1: ancho útil de las islas =", width)
 
+    // Preferencia local del prototipo: ensanchar nombres SO sin achicar fuente.
+    // Solo cambia ancho horizontal y se guarda al soltar el separador.
+    QtCore.Settings {
+        id: taskWidthSettings
+        category: "plasma-smartbar-v01-task-chip-width"
+    }
+    property int taskNameExtraWidth: Math.max(0, Math.min(160,
+        Number(taskWidthSettings.value("extraWidth", 0)) || 0))
+    property real taskResizeStartX: 0
+    property int taskResizeStartWidth: 0
+    property int taskResizeChipCount: 1
+    function updateTaskNameExtraWidth(value) {
+        const count = Math.max(1, usingRealTasks ? realTaskModel.count :
+            demoOpenedApps.length)
+        const spare = Math.max(0, availableIslandWidth - naturalIslandWidth)
+        const maximum = Math.max(0, Math.min(160,
+            taskNameExtraWidth + Math.floor(spare / count)))
+        taskNameExtraWidth = Math.max(0, Math.min(maximum,
+            Math.round(value)))
+    }
+    function saveTaskNameExtraWidth() {
+        taskWidthSettings.setValue("extraWidth", taskNameExtraWidth)
+        taskWidthSettings.sync()
+    }
     property bool soExpanded: false
     property bool trayExpanded: false
     // Última expansión iniciada por el usuario: gana si falta espacio.
@@ -2850,14 +2875,51 @@ Item {
                 // Separación mínima y legible entre iconos de bandeja y
                 // fichas SO, solamente cuando ambas expansiones están
                 // visibles. Se incluye naturalmente en el ancho medido.
-                Rectangle {
+                Item {
                     id: traySOSeparator
                     visible: root.trayExpanded && root.soExpanded
-                    width: 2
-                    height: 24
-                    radius: 1
-                    color: "#7594a8"
+                    width: 14
+                    height: 28
                     y: (systemRow.height - height) / 2
+                    // Tres marcas indican que este separador se puede arrastrar.
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 2
+                        Repeater {
+                            model: 3
+                            Rectangle {
+                                width: 2
+                                height: 15
+                                radius: 1
+                                color: "#a6c4d4"
+                            }
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        acceptedButtons: Qt.LeftButton
+                        cursorShape: Qt.SizeHorCursor
+                        onPressed: function(mouse) {
+                            const pt = mapToItem(root, mouse.x, mouse.y)
+                            root.taskResizeStartX = pt.x
+                            root.taskResizeStartWidth = root.taskNameExtraWidth
+                            root.taskResizeChipCount = Math.max(1, root.usingRealTasks
+                                ? root.realTaskModel.count : root.demoOpenedApps.length)
+                        }
+                        onPositionChanged: function(mouse) {
+                            if (!(pressedButtons & Qt.LeftButton)) return
+                            const pt = mapToItem(root, mouse.x, mouse.y)
+                            // A la izquierda agranda las fichas SO; derecha achica.
+                            root.updateTaskNameExtraWidth(root.taskResizeStartWidth +
+                                Math.round((root.taskResizeStartX - pt.x) /
+                                    root.taskResizeChipCount))
+                        }
+                        onReleased: root.saveTaskNameExtraWidth()
+                    }
+                    QQC2.ToolTip.visible: resizeHover.hovered
+                    QQC2.ToolTip.text: "Arrastrar para cambiar el ancho de nombres SO"
+                    HoverHandler { id: resizeHover }
                 }
 
                 // Modo histórico de maqueta: NO se altera la prueba de
@@ -2971,6 +3033,7 @@ Item {
                         // El selector configurado se aplica también a tareas REALES.
                         // La X pertenece a la ficha, no al cuerpo de la miniatura.
                         taskTrailingControlWidth: closeRealTaskChip.visible ? 30 : 0
+                        taskNameExtraWidth: root.taskNameExtraWidth
                         QQC2.ToolButton {
                             id: closeRealTaskChip
                             visible: root.realTaskActivationEnabled &&
@@ -3680,6 +3743,7 @@ Item {
                         // El selector configurado se aplica también a tareas REALES.
                         // La X pertenece a la ficha, no al cuerpo de la miniatura.
                         taskTrailingControlWidth: closeRealTaskChip.visible ? 30 : 0
+                        taskNameExtraWidth: root.taskNameExtraWidth
                         QQC2.ToolButton {
                             id: closeRealTaskChip
                             visible: root.realTaskActivationEnabled &&
