@@ -99,6 +99,11 @@ for(const probe of probes) {
     assert(probe.includes("runtimeAppearanceEnabled: smartbarContinuousMode"));
     assert(probe.includes("onRequestRuntimeAppearancePatch: function(json)"));
 }
+// QSettings de las dos islas debe tener organización/app antes de engine.load.
+for (const field of ["setOrganizationName(", "setOrganizationDomain(", "setApplicationName("])
+    assert(native.includes(field), "Falta identidad Qt para Settings: " + field);
+assert(native.indexOf("setApplicationName(") < native.indexOf("engine.load("),
+       "QSettings se inicializa al cargar QML: identidad obligatoria antes");
 assert(native.includes("Q_INVOKABLE QString readAppearanceJson() const"));
 assert(native.includes("Q_INVOKABLE bool saveAppearancePatch("));
 assert(native.includes("QSaveFile out(path)"));
