@@ -27,6 +27,24 @@ assert(bar.includes("property bool realAppLaunchEnabled: false"),
        "No cambiar comportamiento del visor habitual");
 assert(bar.includes("signal requestLaunchDesktopEntry(string desktopId)"));
 assert(bar.includes("realLaunchEnabled: root.realAppLaunchEnabled"));
+// Regresión visual informada por el mantenedor: con Popup.Window
+// anclado al root de LayerShell, KWin lo colocaba en y=0 sobre Soledad.
+// El mismo mecanismo del gripMenu (botón como parent) debe usarse aquí.
+const launcherBlock = bar.slice(bar.indexOf("    SoLauncherPopup {"),
+    bar.indexOf("\n    Item {", bar.indexOf("    SoLauncherPopup {")));
+assert(launcherBlock.includes("parent: root.realAppLaunchEnabled") &&
+       launcherBlock.includes("? soButton : launcherIsland)") &&
+       launcherBlock.includes(": root"),
+       "El Popup.Window experimental debe anclarse al botón y preservar el visor");
+assert(launcherBlock.includes("return left - anchor.mapToItem(root, 0, 0).x"),
+       "Convertir el origen del Popup.Window a coordenadas del botón");
+assert(launcherBlock.includes("? soButton.height + 8 : launcherIsland.height + 8"),
+       "En Wayland el Popup debe abrirse DEBAJO del botón, no desde y=0");
+assert(launcherBlock.includes("Math.max(0, root.width - width)"),
+       "La ventana emergente debe mantenerse dentro del ancho de pantalla");
+assert(bar.includes("parent: moveGrip") &&
+       bar.includes("popupType: QQC2.Popup.Window"),
+       "No alterar el menú de los seis puntos que ya se ve bien");
 assert(so.includes("realAppLaunchEnabled: smartbarContinuousMode"));
 assert(mal.includes("realAppLaunchEnabled: smartbarContinuousMode"));
 assert(so.includes("LayerShell.Window.KeyboardInteractivityOnDemand"),
