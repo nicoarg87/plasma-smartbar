@@ -20,7 +20,6 @@ QQC2.Popup {
     popupType: layerSurfaceHosted ? QQC2.Popup.Item :
         (realLaunchEnabled ? QQC2.Popup.Window : QQC2.Popup.Item)
     property string selectedCategory: ""
-    property bool showMoreCategories: false
     property bool filesMode: false
     // Después de abrir una categoría, conservar el ancho completo al
     // pasar a Archivos. El panel de apps se retira, pero no salta el popup.
@@ -141,11 +140,8 @@ QQC2.Popup {
         appSelected(entry.name, catalogIsReal)
     }
     function categoryOptions() {
-        // En KDE real, mostrar siempre las 11 categorías completas,
-        // incluida «Otras». El visor histórico mantiene su botón +.
-        const categories = primaryCategories.concat(moreCategories)
-        if (realLaunchEnabled || showMoreCategories) return categories
-        return primaryCategories.concat(["+"])
+        // Todas las categorías visibles en cualquier modo: sin botón "+".
+        return primaryCategories.concat(moreCategories)
     }
     function appsForCategory() {
         const query = searchInput.text.toLowerCase().trim()
@@ -213,7 +209,6 @@ QQC2.Popup {
         selectedCategory = ""
         expandedCanvas = false
         heightOnFileSwitch = 0
-        showMoreCategories = false
         searchInput.text = ""
         fileList.folder = homeFolder
         searchInput.forceActiveFocus()
@@ -507,9 +502,7 @@ QQC2.Popup {
                             : QQC2.AbstractButton.TextOnly
                         highlighted: label === launcher.selectedCategory
                         onClicked: {
-                            if (label === "+" && !launcher.realLaunchEnabled)
-                                launcher.showMoreCategories = true
-                            else if (searchInput.text.trim())
+                            if (searchInput.text.trim())
                                 launcher.selectApplication(modelData)
                             else {
                                 launcher.selectedCategory = label
