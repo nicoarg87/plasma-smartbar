@@ -631,7 +631,7 @@ Window {
     property string demoPositionMode: "right"
     property bool demoLauncherIslandVisible: true
     property bool demoAutoHideMalvina: true
-    property bool demoAutoCollapseSO: false
+    property bool demoAutoCollapseSO: true
     property bool demoSoLeftClickOpensLauncher: false
     property int demoLauncherCategoryLayout: 0
     property string demoLauncherSwitchShape: "capsule"
