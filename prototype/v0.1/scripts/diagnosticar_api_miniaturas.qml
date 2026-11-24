@@ -2,7 +2,7 @@
 // Sondeo de tipos QML exclusivamente. Nunca solicita streaming ni captura.
 import QtQuick
 import org.kde.taskmanager 0.1 as TaskManager
-import org.kde.pipewire 0.1 as KPipeWire
+import org.kde.pipewire as KPipeWire
 
 Item {
     // Estas plantillas se compilan, pero NO se instancian. Una petición de
