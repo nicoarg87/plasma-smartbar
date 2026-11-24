@@ -11,11 +11,11 @@ Item {
     height: 0
     property var target: null
     property var backend: null
-    property bool enabled: false
+    property bool appearanceActive: false
     property string previousJson: ""
 
     function refresh() {
-        if (!enabled || !backend || !target) return
+        if (!appearanceActive || !backend || !target) return
         const raw = backend.readAppearanceJson()
         if (!raw || raw === previousJson) return
         const parsed = RuntimeAppearance.parse(raw)
@@ -28,7 +28,7 @@ Item {
         console.log("SmartBar apariencia: propiedades visuales compartidas", updated)
     }
     function commitPatch(patchJson) {
-        if (!enabled || !backend || !target || !patchJson) return
+        if (!appearanceActive || !backend || !target || !patchJson) return
         const changes = RuntimeAppearance.parse(patchJson)
         if (!changes || Object.keys(changes).length === 0) return
         if (!backend.saveAppearancePatch(patchJson)) {
@@ -43,7 +43,7 @@ Item {
         // continuamente archivos al recibir foco o mover ventanas.
         interval: 1750
         repeat: true
-        running: bridge.enabled
+        running: bridge.appearanceActive
         onTriggered: bridge.refresh()
     }
     Component.onCompleted: Qt.callLater(bridge.refresh)
