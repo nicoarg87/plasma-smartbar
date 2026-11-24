@@ -43,6 +43,8 @@ var visualKeys = [
 ]
 // Mapeo inverso entre nombre del elemento visual y la propiedad del editor.
 var editorNames = {
+    soClockFontFamily:"clockFontFamily",soClockFontSize:"clockFontSize",
+    soClockTextColor:"clockTextColor",
     soLogoMode:"logoMode",soLogoPath:"filePath",soLogoShape:"shape",
     soLogoFitMode:"cropFitMode",soLogoZoom:"cropZoom",
     soLogoPanX:"cropPanX",soLogoPanY:"cropPanY",
