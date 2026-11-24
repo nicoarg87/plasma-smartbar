@@ -562,6 +562,23 @@ Window {
         topOffset: probe.height + 8
     }
 
+    // Host independiente, físicamente debajo de la isla. No amplía
+    // la región de clic de la superficie superior ni el grosor de SO.
+    SmartBar.LayerShellTaskThumbnail {
+        id: taskThumbnail
+        runtimeActive: smartbarContinuousMode
+        topOffset: probe.height + 8
+    }
+    Timer {
+        id: thumbnailDismiss
+        interval: 180
+        repeat: false
+        onTriggered: {
+            taskThumbnail.requested = false
+            taskThumbnail.windowUuid = ""
+        }
+    }
+
     SmartBar.RuntimeAppearanceBridge {
         id: appearanceBridge
         target: bar
@@ -590,6 +607,34 @@ Window {
         demoWindowControlsEnabled: true
         realTaskModel: groupedKdeWindows
         realTaskActivationEnabled: smartbarContinuousMode
+        realTaskPreviewEnabled: smartbarContinuousMode
+        onRequestRealTaskPreview: function(uuid, label, left) {
+            if (!smartbarContinuousMode || !uuid || bar.realTrackedFullscreen)
+                return
+            thumbnailDismiss.stop()
+            taskThumbnail.appLabel = label
+            taskThumbnail.leftOffset = left
+            taskThumbnail.windowUuid = uuid
+            taskThumbnail.requested = true
+        }
+        onRequestHideRealTaskPreview: function(uuid) {
+            if (uuid === taskThumbnail.windowUuid)
+                thumbnailDismiss.restart()
+        }
+        onSoExpandedChanged: {
+            if (!bar.soExpanded) {
+                thumbnailDismiss.stop()
+                taskThumbnail.requested = false
+                taskThumbnail.windowUuid = ""
+            }
+        }
+        onRealTrackedFullscreenChanged: {
+            if (bar.realTrackedFullscreen) {
+                thumbnailDismiss.stop()
+                taskThumbnail.requested = false
+                taskThumbnail.windowUuid = ""
+            }
+        }
         onRequestRealTaskActivation: function(taskRow) {
             if (!smartbarContinuousMode || taskRow < 0 ||
                 taskRow >= groupedKdeWindows.count) return
