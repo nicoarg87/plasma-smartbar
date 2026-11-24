@@ -44,6 +44,10 @@ Window {
     }
     property string positionProfilesJson:
         String(profileSettings.value("soledadRealPositionProfilesV1", "{}"))
+    // El valor general arranca desde la ubicación histórica de Brave
+    // hasta que el usuario fija explícitamente otra. No se escriben datos al leer.
+    property real generalOffset: SoledadPositionProfiles.baselineFromSettings(
+        profileSettings.value("generalSoledadOffsetV1", ""), positionProfilesJson)
 
     // Solo diagnóstico de lectura: comparar AppId de Steam/Brave con las
     // claves efectivamente guardadas. Nunca crear/borrar perfiles aquí.
@@ -95,6 +99,10 @@ Window {
         running: false
         onTriggered: probe.fullscreenFocusSettled = true
     }
+    function allPositionProfiles(rows) {
+        return SoledadPositionProfiles.withGeneralBaseline(
+            rows, positionProfilesJson, generalOffset)
+    }
     function recoverInitialMaximizedAnchor(rows) {
         // Arranque desde Konsole: identificar la maximizada VISIBLE más
         // alta según StackingOrder, aunque existan otras maximizadas detrás.
@@ -104,7 +112,7 @@ Window {
                 bar.width <= 0 || bar.actualIslandWidth <= 0 ||
                 bar.maxIslandOffset <= 0) return false
         const candidate = RealActiveWindow.topmostMaximizedProfile(
-            rows, SoledadPositionProfiles.readProfiles(positionProfilesJson))
+            rows, allPositionProfiles(rows))
         if (candidate.kind !== "profile") return false
         const offset = Math.min(bar.maxIslandOffset,
                                 Math.max(0, candidate.offset))
@@ -228,9 +236,9 @@ Window {
                 trackedFullscreen || bar.draggingIslandGrip ||
                 bar.islandOffset !== 0 || !bar.activeRealAppHasSavedPosition)
             return
+        const rows = snapshotRealWindows()
         const top = RealActiveWindow.topmostMaximizedProfile(
-            snapshotRealWindows(),
-            SoledadPositionProfiles.readProfiles(positionProfilesJson))
+            rows, allPositionProfiles(rows))
         if (top.kind !== "profile" || top.appId !== trackedAppId) return
         console.log("SmartBar sincronizacion:", trackedAppName,
                     "recuperando perfil tras evento KDE")
@@ -371,7 +379,7 @@ Window {
         const previousHeldNormalFocusId = heldNormalFocusAppId
         const previousTopSignature = lastTopMaximizedSignature
         const topmost = RealActiveWindow.topmostMaximizedProfile(
-            rows, SoledadPositionProfiles.readProfiles(positionProfilesJson))
+            rows, allPositionProfiles(rows))
         const topSignature = topmost.kind + ":" + topmost.appId +
                              ":" + topmost.offset
         lastTopMaximizedSignature = topSignature
@@ -390,7 +398,7 @@ Window {
             !fullscreenAnchorHeld
             ? RealActiveWindow.fallbackAfterActiveUnmaximize(
                 rows, active, previousId, previousMaximized,
-                SoledadPositionProfiles.readProfiles(positionProfilesJson))
+                allPositionProfiles(rows))
             : {kind: "normal", appId: "", offset: 0}
 
         if (activeExternal) {
@@ -456,10 +464,9 @@ Window {
                     // MAXIMIZADA más alta de KWin, no el foco de una ventana
                     // restaurada ni una maximizada arbitraria del fondo.
                     // Revalidar tras Qt.callLater para descartar eventos viejos.
+                    const currentRows = probe.snapshotRealWindows()
                     const currentTop = RealActiveWindow.topmostMaximizedProfile(
-                        probe.snapshotRealWindows(),
-                        SoledadPositionProfiles.readProfiles(
-                            probe.positionProfilesJson))
+                        currentRows, probe.allPositionProfiles(currentRows))
                     const currentSignature = currentTop.kind + ":" +
                         currentTop.appId + ":" + currentTop.offset
                     if (currentSignature !== eventTopSignature) {
@@ -498,7 +505,11 @@ Window {
                         console.log("SmartBar foco restaurado: conserva posicion",
                                     probe.trackedAppId, "offset=", bar.islandOffset)
                     } else if (probe.trackedKnown) bar.applyRealPositionProfile()
-                    else if (!bar.draggingIslandGrip) bar.alignRightNow()
+                    else if (!bar.draggingIslandGrip) {
+                        bar.setIslandOffset(probe.generalOffset)
+                        bar.alignRightSelected = bar.islandOffset === 0
+                        probe.refreshInputRegion()
+                    }
                 } else {
                     probe.restoreLastFullscreenPosition()
                 }
@@ -552,6 +563,13 @@ Window {
         realTrackedFullscreen: probe.trackedFullscreen
         realTrackedKnown: probe.trackedKnown
         realPositionProfilesJson: probe.positionProfilesJson
+        generalSoledadOffset: probe.generalOffset
+        onRequestGeneralSoledadOffsetChange: function(offset) {
+            probe.generalOffset = SoledadPositionProfiles.clampOffset(offset, bar.maxIslandOffset)
+            profileSettings.setValue("generalSoledadOffsetV1", probe.generalOffset)
+            profileSettings.sync()
+            console.log("SmartBar: anclaje general guardado", probe.generalOffset)
+        }
         onRequestRealPositionProfilesChange: function(json) {
             // Persistencia SOLO por clic explícito sobre menú existente.
             probe.positionProfilesJson = json
@@ -589,6 +607,8 @@ Window {
         }
     }
     Component.onCompleted: {
+        bar.setIslandOffset(generalOffset)
+        refreshInputRegion()
         probe.scheduleWindowRecheck("inicio")
         Qt.callLater(function() { probe.logPositionStorage("inicio del ensayo") })
         console.log(
