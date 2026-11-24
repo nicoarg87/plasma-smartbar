@@ -3223,3 +3223,10 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 **REPORTE REAL:** el mantenedor actualizó a `07998e3` y ejecutó `node prototype/v0.1/tests/test_apariencia_compartida.cjs`. Falló en línea 161 con `AssertionError` porque el test buscaba `onClicked: root.activateRealTask(index, appId, appName)` en una sola línea, mientras que la integración de hover convirtió el `onClicked` en un bloque que primero cierra la miniatura y después llama a la misma función. Debido al `and` de Fish **no se ejecutó** `probar_islas_juntas.sh`: todavía no se probó el hover real de LayerShell/KWin tras este cambio.
 
 **CORRECCIÓN SOLO DE TEST:** [eaf8b2b](https://github.com/nicoarg87/plasma-smartbar/commit/eaf8b2bfa48ef33564203ff5f60fd5d048f3dea8) sustituye la aserción textual antigua por la comprobación del llamado de activación en ambos delegados SO y el cierre en clic/salida de hover. No cambia QML, comportamiento ni preferencias. **PENDIENTE EN CACHYOS:** repetir `git pull --ff-only`, test Node y sesión conjunta; verificar miniatura real al hover sobre ficha Dolphin de UNA ventana. No afirmar PASS hasta la nueva salida.
+
+
+## 24/11/2026 — Segunda falla del test de miniaturas: regex mal escapada
+
+**RESULTADO RECIBIDO:** el mantenedor ejecutó `git pull` hasta `0164fb1`; `test_apariencia_compartida.cjs` volvió a fallar en línea 161 con `0 !== 2`, por lo que Fish no inició `probar_islas_juntas.sh`. El código QML sí contiene dos invocaciones a `root.activateRealTask(index, appId, appName)`; el test escrito en el commit anterior tenía barras de más en la expresión regular (`/root\\.activateRealTask\\(.../`), que nunca coincidían.
+
+**CORRECCIÓN SOLO DEL TEST:** [14fbb7f](https://github.com/nicoarg87/plasma-smartbar/commit/14fbb7fae3cd0ffbc8f739a282256c4c2072e6af) sustituye ambas regex por comparación literal con `String.split(...).length - 1`. Verificación de contenidos publicada: **2 activaciones y 4 llamadas de cierre de miniatura** en `SmartBarContent.qml`, valores esperados. **No se ejecutó Node/Qt en CachyOS después de esta corrección; hover real aún pendiente.** No se modificó SmartBarContent, preferencias, panel ni audio.
