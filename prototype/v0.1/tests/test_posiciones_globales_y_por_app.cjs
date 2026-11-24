@@ -78,8 +78,8 @@ assert(preview.includes("realAnyVisibleMaximized: probe.anyVisibleMaximized"),
 assert(bar.includes("if (!realAnyVisibleMaximized) {"),
        "No usar el perfil de la última app minimizada como posición general");
 const activeJs = read("package/contents/ui/RealActiveWindow.js")
-    .replace(/^\\.pragma library\\s*/, "");
-const topmost = new Function(activeJs + "\\nreturn topmostMaximizedProfile;")();
+    .split("\n").slice(1).join("\n");
+const topmost = new Function(activeJs + "\nreturn topmostMaximizedProfile;")();
 const profileRows = [
     {appId:"org.kde.dolphin",maximized:true,minimized:false,fullscreen:false,
      stackingOrder:2}
