@@ -3273,3 +3273,10 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 **SONDA AMPLIADA, PENDIENTE DE PRUEBA:** [34966a0](https://github.com/nicoarg87/plasma-smartbar/commit/34966a03ac80a1ca1c7ad481866cd4e8b461fc95) añade correlación de UUID entre la ficha agrupada y las tres individuales: `faltantes`, `ajenos`, `duplicados` deben resultar cero. Solo lee datos del modelo, sin activar ventanas/capturar pantalla/cambiar la barra ni preferencias. Esto permite diseñar selección sin asumir que el orden de tareas agrupadas coincide con las individuales.
 
 **PENDIENTE APROBACIÓN FUNCIONAL:** manual confirma selector secundario de ventanas al hacer clic en ficha agrupada; su ubicación, composición y navegación con teclado todavía no fueron decididas. Antes de crear interfaz solicitar aprobación; no inventar diseño nuevo.
+
+
+## 24/11/2026 — Correlación exacta de UUID agrupados CONFIRMADA (3 Dolphin)
+
+**PROBADO EN CACHYOS POR EL MANTENEDOR:** ejecutó `git pull --ff-only` hasta `f2176a7` y `env QT_QPA_PLATFORM=wayland qml6 prototype/v0.1/scripts/diagnosticar_grupos_ventanas.qml`. Salida: tres ventanas Dolphin individuales con UUID distintos; una ficha `IsGroupParent=true`, `ChildCount=3`, `WinIdList.length=3`; **`correlación UUID faltantes=0, ajenos=0, duplicados=0`**. Por lo tanto los IDs de la ficha agrupada corresponden exactamente a los individuales en este ensayo. **APROBADA SONDA DE AGRUPACIÓN Y CORRELACIÓN**; no equivale todavía a haber probado activación por UUID, el selector secundario ni la interacción visual con KWin.
+
+**SIGUIENTE DECISIÓN DE PRODUCTO:** diseño de presentación del selector secundario bajo una ficha agrupada (posición, disposición, tamaños, mouse y teclado) aún **PENDIENTE DE APROBACIÓN DEL MANTENEDOR** conforme `MANUAL_MAESTRO.md`. Sugerencia sin aplicar: panel flotante debajo de ficha con nombre y miniatura por ventana, sin alterar fila única ni altura de Soledad. No cambiar QML de la barra hasta aprobación. Ninguna configuración ni panel KDE modificado.
