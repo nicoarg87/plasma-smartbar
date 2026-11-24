@@ -568,11 +568,15 @@ Window {
     SmartBar.LayerShellTaskThumbnail {
         id: taskThumbnail
         runtimeActive: smartbarContinuousMode
-        topOffset: probe.height + 8
+        topOffset: probe.height + 4
+        onCursorEntered: thumbnailDismiss.stop()
+        onCursorExited: thumbnailDismiss.restart()
     }
     Timer {
         id: thumbnailDismiss
-        interval: 180
+        // Tolera el recorrido físico entre la ficha y la miniatura;
+        // no se reinicia mientras el cursor esté encima del panel.
+        interval: 650
         repeat: false
         onTriggered: {
             taskThumbnail.requested = false
