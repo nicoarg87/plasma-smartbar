@@ -12,6 +12,7 @@ const single = read("package/contents/ui/LayerShellTaskThumbnail.qml");
 const group = read("package/contents/ui/LayerShellTaskGroupPicker.qml");
 const editor = read("package/contents/ui/SoledadSettings.qml");
 const runtime = read("package/contents/ui/RuntimeAppearance.js");
+const island = read("package/contents/ui/IslandButton.qml");
 
 assert(editor.includes('["both", "preview", "chip"]'));
 assert(runtime.includes('"taskCloseMode"'), "La preferencia debe sincronizarse");
@@ -23,7 +24,13 @@ for (const component of [single, group]) {
 assert.equal((host.match(/taskCloseMode: bar\.taskCloseMode/g)||[]).length, 2);
 assert(host.includes('bar.taskCloseMode === "chip"'));
 assert(host.includes("onTaskCloseModeChanged:"));
-assert.equal((bar.match(/rightPadding: root\.taskCloseMode !== "preview" \? 30 : 6/g)||[]).length, 2);
+assert.equal((bar.match(/taskTrailingControlWidth: closeRealTaskChip\.visible \? 30 : 0/g)||[]).length, 2);
+assert(island.includes("property int taskTrailingControlWidth: 0"));
+assert(island.includes("+ taskTrailingControlWidth"), "El ancho extra debe sumarse al tamaño natural de ficha");
+assert(island.includes("+ control.taskTrailingControlWidth"), "El texto respeta espacio de la X");
+assert(island.includes("parent.width - control.taskTrailingControlWidth"), "El icono no crece al agregar X");
+assert.equal((bar.match(/color: closeRealTaskChip\.hovered \? "#a12e3b" : "#304756"/g)||[]).length, 2);
+assert.equal((bar.match(/palette\.buttonText: "#ffffff"/g)||[]).length, 2);
 assert.equal((bar.match(/root\.taskCloseMode !== "preview" &&/g)||[]).length, 2);
 assert.equal((bar.match(/root\.requestRealTaskClose\(/g)||[]).length, 2);
 assert(bar.includes("signal requestRealTaskClose(var windowUuids)"));
