@@ -714,7 +714,8 @@ Item {
     signal requestRealTaskPreview(string windowUuid, string appLabel, real left)
     signal requestHideRealTaskPreview(string windowUuid)
     // Selector de grupo: segunda superficie LayerShell, nunca otra fila en SO.
-    signal requestRealTaskGroup(var windowIds, string appLabel, real left)
+    signal requestRealTaskGroup(var windowIds, string appLabel, real centerX)
+    signal requestHideRealTaskGroup()
     property bool realTaskPreviewEnabled: false
     property bool realTaskActivationEnabled: false
     property bool realTaskActivationDispatched: false
@@ -2970,11 +2971,18 @@ Item {
                             interval: 420
                             repeat: false
                             onTriggered: {
-                                if (root.realTaskPreviewEnabled && realTaskChip.hovered &&
-                                    realTaskChip.previewUuid.length > 0 &&
-                                    !root.realTrackedFullscreen &&
-                                    !root.installedLauncherPopupVisible) {
-                                    const local = realTaskChip.mapToItem(root, 0, 0).x
+                                if (!root.realTaskPreviewEnabled || !realTaskChip.hovered ||
+                                    root.realTrackedFullscreen ||
+                                    root.installedLauncherPopupVisible) return
+                                const local = realTaskChip.mapToItem(root, 0, 0).x
+                                if (realTaskChip.isGrouped && realTaskChip.taskWindowIds.length > 1) {
+                                    root.requestRealTaskGroup(
+                                        Array.from(realTaskChip.taskWindowIds, function(id) {
+                                            return String(id)
+                                        }),
+                                        realTaskChip.appName,
+                                        local + realTaskChip.width / 2)
+                                } else if (realTaskChip.previewUuid.length > 0) {
                                     const maxLeft = Math.max(0, root.width - 246)
                                     root.requestRealTaskPreview(realTaskChip.previewUuid,
                                         realTaskChip.appName,
@@ -2985,30 +2993,27 @@ Item {
                         }
                         onHoveredChanged: {
                             if (hovered && root.realTaskPreviewEnabled &&
-                                previewUuid.length > 0)
+                                (previewUuid.length > 0 ||
+                                 (isGrouped && taskWindowIds.length > 1))) {
+                                root.requestHideRealTaskGroup()
                                 realTaskHoverDelay.restart()
-                            else {
+                            } else {
                                 realTaskHoverDelay.stop()
                                 if (previewUuid.length > 0)
                                     root.requestHideRealTaskPreview(previewUuid)
+                                if (isGrouped && taskWindowIds.length > 1)
+                                    root.requestHideRealTaskGroup()
                             }
                         }
                         onClicked: {
+                            // Un grupo se previsualiza al posar el puntero.
+                            // El clic nunca elige una de sus ventanas arbitrariamente.
+                            if (isGrouped && taskWindowIds.length > 1) return
                             realTaskHoverDelay.stop()
                             if (previewUuid.length > 0)
                                 root.requestHideRealTaskPreview(previewUuid)
-                            if (isGrouped && taskWindowIds.length > 1 &&
-                                root.realTaskActivationEnabled) {
-                                const local = realTaskChip.mapToItem(root, 0, 0).x
-                                const maxLeft = Math.max(0, root.width - 270)
-                                root.requestRealTaskGroup(
-                                    Array.from(taskWindowIds, function(id) { return String(id) }),
-                                    appName,
-                                    Math.max(0, Math.min(maxLeft,
-                                        local + realTaskChip.width / 2 - 135)))
-                            } else {
-                                root.activateRealTask(index, appId, appName)
-                            }
+                            root.requestHideRealTaskGroup()
+                            root.activateRealTask(index, appId, appName)
                         }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
@@ -3635,11 +3640,18 @@ Item {
                             interval: 420
                             repeat: false
                             onTriggered: {
-                                if (root.realTaskPreviewEnabled && realTaskChip.hovered &&
-                                    realTaskChip.previewUuid.length > 0 &&
-                                    !root.realTrackedFullscreen &&
-                                    !root.installedLauncherPopupVisible) {
-                                    const local = realTaskChip.mapToItem(root, 0, 0).x
+                                if (!root.realTaskPreviewEnabled || !realTaskChip.hovered ||
+                                    root.realTrackedFullscreen ||
+                                    root.installedLauncherPopupVisible) return
+                                const local = realTaskChip.mapToItem(root, 0, 0).x
+                                if (realTaskChip.isGrouped && realTaskChip.taskWindowIds.length > 1) {
+                                    root.requestRealTaskGroup(
+                                        Array.from(realTaskChip.taskWindowIds, function(id) {
+                                            return String(id)
+                                        }),
+                                        realTaskChip.appName,
+                                        local + realTaskChip.width / 2)
+                                } else if (realTaskChip.previewUuid.length > 0) {
                                     const maxLeft = Math.max(0, root.width - 246)
                                     root.requestRealTaskPreview(realTaskChip.previewUuid,
                                         realTaskChip.appName,
@@ -3650,30 +3662,27 @@ Item {
                         }
                         onHoveredChanged: {
                             if (hovered && root.realTaskPreviewEnabled &&
-                                previewUuid.length > 0)
+                                (previewUuid.length > 0 ||
+                                 (isGrouped && taskWindowIds.length > 1))) {
+                                root.requestHideRealTaskGroup()
                                 realTaskHoverDelay.restart()
-                            else {
+                            } else {
                                 realTaskHoverDelay.stop()
                                 if (previewUuid.length > 0)
                                     root.requestHideRealTaskPreview(previewUuid)
+                                if (isGrouped && taskWindowIds.length > 1)
+                                    root.requestHideRealTaskGroup()
                             }
                         }
                         onClicked: {
+                            // Un grupo se previsualiza al posar el puntero.
+                            // El clic nunca elige una de sus ventanas arbitrariamente.
+                            if (isGrouped && taskWindowIds.length > 1) return
                             realTaskHoverDelay.stop()
                             if (previewUuid.length > 0)
                                 root.requestHideRealTaskPreview(previewUuid)
-                            if (isGrouped && taskWindowIds.length > 1 &&
-                                root.realTaskActivationEnabled) {
-                                const local = realTaskChip.mapToItem(root, 0, 0).x
-                                const maxLeft = Math.max(0, root.width - 270)
-                                root.requestRealTaskGroup(
-                                    Array.from(taskWindowIds, function(id) { return String(id) }),
-                                    appName,
-                                    Math.max(0, Math.min(maxLeft,
-                                        local + realTaskChip.width / 2 - 135)))
-                            } else {
-                                root.activateRealTask(index, appId, appName)
-                            }
+                            root.requestHideRealTaskGroup()
+                            root.activateRealTask(index, appId, appName)
                         }
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
