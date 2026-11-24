@@ -2970,7 +2970,7 @@ Item {
                             taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
                         // El selector configurado se aplica también a tareas REALES.
                         // La X pertenece a la ficha, no al cuerpo de la miniatura.
-                        rightPadding: root.taskCloseMode !== "preview" ? 30 : 6
+                        taskTrailingControlWidth: closeRealTaskChip.visible ? 30 : 0
                         QQC2.ToolButton {
                             id: closeRealTaskChip
                             visible: root.realTaskActivationEnabled &&
@@ -2984,7 +2984,15 @@ Item {
                             z: 3
                             text: "×"
                             font.pixelSize: 20
+                            font.bold: true
+                            palette.buttonText: "#ffffff"
                             focusPolicy: Qt.StrongFocus
+                            background: Rectangle {
+                                radius: 6
+                                color: closeRealTaskChip.hovered ? "#a12e3b" : "#304756"
+                                border.color: "#9bb8c8"
+                                border.width: 1
+                            }
                             Accessible.name: realTaskChip.taskWindowIds.length > 1
                                 ? "Cerrar todas las ventanas de " + realTaskChip.appName
                                 : "Cerrar ventana de " + realTaskChip.appName
@@ -3671,7 +3679,7 @@ Item {
                             taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
                         // El selector configurado se aplica también a tareas REALES.
                         // La X pertenece a la ficha, no al cuerpo de la miniatura.
-                        rightPadding: root.taskCloseMode !== "preview" ? 30 : 6
+                        taskTrailingControlWidth: closeRealTaskChip.visible ? 30 : 0
                         QQC2.ToolButton {
                             id: closeRealTaskChip
                             visible: root.realTaskActivationEnabled &&
@@ -3685,7 +3693,15 @@ Item {
                             z: 3
                             text: "×"
                             font.pixelSize: 20
+                            font.bold: true
+                            palette.buttonText: "#ffffff"
                             focusPolicy: Qt.StrongFocus
+                            background: Rectangle {
+                                radius: 6
+                                color: closeRealTaskChip.hovered ? "#a12e3b" : "#304756"
+                                border.color: "#9bb8c8"
+                                border.width: 1
+                            }
                             Accessible.name: realTaskChip.taskWindowIds.length > 1
                                 ? "Cerrar todas las ventanas de " + realTaskChip.appName
                                 : "Cerrar ventana de " + realTaskChip.appName
