@@ -589,6 +589,21 @@ Window {
         // sin crear botones ni controlar ventanas externas.
         demoWindowControlsEnabled: true
         realTaskModel: groupedKdeWindows
+        realTaskActivationEnabled: smartbarContinuousMode
+        onRequestRealTaskActivation: function(taskRow) {
+            if (!smartbarContinuousMode || taskRow < 0 ||
+                taskRow >= groupedKdeWindows.count) return
+            try {
+                // La API oficial de TaskManager toma QModelIndex, no PID,
+                // título de ventana ni comandos shell.
+                groupedKdeWindows.requestActivate(
+                    groupedKdeWindows.index(taskRow, 0))
+                bar.realTaskActivationDispatched = true
+                console.log("SmartBar SO: activación solicitada a KWin, fila", taskRow)
+            } catch (error) {
+                console.warn("SmartBar SO: no se pudo activar ficha KDE:", String(error))
+            }
+        }
         realAppLaunchEnabled: smartbarContinuousMode
         layerShellLauncherHost: smartbarContinuousMode ? launcherHost : null
         launcherAvailableHeight: Math.max(260,
