@@ -869,6 +869,16 @@ Window {
         launcherAvailableHeight: Math.max(260,
             Math.min(760, probe.Screen.height - probe.height - 32))
         runtimeAppearanceEnabled: smartbarContinuousMode
+        onRequestAutoCollapseSOChange: function(newValue) {
+            // Actualizar el ajuste compartido existente (appearanceV1).
+            // No inventar un segundo almacén de preferencias SO.
+            const patch = JSON.stringify({demoAutoCollapseSO: newValue})
+            if (!appearanceBridge.commitPatch(patch)) {
+                console.warn("SmartBar SO: no se guardó autocontracción")
+                return
+            }
+            console.log("SmartBar SO: autocontracción =", bar.autoCollapseSO)
+        }
         onRequestRuntimeAppearancePatch: function(json) {
             // Qt signals son sincrónicas: confirmar el resultado antes de
             // que Aplicar avance la línea base de Cancelar.
