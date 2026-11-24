@@ -679,6 +679,33 @@ Item {
     property real launcherAvailableHeight: 450
     // Predeterminado seguro: solo una sesión nativa autorizada puede ejecutar apps.
     property bool realAppLaunchEnabled: false
+    // Alojamiento exclusivo del ensayo LayerShell: otra ventana física
+    // acotada, colocada debajo de SO por el compositor y NO por x/y de Popup.
+    property var layerShellLauncherHost: null
+    readonly property bool installedLauncherPopupVisible: installedAppsPopup.visible
+    readonly property real installedLauncherPopupWidth: installedAppsPopup.width
+    readonly property real installedLauncherPopupHeight: installedAppsPopup.height
+    readonly property real installedLauncherScreenLeft: calculateInstalledLauncherScreenLeft()
+    function calculateInstalledLauncherScreenLeft() {
+        const popupWidth = installedAppsPopup.width
+        const screenWidth = Math.max(1, root.width)
+        const maxLeft = Math.max(0, screenWidth - popupWidth)
+        const fromSo = installedLauncherSource === "so" || !launcherIslandVisible
+        if (fromSo)
+            return Math.max(0, Math.min(maxLeft,
+                systemIsland.x + systemIsland.width - popupWidth))
+        const center = launcherIsland.mapToItem(root, launcherIsland.width / 2, 0).x
+        if (installedAppsPopup.categoryLayout === 1 &&
+            (installedAppsPopup.showCategoryPanel ||
+             (installedAppsPopup.filesMode && installedAppsPopup.expandedCanvas))) {
+            const baseX = Math.max(0, Math.min(
+                Math.max(0, screenWidth - installedAppsPopup.primaryWidth),
+                center - installedAppsPopup.primaryWidth / 2))
+            return Math.max(0, Math.min(maxLeft,
+                baseX - (popupWidth - installedAppsPopup.primaryWidth)))
+        }
+        return Math.max(0, Math.min(maxLeft, center - popupWidth / 2))
+    }
     signal requestLaunchDesktopEntry(string desktopId)
     property var localAppCatalog: []
     property bool localCatalogReady: false
@@ -2051,11 +2078,16 @@ Item {
         // LayerShell de 44 px hacía que el popup apareciera desde y=0,
         // cubriendo SO aunque y fuese root.fixedHeight+8.
         // El visor/maqueta mantienen su anclaje original, sin cambios.
-        parent: root.realAppLaunchEnabled
-            ? ((root.installedLauncherSource === "so" || !root.launcherIslandVisible)
-               ? soButton : launcherIsland)
-            : root
+        // LayerShell real: el popup Item vive en el Window flotante propio.
+        // El visor Qt anterior conserva su alojamiento original.
+        parent: root.layerShellLauncherHost
+            ? root.layerShellLauncherHost.contentItem
+            : (root.realAppLaunchEnabled
+               ? ((root.installedLauncherSource === "so" || !root.launcherIslandVisible)
+                  ? soButton : launcherIsland)
+               : root)
         x: {
+            if (root.layerShellLauncherHost) return 0
             const fromSo = root.installedLauncherSource === "so" ||
                            !root.launcherIslandVisible
             // Primero resolver el borde deseado en coordenadas del root,
@@ -2088,12 +2120,13 @@ Item {
         // Y relativo al botón ancla; no usar la altura del Window
         // LayerShell: no es el mismo sistema de coordenadas que Popup.Window.
         // En modo visor tradicional se preserva el posicionamiento anterior.
-        y: root.realAppLaunchEnabled
+        y: root.layerShellLauncherHost ? 0 :
+           (root.realAppLaunchEnabled
             ? ((root.installedLauncherSource === "so" || !root.launcherIslandVisible)
                ? soButton.height + 8 : launcherIsland.height + 8)
-            : root.fixedHeight + 8
+            : root.fixedHeight + 8)
         popupHeightLimit: root.realAppLaunchEnabled
-            ? Math.max(270, Math.min(root.launcherAvailableHeight, 425))
+            ? Math.max(270, Math.min(root.launcherAvailableHeight, 760))
             : root.launcherAvailableHeight
         categoryLayout: root.launcherCategoryLayout
         maxVisibleSlots: root.launcherMaxSlots
@@ -2118,6 +2151,8 @@ Item {
         installedApplications: root.localAppCatalog
         catalogIsReal: root.localCatalogReady
         realLaunchEnabled: root.realAppLaunchEnabled
+        layerSurfaceHosted: root.realAppLaunchEnabled &&
+                            root.layerShellLauncherHost !== null
         onLaunchDesktopEntry: function(desktopId) {
             root.requestLaunchDesktopEntry(desktopId)
         }
