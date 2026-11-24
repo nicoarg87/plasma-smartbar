@@ -187,6 +187,12 @@ assert(soProbe.includes("SmartBar.LayerShellTaskThumbnail"));
 assert(soProbe.includes("onRequestRealTaskPreview:"));
 assert(soProbe.includes("onRequestHideRealTaskPreview:"));
 assert(soProbe.includes("onRealTrackedFullscreenChanged:"));
+// Dos handlers onSoExpandedChanged en el mismo SmartBarContent impiden
+// cargar TODO el QML ("Property value set multiple times").
+assert.equal(soProbe.split("onSoExpandedChanged:").length - 1, 1,
+       "Unificar cambios de mascara y cierre de miniatura en un unico handler");
+assert(soProbe.includes("onSoExpandedChanged: {\n            // Actualizar la máscara"));
+assert(soProbe.includes("probe.refreshInputRegion()"));
 assert(thumbnailHost.includes("TaskManager.ScreencastingRequest"));
 assert(thumbnailHost.includes("KPipeWire.PipeWireSourceItem"));
 assert(thumbnailHost.includes("LayerShell.Window.exclusionZone: -1"));
