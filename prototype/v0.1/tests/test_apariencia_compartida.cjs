@@ -154,4 +154,22 @@ assert(importer.includes('flag:"wx"'));
 assert(runner.includes('APPEARANCE_FILE="$LOG_ROOT/appearance-runtime.json"'));
 assert(runner.includes('node "$HERE/scripts/importar_apariencia_conjunta.cjs"'));
 assert(runner.includes('SMARTBAR_SHARED_APPEARANCE_PATH="$APPEARANCE_FILE"'));
-console.log("OK: apariencia visual, iconos/nombres y aplicar entre ambas islas");
+// SO: el clic en ficha real NO puede quedar limitado a seleccionar perfiles.
+const soProbe=probes[0];
+const launcherQml=read("package/contents/ui/SoLauncherPopup.qml");
+assert(source.includes("signal requestRealTaskActivation(int taskRow)"));
+assert(source.includes("onClicked: root.activateRealTask(index, appId, appName)"));
+assert(source.includes("if (realTaskActivationDispatched && autoCollapseSO)"));
+assert(soProbe.includes("realTaskActivationEnabled: smartbarContinuousMode"));
+assert(soProbe.includes("groupedKdeWindows.requestActivate("));
+assert(soProbe.includes("groupedKdeWindows.index(taskRow, 0)"));
+assert(!probes[1].includes("onRequestRealTaskActivation:"),
+       "Malvina no debe controlar fichas SO");
+assert(launcherQml.includes("lastChosenApplication = entry.name"),
+       "La selección simulada debe producir respuesta visual");
+assert(launcherQml.includes("Seleccionada (simulación): "));
+assert(source.includes("root.selectDemoApp(name)"),
+       "La maqueta conserva la selección de ventanas ficticias");
+assert(source.includes("root.requestLaunchDesktopEntry(desktopId)"),
+       "El launcher KDE conserva el lanzamiento real autorizado");
+console.log("OK: apariencia y selección real/simulada de aplicaciones SO");
