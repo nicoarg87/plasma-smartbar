@@ -742,18 +742,35 @@ Window {
                 groupPicker.closePicker()
             }
         }
-        onRequestRealTaskActivation: function(taskRow) {
-            if (!smartbarContinuousMode || taskRow < 0 ||
-                taskRow >= groupedKdeWindows.count) return
+        onRequestRealTaskActivation: function(taskRow, taskActive, windowUuid) {
+            if (!smartbarContinuousMode || bar.realTrackedFullscreen ||
+                taskRow < 0 || taskRow >= groupedKdeWindows.count) return
             try {
-                // La API oficial de TaskManager toma QModelIndex, no PID,
-                // título de ventana ni comandos shell.
-                groupedKdeWindows.requestActivate(
-                    groupedKdeWindows.index(taskRow, 0))
+                const target = groupedKdeWindows.index(taskRow, 0)
+                // Minimizar solo si esta ficha identifica UNA ventana real
+                // y esa misma ventana sigue activa y no minimizada.
+                // En grupos de varias ventanas NO minimizar al azar.
+                var canMinimize = false
+                if (taskActive && windowUuid.length > 0) {
+                    for (var i = 0; i < kdeWindowObservers.count; ++i) {
+                        var row = kdeWindowObservers.itemAt(i)
+                        if (row && row.windowUuids.length === 1 &&
+                            String(row.windowUuids[0]) === windowUuid) {
+                            canMinimize = row.taskActive && !row.taskMinimized
+                            break
+                        }
+                    }
+                }
+                if (canMinimize) {
+                    groupedKdeWindows.requestToggleMinimized(target)
+                    console.log("SmartBar SO: minimizar ventana activa", windowUuid)
+                } else {
+                    groupedKdeWindows.requestActivate(target)
+                    console.log("SmartBar SO: activar ficha KDE, fila", taskRow)
+                }
                 bar.realTaskActivationDispatched = true
-                console.log("SmartBar SO: activación solicitada a KWin, fila", taskRow)
             } catch (error) {
-                console.warn("SmartBar SO: no se pudo activar ficha KDE:", String(error))
+                console.warn("SmartBar SO: fallo al alternar ficha KDE:", String(error))
             }
         }
         realAppLaunchEnabled: smartbarContinuousMode
