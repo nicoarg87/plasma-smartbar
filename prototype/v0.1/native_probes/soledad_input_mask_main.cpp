@@ -319,6 +319,12 @@ private:
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
+    // QtCore.Settings requiere identidad ANTES de cargar QML. Sin estos datos
+    // Qt informa Status=AccessError y no persiste preferencias de los ensayos.
+    // Identidad exclusiva de esta herramienta; no se toca KConfig ni el visor.
+    QGuiApplication::setOrganizationName(QStringLiteral("PlasmaSmartBar"));
+    QGuiApplication::setOrganizationDomain(QStringLiteral("plasma-smartbar.local"));
+    QGuiApplication::setApplicationName(QStringLiteral("LayerShellProbe"));
     if (argc != 2) {
         qCritical() << "Uso: soledad-input-mask <qml-de-prueba>";
         return 2;
