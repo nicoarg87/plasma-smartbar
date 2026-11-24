@@ -1402,7 +1402,7 @@ Window {
     property bool taskActiveGlowEnabled: true
     property bool taskActiveDoubleBorderEnabled: false
     signal saveTaskActiveIndicatorRequested(bool glowEnabled, bool doubleBorderEnabled)
-    property string taskDisplayMode: "icon"
+    property string taskDisplayMode: "both"
     // Modos seguros: ambos, solo popup o solo X en la ficha.
     property string taskCloseMode: "both"
     property string taskFrameShape: "rounded"
