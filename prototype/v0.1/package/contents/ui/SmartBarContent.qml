@@ -660,9 +660,12 @@ Item {
     // Cada Popup gestiona sus clics exteriores mediante closePolicy de Qt.
     // No cerrar globalmente desde Overlay.onPressed: ese evento también
     // llegaba al pulsar controles DENTRO del launcher en CachyOS.
-    // Mantener el cajón SO abierto al seleccionar por defecto.
-    // El menú del agarre permite activar la contracción de forma optativa.
-    property bool autoCollapseSO: false
+    // Comportamiento histórico de la lista de ventanas: sin modificar.
+    property bool autoCollapseSO: true
+    // Solo el launcher de aplicaciones instaladas permanece abierto
+    // tras elegir un programa. Ajuste independiente de autoCollapseSO.
+    property bool autoCollapseLauncher: false
+    signal requestAutoCollapseLauncherChange(bool newValue)
     // Corrección del mantenedor 18/11: izquierdo = cajón (ventanas abiertas),
     // derecho = launcher de aplicaciones. Es reversible en Configuración.
     property bool soLeftClickOpensLauncher: true
@@ -1600,6 +1603,13 @@ Item {
     }
 
     function triggerSOButton(leftClick, wasOpenAtPress) {
+        // Clic derecho sobre SO: cerrar el launcher si ya está abierto,
+        // sin invertir el mapeo de gestos configurado para abrirlo.
+        if (!leftClick && installedAppsPopup.visible &&
+            installedLauncherSource === "so") {
+            installedAppsPopup.close()
+            return
+        }
         const launch = leftClick === soLeftClickOpensLauncher
         if (launch) {
             // El estado se captura al PRESIONAR; un CloseOnPressOutside
@@ -2240,6 +2250,7 @@ Item {
         installedApplications: root.localAppCatalog
         catalogIsReal: root.localCatalogReady
         realLaunchEnabled: root.realAppLaunchEnabled
+        autoCollapseOnSelection: root.autoCollapseLauncher
         layerSurfaceHosted: root.realAppLaunchEnabled &&
                             root.layerShellLauncherHost !== null
         onLaunchDesktopEntry: function(desktopId) {
@@ -3505,11 +3516,11 @@ Item {
                             onTriggered: root.triggerThemeWallpaperPreview()
                         }
                         QQC2.MenuItem {
-                            text: "Autocontraer SO después de seleccionar"
+                            text: "Autocontraer launcher al elegir aplicación"
                             checkable: true
-                            checked: root.autoCollapseSO
-                            onTriggered: root.requestAutoCollapseSOChange(
-                                !root.autoCollapseSO)
+                            checked: root.autoCollapseLauncher
+                            onTriggered: root.requestAutoCollapseLauncherChange(
+                                !root.autoCollapseLauncher)
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
