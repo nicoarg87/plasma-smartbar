@@ -716,6 +716,8 @@ Item {
     // Selector de grupo: segunda superficie LayerShell, nunca otra fila en SO.
     signal requestRealTaskGroup(var windowIds, string appLabel, real centerX)
     signal requestHideRealTaskGroup()
+    // Cierre normal KDE, solo en el ensayo nativo y por UUID vigente.
+    signal requestRealTaskClose(var windowUuids)
     property bool realTaskPreviewEnabled: false
     property bool realTaskActivationEnabled: false
     property bool realTaskActivationDispatched: false
@@ -2966,6 +2968,37 @@ Item {
                         readonly property var taskWindowIds: model.WinIdList || []
                         readonly property string previewUuid:
                             taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
+                        // El selector configurado se aplica también a tareas REALES.
+                        // La X pertenece a la ficha, no al cuerpo de la miniatura.
+                        rightPadding: root.taskCloseMode !== "preview" ? 30 : 6
+                        QQC2.ToolButton {
+                            id: closeRealTaskChip
+                            visible: root.realTaskActivationEnabled &&
+                                     root.taskCloseMode !== "preview" &&
+                                     realTaskChip.taskWindowIds.length > 0
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.rightMargin: 3
+                            width: 26
+                            height: 28
+                            z: 3
+                            text: "×"
+                            font.pixelSize: 20
+                            focusPolicy: Qt.StrongFocus
+                            Accessible.name: realTaskChip.taskWindowIds.length > 1
+                                ? "Cerrar todas las ventanas de " + realTaskChip.appName
+                                : "Cerrar ventana de " + realTaskChip.appName
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: Accessible.name
+                            onClicked: {
+                                // El UUID se vuelve a comprobar en el host;
+                                // nunca se usa un índice guardado en QML.
+                                root.requestRealTaskClose(
+                                    Array.from(realTaskChip.taskWindowIds, function(uuid) {
+                                        return String(uuid)
+                                    }))
+                            }
+                        }
                         Timer {
                             id: realTaskHoverDelay
                             interval: 420
@@ -3635,6 +3668,37 @@ Item {
                         readonly property var taskWindowIds: model.WinIdList || []
                         readonly property string previewUuid:
                             taskWindowIds.length === 1 ? String(taskWindowIds[0]) : ""
+                        // El selector configurado se aplica también a tareas REALES.
+                        // La X pertenece a la ficha, no al cuerpo de la miniatura.
+                        rightPadding: root.taskCloseMode !== "preview" ? 30 : 6
+                        QQC2.ToolButton {
+                            id: closeRealTaskChip
+                            visible: root.realTaskActivationEnabled &&
+                                     root.taskCloseMode !== "preview" &&
+                                     realTaskChip.taskWindowIds.length > 0
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.rightMargin: 3
+                            width: 26
+                            height: 28
+                            z: 3
+                            text: "×"
+                            font.pixelSize: 20
+                            focusPolicy: Qt.StrongFocus
+                            Accessible.name: realTaskChip.taskWindowIds.length > 1
+                                ? "Cerrar todas las ventanas de " + realTaskChip.appName
+                                : "Cerrar ventana de " + realTaskChip.appName
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: Accessible.name
+                            onClicked: {
+                                // El UUID se vuelve a comprobar en el host;
+                                // nunca se usa un índice guardado en QML.
+                                root.requestRealTaskClose(
+                                    Array.from(realTaskChip.taskWindowIds, function(uuid) {
+                                        return String(uuid)
+                                    }))
+                            }
+                        }
                         Timer {
                             id: realTaskHoverDelay
                             interval: 420
