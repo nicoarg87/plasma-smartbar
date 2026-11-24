@@ -742,8 +742,14 @@ Item {
             taskRow >= realTaskModel.count) return
         realTaskActivationDispatched = false
         requestRealTaskActivation(taskRow, taskActive === true, String(windowUuid || ""))
-        if (realTaskActivationDispatched && autoCollapseSO)
+        console.log("SmartBar SO selección ficha:", appName,
+                    "solicitada =", realTaskActivationDispatched,
+                    "autocontraer cajón =", autoCollapseSO,
+                    "launcher =", launcherRequestedOpen)
+        if (realTaskActivationDispatched && autoCollapseSO) {
+            console.log("SmartBar SO cierre: ficha seleccionada con preferencia activa")
             soExpanded = false
+        }
     }
     property var localAppCatalog: []
     property bool localCatalogReady: false
@@ -1124,9 +1130,24 @@ Item {
     property real soActivityPulseSpeed: 0.3
     property real soActivityPulseDepth: 0.7
     property bool soActivityGlowGradient: true
+    // KDE puede reconstruir momentáneamente TasksModel al activar una
+    // ventana. No tratar ese cero transitorio como orden de contraer SO.
+    Timer {
+        id: verifyEmptySoModel
+        interval: 450
+        repeat: false
+        onTriggered: {
+            if (root.soWindowCount !== 0 || !root.soExpanded ||
+                (root.demoWindowControlsEnabled && !root.usingRealTasks)) return
+            console.log("SmartBar SO cierre: modelo estable sin ventanas")
+            root.soExpanded = false
+        }
+    }
     onSoWindowCountChanged: {
-        if (soWindowCount === 0 &&
-            !(demoWindowControlsEnabled && !usingRealTasks)) soExpanded = false
+        console.log("SmartBar SO conteo:", soWindowCount,
+                    "expandido =", soExpanded)
+        if (soWindowCount === 0) verifyEmptySoModel.restart()
+        else verifyEmptySoModel.stop()
     }
     signal requestSoActivityChange(string style, string color,
                                    real stroke, bool allowMotion,
@@ -1198,6 +1219,11 @@ Item {
         taskWidthSettings.sync()
     }
     property bool soExpanded: false
+    onSoExpandedChanged: console.log("SmartBar SO cambio cajón:",
+                                     soExpanded ? "abierto" : "cerrado",
+                                     "autocontraer =", autoCollapseSO,
+                                     "ventanas =", soWindowCount,
+                                     "launcher =", launcherRequestedOpen)
     property bool trayExpanded: false
     // Última expansión iniciada por el usuario: gana si falta espacio.
     property string lastExpandedMode: "so"
@@ -1591,10 +1617,13 @@ Item {
 
     function toggleOpenWindowsFromSO() {
         // El selector de ventanas y el lanzador son independientes.
-        // Si cambia el gesto mientras el lanzador está abierto,
-        // permitir abrir las ventanas en el MISMO clic.
-        if (installedAppsPopup.visible || launcherRequestedOpen)
+        // Un clic con launcher visible cierra SOLO el launcher. Nunca
+        // debe alternar al mismo tiempo la lista de ventanas abiertas.
+        if (installedAppsPopup.visible || launcherRequestedOpen) {
+            console.log("SmartBar SO: launcher cerrado desde botón; cajón sin cambios")
             closeInstalledLauncher()
+            return
+        }
         // No enviar al lanzador por falta de ventanas: el gesto elegido
         // para "ventanas abiertas" conserva su significado.
         if (soWindowCount === 0 &&
@@ -1612,7 +1641,11 @@ Item {
     }
 
     function triggerSOButton(leftClick, wasOpenAtPress) {
-        // Clic derecho explícito sobre SO: cancelar cualquier recuperación.
+        console.log("SmartBar SO botón:", leftClick ? "izquierdo" : "derecho",
+                    "launcher =", launcherRequestedOpen,
+                    "cajón =", soExpanded,
+                    "mapeo launcher izquierdo =", soLeftClickOpensLauncher)
+        // Launcher y cajón SO no comparten la operación de selección.
         if (!leftClick && installedLauncherSource === "so" &&
             (installedAppsPopup.visible || launcherRequestedOpen)) {
             closeInstalledLauncher()
@@ -3533,8 +3566,11 @@ Item {
                             text: "Autocontraer cajón SO al elegir ventana"
                             checkable: true
                             checked: root.autoCollapseSO
-                            onTriggered: root.requestAutoCollapseSOChange(
-                                !root.autoCollapseSO)
+                            onTriggered: {
+                                console.log("SmartBar SO casilla cajón: solicitar",
+                                            !root.autoCollapseSO)
+                                root.requestAutoCollapseSOChange(!root.autoCollapseSO)
+                            }
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
