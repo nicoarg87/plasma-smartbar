@@ -28,9 +28,31 @@ QQC2.Popup {
     property real heightOnFileSwitch: 0
     // Iconos de tema KDE (sin modo de solo iconos: el nombre siempre visible).
     property bool iconsWithNames: true
-    property int primaryWidth: realLaunchEnabled ? 385 : 285
-    property int filesWidth: realLaunchEnabled ? 645 : 500
-    property int categoryWidth: realLaunchEnabled ? 330 : 280
+    // En la sesión real, los DOS paneles tienen siempre la MISMA anchura.
+    // Se ajusta al texto más largo hasta el límite físico de pantalla.
+    // El visor antiguo conserva sus medidas históricas.
+    property real availableScreenWidth: 1366
+    function longestInstalledName() {
+        let result = "Programas de esta categoría"
+        const apps = currentApplications
+        for (let i = 0; i < apps.length; i++) {
+            const name = String(apps[i].name || "")
+            if (name.length > result.length) result = name
+        }
+        return result
+    }
+    TextMetrics {
+        id: longestNameMetrics
+        font.pixelSize: 14
+        text: launcher.longestInstalledName()
+    }
+    readonly property int sharedColumnWidth: Math.max(215, Math.min(
+        450,
+        Math.max(278, Math.ceil(longestNameMetrics.advanceWidth + 62)),
+        Math.floor((Math.max(480, availableScreenWidth) - 42) / 2)))
+    property int primaryWidth: realLaunchEnabled ? sharedColumnWidth : 285
+    property int filesWidth: realLaunchEnabled ? Math.max(460, sharedColumnWidth * 2 + 1) : 500
+    property int categoryWidth: realLaunchEnabled ? sharedColumnWidth : 280
     // Opción A (predeterminada): las aplicaciones aparecen a la derecha
     // y el panel principal se desplaza hacia la izquierda, como en la prueba.
     // Opción B: aplicaciones a la izquierda, panel principal fijo a la derecha.
@@ -113,10 +135,11 @@ QQC2.Popup {
         appSelected(entry.name, catalogIsReal)
     }
     function categoryOptions() {
-        const cats = primaryCategories.slice()
-        if (showMoreCategories)
-            return cats.concat(moreCategories)
-        return cats.concat(["+"])
+        // En KDE real, mostrar siempre las 11 categorías completas,
+        // incluida «Otras». El visor histórico mantiene su botón +.
+        const categories = primaryCategories.concat(moreCategories)
+        if (realLaunchEnabled || showMoreCategories) return categories
+        return primaryCategories.concat(["+"])
     }
     function appsForCategory() {
         const query = searchInput.text.toLowerCase().trim()
@@ -151,6 +174,10 @@ QQC2.Popup {
     component LauncherActionButton: QQC2.Button {
         id: action
         implicitHeight: 34
+        hoverEnabled: true
+        // Un nombre largo jamás se pierde: tooltip completo si no cabe.
+        QQC2.ToolTip.visible: hovered && text.length > 0
+        QQC2.ToolTip.text: text
         background: IslandPopupSurface {
             baseColor: launcher.islandColor
             endColor: launcher.islandGradientEnd
@@ -219,7 +246,9 @@ QQC2.Popup {
         layoutDirection: launcher.categoryLayout === 0 ? Qt.RightToLeft : Qt.LeftToRight
         IslandPopupSurface {
             visible: launcher.showCategoryPanel
-            Layout.preferredWidth: launcher.categoryWidth - 8
+            // Misma anchura útil que la columna principal, proporción 1:1.
+            Layout.preferredWidth: launcher.categoryWidth - 13
+            Layout.minimumWidth: launcher.categoryWidth - 13
             Layout.fillHeight: true
             cornerRadius: 9
             baseColor: launcher.islandColor
@@ -257,12 +286,12 @@ QQC2.Popup {
                     ListView {
                         id: appsList
                         clip: true
-                        spacing: 5
+                        spacing: launcher.realLaunchEnabled ? 2 : 5
                         model: launcher.appsForCategory()
                         delegate: LauncherActionButton {
                             required property var modelData
                             width: appsList.width - 5
-                            height: 32
+                            height: launcher.realLaunchEnabled ? 30 : 32
                             text: modelData.name
                             icon.name: modelData.icon || launcher.categoryIcon(launcher.selectedCategory)
                             icon.source: modelData.iconSource || ""
@@ -279,9 +308,9 @@ QQC2.Popup {
             // En modo Archivos ocupa todo el recuadro que se abrió para
             // la categoría, sin dejar un panel vacío y sin volver a estrecharse.
             Layout.preferredWidth: (launcher.filesMode ? launcher.width :
-                                    launcher.primaryWidth) - 18
+                                    launcher.primaryWidth) - (launcher.realLaunchEnabled ? 13 : 18)
             Layout.minimumWidth: (launcher.filesMode ? launcher.width :
-                                  launcher.primaryWidth) - 18
+                                  launcher.primaryWidth) - (launcher.realLaunchEnabled ? 13 : 18)
             Layout.fillHeight: true
             spacing: 7
             QQC2.Label {
@@ -401,12 +430,6 @@ QQC2.Popup {
                         launcher.selectedCategory = ""
                 }
             }
-            LauncherActionButton {
-                visible: !launcher.malvinaVisible
-                Layout.fillWidth: true
-                text: "Activar Malvina (isla 2)"
-                onClicked: launcher.requestShowMalvina()
-            }
             QQC2.Label {
                 visible: launcher.filesMode
                 Layout.fillWidth: true
@@ -458,14 +481,14 @@ QQC2.Popup {
                 ListView {
                     id: categoryList
                     clip: true
-                    spacing: 4
+                    spacing: launcher.realLaunchEnabled ? 2 : 4
                     QQC2.ScrollBar.vertical: QQC2.ScrollBar { policy: QQC2.ScrollBar.AsNeeded }
                     model: searchInput.text.trim().length
                         ? launcher.appMatches() : launcher.categoryOptions()
                     delegate: LauncherActionButton {
                         required property var modelData
                         width: categoryList.width - 5
-                        height: 31
+                        height: launcher.realLaunchEnabled ? 30 : 31
                         readonly property string label: typeof modelData === "string"
                             ? modelData : modelData.name
                         text: label + (searchInput.text.trim() ? " · aplicación" : "")
@@ -478,7 +501,7 @@ QQC2.Popup {
                             : QQC2.AbstractButton.TextOnly
                         highlighted: label === launcher.selectedCategory
                         onClicked: {
-                            if (label === "+")
+                            if (label === "+" && !launcher.realLaunchEnabled)
                                 launcher.showMoreCategories = true
                             else if (searchInput.text.trim())
                                 launcher.selectApplication(modelData)
