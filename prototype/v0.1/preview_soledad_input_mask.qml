@@ -622,6 +622,8 @@ Window {
                 thumbnailDismiss.restart()
         }
         onSoExpandedChanged: {
+            // Actualizar la máscara de clics para la nueva anchura de SO.
+            probe.refreshInputRegion()
             if (!bar.soExpanded) {
                 thumbnailDismiss.stop()
                 taskThumbnail.requested = false
@@ -701,7 +703,6 @@ Window {
         }
         onActualIslandWidthChanged: probe.refreshInputRegion()
         onControlsReservationChanged: probe.refreshInputRegion()
-        onSoExpandedChanged: probe.refreshInputRegion()
         onTrayExpandedChanged: probe.refreshInputRegion()
     }
 
