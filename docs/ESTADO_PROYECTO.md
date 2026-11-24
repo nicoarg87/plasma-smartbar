@@ -3335,3 +3335,19 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 - [3849854](https://github.com/nicoarg87/plasma-smartbar/commit/3849854d0831737dcf57280529d59092e54d0698): regresión estática que separa explícitamente launcher, cajón SO y Archivos.
 
 **Estado:** fuentes de GitHub verificadas; ejecución Node/QML/CachyOS pendiente. No confundir el cierre **esperado** del launcher con el problema previo de autocontracción del cajón SO, documentado en issue #23.
+
+
+## 24/11/2026 — Auditoría de rutas SO: launcher vs. cajón de ventanas (retest pendiente)
+
+**FALLA NATIVA REITERADA (CACHYOS):** al seleccionar una ventana desde el cajón SO, el mantenedor observa autocontracción pese a pedir permanencia abierta. Sospecha de un cruce de lógica con el launcher. Los registros aportados anteriormente solo mostraron `SmartBar ESTADO KDE: senal apilamiento`, no el gesto/cierre específico.
+
+**REVISIÓN DEL CÓDIGO:** el launcher de aplicaciones instaladas usa `SoLauncherPopup.selectApplication()` y solicita `launchDesktopEntry`; las fichas SO de ventanas abiertas usan `SmartBarContent.activateRealTask()` y `requestRealTaskActivation`, o las miniaturas `preview_soledad_input_mask.qml/onSelectWindow`. Son rutas de selección separadas, pero **`toggleOpenWindowsFromSO()` sí cerraba el launcher y seguía alternando la lista de ventanas en el mismo clic**. También `onSoWindowCountChanged` contraía la lista inmediatamente ante un `realTaskModel.count === 0`, incluido un posible cero pasajero durante cambios del modelo (hipótesis sin confirmar). El ajuste persistido `demoAutoCollapseSO` puede seguir siendo true aunque el nuevo valor inicial del código sea false.
+
+**IMPLEMENTADO / PENDIENTE DE VALIDACIÓN NATIVA:**
+- [6e36579](https://github.com/nicoarg87/plasma-smartbar/commit/6e365794b8956d47f9a19d6eb35de7d511697910): si el launcher está abierto, el gesto de alternancia de SO **solo cierra el launcher y termina**. El cierre por contador cero se valida tras 450ms, cancelando si vuelven a aparecer tareas; no se cierran sesiones con tareas activas por un cero transitorio. Registro explícito para cada cambio `soExpanded`, clic botón, activación ficha, cambios de conteo y casilla de autocontracción.
+- [468c3f8](https://github.com/nicoarg87/plasma-smartbar/commit/468c3f883614450fb76ba54227759260727036e3): registro del estado efectivo de `autoCollapseSO` al seleccionar miniaturas individuales/de grupo y resultado del guardado rápido.
+- [d44cbc0](https://github.com/nicoarg87/plasma-smartbar/commit/d44cbc0a5c7062847cf8fae778b17b56b68082b7): aserciones estáticas nuevas para ambas rutas y el conteo transitorio. Revisión remota confirma una sola declaración de cada manejador.
+
+**No probado todavía en KWin/Wayland tras estos cambios**. La autocontracción del launcher de instaladas después de iniciar un programa sigue siendo obligatoria, sin casilla. El cajón de ventanas abiertas permanece por defecto, con casilla en seis puntos optativa. Se mantienen preferencias personales existentes, temas, posiciones y el panel KDE original. La sección Archivos no fue alterada.
+
+**Próxima validación:** con autocontracción de cajón SO sin tilde, seleccionar Dolphin desde **ventanas abiertas**, observar si queda abierto y consultar el registro privado `soledad.log` filtrando `SmartBar SO (cambio cajón|selección ficha|cierre|casilla|conteo|botón)|SmartBar cajón SO`. Ese registro identificará la ruta si el problema reaparece. Mantener [issue #23](https://github.com/nicoarg87/plasma-smartbar/issues/23) abierto.
