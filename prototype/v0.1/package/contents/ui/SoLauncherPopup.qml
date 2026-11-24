@@ -131,8 +131,11 @@ QQC2.Popup {
     signal requestShowMalvina()
     signal appSelected(string name, bool realCatalog)
     signal launchDesktopEntry(string desktopId)
+    property string lastChosenApplication: ""
     function selectApplication(entry) {
-        if (!entry || typeof entry !== "object") return
+        if (!entry || typeof entry !== "object" ||
+            typeof entry.name !== "string") return
+        lastChosenApplication = entry.name
         if (realLaunchEnabled && catalogIsReal && entry.desktopId) {
             launchDesktopEntry(String(entry.desktopId))
             return
@@ -210,6 +213,7 @@ QQC2.Popup {
         expandedCanvas = false
         heightOnFileSwitch = 0
         searchInput.text = ""
+        lastChosenApplication = ""
         fileList.folder = homeFolder
         searchInput.forceActiveFocus()
     }
@@ -471,7 +475,11 @@ QQC2.Popup {
             QQC2.Label {
                 Layout.fillWidth: true
                 text: launcher.filesMode ? "Enter: abrir carpeta en el administrador predeterminado"
-                    : (launcher.catalogIsReal ? "Aplicaciones instaladas" : "Categorías de muestra · sin ejecutar")
+                    : (launcher.lastChosenApplication.length > 0
+                       ? (launcher.realLaunchEnabled && launcher.catalogIsReal
+                          ? "Inicio solicitado: " : "Seleccionada (simulación): ") +
+                         launcher.lastChosenApplication
+                       : (launcher.catalogIsReal ? "Aplicaciones instaladas" : "Categorías de muestra · sin ejecutar"))
                 color: "#a8c3d1"
                 font.pixelSize: 11
             }
