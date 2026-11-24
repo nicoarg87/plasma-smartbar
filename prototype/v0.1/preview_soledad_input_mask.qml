@@ -571,6 +571,39 @@ Window {
         topOffset: probe.height + 4
         onCursorEntered: thumbnailDismiss.stop()
         onCursorExited: thumbnailDismiss.restart()
+        onSelectWindow: function(uuid) {
+            // Resolver la fila actual por UUID. Nunca activar la fila 0
+            // arbitrariamente si la ventana desapareció o cambió de lugar.
+            if (!smartbarContinuousMode || !taskThumbnail.requested ||
+                bar.realTrackedFullscreen || uuid !== taskThumbnail.windowUuid)
+                return
+            var found = -1
+            for (var i = 0; i < kdeWindowObservers.count; ++i) {
+                var row = kdeWindowObservers.itemAt(i)
+                if (row && row.windowUuids.length === 1 &&
+                    String(row.windowUuids[0]) === uuid) {
+                    found = i
+                    break
+                }
+            }
+            if (found < 0) {
+                console.warn("SmartBar SO: miniatura individual ya no disponible")
+                thumbnailDismiss.stop()
+                taskThumbnail.requested = false
+                taskThumbnail.windowUuid = ""
+                return
+            }
+            try {
+                kdeWindows.requestActivate(kdeWindows.index(found, 0))
+                console.log("SmartBar SO: activación desde miniatura individual", found)
+                thumbnailDismiss.stop()
+                taskThumbnail.requested = false
+                taskThumbnail.windowUuid = ""
+                if (bar.autoCollapseSO) bar.soExpanded = false
+            } catch (error) {
+                console.warn("SmartBar SO: fallo al activar miniatura individual:", String(error))
+            }
+        }
     }
     Timer {
         id: thumbnailDismiss
