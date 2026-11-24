@@ -37,21 +37,25 @@ QQC2.Popup {
         font.pixelSize: 14
     }
     function maxInstalledTextWidth() {
-        // El ancho se calcula con la fuente real de Qt, no con la
-        // longitud en caracteres (las letras ocupan tamaños diferentes).
+        // Medir TODAS las categorías y aplicaciones, no solo la categoría
+        // seleccionada: los dos paneles conservan su proporción al navegar.
+        // FontMetrics mide píxeles reales, no cantidad de caracteres.
         let widest = installedNameMetrics.advanceWidth("Programas de esta categoría")
+        const categories = primaryCategories.concat(moreCategories)
+        for (let i = 0; i < categories.length; i++)
+            widest = Math.max(widest, installedNameMetrics.advanceWidth(categories[i]))
         const apps = currentApplications
-        for (let i = 0; i < apps.length; i++) {
+        for (let i = 0; i < apps.length; i++)
             widest = Math.max(widest, installedNameMetrics.advanceWidth(
                 String(apps[i].name || "")))
-            if (widest >= 388) break // Ya alcanza el máximo de 450 con padding.
-        }
         return widest
     }
-    readonly property int sharedColumnWidth: Math.max(215, Math.min(
+    // Una sola medida compartida (1:1), con espacio para icono y márgenes.
+    // No superar el ancho disponible al desplegar ambas columnas.
+    readonly property int sharedColumnWidth: Math.max(150, Math.min(
         450,
-        Math.max(278, Math.ceil(maxInstalledTextWidth() + 62)),
-        Math.floor((Math.max(480, availableScreenWidth) - 42) / 2)))
+        Math.ceil(maxInstalledTextWidth() + (iconsWithNames ? 58 : 30)),
+        Math.floor((Math.max(320, availableScreenWidth) - 42) / 2)))
     property int primaryWidth: realLaunchEnabled ? sharedColumnWidth : 285
     property int filesWidth: realLaunchEnabled ? 645 : 500
     property int categoryWidth: realLaunchEnabled ? sharedColumnWidth : 280
