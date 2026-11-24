@@ -2851,7 +2851,7 @@ Item {
                     outlineColor: root.displayOutlineTrayColor
                     outlineOpacity: root.outlineConfig.tray.opacity
                     onClicked: root.toggleTray()
-                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.visible: false
                     QQC2.ToolTip.text: "Cajón de sistema: abrir/cerrar bandeja"
                 }
 
@@ -2867,7 +2867,7 @@ Item {
                     outlineColor: root.displayOutlineTrayColor
                     outlineOpacity: root.outlineConfig.tray.opacity
                         onClicked: root.selectDemoTray(modelData)
-                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.visible: false
                         QQC2.ToolTip.text: "Bandeja simulada: " + modelData
                              + " (no modifica el sistema)"
                     }
@@ -2925,7 +2925,7 @@ Item {
                         }
                         onReleased: root.saveTaskNameExtraWidth()
                     }
-                    QQC2.ToolTip.visible: resizeHover.hovered
+                    QQC2.ToolTip.visible: false
                     QQC2.ToolTip.text: "Arrastrar para ajustar nombres SO · doble clic para restablecer"
                     HoverHandler { id: resizeHover }
                 }
@@ -2976,7 +2976,7 @@ Item {
                             color: reopenDemoRight.enabled ? "#ffffff" : "#a1b1c0"
                         }
                     }
-                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.visible: false
                     QQC2.ToolTip.text: enabled
                         ? "Deshacer último cierre de ventana simulada"
                         : "Todas las ventanas simuladas están abiertas"
@@ -3101,7 +3101,8 @@ Item {
                             root.requestHideRealTaskGroup()
                             root.activateRealTask(index, appId, appName, model.IsActive === true && model.IsMinimized !== true, previewUuid)
                         }
-                        QQC2.ToolTip.visible: hovered
+                        // No mostrar etiquetas flotantes encima de las miniaturas.
+                        QQC2.ToolTip.visible: false
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
                             + (model.IsMaximized === true ? " · maximizada" : "")
@@ -3223,8 +3224,7 @@ Item {
                         }
                     }
 
-                    QQC2.ToolTip.visible: hovered && !root.soTooltipSuppressed &&
-                        !installedAppsPopup.visible && !root.soExpanded
+                    QQC2.ToolTip.visible: false
                     QQC2.ToolTip.delay: 900
                     QQC2.ToolTip.text: root.soLeftClickOpensLauncher
                         ? "Clic izquierdo: Launcher de aplicaciones\nClic derecho: Cajón de aplicaciones"
@@ -3337,10 +3337,7 @@ Item {
                             event.accepted = true
                         }
                     }
-                    QQC2.ToolTip.visible: hovered && !root.soClockVisible &&
-                        !moveGrip.pressed &&
-                        !gripDrag.active && !gripMenu.visible &&
-                        !moveGrip.suppressGripTooltip
+                    QQC2.ToolTip.visible: false
                     QQC2.ToolTip.delay: 850
                     QQC2.ToolTip.text: root.launcherIslandVisible
                         ? "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
@@ -3659,7 +3656,7 @@ Item {
                             color: reopenDemoCenter.enabled ? "#ffffff" : "#a1b1c0"
                         }
                     }
-                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.visible: false
                     QQC2.ToolTip.text: enabled
                         ? "Deshacer último cierre de ventana simulada"
                         : "Todas las ventanas simuladas están abiertas"
@@ -3784,7 +3781,8 @@ Item {
                             root.requestHideRealTaskGroup()
                             root.activateRealTask(index, appId, appName, model.IsActive === true && model.IsMinimized !== true, previewUuid)
                         }
-                        QQC2.ToolTip.visible: hovered
+                        // No mostrar etiquetas flotantes encima de las miniaturas.
+                        QQC2.ToolTip.visible: false
                         QQC2.ToolTip.text: "Ventana real de KDE: " + appName
                             + (model.IsActive === true ? " · activa" : "")
                             + (model.IsMaximized === true ? " · maximizada" : "")
