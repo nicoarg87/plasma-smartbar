@@ -114,6 +114,24 @@ for (const key of ["webFirstV1","webOrderV1","aiOrderV1"]) {
            "Malvina no guarda "+key);
 }
 assert(malvinaProbe.includes("malvinaOrderSettings.sync()"));
+// Los tres buscadores canónicos deben respetar ocultar y deshabilitar,
+// ambas opciones distintas, guardadas al pulsar Aplicar.
+for (const key of ["googleEnabledV1","duckEnabledV1","yahooEnabledV1","hiddenWebV1","hiddenAiV1"]) {
+    assert(malvinaProbe.includes('malvinaWebSettings.value("'+key+'"'),
+           "Falta recuperación de "+key);
+    assert(malvinaProbe.includes('malvinaWebSettings.setValue("'+key+'"'),
+           "Falta persistencia de "+key);
+}
+for (const signal of ["onRequestMalvinaWebEnabledChange","onRequestMalvinaExtrasChange"]) {
+    assert(malvinaProbe.includes(signal), "Malvina no recibe "+signal);
+}
+assert(malvinaProbe.includes("malvinaWebSettings.sync()"));
+for (const prop of ["malvinaWebGoogleEnabled: probe.testGoogleEnabled",
+                   "malvinaWebDuckEnabled: probe.testDuckEnabled",
+                   "malvinaWebYahooEnabled: probe.testYahooEnabled",
+                   "malvinaHiddenWeb: probe.testHiddenWeb"]) {
+    assert(malvinaProbe.includes(prop), "Malvina no aplica "+prop);
+}
 assert(malvinaProbe.includes("if (smartbarContinuousMode) {"),
        "El modo aislado debe seguir sin escritura del orden");
 assert(malvinaProbe.includes('validOrder(value, ["duck","yahoo","google"])'),
