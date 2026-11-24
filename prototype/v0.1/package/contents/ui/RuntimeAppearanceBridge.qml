@@ -13,11 +13,21 @@ Item {
     property var backend: null
     property bool appearanceActive: false
     property string previousJson: ""
+    property bool warnedMissingProfile: false
 
     function refresh() {
         if (!appearanceActive || !backend || !target) return
         const raw = backend.readAppearanceJson()
-        if (!raw || raw === previousJson) return
+        if (!raw) {
+            if (!warnedMissingProfile) {
+                console.warn("SmartBar apariencia: no se encontró perfil compartido; " +
+                             "revisar importación o permisos locales")
+                warnedMissingProfile = true
+            }
+            return
+        }
+        if (raw === previousJson) return
+        warnedMissingProfile = false
         const parsed = RuntimeAppearance.parse(raw)
         if (!parsed) {
             console.warn("SmartBar: perfil visual local inválido, no se aplicó")
@@ -28,15 +38,20 @@ Item {
         console.log("SmartBar apariencia: propiedades visuales compartidas", updated)
     }
     function commitPatch(patchJson) {
-        if (!appearanceActive || !backend || !target || !patchJson) return
+        if (!appearanceActive || !backend || !target || !patchJson) return false
         const changes = RuntimeAppearance.parse(patchJson)
-        if (!changes || Object.keys(changes).length === 0) return
+        if (!changes || Object.keys(changes).length === 0) return false
+        const count = Object.keys(changes).length
         if (!backend.saveAppearancePatch(patchJson)) {
-            console.warn("SmartBar apariencia: fallo al guardar perfil visual; cambios descartados")
-            return
+            console.warn("SmartBar apariencia: NO se guardaron", count,
+                         "cambios; revisar permisos y archivo local")
+            return false
         }
         previousJson = ""
         refresh()
+        console.log("SmartBar apariencia: Aplicar guardó", count,
+                    "ajustes; sincronización solicitada")
+        return true
     }
     Timer {
         // Son 2 procesos independientes: relectura liviana sin abrir
