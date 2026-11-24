@@ -3015,7 +3015,8 @@ Item {
                                         }),
                                         realTaskChip.appName,
                                         local + realTaskChip.width / 2)
-                                } else if (realTaskChip.previewUuid.length > 0) {
+                                } else if (root.taskCloseMode !== "chip" &&
+                                           realTaskChip.previewUuid.length > 0) {
                                     const maxLeft = Math.max(0, root.width - 246)
                                     root.requestRealTaskPreview(realTaskChip.previewUuid,
                                         realTaskChip.appName,
@@ -3715,7 +3716,8 @@ Item {
                                         }),
                                         realTaskChip.appName,
                                         local + realTaskChip.width / 2)
-                                } else if (realTaskChip.previewUuid.length > 0) {
+                                } else if (root.taskCloseMode !== "chip" &&
+                                           realTaskChip.previewUuid.length > 0) {
                                     const maxLeft = Math.max(0, root.width - 246)
                                     root.requestRealTaskPreview(realTaskChip.previewUuid,
                                         realTaskChip.appName,
