@@ -25,7 +25,7 @@ for (const marker of [
     "bar.realTaskActivationDispatched = true",
     "if (!smartbarContinuousMode || bar.realTrackedFullscreen"
 ]) assert(host.includes(marker), "Falta protección de alternancia: " + marker);
-assert(host.indexOf("if (canMinimize)") < host.indexOf("groupedKdeWindows.requestToggleMinimized(target)"));
+assert(host.indexOf("if (canMinimize)") < host.indexOf("kdeWindows.requestToggleMinimized(kdeWindows.index(i, 0))"));
 assert(host.includes("TaskManager.TasksModel.GroupApplications"));
 assert(host.includes("String(windowUuids[0]) !== probe.lastSoActivatedUuid"),
        "Cambiar de ventana activa debe invalidar la última activación SO");
