@@ -95,7 +95,7 @@ for (const marker of [
     "profileSettings.sync()",
     "externalWindowControlsReserve: 0",
     "onControlsReservationChanged: probe.refreshInputRegion()",
-    "else if (!bar.draggingIslandGrip) bar.alignRightNow()"
+    "else if (!bar.draggingIslandGrip) {"
 ]) assert(qml.includes(marker), "Falta memoria real / diseño de prueba: " + marker);
 assert(!qml.includes("trialControlsReservePx") &&
        !qml.includes("externalActiveMaximized"),
@@ -106,8 +106,11 @@ assert(!qml.includes("Qt.WindowTransparentForInput") &&
 assert(!qml.includes("themeDayJson") && !qml.includes("themeNightJson") &&
        !qml.includes("kwriteconfig") && !qml.includes("KConfig"),
        "No modificar temas ni KConfig del usuario");
-assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
-       "La prueba solo puede persistir la clave de posiciones reales");
+assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 2,
+       "Solo persistir perfiles por app y la posición general explícitos");
+assert(qml.includes('profileSettings.setValue("generalSoledadOffsetV1", probe.generalOffset)') &&
+       qml.includes('profileSettings.setValue("soledadRealPositionProfilesV1", json)'),
+       "Solamente las posiciones confirmadas explícitamente se pueden guardar");
 assert(qml.includes("LayerShell.Window.margins: ({ left: 0, top: 0, right: 0, bottom: 0 })"),
        "La ventana debe seguir fija y sin obstruir Brave");
 // Ambas islas deben comenzar en el borde físico superior, SIN
@@ -198,7 +201,7 @@ for (const marker of [
     'probe.logPositionStorage("inicio del ensayo")',
     'logPositionStorage("cambio de ventana/estado")'
 ]) assert(qml.includes(marker), "Falta diagnóstico de memoria Steam: " + marker);
-assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
+assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 2,
        "El diagnóstico jamás debe agregar escrituras a las preferencias");
 assert(!qml.includes("profileSettings.remove(") &&
        !qml.includes("profileSettings.clear("),
@@ -502,7 +505,7 @@ assert(qml.includes('property string heldNormalFocusAppId: ""') &&
        qml.includes("RealActiveWindow.shouldKeepNormalFocusPosition(") &&
        qml.includes('console.log("SmartBar foco restaurado: conserva posicion"'),
        "La política de foco normal debe estar conectada al ensayo aislado");
-assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 1,
+assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 2,
     "Conservar retención de foco no debe escribir perfiles");
 
 // REGRESIÓN DE ARRANQUE 23/11 (nueva captura): la terminal mantiene
@@ -644,7 +647,7 @@ assert(qml.includes("function recoverInitialMaximizedAnchor(rows)") &&
        qml.includes("RealActiveWindow.topmostMaximizedProfile(") &&
        qml.includes('console.log("SmartBar inicio anclaje: maximizada superior"'),
        "El ensayo incluye la reconciliación inicial sin nuevos botones");
-assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 1,
+assert.equal((qml.match(/profileSettings\.setValue\(/g) || []).length, 2,
        "La reconciliación inicial no debe escribir perfiles");
 
 for (const marker of [
@@ -670,7 +673,7 @@ assert(!qml.includes("fullscreenExitCandidate(") &&
        "No volver a inferir un perfil de aplicación a partir del fullscreen");
 assert(!qml.includes("steam-chat") && !qml.includes("steamwebhelper"),
        "No introducir excepciones rígidas por ventana auxiliar de Steam");
-assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 1,
+assert((qml.match(/profileSettings\.setValue\(/g) || []).length === 2,
        "La memoria de fullscreen NO debe escribir preferencias locales");
 
 // Inicio y regreso de fullscreen: reevaluación corta de roles KDE.
@@ -700,7 +703,7 @@ assert(!qml.includes("running: true\n        repeat: true"),
 // ya guardado debe volver al anclaje de esa app maximizada, NO a x=0.
 for (const expected of [
     "readonly property bool activeRealAppHasSavedPosition:",
-    "realTrackedMaximized && !realTrackedFullscreen",
+    "!realTrackedFullscreen &&",
     "realTrackedAppId.length > 0",
     "SoledadPositionProfiles.readProfiles(realPositionProfilesJson)",
     "realTrackedAppId)",
