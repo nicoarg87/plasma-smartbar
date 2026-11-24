@@ -56,4 +56,27 @@ assert(popup.includes("function openCurrentFolderInManager()"));
 assert(popup.includes("Qt.openUrlExternally(fileList.folder)"));
 assert(popup.includes("if (!filesMode) return"));
 
+
+// Separación real de las rutas al pulsar SO.
+assert(bar.includes("function triggerSOButton(leftClick, wasOpenAtPress)"));
+assert(bar.includes("function toggleOpenWindowsFromSO()"));
+assert(bar.includes('console.log("SmartBar SO: launcher cerrado desde botón; cajón sin cambios")'));
+assert(bar.includes("closeInstalledLauncher()\n            return"));
+assert(bar.includes("const launch = leftClick === soLeftClickOpensLauncher"));
+
+// No contraer inmediatamente por cero pasajero en el TasksModel de KDE.
+assert(bar.includes("id: verifyEmptySoModel"));
+assert(bar.includes("interval: 450"));
+assert(bar.includes("if (soWindowCount === 0) verifyEmptySoModel.restart()"));
+assert(bar.includes("else verifyEmptySoModel.stop()"));
+assert(bar.includes("if (root.soWindowCount !== 0 || !root.soExpanded ||"));
+assert(bar.includes('console.log("SmartBar SO cierre: modelo estable sin ventanas")'));
+
+// Registro útil para discernir preferencia guardada de cierre externo.
+assert(bar.includes('onSoExpandedChanged: console.log("SmartBar SO cambio cajón:"'));
+assert(bar.includes('console.log("SmartBar SO selección ficha:", appName,'));
+assert(bar.includes('console.log("SmartBar SO casilla cajón: solicitar",'));
+assert(host.includes('"coincide =", bar.autoCollapseSO === newValue'));
+assert(host.includes('SmartBar SO cierre: selección miniatura individual'));
+assert(host.includes('SmartBar SO cierre: selección miniatura grupo'));
 console.log("OK: launcher se cierra al seleccionar programa; cajón SO y Archivos independientes.");
