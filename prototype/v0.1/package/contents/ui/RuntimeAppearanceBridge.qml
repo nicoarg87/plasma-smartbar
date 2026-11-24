@@ -47,9 +47,22 @@ Item {
                          "cambios; revisar permisos y archivo local")
             return false
         }
+        // Verificar la escritura REAL en disco antes de confirmar Aplicar.
+        // No basta con que QSaveFile devuelva true ni con actualizar la vista.
+        const saved = RuntimeAppearance.parse(backend.readAppearanceJson())
+        if (!saved) {
+            console.warn("SmartBar apariencia: no se pudo releer el perfil tras Aplicar")
+            return false
+        }
+        for (const key of Object.keys(changes)) {
+            if (JSON.stringify(saved[key]) !== JSON.stringify(changes[key])) {
+                console.warn("SmartBar apariencia: verificación del guardado falló en", key)
+                return false
+            }
+        }
         previousJson = ""
         refresh()
-        console.log("SmartBar apariencia: Aplicar guardó", count,
+        console.log("SmartBar apariencia: Aplicar guardó y verificó", count,
                     "ajustes; sincronización solicitada")
         return true
     }
