@@ -879,15 +879,6 @@ Window {
             }
             console.log("SmartBar cajón SO: autocontracción =", bar.autoCollapseSO)
         }
-        onRequestAutoCollapseLauncherChange: function(newValue) {
-            // Preferencia exclusiva del launcher; no modifica SO ni bandeja.
-            const patch = JSON.stringify({demoAutoCollapseLauncher: newValue})
-            if (!appearanceBridge.commitPatch(patch)) {
-                console.warn("SmartBar launcher: no se guardó autocontracción")
-                return
-            }
-            console.log("SmartBar launcher: autocontracción =", bar.autoCollapseLauncher)
-        }
         onRequestRuntimeAppearancePatch: function(json) {
             // Qt signals son sincrónicas: confirmar el resultado antes de
             // que Aplicar avance la línea base de Cancelar.
