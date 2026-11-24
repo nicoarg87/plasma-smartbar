@@ -51,7 +51,7 @@ QQC2.Popup {
         Math.max(278, Math.ceil(longestNameMetrics.advanceWidth + 62)),
         Math.floor((Math.max(480, availableScreenWidth) - 42) / 2)))
     property int primaryWidth: realLaunchEnabled ? sharedColumnWidth : 285
-    property int filesWidth: realLaunchEnabled ? Math.max(460, sharedColumnWidth * 2 + 1) : 500
+    property int filesWidth: realLaunchEnabled ? 645 : 500
     property int categoryWidth: realLaunchEnabled ? sharedColumnWidth : 280
     // Opción A (predeterminada): las aplicaciones aparecen a la derecha
     // y el panel principal se desplaza hacia la izquierda, como en la prueba.
