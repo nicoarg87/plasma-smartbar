@@ -33,8 +33,9 @@ assert.deepEqual(
 
 for(const fragment of [
     "readonly property int sharedColumnWidth:",
-    "Math.ceil(longestNameMetrics.advanceWidth + 62)",
-    "TextMetrics {",
+    "Math.ceil(maxInstalledTextWidth() + 62)",
+    "FontMetrics {",
+    "installedNameMetrics.advanceWidth",
     "availableScreenWidth",
     "property int primaryWidth: realLaunchEnabled ? sharedColumnWidth : 285",
     "property int categoryWidth: realLaunchEnabled ? sharedColumnWidth : 280",
