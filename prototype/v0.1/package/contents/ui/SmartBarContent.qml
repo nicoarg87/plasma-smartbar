@@ -599,7 +599,6 @@ Item {
         }
     }
     readonly property bool malvinaPopupActive:
-        (installedAppsPopup.visible && installedLauncherSource === "malvina") ||
         malvinaSearch.expanded ||
         (soledadSettings.visible && soledadSettings.currentTab === 0 &&
          soledadSettings.currentIslandSubtab === 2)
@@ -1582,13 +1581,11 @@ Item {
         }
     }
     function openInstalledLauncher(source) {
-        const requestedSource = source === "malvina" ? "malvina" : "so"
-        // Solo bloquear una aparición sobre fullscreen real o cuando aún
-        // no se conoce el estado; ventanas maximizadas son admisibles.
-        if (requestedSource === "malvina" && autoRevealBlocked)
-            return
-        // Un segundo clic sobre Malvina debe cerrar el popup existente.
-        // Sólo cambiar la isla de origen cuando realmente cambia de botón.
+        // El launcher de aplicaciones instaladas pertenece SOLO a Soledad.
+        // Malvina conserva su buscador web/IA, pero nunca abre este popup.
+        if (source === "malvina") return
+        const requestedSource = "so"
+        // Un segundo clic sobre SO cierra el popup existente.
         if (installedAppsPopup.visible && installedLauncherSource === requestedSource) {
             installedAppsPopup.close()
             return
