@@ -920,7 +920,28 @@ Item {
     property bool realTrackedFullscreen: false
     property bool realTrackedKnown: false
     property string realPositionProfilesJson: "{}"
+    // La referencia general tiene prioridad por debajo de los perfiles por app.
+    // En el visor histórico no se escribe ni se habilita por sí sola.
+    property real generalSoledadOffset: 0
+    signal requestGeneralSoledadOffsetChange(real offset)
     signal requestRealPositionProfilesChange(string json)
+    function saveGeneralSoledadPosition() {
+        if (!usingRealTasks || !demoWindowControlsEnabled ||
+            positionMode !== "right" || draggingIslandGrip) return
+        requestGeneralSoledadOffsetChange(islandOffset)
+        console.log("SmartBar: posición general solicitada", islandOffset)
+    }
+    function storeRealPositionFor(appId, offset) {
+        if (!usingRealTasks || !demoWindowControlsEnabled || positionMode !== "right") return
+        const next = SoledadPositionProfiles.saveProfile(
+            realPositionProfilesJson, appId, offset, maxIslandOffset)
+        if (next !== null) requestRealPositionProfilesChange(next)
+    }
+    function forgetRealPositionFor(appId) {
+        if (!usingRealTasks || !demoWindowControlsEnabled || positionMode !== "right") return
+        const next = SoledadPositionProfiles.removeProfile(realPositionProfilesJson, appId)
+        if (next !== null) requestRealPositionProfilesChange(next)
+    }
     readonly property var realProfileTarget: RealActiveWindow.profileTarget(
         realSelectedAppId, realSelectedAppName,
         { appId: realTrackedAppId, appName: realTrackedAppName,
@@ -928,7 +949,8 @@ Item {
           known: realTrackedKnown })
     readonly property bool realProfileContextReady:
         demoWindowControlsEnabled && usingRealTasks &&
-        positionMode === "right" && realProfileTarget.eligible
+        positionMode === "right" &&
+        SoledadPositionProfiles.validAppId(realProfileTarget.appId).length > 0
     readonly property bool realProfileExists:
         demoWindowControlsEnabled && usingRealTasks &&
         positionMode === "right" && realProfileTarget.appId.length > 0 &&
@@ -955,30 +977,26 @@ Item {
         if (!realTrackedMaximized && !autoReturnRight) return
         const next = SoledadPositionProfiles.resolveOffset(
             realPositionProfilesJson, realTrackedAppId, true,
-            realTrackedMaximized, 0, maxIslandOffset)
+            realTrackedMaximized, generalSoledadOffset, maxIslandOffset)
         setIslandOffset(next)
         alignRightSelected = next === 0
         ensureExpansionFits()
     }
     function saveRealPositionProfile() {
         if (!realProfileContextReady) return
-        const updated = SoledadPositionProfiles.saveProfile(
-            realPositionProfilesJson, realProfileTarget.appId,
-            islandOffset, maxIslandOffset)
-        if (updated !== null) requestRealPositionProfilesChange(updated)
+        storeRealPositionFor(realProfileTarget.appId, islandOffset)
     }
     function deleteRealPositionProfile() {
         if (!realProfileExists) return
-        const updated = SoledadPositionProfiles.removeProfile(
-            realPositionProfilesJson, realProfileTarget.appId)
-        if (updated !== null) {
-            requestRealPositionProfilesChange(updated)
-            setIslandOffset(0)
-            alignRightSelected = true
-        }
+        forgetRealPositionFor(realProfileTarget.appId)
+        applyRealPositionProfile()
     }
     onRealPositionProfilesJsonChanged: {
-        if (realProfileContextReady && !gripDrag.active)
+        if (usingRealTasks && !gripDrag.active)
+            applyRealPositionProfile()
+    }
+    onGeneralSoledadOffsetChanged: {
+        if (usingRealTasks && !gripDrag.active && !realTrackedFullscreen)
             applyRealPositionProfile()
     }
     property var realTaskModel: null
@@ -1371,6 +1389,9 @@ Item {
             applyRealPositionProfile()
             console.log("SmartBar v0.1: restaurada posición de",
                         realTrackedAppName, "(perfil real)")
+        } else if (usingRealTasks && positionMode === "right") {
+            setIslandOffset(generalSoledadOffset)
+            alignRightSelected = islandOffset === 0
         } else {
             alignRightNow()
         }
@@ -3122,6 +3143,28 @@ Item {
                         }
                     }
 
+                    SoledadPositionEditor {
+                        id: soPositionEditor
+                        parent: moveGrip
+                        x: Math.min(0, moveGrip.width - width)
+                        y: moveGrip.height + 10
+                        realTasksModel: root.realTaskModel
+                        profilesJson: root.realPositionProfilesJson
+                        generalOffset: root.generalSoledadOffset
+                        currentOffset: root.islandOffset
+                        maxOffset: root.maxIslandOffset
+                        onPreviewRequested: function(offset) {
+                            root.setIslandOffset(offset)
+                            root.alignRightSelected = offset === 0
+                        }
+                        onSaveRequested: function(appId, offset) {
+                            root.storeRealPositionFor(appId, offset)
+                        }
+                        onRemoveRequested: function(appId) {
+                            root.forgetRealPositionFor(appId)
+                        }
+                    }
+
                     QQC2.Menu {
                         id: gripMenu
                         title: "Opciones de Soledad"
@@ -3232,17 +3275,29 @@ Item {
                                      root.realProfileTarget.appName.length > 0
                             enabled: root.realProfileContextReady
                             text: root.realProfileContextReady
-                                ? "Recordar esta posición para " + root.realProfileTarget.appName
-                                : (root.realProfileTarget.appId.length === 0
-                                    ? root.realProfileTarget.appName + ": KDE no informa su ID"
-                                    : root.realProfileTarget.appName +
-                                      ": activala y maximizala en KDE")
+                                ? "Fijar esta posición para " + root.realProfileTarget.appName
+                                : root.realProfileTarget.appName + ": KDE no informa su ID"
                             onTriggered: root.saveRealPositionProfile()
                         }
                         QQC2.MenuItem {
                             visible: root.realProfileExists
                             text: "Olvidar posición de " + root.realProfileTarget.appName
                             onTriggered: root.deleteRealPositionProfile()
+                        }
+                        QQC2.MenuSeparator {}
+                        QQC2.MenuItem {
+                            visible: root.usingRealTasks
+                            enabled: root.positionMode === "right"
+                            text: "Fijar esta posición para todas las aplicaciones"
+                            onTriggered: root.saveGeneralSoledadPosition()
+                        }
+                        QQC2.MenuItem {
+                            visible: root.usingRealTasks
+                            text: "Personalizar posición por aplicación…"
+                            onTriggered: {
+                                soPositionEditor.openFor(root.realTrackedAppId,
+                                                         root.realTrackedAppName)
+                            }
                         }
                         // Atajo contextual del agarre: respeta la preferencia
                         // elegida en Islas y posición, sin cambiar de modo.
