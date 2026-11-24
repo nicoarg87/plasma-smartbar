@@ -144,6 +144,9 @@ QQC2.Dialog {
                 enabled: editor.selectedId.length > 0
                 onClicked: {
                     editor.changesSaved = true
+                    // Quitar previsualización temporal antes de aplicar el
+                    // nuevo perfil; si la app está activa, KWin lo aplicará.
+                    editor.previewRequested(editor.previousOffset)
                     editor.saveRequested(editor.selectedId, positionSlider.value)
                     editor.close()
                 }
