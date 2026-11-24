@@ -19,6 +19,7 @@ Window {
     signal cursorEntered()
     signal cursorExited()
     signal selectWindow(string uuid)
+    signal closeWindow(string uuid)
     // Estado del puntero sobre TODA la superficie LayerShell, no solo
     // sobre el contenido capturado por PipeWire.
     property bool cursorInside: false
@@ -104,6 +105,41 @@ Window {
             onExited: {
                 preview.cursorInside = false
                 preview.cursorExited()
+            }
+        }
+        // Control independiente: no propaga el clic al selector de ventana.
+        Rectangle {
+            id: closeThumbnailButton
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.margins: 7
+            width: 28
+            height: 28
+            radius: 6
+            color: closeThumbnailMouse.containsMouse ? "#a12e3b" : "#263b4a"
+            border.color: "#b9d3df"
+            border.width: 1
+            z: 2
+            Text {
+                anchors.centerIn: parent
+                text: "×"
+                color: "white"
+                font.pixelSize: 20
+            }
+            MouseArea {
+                id: closeThumbnailMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                acceptedButtons: Qt.LeftButton
+                cursorShape: Qt.PointingHandCursor
+                onEntered: {
+                    preview.cursorInside = true
+                    preview.cursorEntered()
+                }
+                onClicked: {
+                    if (preview.visible && preview.windowUuid.length > 0)
+                        preview.closeWindow(preview.windowUuid)
+                }
             }
         }
     }
