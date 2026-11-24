@@ -22,8 +22,8 @@ const editorQml=read("package/contents/ui/SoledadSettings.qml");
 const viewerQml=read("preview_redimensionable.qml");
 for(const key of api.visualKeys) {
     const editorKey=api.editorNames[key] || key;
-    const matches=(code,property)=>
-        new RegExp("property\\\\s+\\\\w+\\\\s+"+property+"\\\\s*:").test(code);
+    const matches=(code,property)=>code.split("\n").some(line=>
+        line.includes("property ") && line.includes(" "+property+":"));
     assert(matches(source,key),"Falta propiedad destino SmartBar: "+key);
     assert(matches(editorQml,editorKey),"Falta propiedad del editor: "+editorKey);
     assert(matches(viewerQml,api.savedKey(key)),
