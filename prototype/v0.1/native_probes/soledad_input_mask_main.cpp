@@ -167,6 +167,20 @@ public:
         return true;
     }
 
+    // Único puente a fondo KDE real, activado exclusivamente por el clic
+    // "Pasar al tema siguiente" del ensayo de Soledad. El helper confirma
+    // pantalla/actividad/plugin, verifica SHA de las imágenes y respalda antes.
+    // Sin shell, sin permisos de administrador y sin modificar paneles.
+    Q_INVOKABLE bool applyThemeWallpaper(const QString &theme) const {
+        if (theme != QLatin1String("day") &&
+            theme != QLatin1String("sunset") &&
+            theme != QLatin1String("night")) return false;
+        return invokeThemeWallpaperHelper(theme);
+    }
+    Q_INVOKABLE bool undoThemeWallpaper() const {
+        return invokeThemeWallpaperHelper(QStringLiteral("undo"));
+    }
+
     // Un navegador elegido aplica indistintamente a Web y chat IA.
     // Nunca usar shell, concatenación de comandos ni una URL como ejecutable.
     Q_INVOKABLE bool launchWebUrl(const QString &browserId,
@@ -313,6 +327,34 @@ private:
             {"qutebrowser", "qutebrowser", "qutebrowser"}
         };
         return candidates;
+    }
+    bool invokeThemeWallpaperHelper(const QString &action) const {
+        const QString helper=qEnvironmentVariable("SMARTBAR_WALLPAPER_HELPER_PATH");
+        const QString node=QStandardPaths::findExecutable(QStringLiteral("node"));
+        if (helper.isEmpty() || node.isEmpty() ||
+            !QFileInfo(helper).isFile()) {
+            qWarning() << "SmartBar: helper local de wallpaper no disponible";
+            return false;
+        }
+        QProcess process;
+        process.setProgram(node);
+        process.setArguments(QStringList{helper,action});
+        process.start();
+        if (!process.waitForStarted(2000)) return false;
+        if (!process.waitForFinished(12000)) {
+            process.kill();
+            process.waitForFinished(1000);
+            qWarning() << "SmartBar: respuesta KDE excedió plazo";
+            return false;
+        }
+        if (process.exitStatus()!=QProcess::NormalExit ||
+            process.exitCode()!=0) {
+            // No exponer rutas privadas que pudieran aparecer en stderr.
+            qWarning() << "SmartBar: KDE no confirmó cambio seguro de wallpaper";
+            return false;
+        }
+        qInfo() << "SmartBar: wallpaper de tema aplicado/restaurado" << action;
+        return true;
     }
     QQuickWindow *m_window = nullptr; // propiedad del motor QQmlApplicationEngine
 };
