@@ -3396,3 +3396,12 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 **VERIFICADO EN V8 (lógica pura):** 720 comparaciones de entrada/salida contra el comportamiento anterior, sin diferencias; seis comprobaciones de código/llamadas preservadas. Se creó `tests/test_soledad_layout_modules.cjs` y se adaptó `tests/test_task_separator_resize.cjs` para comprobar las reglas ahora delegadas. **NO EJECUTADO EN CACHYOS** tras este cambio, ni se afirma prueba QML/nativa en esta etapa.
 
 **PENDIENTE:** continuar con vistas y páginas de configuración, que siguen concentradas en archivos extensos. Bandeja KDE real todavía no implementada; [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24). Seguimiento de modularización [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25). [Documento de arquitectura](ARQUITECTURA_MODULAR.md).
+
+
+## Modularización de páginas de Configuración — 26/11/2026
+
+**IMPLEMENTADO, SIN CAMBIOS FUNCIONALES APROBADOS:** `SoledadTaskStylesPage.qml` y `SoledadAboutPage.qml` separan las vistas actuales de Cajón y ventanas y Ayuda/Acerca de. Su anfitrión `SoledadSettings.qml` mantiene estados, opciones, diálogos, enlaces del menú, valores por defecto, funciones de Aplicar/Cancelar y persistencia, reduciendo su extensión de **5.539 a 5.295 líneas**. No se modificaron temas, fondos, panel instalado, ventanas reales ni posiciones. [Commit de integración](https://github.com/nicoarg87/plasma-smartbar/commit/3c772e467e923140851228591c09e5a9c476cb59).
+
+**VERIFICACIÓN INTERNA:** comparación textual de los dos bloques antes/después del traslado (eliminando únicamente adaptación de IDs e indentación) sin diferencias funcionales; referencias `availableWidth` corregidas en ambos archivos. Pasaron los contratos de `test_modulos_configuracion_soledad.cjs` y la versión adaptada de `test_task_close_mode.cjs` por evaluación del código JS, no por una ejecución nativa de Node/Qt en CachyOS.
+
+**PENDIENTE:** evaluación de carga de las nuevas páginas en Qt/Wayland cuando se trabaje efectivamente con el centro de configuración. No invalida pruebas previas de SO, launcher, wallpaper o bandeja. Continuar la división segura de `SoledadSettings.qml`, priorizando componentes sin referencias cruzadas. [Issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
