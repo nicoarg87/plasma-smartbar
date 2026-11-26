@@ -2973,25 +2973,9 @@ Item {
                 x: (parent.width - width) / 2 +
                     (root.soledadShape === "leftTip" ? 12 : 0)
 
-                IslandButton {
+                SoledadTrayToggle {
                     id: trayToggle
-                    text: root.trayExpanded ? "▶" : "◀"
-                    frameShape: root.trayButtonShape
-                    useTileColor: true
-                    tileColor: root.effectiveTrayButtonColor
-                    // Si usa la paleta heredada, dejar ver el degradado
-                    // debajo de la bandeja. Un color propio explícito se
-                    // mantiene intacto.
-                    tileOpacity: root.soledadGradientEnabled &&
-                                 !root.trayButtonColorOverride
-                        ? 0 : root.effectiveTrayButtonOpacity
-                    outlineStyle: root.outlineConfig.tray.style
-                    outlineWidth: root.outlineConfig.tray.width
-                    outlineColor: root.displayOutlineTrayColor
-                    outlineOpacity: root.outlineConfig.tray.opacity
-                    onClicked: root.toggleTray()
-                    QQC2.ToolTip.visible: false
-                    QQC2.ToolTip.text: "Cajón de sistema: abrir/cerrar bandeja"
+                    host: root
                 }
 
                 // Repeater modular: iconos siguen siendo hijos directos de
