@@ -9,6 +9,7 @@ const read = file => fs.readFileSync(path.join(base, file), "utf8");
 const qml = read("preview_soledad_layershell.qml");
 const runner = read("probar_soledad_layershell.sh");
 const bar = read("package/contents/ui/SmartBarContent.qml");
+const grip = read("package/contents/ui/SoledadGripControl.qml");
 const viewer = read("preview_redimensionable.qml");
 const plasma = read("package/contents/ui/main.qml");
 
@@ -47,13 +48,13 @@ assert(!qml.includes("LayerShell.Window.LayerOverlay"),
 assert(!qml.includes("QtCore.Settings") && !qml.includes("Settings {"),
        "No leer ni escribir configuración personal en el ensayo.");
 assert(bar.includes('readonly property url defaultSoLogo: Qt.resolvedUrl("assets/so-tropical.gif")'));
-assert(bar.includes("id: moveGrip") && bar.includes("id: gripDrag"));
+assert(bar.includes("id: moveGrip") && grip.includes("id: gripDrag"));
 assert(bar.includes("root.setIslandOffset("));
 assert(bar.includes("readonly property real actualIslandWidth: systemIsland.width"));
 assert(bar.includes("id: systemIsland"));
 assert(bar.includes("id: soButton"));
 assert(bar.includes("id: trayToggle"));
-assert(bar.includes("onActiveTranslationChanged:"));
+assert(grip.includes("onActiveTranslationChanged:"));
 assert(!/\b(?:x|y)\s*:/.test(qml.slice(0, qml.indexOf("SmartBar.SmartBarContent {"))),
        "No posicionar la ventana toplevel con coordenadas XDG.");
 for (const key of [
