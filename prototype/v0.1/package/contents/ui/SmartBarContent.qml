@@ -15,6 +15,7 @@ import "SystemTrayController.js" as SystemTrayController
 import "SoledadExpansionPolicy.js" as SoledadExpansionPolicy
 import "SoledadLauncherPlacement.js" as SoledadLauncherPlacement
 import "SoledadTaskSizing.js" as SoledadTaskSizing
+import "SoledadBreathingMath.js" as SoledadBreathingMath
 import "DemoWindowInstances.js" as DemoWindowInstances
 import "DemoAudioState.js" as DemoAudioState
 import "SoledadPositionProfiles.js" as SoledadPositionProfiles
@@ -982,11 +983,7 @@ Item {
     readonly property bool anyGradientBreathingActive:
         soledadGradientBreathingActive || malvinaGradientBreathingActive
     function breathingFactor(intensity, phase) {
-        const wave = 0.5 - 0.5 * Math.cos(2 * Math.PI * phase)
-        // Intensidad por isla; solo si el usuario lo pide sigue al pulso SO.
-        // Intensidad 0 = sin modulación; 100 % = hasta 65 % de amplitud.
-        const amplitude = Math.max(0, Math.min(1, intensity)) * 0.65
-        return 1 - amplitude * (1 - wave)
+        return SoledadBreathingMath.breathingFactor(intensity, phase)
     }
     readonly property real gradientBreathingFactor:
         soledadGradientBreathingActive
@@ -1007,18 +1004,17 @@ Item {
         running: root.anyGradientBreathingActive
         onTriggered: {
             const dt = interval / 1000
-            if (root.sharedBreathingActive) {
-                const speed = Math.max(0.1, Math.min(3, root.soActivityPulseSpeed))
-                root.sharedBreathingPhase = (root.sharedBreathingPhase + speed * dt) % 1
-            }
+            if (root.sharedBreathingActive)
+                root.sharedBreathingPhase = SoledadBreathingMath.nextPhase(
+                    root.sharedBreathingPhase, root.soActivityPulseSpeed, dt)
             if (root.soledadGradientBreathingActive && !root.soledadGradientSyncBreathing)
-                root.soledadIndependentBreathingPhase =
-                    (root.soledadIndependentBreathingPhase +
-                     Math.max(0.1, Math.min(3, root.soledadGradientBreathingSpeed)) * dt) % 1
+                root.soledadIndependentBreathingPhase = SoledadBreathingMath.nextPhase(
+                    root.soledadIndependentBreathingPhase,
+                    root.soledadGradientBreathingSpeed, dt)
             if (root.malvinaGradientBreathingActive && !root.malvinaGradientSyncBreathing)
-                root.malvinaIndependentBreathingPhase =
-                    (root.malvinaIndependentBreathingPhase +
-                     Math.max(0.1, Math.min(3, root.malvinaGradientBreathingSpeed)) * dt) % 1
+                root.malvinaIndependentBreathingPhase = SoledadBreathingMath.nextPhase(
+                    root.malvinaIndependentBreathingPhase,
+                    root.malvinaGradientBreathingSpeed, dt)
         }
     }
     property bool malvinaGradientEnabled: false
