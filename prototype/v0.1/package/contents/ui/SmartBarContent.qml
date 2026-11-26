@@ -10,6 +10,8 @@ import "ThemeSchedule.js" as ThemeSchedule
 import "ThemePack.js" as ThemePack
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "DemoWindows.js" as DemoWindows
+import "SystemTrayModel.js" as SystemTrayModel
+import "SystemTrayController.js" as SystemTrayController
 import "DemoWindowInstances.js" as DemoWindowInstances
 import "DemoAudioState.js" as DemoAudioState
 import "SoledadPositionProfiles.js" as SoledadPositionProfiles
@@ -1520,7 +1522,7 @@ Item {
         const next = DemoWindows.firstClosed(demoOpenedApps, demoApps)
         return next.length > 0 && openDemoWindow(next)
     }
-    readonly property var demoTray: ["Wi-Fi", "Audio", "Bluetooth"]
+    readonly property var demoTray: SystemTrayModel.demoEntries()
     // Menú de muestra: NO representa las aplicaciones instaladas todavía.
     readonly property var demoInstalledApps: ["Dolphin", "Konsole", "Brave", "Firefox", "Configuración"]
     property bool soHoldTriggered: false
@@ -1842,14 +1844,11 @@ Item {
 
     function toggleTray() {
         closeInstalledLauncher()
-        if (trayExpanded) {
-            trayExpanded = false
-        } else {
-            lastExpandedMode = "tray"
-            trayExpanded = true
-            // Si hay espacio suficiente, la expansión SO queda abierta.
-            ensureExpansionFits()
-        }
+        const next = SystemTrayController.toggle(trayExpanded, lastExpandedMode)
+        lastExpandedMode = next.lastExpandedMode
+        trayExpanded = next.expanded
+        // Si hay espacio, SO permanece abierto: sin autocontracción cruzada.
+        if (next.ensureFits) ensureExpansionFits()
     }
 
     function selectDemoApp(appName) {
@@ -1867,10 +1866,10 @@ Item {
     }
 
     function selectDemoTray(iconName) {
-        // La bandeja sigue siendo SIMULADA; ninguna acción del sistema.
-        if (autoCollapseTray) {
-            trayExpanded = false
-        }
+        // El módulo decide la contracción sin tocar SO ni aplicaciones.
+        // Todavía son indicadores SIMULADOS, sin acciones sobre KDE.
+        trayExpanded = SystemTrayController.afterIconSelection(
+            trayExpanded, autoCollapseTray)
         console.log("Soledad: icono de bandeja simulado", iconName,
                     "autocontraer bandeja =", autoCollapseTray,
                     "(sin acciones reales)")
@@ -3008,21 +3007,20 @@ Item {
                     QQC2.ToolTip.text: "Cajón de sistema: abrir/cerrar bandeja"
                 }
 
-                Repeater {
-                    model: root.trayExpanded ? root.demoTray : []
-                    delegate: IslandButton {
-                        text: modelData
-                        useTileColor: true
-                        tileColor: root.effectiveTrayButtonColor
-                        tileOpacity: root.effectiveTrayButtonOpacity
-                    outlineStyle: root.outlineConfig.tray.style
-                    outlineWidth: root.outlineConfig.tray.width
-                    outlineColor: root.displayOutlineTrayColor
-                    outlineOpacity: root.outlineConfig.tray.opacity
-                        onClicked: root.selectDemoTray(modelData)
-                        QQC2.ToolTip.visible: false
-                        QQC2.ToolTip.text: "Bandeja simulada: " + modelData
-                             + " (no modifica el sistema)"
+                // Repeater modular: iconos siguen siendo hijos directos de
+                // systemRow; no cambiar ancho, posición ni transparencias.
+                SystemTrayView {
+                    sourceEntries: SystemTrayModel.visibleEntries(
+                        root.demoTray, root.trayExpanded)
+                    expanded: root.trayExpanded
+                    trayColor: root.effectiveTrayButtonColor
+                    trayOpacity: root.effectiveTrayButtonOpacity
+                    trayOutlineStyle: root.outlineConfig.tray.style
+                    trayOutlineWidth: root.outlineConfig.tray.width
+                    trayOutlineColor: root.displayOutlineTrayColor
+                    trayOutlineOpacity: root.outlineConfig.tray.opacity
+                    onIconActivated: function(iconName) {
+                        root.selectDemoTray(iconName)
                     }
                 }
 
