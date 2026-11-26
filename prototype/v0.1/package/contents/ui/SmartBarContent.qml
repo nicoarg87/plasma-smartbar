@@ -3082,43 +3082,9 @@ Item {
                 }
                 // Único control de reapertura en el mismo cajón de fichas SO.
                 // Nunca se muestra con TasksModel real ni modifica KDE.
-                QQC2.ToolButton {
-                    id: reopenDemoRight
-                    visible: root.positionMode === "right" && root.soExpanded &&
-                             root.demoWindowControlsEnabled && !root.usingRealTasks
-                    text: "+"
-                    implicitWidth: 26
-                    implicitHeight: 34
-                    focusPolicy: Qt.StrongFocus
-                    enabled: !root.demoHasRunningWindows || root.demoClosedHistory.length > 0 ||
-                             DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
-                    Accessible.name: enabled ? "Recuperar última ventana simulada cerrada" :
-                                     "Todas las ventanas simuladas están abiertas"
-                    // El + no depende del texto del ToolButton, que el estilo
-                    // Qt puede dejar invisible. Se reutiliza el botón existente.
-                    contentItem: Item {
-                        implicitWidth: 18
-                        implicitHeight: 18
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 14
-                            height: 2
-                            radius: 1
-                            color: reopenDemoRight.enabled ? "#ffffff" : "#a1b1c0"
-                        }
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 2
-                            height: 14
-                            radius: 1
-                            color: reopenDemoRight.enabled ? "#ffffff" : "#a1b1c0"
-                        }
-                    }
-                    QQC2.ToolTip.visible: false
-                    QQC2.ToolTip.text: enabled
-                        ? "Deshacer último cierre de ventana simulada"
-                        : "Todas las ventanas simuladas están abiertas"
-                    onClicked: root.reopenNextDemoWindow()
+                SoledadDemoReopenButton {
+                    host: root
+                    presentationMode: "right"
                 }
 
 
@@ -3666,43 +3632,9 @@ Item {
                 }
                 // Único control de reapertura en el mismo cajón de fichas SO.
                 // Nunca se muestra con TasksModel real ni modifica KDE.
-                QQC2.ToolButton {
-                    id: reopenDemoCenter
-                    visible: root.positionMode === "center" && root.soExpanded &&
-                             root.demoWindowControlsEnabled && !root.usingRealTasks
-                    text: "+"
-                    implicitWidth: 26
-                    implicitHeight: 34
-                    focusPolicy: Qt.StrongFocus
-                    enabled: !root.demoHasRunningWindows || root.demoClosedHistory.length > 0 ||
-                             DemoWindows.firstClosed(root.demoOpenedApps, root.demoApps) !== ""
-                    Accessible.name: enabled ? "Recuperar última ventana simulada cerrada" :
-                                     "Todas las ventanas simuladas están abiertas"
-                    // El + no depende del texto del ToolButton, que el estilo
-                    // Qt puede dejar invisible. Se reutiliza el botón existente.
-                    contentItem: Item {
-                        implicitWidth: 18
-                        implicitHeight: 18
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 14
-                            height: 2
-                            radius: 1
-                            color: reopenDemoCenter.enabled ? "#ffffff" : "#a1b1c0"
-                        }
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 2
-                            height: 14
-                            radius: 1
-                            color: reopenDemoCenter.enabled ? "#ffffff" : "#a1b1c0"
-                        }
-                    }
-                    QQC2.ToolTip.visible: false
-                    QQC2.ToolTip.text: enabled
-                        ? "Deshacer último cierre de ventana simulada"
-                        : "Todas las ventanas simuladas están abiertas"
-                    onClicked: root.reopenNextDemoWindow()
+                SoledadDemoReopenButton {
+                    host: root
+                    presentationMode: "center"
                 }
 
 
