@@ -9,6 +9,7 @@ const read = p => fs.readFileSync(path.join(root,p), "utf8");
 const cpp = read("native_probes/soledad_input_mask_main.cpp");
 const probe = read("preview_malvina_input_mask.qml");
 const shared = read("package/contents/ui/SmartBarContent.qml");
+const malvina = read("package/contents/ui/MalvinaRuntimeIsland.qml");
 const search = read("package/contents/ui/MalvinaSearch.qml");
 const page = read("package/contents/ui/MalvinaProvidersPage.qml");
 const settings = read("package/contents/ui/SoledadSettings.qml");
@@ -71,9 +72,9 @@ assert(shared.includes('signal requestMalvinaBrowserChange(string browserId)') &
 assert(search.includes("signal requestOpenUrl(string url)") &&
        search.includes("requestOpenUrl(result.url)") &&
        !search.includes("Qt.openUrlExternally(result.url)"));
-assert(shared.includes("onRequestOpenUrl: function(url)") &&
-       shared.includes("root.malvinaBrowserBackend.launchWebUrl(choice, url)") &&
-       shared.includes("Qt.openUrlExternally(url)"),
+assert(malvina.includes("onRequestOpenUrl: function(url)") &&
+       malvina.includes("host.malvinaBrowserBackend.launchWebUrl(choice, url)") &&
+       malvina.includes("Qt.openUrlExternally(url)"),
        "La misma apertura del anfitrión debe servir Web e IA");
 
 function qmlHandler(source, name) {
@@ -111,8 +112,8 @@ assert.equal(data.get("selectedBrowserV1"),"system");
 assert.equal(synced,2,"Se puede restaurar KDE con Aplicar");
 
 const launchCalls=[],defaultCalls=[],dismissCalls=[];
-const sender = new Function("root","Qt","url","console",
-                            qmlHandler(shared,"RequestOpenUrl"));
+const sender = new Function("host","Qt","url","console",
+                            qmlHandler(malvina,"RequestOpenUrl"));
 const simulatedRoot={
     malvinaBrowserChoices:choices, malvinaBrowserId:"brave",
     malvinaBrowserBackend:{launchWebUrl(id,url){launchCalls.push([id,url]);return true;}},
