@@ -10,6 +10,7 @@ import "ThemeSchedule.js" as ThemeSchedule
 import "ThemeLibrary.js" as ThemeLibrary
 import "ThemePack.js" as ThemePack
 import "WallpaperFadeDuration.js" as WallpaperFadeDuration
+import "SoledadSettingsBaseline.js" as SoledadSettingsBaseline
 import "assets/FactoryNightTheme.js" as FactoryNightTheme
 import "assets/FactorySunsetTheme.js" as FactorySunsetTheme
 import "assets/FactoryDayTheme.js" as FactoryDayTheme
@@ -49,10 +50,7 @@ Window {
     property string runtimeApplyNote: ""
     property string pendingAlignAction: ""
     function preferenceCopy(key, value) {
-        if (value === undefined || value === null) return value
-        if (editableColorKeys.indexOf(key) !== -1) return String(value)
-        if (typeof value === "object") return JSON.parse(JSON.stringify(value))
-        return value
+        return SoledadSettingsBaseline.preferenceCopy(key, value, editableColorKeys)
     }
     function captureSettingsBaseline() {
         const snapshot = {}
