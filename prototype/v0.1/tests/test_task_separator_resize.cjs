@@ -7,6 +7,8 @@ const path = require("node:path");
 const base = path.resolve(__dirname, "..");
 const bar = fs.readFileSync(path.join(base, "package/contents/ui/SmartBarContent.qml"),"utf8");
 const island = fs.readFileSync(path.join(base, "package/contents/ui/IslandButton.qml"),"utf8");
+const separator = fs.readFileSync(path.join(base, "package/contents/ui/SoledadTaskWidthSeparator.qml"),"utf8");
+const realChip = fs.readFileSync(path.join(base, "package/contents/ui/SoledadRealTaskChip.qml"),"utf8");
 const sizing = fs.readFileSync(path.join(base, "package/contents/ui/SoledadTaskSizing.js"),"utf8");
 assert(sizing.includes("availableIslandWidth - naturalIslandWidth"),
        "el cálculo de espacio debe estar delegado al módulo");
@@ -14,30 +16,34 @@ assert(sizing.includes("Math.min(160,"),
        "mantener límite de 160 píxeles");
 const mask = fs.readFileSync(path.join(base,"preview_soledad_input_mask.qml"),"utf8");
 for (const marker of [
-  'id: traySOSeparator',
-  'visible: root.trayExpanded && root.soExpanded',
-  'cursorShape: Qt.SizeHorCursor',
-  'root.taskResizeStartX - pt.x',
-  'root.saveTaskNameExtraWidth()',
   'category: "plasma-smartbar-v01-task-chip-width"',
   'taskWidthSettings.setValue("extraWidth", taskNameExtraWidth)',
   'taskWidthSettings.sync()',
   'function updateTaskNameExtraWidth(value)',
   'SoledadTaskSizing.resizedExtraWidth(',
-  'taskResizeChipCount'
-]) assert(bar.includes(marker), "Falta ajuste: "+marker);
-assert.equal((bar.match(/taskNameExtraWidth: root\.taskNameExtraWidth/g)||[]).length,2,
-             "La ficha KDE debe ampliarse en ambos modos de posición");
+  'taskResizeChipCount',
+  'SoledadTaskWidthSeparator {'
+]) assert(bar.includes(marker), "Falta ajuste anfitrión: "+marker);
+for (const marker of [
+  'visible: host.trayExpanded && host.soExpanded',
+  'cursorShape: Qt.SizeHorCursor',
+  'host.taskResizeStartX - pt.x',
+  'host.saveTaskNameExtraWidth()',
+  'onDoubleClicked: function(mouse)',
+  'if (mouse.button !== Qt.LeftButton) return',
+  'host.taskNameExtraWidth = 0',
+  'doble clic para restablecer',
+  'height: 28',
+  'spacing: 2'
+]) assert(separator.includes(marker), "Falta ajuste separador: "+marker);
+assert.equal((bar.match(/delegate: SoledadRealTaskChip/g)||[]).length,2,
+             "La ficha KDE debe usarse en ambos modos de posición");
+assert(realChip.includes('taskNameExtraWidth: host.taskNameExtraWidth'));
 assert(island.includes("property int taskNameExtraWidth: 0"));
 assert(island.includes("+ taskTrailingControlWidth + taskNameExtraWidth"),
        "La ampliación suma ancho natural en lugar de comprimir texto");
 assert(island.includes("font.pixelSize: control.customTextMode ? control.customTextFontSize : 13"),
        "No modificar fuente de fichas");
-assert(bar.includes("onDoubleClicked: function(mouse)"));
-assert(bar.includes("if (mouse.button !== Qt.LeftButton) return"));
-assert(bar.includes("root.taskNameExtraWidth = 0"));
-assert(bar.includes("root.saveTaskNameExtraWidth()"));
-assert(bar.includes("doble clic para restablecer"));
 assert(bar.includes('property string taskDisplayMode: "both"'),
        "El modo predeterminado del cajón SO debe ser icono y nombre");
 const settings = fs.readFileSync(path.join(base, "package/contents/ui/SoledadSettings.qml"),"utf8");
@@ -45,7 +51,7 @@ assert(settings.includes('property string taskDisplayMode: "both"'),
        "El editor debe mostrar el mismo modo predeterminado");
 assert(island.includes('property string taskDisplayMode: "both"'),
        "Las fichas deben mostrar nombre cuando no existe ajuste guardado");
-assert(bar.includes("height: 28") && bar.includes("spacing: 2"),
+assert(separator.includes("height: 28") && separator.includes("spacing: 2"),
        "Marcas del agarre sin cambiar altura de isla");
 assert(mask.includes("probe.refreshInputRegion()"),
        "Conservar actualización de máscara de entradas");
