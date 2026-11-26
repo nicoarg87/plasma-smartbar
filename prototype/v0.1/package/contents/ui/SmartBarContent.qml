@@ -12,6 +12,9 @@ import "WallpaperFadeDuration.js" as WallpaperFadeDuration
 import "DemoWindows.js" as DemoWindows
 import "SystemTrayModel.js" as SystemTrayModel
 import "SystemTrayController.js" as SystemTrayController
+import "SoledadExpansionPolicy.js" as SoledadExpansionPolicy
+import "SoledadLauncherPlacement.js" as SoledadLauncherPlacement
+import "SoledadTaskSizing.js" as SoledadTaskSizing
 import "DemoWindowInstances.js" as DemoWindowInstances
 import "DemoAudioState.js" as DemoAudioState
 import "SoledadPositionProfiles.js" as SoledadPositionProfiles
@@ -799,24 +802,22 @@ Item {
     readonly property real installedLauncherPopupHeight: installedAppsPopup.height
     readonly property real installedLauncherScreenLeft: calculateInstalledLauncherScreenLeft()
     function calculateInstalledLauncherScreenLeft() {
-        const popupWidth = installedAppsPopup.width
-        const screenWidth = Math.max(1, root.width)
-        const maxLeft = Math.max(0, screenWidth - popupWidth)
         const fromSo = installedLauncherSource === "so" || !launcherIslandVisible
-        if (fromSo)
-            return Math.max(0, Math.min(maxLeft,
-                systemIsland.x + systemIsland.width - popupWidth))
-        const center = launcherIsland.mapToItem(root, launcherIsland.width / 2, 0).x
-        if (installedAppsPopup.categoryLayout === 1 &&
-            (installedAppsPopup.showCategoryPanel ||
-             (installedAppsPopup.filesMode && installedAppsPopup.expandedCanvas))) {
-            const baseX = Math.max(0, Math.min(
-                Math.max(0, screenWidth - installedAppsPopup.primaryWidth),
-                center - installedAppsPopup.primaryWidth / 2))
-            return Math.max(0, Math.min(maxLeft,
-                baseX - (popupWidth - installedAppsPopup.primaryWidth)))
-        }
-        return Math.max(0, Math.min(maxLeft, center - popupWidth / 2))
+        return SoledadLauncherPlacement.screenLeft({
+            popupWidth: installedAppsPopup.width,
+            screenWidth: root.width,
+            requirePositiveScreenWidth: true,
+            fromSo: fromSo,
+            systemIslandX: systemIsland.x,
+            systemIslandWidth: systemIsland.width,
+            launcherCenter: fromSo ? 0 : launcherIsland.mapToItem(
+                root, launcherIsland.width / 2, 0).x,
+            categoryLayout: installedAppsPopup.categoryLayout,
+            showCategoryPanel: installedAppsPopup.showCategoryPanel,
+            filesMode: installedAppsPopup.filesMode,
+            expandedCanvas: installedAppsPopup.expandedCanvas,
+            primaryWidth: installedAppsPopup.primaryWidth
+        })
     }
     signal requestLaunchDesktopEntry(string desktopId)
     // Exclusivo de la prueba KDE real; no ejecutar sobre el panel instalado.
@@ -1303,13 +1304,10 @@ Item {
     property int taskResizeStartWidth: 0
     property int taskResizeChipCount: 1
     function updateTaskNameExtraWidth(value) {
-        const count = Math.max(1, usingRealTasks ? realTaskModel.count :
-            demoOpenedApps.length)
-        const spare = Math.max(0, availableIslandWidth - naturalIslandWidth)
-        const maximum = Math.max(0, Math.min(160,
-            taskNameExtraWidth + Math.floor(spare / count)))
-        taskNameExtraWidth = Math.max(0, Math.min(maximum,
-            Math.round(value)))
+        const count = usingRealTasks ? realTaskModel.count : demoOpenedApps.length
+        taskNameExtraWidth = SoledadTaskSizing.resizedExtraWidth(
+            taskNameExtraWidth, value, count, availableIslandWidth,
+            naturalIslandWidth)
     }
     function saveTaskNameExtraWidth() {
         taskWidthSettings.setValue("extraWidth", taskNameExtraWidth)
@@ -1689,27 +1687,26 @@ Item {
     }
 
     function ensureExpansionFits() {
-        if (centeredPresentation) {
-            if (!soExpanded && !trayExpanded) return
-            const leftLimit = leftReserved
-            const rightLimit = root.width - rightReserved
-            if (naturalIslandWidth > physicalIslandLimit + 0.5 ||
-                systemIsland.x < leftLimit - 0.5 ||
-                systemIsland.x + systemIsland.width > rightLimit + 0.5) {
-                if (soExpanded && trayExpanded) {
-                    if (lastExpandedMode === "so") trayExpanded = false
-                    else soExpanded = false
-                } else if (soExpanded) soExpanded = false
-                else if (trayExpanded) trayExpanded = false
-                console.warn("Soledad: expansion centrada fuera de limites; contraida")
-            }
-            return
-        }
-        if (!soExpanded || !trayExpanded) return
-        if (naturalIslandWidth > availableIslandWidth + 0.5) {
-            if (lastExpandedMode === "tray") soExpanded = false
-            else trayExpanded = false
-        }
+        // La política es independiente de QML, bandeja y ventanas KDE.
+        // Aplicar únicamente cambios reales evita repintados innecesarios.
+        const next = SoledadExpansionPolicy.fit({
+            centeredPresentation: centeredPresentation,
+            soExpanded: soExpanded,
+            trayExpanded: trayExpanded,
+            lastExpandedMode: lastExpandedMode,
+            naturalIslandWidth: naturalIslandWidth,
+            physicalIslandLimit: physicalIslandLimit,
+            systemIslandX: systemIsland.x,
+            systemIslandWidth: systemIsland.width,
+            leftReserved: leftReserved,
+            rightReserved: rightReserved,
+            width: root.width,
+            availableIslandWidth: availableIslandWidth
+        })
+        if (next.soExpanded !== soExpanded) soExpanded = next.soExpanded
+        if (next.trayExpanded !== trayExpanded) trayExpanded = next.trayExpanded
+        if (next.centeredOverflow)
+            console.warn("Soledad: expansion centrada fuera de limites; contraida")
     }
 
     function toggleOpenWindowsFromSO() {
@@ -2325,29 +2322,23 @@ Item {
             if (root.layerShellLauncherHost) return 0
             const fromSo = root.installedLauncherSource === "so" ||
                            !root.launcherIslandVisible
-            // Primero resolver el borde deseado en coordenadas del root,
-            // limitando TODO el popup (categorías incluidas) a la pantalla.
-            // Después convertir a coordenadas LOCALES del botón ancla.
-            let left
-            if (fromSo) {
-                left = Math.max(0, Math.min(Math.max(0, root.width - width),
-                    systemIsland.x + systemIsland.width - width))
-            } else {
-                const center = launcherIsland.mapToItem(root,
-                    launcherIsland.width / 2, 0).x
-                if (categoryLayout === 1 &&
-                    (showCategoryPanel || (filesMode && expandedCanvas))) {
-                    // Configuración B: expansión de categoría hacia la izquierda.
-                    const baseX = Math.max(0, Math.min(
-                        Math.max(0, root.width - primaryWidth),
-                        center - primaryWidth / 2))
-                    left = Math.max(0, Math.min(Math.max(0, root.width - width),
-                        baseX - (width - primaryWidth)))
-                } else {
-                    left = Math.max(0, Math.min(Math.max(0, root.width - width),
-                        center - width / 2))
-                }
-            }
+            // Misma política de coordenada física que la ventana LayerShell.
+            // Solo la conversión a origen LOCAL sigue siendo trabajo de QML.
+            const left = SoledadLauncherPlacement.screenLeft({
+                popupWidth: width,
+                screenWidth: root.width,
+                requirePositiveScreenWidth: false,
+                fromSo: fromSo,
+                systemIslandX: systemIsland.x,
+                systemIslandWidth: systemIsland.width,
+                launcherCenter: fromSo ? 0 : launcherIsland.mapToItem(
+                    root, launcherIsland.width / 2, 0).x,
+                categoryLayout: categoryLayout,
+                showCategoryPanel: showCategoryPanel,
+                filesMode: filesMode,
+                expandedCanvas: expandedCanvas,
+                primaryWidth: primaryWidth
+            })
             if (!root.realAppLaunchEnabled) return left
             const anchor = fromSo ? soButton : launcherIsland
             return left - anchor.mapToItem(root, 0, 0).x
