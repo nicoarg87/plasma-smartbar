@@ -7,27 +7,25 @@ const path=require("node:path");
 const vm=require("node:vm");
 const base=path.resolve(__dirname,"..");
 const bar=fs.readFileSync(path.join(base,"package/contents/ui/SmartBarContent.qml"),"utf8");
+const malvina=fs.readFileSync(path.join(base,"package/contents/ui/MalvinaRuntimeIsland.qml"),"utf8");
+const gripMenu=fs.readFileSync(path.join(base,"package/contents/ui/SoledadGripMenu.qml"),"utf8");
 const visor=fs.readFileSync(path.join(base,"preview_redimensionable.qml"),"utf8");
 const main=fs.readFileSync(path.join(base,"package/contents/ui/main.qml"),"utf8");
 const label='text: "siguiente tema y wallpaper"';
-assert.equal(bar.split(label).length-1,2,
-  "Deben existir exactamente dos entradas contextuales con el nombre aprobado");
+assert.equal(malvina.split(label).length-1,1,
+  "El menú Malvina conserva la opción de siguiente wallpaper");
+assert.equal(gripMenu.split('text: "Pasar al tema siguiente"').length-1,1,
+  "El menú del agarre conserva el cambio al siguiente tema del pack");
 assert.equal(visor.split(label).length-1,1,
-  "El botón de prueba debe conservar la misma etiqueta");
+  "El botón de prueba mantiene su etiqueta");
 assert(!bar.includes("Probar transición de tema y wallpaper"));
 assert(!visor.includes("Probar transición de tema y wallpaper"));
-for (const id of ["id: launcherContextMenu","id: gripMenu"]) {
-  const start=bar.indexOf(id);
-  assert(start>=0,"Falta el menú "+id);
-  const end=bar.indexOf(label,start);
-  assert(end>start && end-start<6500,
-    "Falta la acción en el menú "+id);
-  const snippet=bar.slice(end,end+240);
-  assert(snippet.includes("enabled: root.themeWallpaperPreviewAvailable"));
-  assert(snippet.includes("onTriggered: root.triggerThemeWallpaperPreview()"));
-}
+assert(malvina.includes("id: launcherContextMenu"));
+assert(malvina.includes("enabled: host.themeWallpaperPreviewAvailable"));
+assert(malvina.includes("onTriggered: host.triggerThemeWallpaperPreview()"));
+assert(gripMenu.includes("onTriggered: host.passToNextPackTheme()"));
 assert(bar.includes("signal requestThemeWallpaperPreview()"));
-assert(bar.includes("visible: root.themeScheduleRuntimeEnabled"));
+assert(malvina.includes("visible: host.themeScheduleRuntimeEnabled"));
 assert(visor.includes("onRequestThemeWallpaperPreview: previewWindow.previewNextWallpaper()"));
 assert(visor.includes("onClicked: bar.triggerThemeWallpaperPreview()"));
 assert(visor.includes("themeWallpaperPreviewAvailable: previewWindow.simulatedWallpaperEnabled"));
