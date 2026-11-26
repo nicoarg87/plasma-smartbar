@@ -10,6 +10,7 @@ import QtCore as QtCore
 import "package/contents/ui" as SmartBar
 import "package/contents/ui/RealActiveWindow.js" as RealActiveWindow
 import "package/contents/ui/SoledadPositionProfiles.js" as SoledadPositionProfiles
+import "package/contents/ui/RuntimeAppearance.js" as RuntimeAppearance
 
 Window {
     id: probe
@@ -970,6 +971,19 @@ Window {
         }
     }
     Component.onCompleted: {
+        // Iniciar el ciclo desde el tema visual realmente activo, no desde
+        // el wallpaper: puede estar desincronizado respecto de la isla.
+        if (bar.runtimeThemeSwitchAvailable) {
+            try {
+                const pack=JSON.parse(bar.runtimeThemePackJson)
+                const current=RuntimeAppearance.parse(
+                    soledadInputMask.readAppearanceJson())
+                bar.manualPackThemeIndex=RuntimeAppearance.closestThemeIndex(
+                    current,pack.themes,pack.themesSequence)
+            } catch (error) {
+                console.warn("SmartBar temas: tema activo sin identificar")
+            }
+        }
         // Sin estado KDE confirmado, iniciar en escritorio normal a derecha;
         // el primer TaskManager estable aplicará la general o específica
         // únicamente si detecta una ventana maximizada.
