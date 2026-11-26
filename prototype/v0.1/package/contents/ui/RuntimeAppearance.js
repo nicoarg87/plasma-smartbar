@@ -137,6 +137,21 @@ var themeBehaviorKeys = [
     "autoCollapseSO", "autoCollapseTray", "autoReturnRight",
     "soLeftClickOpensLauncher", "taskCloseMode"
 ]
+// Preferencia transversal confirmada del mantenedor: al seleccionar un tema
+// (fábrica, provisional o personalizado), mantener los niveles de opacidad
+// de Soledad/Malvina en 60 % sin reescribir los presets originales.
+var persistentThemeOpacityKeys = [
+    "soledadOpacity", "malvinaOpacity", "launcherOpacity",
+    "malvinaOptionsOpacity", "trayButtonOpacity", "gripButtonOpacity",
+    "backgroundOpacity"
+]
+function withThemeOpacity(patch) {
+    if (!patch || typeof patch !== "object" || Array.isArray(patch)) return null
+    const updated = Object.assign({}, patch)
+    for (const name of persistentThemeOpacityKeys)
+        updated[savedKey(name)] = 0.6
+    return updated
+}
 function themeToPatch(snapshot) {
     if (!snapshot || snapshot.version !== 1 || Array.isArray(snapshot))
         return null
