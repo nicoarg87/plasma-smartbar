@@ -12,6 +12,10 @@ const cmake = read("native_probes/CMakeLists.txt");
 const qml = read("preview_soledad_input_mask.qml");
 const script = read("probar_soledad_entrada_fija.sh");
 const real = read("package/contents/ui/SmartBarContent.qml");
+const malvinaRuntime = read("package/contents/ui/MalvinaRuntimeIsland.qml");
+const grip = read("package/contents/ui/SoledadGripControl.qml");
+const gripMenu = read("package/contents/ui/SoledadGripMenu.qml");
+const realWithModules = real + "\n" + grip + "\n" + gripMenu;
 const main = read("package/contents/ui/main.qml");
 const viewer = read("preview_redimensionable.qml");
 const previous = read("preview_soledad_layershell.qml");
@@ -116,14 +120,14 @@ assert(qml.includes("LayerShell.Window.margins: ({ left: 0, top: 0, right: 0, bo
 // Ambas islas deben comenzar en el borde físico superior, SIN
 // aumentar alturas ni alterar el anclaje horizontal o los controles.
 // Malvina no se muestra en este ensayo, pero comparte SmartBarContent.
-const malvinaStart = real.indexOf("id: malvinaHotspot");
-const malvinaEnd = real.indexOf("id: launcherIsland", malvinaStart);
+const malvinaStart = malvinaRuntime.indexOf("id: malvinaHotspot");
+const malvinaEnd = malvinaRuntime.indexOf("id: launcherIsland", malvinaStart);
 const soledadStart = real.indexOf("id: systemIsland");
-const soledadEnd = real.indexOf("id: soTipBackground", soledadStart);
+const soledadEnd = real.indexOf("SoledadIslandSurface {", soledadStart);
 assert(malvinaStart >= 0 && malvinaEnd > malvinaStart &&
        soledadStart >= 0 && soledadEnd > soledadStart,
        "Deben existir las dos islas originales sin recrearlas");
-const malvinaBlock = real.slice(malvinaStart, malvinaEnd);
+const malvinaBlock = malvinaRuntime.slice(malvinaStart, malvinaEnd);
 const soledadBlock = real.slice(soledadStart, soledadEnd);
 assert(malvinaBlock.includes("anchors.top: parent.top") &&
        !malvinaBlock.includes("anchors.verticalCenter: parent.verticalCenter"),
@@ -136,7 +140,7 @@ assert(previous.includes("left: 0, top: 0,") &&
        "El ensayo LayerShell anterior tampoco debe separar Soledad del borde");
 assert(qml.includes("height: 44") &&
        qml.includes("soledadHeight: 44") &&
-       real.includes("height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))") &&
+       malvinaRuntime.includes("height: Math.max(32, Math.min(host.fixedHeight - 4, host.malvinaHeight))") &&
        real.includes("height: Math.max(32, Math.min(root.fixedHeight - 4, root.soledadHeight))"),
        "Mover las islas hacia arriba no modifica sus alturas");
 assert(!qml.includes("profileSettings.remove(") &&
@@ -144,7 +148,7 @@ assert(!qml.includes("profileSettings.remove(") &&
        "Mover ambas islas arriba no borra preferencias");
 
 assert(real.includes("property real externalWindowControlsReserve: 0") &&
-       real.includes("readonly property bool draggingIslandGrip: gripDrag.active"),
+       real.includes("readonly property bool draggingIslandGrip: moveGrip.dragTarget.active"),
        "No alterar producción, exponer únicamente estado del agarre");
 assert(real.includes("onRequestRealPositionProfilesChange") === false,
        "El contenido base solo emite la solicitud de guardado, no debe persistir");
@@ -711,9 +715,9 @@ for (const expected of [
     "soExpanded = false",
     "trayExpanded = false",
     "applyRealPositionProfile()",
-    '"Volver a posición de " + root.realTrackedAppName',
-    "root.activeRealAppHasSavedPosition"
-]) assert(real.includes(expected), "Falta retorno contextual por perfil: " + expected);
+    '"Volver a posición de " + host.realTrackedAppName',
+    "host.activeRealAppHasSavedPosition"
+]) assert(realWithModules.includes(expected), "Falta retorno contextual por perfil: " + expected);
 const returnStart = real.indexOf("    function returnToConfiguredPosition() {");
 const returnEnd = real.indexOf("    function setPreviewMaximized(", returnStart);
 assert(returnStart >= 0 && returnEnd > returnStart);
@@ -726,10 +730,10 @@ assert(returnAction.includes("else {\n            alignRightNow()"),
 assert(!qml.includes("trialControlsReservePx"),
        "No reintroducir margen horizontal arbitrario");
 
-assert(real.includes("id: moveGrip") && real.includes("model: 6") &&
-       real.includes("id: gripDrag"));
+assert(real.includes("id: moveGrip") && grip.includes("model: 6") &&
+       grip.includes("id: gripDrag"));
 assert(real.includes("property bool layerShellDragCompensation: false") &&
-       real.includes("root.offsetAtDragStart - activeTranslation.x"));
+       grip.includes("host.offsetAtDragStart - activeTranslation.x"));
 assert(real.includes('Qt.resolvedUrl("assets/so-tropical.gif")'));
 
 for (const marker of [
