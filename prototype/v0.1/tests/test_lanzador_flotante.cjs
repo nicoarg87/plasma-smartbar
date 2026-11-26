@@ -8,6 +8,8 @@ const root = path.resolve(__dirname, "..");
 const source = p => fs.readFileSync(path.join(root, p), "utf8");
 const popup = source("package/contents/ui/SoLauncherPopup.qml");
 const bar = source("package/contents/ui/SmartBarContent.qml");
+const launcherBlock = source("package/contents/ui/SoledadLauncherHost.qml");
+const gripMenu = source("package/contents/ui/SoledadGripMenu.qml");
 const so = source("preview_soledad_input_mask.qml");
 const mal = source("preview_malvina_input_mask.qml");
 const native = source("native_probes/soledad_input_mask_main.cpp");
@@ -26,21 +28,20 @@ assert(!popup.includes("launcher.appSelected(label, launcher.catalogIsReal)"),
 assert(bar.includes("property bool realAppLaunchEnabled: false"),
        "No cambiar comportamiento del visor habitual");
 assert(bar.includes("signal requestLaunchDesktopEntry(string desktopId)"));
-assert(bar.includes("realLaunchEnabled: root.realAppLaunchEnabled"));
+assert(launcherBlock.includes("realLaunchEnabled: host.realAppLaunchEnabled"));
 // Regresión real repetida en KWin/Wayland: ni Popup.Window ni un
 // desplazamiento relativo al botón evitaron la superposición con SO.
 // En el ensayo conjunto, crear un Window LayerShell ACOTADO bajo SO y
 // alojar un Popup.Item dentro de esa nueva superficie.
-const launcherBlock=bar.slice(bar.indexOf("    SoLauncherPopup {"),
-    bar.indexOf("\n    Item {",bar.indexOf("    SoLauncherPopup {")));
+
 const host=source("package/contents/ui/LayerShellLauncherWindow.qml");
 assert(popup.includes("layerSurfaceHosted ? QQC2.Popup.Item :"),
        "En ventana LayerShell el launcher debe ser Item, no otro Window");
-assert(launcherBlock.includes("root.layerShellLauncherHost.contentItem") &&
+assert(launcherBlock.includes("host.layerShellLauncherHost.contentItem") &&
        launcherBlock.includes("layerSurfaceHosted: root.realAppLaunchEnabled"),
        "El popup debe habitar el Window LayerShell creado para él");
 assert(launcherBlock.includes("if (root.layerShellLauncherHost) return 0") &&
-       launcherBlock.includes("root.layerShellLauncherHost ? 0 :"),
+       launcherBlock.includes("host.layerShellLauncherHost ? 0 :"),
        "El popup comienza en 0,0 dentro de la nueva superficie");
 assert(launcherBlock.includes("Math.min(root.launcherAvailableHeight, 760)"),
        "El cajón debe poder crecer hasta 760px si hay altura disponible");
@@ -74,8 +75,8 @@ for(const probe of [so,mal]) {
     assert(probe.includes("Math.min(760, probe.Screen.height - probe.height - 32)"),
            "Acotar altura al escritorio del usuario");
 }
-assert(bar.includes("parent: moveGrip") &&
-       bar.includes("popupType: QQC2.Popup.Window"),
+assert(gripMenu.includes("parent: gripTarget") &&
+       gripMenu.includes("popupType: QQC2.Popup.Window"),
        "No alterar el menú de los seis puntos que ya se ve bien");
 assert(so.includes("realAppLaunchEnabled: smartbarContinuousMode"));
 assert(mal.includes("realAppLaunchEnabled: smartbarContinuousMode"));
