@@ -3956,32 +3956,11 @@ Item {
         // Independientes de la isla 1: NO acompañan el arrastre del agarre.
         // El margen derecho es cero en cualquier posición de SO y bandeja.
         // Esto es solo la simulación: no controla ventanas reales de KDE.
-        Rectangle {
+        SoledadDemoWindowControls {
             id: windowControls
             visible: root.previewMaximized
-            width: windowControlsRow.implicitWidth + 12
-            height: 44
-            radius: 22
-            color: "#101e31"
-            border.color: "#4e8499"
-            border.width: 1
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-
-            Row {
-                id: windowControlsRow
-                anchors.centerIn: parent
-                spacing: 4
-
-                Repeater {
-                    model: ["−", "□", "×"]
-                    delegate: IslandButton {
-                        text: modelData
-                        enabled: false
-                        QQC2.ToolTip.text: "Control ficticio anclado a la derecha"
-                    }
-                }
-            }
         }
     }
 }
