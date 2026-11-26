@@ -829,3 +829,13 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [ ] Ejecutar la composición QML refactorizada en CachyOS cuando corresponda: no invalida pruebas anteriores de funciones estables ni requiere repetirlas por costumbre.
 - [ ] Continuar extracción progresiva de vistas y configuraciones, especialmente `SoledadSettings.qml`, sin rediseñar funciones.
 - [ ] Conectar indicadores reales KDE de la bandeja por proveedor separado ([issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24)); seguimiento general de modularización [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
+
+
+## Tercera extracción modular: páginas de configuración — 26/11/2026
+
+- [x] Extraer la sección de fichas SO a `SoledadTaskStylesPage.qml`, conservando los modos de visualización, contornos, luces y controles de cierre.
+- [x] Extraer la sección Ayuda/Acerca de a `SoledadAboutPage.qml` sin modificar textos, enlaces ni botones.
+- [x] Conectar ambos componentes a `SoledadSettings.qml` con `Aplicar` y `Cancelar` únicos. El centro bajó de 5.539 a 5.295 líneas.
+- [x] Comprobar equivalencia del código trasladado, corregir los IDs locales de ancho; agregar `test_modulos_configuracion_soledad.cjs` y adaptar `test_task_close_mode.cjs`. Pruebas internas de contratos aprobadas.
+- [ ] Evaluar el nuevo QML en CachyOS cuando sea necesario utilizar la Configuración refactorizada; no implica nuevas funciones ni revalidar el resto del programa.
+- [ ] Continuar separando vistas/estado de `SoledadSettings.qml` y `SmartBarContent.qml` sin alterar requisitos ni panel instalado. Seguimiento: [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
