@@ -39,11 +39,49 @@ Window {
         right: 0, bottom: 0
     })
 
+    // Popup.Item no recibe eventos de ratón de OTRAS ventanas Wayland.
+    // Por eso CloseOnPressOutside no alcanza con este alojamiento LayerShell.
+    // El host solicita foco de teclado al abrir (necesario para escribir)
+    // y se cierra cuando pierde ese foco por un clic exterior.
+    // Nunca usar una ventana transparente de pantalla completa: bloquearía KDE.
+    property bool launcherHadFocus: false
+    Timer {
+        id: dismissAfterFocusLoss
+        interval: 130
+        repeat: false
+        onTriggered: {
+            if (shellLauncher.visible && shellLauncher.launcherHadFocus &&
+                !shellLauncher.active && shellLauncher.ownerBar &&
+                shellLauncher.ownerBar.launcherRequestedOpen) {
+                console.log("SmartBar launcher: cierre por pérdida de foco externo")
+                shellLauncher.ownerBar.closeInstalledLauncher()
+            }
+        }
+    }
+    onActiveChanged: {
+        if (active) {
+            launcherHadFocus = true
+            dismissAfterFocusLoss.stop()
+        } else if (visible && launcherHadFocus) {
+            // El botón SO puede recibir este mismo mouse-press. Esperar
+            // su onReleased para impedir un cierre/reapertura en el clic.
+            dismissAfterFocusLoss.restart()
+        }
+    }
     // El área de entrada de esta superficie es EXACTAMENTE el rectángulo
     // del launcher. No hay un Window de pantalla completa que bloquee KDE.
     onVisibleChanged: {
-        if (visible) console.log("SmartBar launcher LayerShell debajo de isla:",
-                                 "x=", ownerBar.installedLauncherScreenLeft,
-                                 "y=", Math.round(topOffset), "w=", width, "h=", height)
+        if (visible) {
+            launcherHadFocus = active
+            console.log("SmartBar launcher LayerShell debajo de isla:",
+                        "x=", ownerBar.installedLauncherScreenLeft,
+                        "y=", Math.round(topOffset), "w=", width, "h=", height)
+            Qt.callLater(function() {
+                if (shellLauncher.visible) shellLauncher.requestActivate()
+            })
+        } else {
+            dismissAfterFocusLoss.stop()
+            launcherHadFocus = false
+        }
     }
 }
