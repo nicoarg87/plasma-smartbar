@@ -1222,3 +1222,10 @@ El mantenedor confirmó como regla de trabajo: una función implementada y proba
 **VERIFICADO EN V8 (lógica pura):** 720 comparaciones de entrada/salida contra el comportamiento anterior, sin diferencias; seis comprobaciones de código/llamadas preservadas. Se creó `tests/test_soledad_layout_modules.cjs` y se adaptó `tests/test_task_separator_resize.cjs` para comprobar las reglas ahora delegadas. **NO EJECUTADO EN CACHYOS** tras este cambio, ni se afirma prueba QML/nativa en esta etapa.
 
 **PENDIENTE:** continuar con vistas y páginas de configuración, que siguen concentradas en archivos extensos. Bandeja KDE real todavía no implementada; [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24). Seguimiento de modularización [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25). [Documento de arquitectura](ARQUITECTURA_MODULAR.md).
+
+
+## Continuidad — 26/11/2026: páginas de configuración independientes
+
+Se extendió la modularización (issue [#25](https://github.com/nicoarg87/plasma-smartbar/issues/25)) a la interfaz real del centro de configuración. Archivos nuevos `SoledadTaskStylesPage.qml` y `SoledadAboutPage.qml`; ambos conectados a `SoledadSettings.qml`, ahora 5.295 líneas frente a 5.539. La primera vista recibe como propiedades explícitas la ventana de ajustes y su diálogo de color; la segunda es independiente. Todas las preferencias, Aplicar/Cancelar y orden de menús siguen sin cambios. Tras identificar referencias obsoletas al ancho interno, se corrigieron; comparación con el bloque antiguo confirmó equivalencia. Test nuevo `test_modulos_configuracion_soledad.cjs` y adaptación de `test_task_close_mode.cjs` verificadas internamente, **pero la composición QML nueva aún no fue cargada en CachyOS**.
+
+**Próximo trabajo de desarrollo:** seguir extrayendo páginas y adaptadores sin inventar funciones, conservar contratos existentes y distinguir tests de lógica y pruebas Qt. No solicitar al mantenedor que repita pruebas anteriores salvo incidencia nueva o cambio que afecte directamente esas rutas. [Integración 3c772e4](https://github.com/nicoarg87/plasma-smartbar/commit/3c772e467e923140851228591c09e5a9c476cb59).
