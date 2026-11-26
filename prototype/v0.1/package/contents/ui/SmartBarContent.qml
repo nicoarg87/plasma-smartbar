@@ -145,6 +145,39 @@ Item {
     property string themeScheduleSlots4Json:
         ThemeSchedule.serialize(ThemeSchedule.defaults(4),4)
     property string lastScheduledSlotKey: ""
+    // Secuencia manual del pack: independiente de horarios y sin alterar
+    // las instantáneas guardadas. Se reinicia al cambiar de pack.
+    property int manualPackThemeIndex: -1
+    function passToNextPackTheme() {
+        // El ensayo conjunto aún no dispone de persistencia integral de temas.
+        // Nunca aplicar solo el wallpaper ni una parte de la estética.
+        if (!themeScheduleRuntimeEnabled || soledadSettings.visible) return false
+        syncSettingsFromRoot()
+        const pack = activeCustomThemePack
+        const count = pack ? pack.members.length : ThemePack.THEMES.length
+        if (count <= 0) return false
+        const index = (manualPackThemeIndex + 1) % count
+        const member = pack ? pack.members[index] : null
+        const theme = pack ? (member.kind === "preset" ? member.theme : "") :
+                            ThemePack.THEMES[index]
+        const slot = pack
+            ? (member.kind === "preset" ? scheduledThemeSlot(member.theme) :
+                "pack:" + index)
+            : scheduledThemeSlot(theme)
+        if (!slot) {
+            console.warn("SmartBar temas: el siguiente tema no está disponible")
+            return false
+        }
+        // Aplicación integral: preferencias del botón SO, Soledad y Malvina.
+        if (!soledadSettings.activateTheme(slot)) return false
+        manualPackThemeIndex = index
+        // Al escoger manualmente, no permitir que el reloj lo revierta
+        // en el siguiente tick. Se mantiene el esquema horario guardado.
+        soledadSettings.setScheduleEnabled(false)
+        lastScheduledSlotKey = ""
+        if (theme) requestWallpaperThemeChange(theme)
+        return true
+    }
     signal requestThemeScheduleChange(bool enabled, int count, string slots3Json, string slots4Json)
     property int wallpaperFadeAmount: 3
     property string wallpaperFadeUnit: "seconds"
@@ -159,8 +192,8 @@ Item {
     }
     property bool barThemeTransitionEnabled: true
     signal requestBarThemeTransitionChange(bool enabled)
-    onSelectedThemePackIdChanged: lastScheduledSlotKey = ""
-    onThemePackLibraryJsonChanged: lastScheduledSlotKey = ""
+    onSelectedThemePackIdChanged: { lastScheduledSlotKey = ""; manualPackThemeIndex = -1 }
+    onThemePackLibraryJsonChanged: { lastScheduledSlotKey = ""; manualPackThemeIndex = -1 }
     onThemeScheduleEnabledChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlotCountChanged: lastScheduledSlotKey = ""
     onThemeScheduleSlots3JsonChanged: lastScheduledSlotKey = ""
@@ -3555,13 +3588,13 @@ Item {
                             // islas y posición comparten ventana con pestañas.
                             onTriggered: root.openSoledadSettings(0)
                         }
-                        // Acceso rápido al MISMO ensayo del visor; un clic
-                        // avanza una sola franja, sin guardar temas ni wallpaper.
+                        // Acceso contextual al tema siguiente del pack activo,
+                        // aplicando también su apariencia SO/islas y su fondo.
+                        // Reemplaza el atajo anterior que solo previsualizaba.
                         QQC2.MenuItem {
                             visible: root.themeScheduleRuntimeEnabled
-                            text: "siguiente tema y wallpaper"
-                            enabled: root.themeWallpaperPreviewAvailable
-                            onTriggered: root.triggerThemeWallpaperPreview()
+                            text: "Pasar al tema siguiente"
+                            onTriggered: root.passToNextPackTheme()
                         }
                         QQC2.MenuItem {
                             text: "Autocontraer cajón SO al elegir ventana"
