@@ -895,6 +895,10 @@ Window {
             // que Aplicar avance la línea base de Cancelar.
             bar.runtimeLastAppearanceCommitOk = appearanceBridge.commitPatch(json)
         }
+        onRequestRuntimeWallpaperThemeChange: function(theme) {
+            bar.runtimeWallpaperLastOk = soledadInputMask.applyThemeWallpaper(theme)
+        }
+        onRequestRuntimeWallpaperUndo: soledadInputMask.undoThemeWallpaper()
         onRequestLaunchDesktopEntry: function(desktopId) {
             if (soledadInputMask.launchDesktopEntry(desktopId))
                 console.log("SmartBar SO: aplicación KDE iniciada por ID", desktopId)
