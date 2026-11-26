@@ -878,10 +878,15 @@ Window {
             return ""
         } catch(e) { return "" }
     }
-    // Preferencia confirmada (25/11/2026): los controles de opacidad
-    // de Soledad y Malvina permanecen en 60 % al cambiar de tema o pack.
-    // No modificar el perfil ORIGINAL ni sus GIF, colores o geometrías.
-    // Los controles funcionales y las posiciones guardadas siguen intactos.
+    // Preferencia confirmada: 60 % SOLO en los 3 temas del pack Playa 24hs.
+    // Otros packs y temas personales conservan sus opacidades guardadas.
+    // Nunca modificar el perfil original ni los GIF, colores o geometrías.
+    function isPlayaThemeSlot(slot) {
+        if (selectedThemePackId !== ThemePack.DEFAULT_ID) return false
+        return slot === resolvePackPreset("day") ||
+               slot === resolvePackPreset("sunset") ||
+               slot === resolvePackPreset("night")
+    }
     function setUniformThemeOpacity() {
         soledadOpacity = 0.6
         malvinaOpacity = 0.6
@@ -952,10 +957,9 @@ Window {
             }
             if (info.outlineConfig && typeof info.outlineConfig === "object")
                 outlineConfig = JSON.parse(JSON.stringify(info.outlineConfig))
-            // Regla transversal del mantenimiento: todos los temas se
-            // muestran inicialmente con 90 % de opacidad en sus islas,
-            // incluso cuando una instantánea antigua tenía otro valor.
-            setUniformThemeOpacity()
+            // Solo los temas del pack Playa 24hs usan la preferencia
+            // uniforme de 60 %. Nunca imponérsela a packs personalizados.
+            if (isPlayaThemeSlot(slot)) setUniformThemeOpacity()
             // Aplicar recupera el estado capturado, incluidos sync, velocidad
             // e intensidad, sin reactivar interruptores apagados.
             // Respetar exactamente colores y orientaciones guardados,
