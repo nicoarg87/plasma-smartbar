@@ -98,3 +98,10 @@
 - Se añadió `tests/test_modulos_configuracion_soledad.cjs` y se adaptó `tests/test_task_close_mode.cjs` para inspeccionar los controles que ahora residen en la vista. Ambos contratos pasaron en evaluación interna de JS. La prueba QML real queda pendiente solo para esta composición nueva.
 
 **Contrato:** una página de presentación no escribe preferencias persistentes, no crea botones de guardado y no invoca operaciones KDE. Toda persistencia y decisiones funcionales permanecen en la ventana principal. [Issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25), [integración 3c772e4](https://github.com/nicoarg87/plasma-smartbar/commit/3c772e467e923140851228591c09e5a9c476cb59). La descomposición de las otras páginas y servicios continúa pendiente.
+
+
+## Modularización incremental — página de comportamiento de Soledad (26/11/2026)
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL:** `SoledadBehaviorPage.qml` contiene, sin agregar opciones ni alterar valores, los controles anteriormente internos de `SoledadSettings.qml` para el comportamiento de SO y su launcher, y la autocontracción independiente de SO y bandeja. Conserva `settingsTarget` y el diálogo `launcherSwitchColorDialog` como dependencias explícitas; `Aplicar`, `Cancelar`, la línea de base y toda persistencia siguen exclusivamente en `SoledadSettings.qml`. El archivo principal pasó de 5.295 a **5.110 líneas**.
+
+**Commits:** [extraer vista](https://github.com/nicoarg87/plasma-smartbar/commit/3373b995907a90f11868e7156ab549b874962a56), [conectar en configuración](https://github.com/nicoarg87/plasma-smartbar/commit/48fbb5a081a77143acf9e6ef5a53b0f8842174c5), [prueba estructural](https://github.com/nicoarg87/plasma-smartbar/blob/prototype/v0.1-islas-so/prototype/v0.1/tests/test_modulo_comportamiento_soledad.cjs). La revisión remota de la composición comprobó conexiones y preferencias; **NO se ejecutó todavía Node ni se cargó QML en CachyOS** después de este corte. No afecta el panel instalado, ventanas KDE, temas, fondos ni bandeja real. Seguimiento: [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
