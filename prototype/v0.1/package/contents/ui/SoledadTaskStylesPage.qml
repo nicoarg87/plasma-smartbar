@@ -15,7 +15,7 @@ QQC2.ScrollView {
     QQC2.ScrollBar.vertical.width: 16
     QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
     ColumnLayout {
-        width: Math.max(0, taskStylesScroll.availableWidth - 32)
+        width: Math.max(0, page.availableWidth - 32)
         spacing: 14
         QQC2.Label {
             text: "Presentación de aplicaciones y líneas"
