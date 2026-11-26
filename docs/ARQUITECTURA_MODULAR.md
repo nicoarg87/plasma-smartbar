@@ -85,3 +85,16 @@
 **Pruebas de código:** 720 comparaciones del código puro contra la lógica anterior ejecutadas en V8, sin diferencias; seis contratos de conexión verificados por inspección. `tests/test_soledad_layout_modules.cjs` reproduce los casos para Node; `tests/test_task_separator_resize.cjs` ahora inspecciona el módulo de tamaños en su lugar. No se afirma prueba Qt/Wayland de esta modificación.
 
 **Estado:** parcialmente modularizado. La división de vistas y del centro `SoledadSettings.qml` continúa pendiente. [Issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25), [integración cc00828](https://github.com/nicoarg87/plasma-smartbar/commit/cc0082856a26783b467fc65e5cd09d6b3680b486). No introducir nuevas funciones o repetir pruebas de otras áreas ya aprobadas.
+
+
+## Páginas extraídas del centro de configuración (26/11/2026)
+
+**IMPLEMENTADO EN LA RAMA EXPERIMENTAL, NO EJECUTADO TODAVÍA EN CACHYOS:**
+
+- `SoledadTaskStylesPage.qml` centraliza exclusivamente la vista de «Cajón y ventanas». Sigue usando las preferencias existentes de `SoledadSettings` mediante `settingsTarget` y reutiliza el `ColorDialog` original como `colorDialog`. No guarda ni restaura ajustes.
+- `SoledadAboutPage.qml` centraliza la página informativa «Ayuda/Acerca de», sin dependencias sobre estados de configuración.
+- `SoledadSettings.qml` contiene el único flujo de `Aplicar`, `Cancelar`, la captura de valores previos, la persistencia y la navegación; se redujo de 5.539 a **5.295 líneas**. No se modificaron opciones, modelos, valores por defecto, textos, tamaños de ventana, enlaces ni botones.
+- Se corrigieron las referencias al `availableWidth` tras el traslado de las páginas; **ambas secciones coinciden con el contenido anterior** al revertir solo la indentación y nombres de referencias locales.
+- Se añadió `tests/test_modulos_configuracion_soledad.cjs` y se adaptó `tests/test_task_close_mode.cjs` para inspeccionar los controles que ahora residen en la vista. Ambos contratos pasaron en evaluación interna de JS. La prueba QML real queda pendiente solo para esta composición nueva.
+
+**Contrato:** una página de presentación no escribe preferencias persistentes, no crea botones de guardado y no invoca operaciones KDE. Toda persistencia y decisiones funcionales permanecen en la ventana principal. [Issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25), [integración 3c772e4](https://github.com/nicoarg87/plasma-smartbar/commit/3c772e467e923140851228591c09e5a9c476cb59). La descomposición de las otras páginas y servicios continúa pendiente.
