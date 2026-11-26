@@ -6,7 +6,7 @@ import QtQuick.Controls as QQC2
 QQC2.ScrollView {
     id: page
     required property var settingsTarget
-    required property var launcherSwitchColorDialog
+    required property var switchColorDialog
     readonly property var settings: settingsTarget
                 id: collapseScroll
                 clip: true
@@ -113,7 +113,7 @@ QQC2.ScrollView {
                     QQC2.Button {
                         text: "Elegir color del interruptor…"
                         visible: settings.launcherSwitchColorOverride
-                        onClicked: launcherSwitchColorDialog.open()
+                        onClicked: switchColorDialog.open()
                     }
                     RowLayout {
                         Layout.fillWidth: true
