@@ -148,7 +148,37 @@ Item {
     // Secuencia manual del pack: independiente de horarios y sin alterar
     // las instantáneas guardadas. Se reinicia al cambiar de pack.
     property int manualPackThemeIndex: -1
+    property string runtimeThemePackJson: ""
+    readonly property bool runtimeThemeSwitchAvailable:
+        runtimeAppearanceEnabled && runtimeThemePackJson.length > 0
+    function passToNextRuntimeTheme() {
+        if (!runtimeThemeSwitchAvailable) return false
+        let data
+        try { data = JSON.parse(runtimeThemePackJson) }
+        catch (error) { return false }
+        if (!data || data.version !== 1 || data.packId !== "playa-24hs" ||
+            !Array.isArray(data.themesSequence) || !data.themes) return false
+        const count = data.themesSequence.length
+        if (!count) return false
+        const index = (manualPackThemeIndex + 1) % count
+        const theme = data.themesSequence[index]
+        const patch = data.themes[theme]
+        if (!patch || typeof patch !== "object" ||
+            Object.keys(patch).length < 55) return false
+        // Una sola escritura verificada por RuntimeAppearanceBridge;
+        // Malvina relee el mismo perfil compartido. No tocar posiciones KWin.
+        runtimeLastAppearanceCommitOk = false
+        requestRuntimeAppearancePatch(JSON.stringify(patch))
+        if (!runtimeLastAppearanceCommitOk) {
+            console.warn("SmartBar: no se pudo aplicar el tema completo")
+            return false
+        }
+        manualPackThemeIndex = index
+        console.log("SmartBar: tema visual del pack aplicado", theme)
+        return true
+    }
     function passToNextPackTheme() {
+        if (runtimeAppearanceEnabled) return passToNextRuntimeTheme()
         // El ensayo conjunto aún no dispone de persistencia integral de temas.
         // Nunca aplicar solo el wallpaper ni una parte de la estética.
         if (!themeScheduleRuntimeEnabled || soledadSettings.visible) return false
@@ -3594,8 +3624,11 @@ Item {
                         // aplicando también su apariencia SO/islas y su fondo.
                         // Reemplaza el atajo anterior que solo previsualizaba.
                         QQC2.MenuItem {
-                            visible: root.themeScheduleRuntimeEnabled
+                            visible: root.themeScheduleRuntimeEnabled ||
+                                     root.runtimeAppearanceEnabled
                             text: "Pasar al tema siguiente"
+                            enabled: root.themeScheduleRuntimeEnabled ||
+                                     root.runtimeThemeSwitchAvailable
                             onTriggered: root.passToNextPackTheme()
                         }
                         QQC2.MenuItem {
