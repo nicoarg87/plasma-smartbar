@@ -30,7 +30,7 @@ assert(qml.includes("event.modifiers & Qt.ShiftModifier") &&
        "Shift+Enter mantiene la edición multilínea");
 assert(qml.includes("requestOpenUrl(result.url)"),
        "Solo openSelected remite la URL al navegador elegido por Malvina");
-const shared = fs.readFileSync(path.join(ui, "SmartBarContent.qml"),"utf8");
+const shared = fs.readFileSync(path.join(ui, "MalvinaRuntimeIsland.qml"),"utf8");
 assert(shared.includes("onRequestOpenUrl: function(url)"),
        "El componente compartido recibe la solicitud de apertura");
 assert(shared.includes("Qt.openUrlExternally(url)"),
