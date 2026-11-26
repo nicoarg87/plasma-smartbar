@@ -10,9 +10,11 @@ const main = read("SmartBarContent.qml");
 const surface = read("SoledadIslandSurface.qml");
 const button = read("SoledadMainButton.qml");
 const menu = read("SoledadGripMenu.qml");
+const grip = read("SoledadGripControl.qml");
 assert.match(main, /SoledadIslandSurface\s*\{\s*host: root\s*rowTarget: systemRow\s*islandTarget: systemIsland\s*gripTarget: moveGrip\s*anchors\.fill: parent\s*\}/);
 assert.match(main, /SoledadMainButton\s*\{\s*id: soButton\s*host: root\s*islandTarget: systemIsland\s*launcherPopup: installedAppsPopup\s*\}/);
-assert.match(main, /SoledadGripMenu\s*\{\s*id: gripMenu\s*host: root\s*gripTarget: moveGrip\s*positionEditor: soPositionEditor\s*clockRevealTimer: soClockRevealTimer\s*\}/);
+assert.match(main, /SoledadGripControl\s*\{\s*id: moveGrip\s*host: root/);
+assert.match(grip, /SoledadGripMenu\s*\{\s*id: gripMenu\s*host: grip\.host\s*gripTarget: grip\s*positionEditor: soPositionEditor\s*clockRevealTimer: clockRevealTimerTarget\s*\}/);
 for (const token of [
   "rowTarget.children", "child === gripTarget", "islandTarget.topLeftRadius",
   "ctx.globalCompositeOperation = \"destination-out\"",
@@ -40,10 +42,10 @@ for (const token of [
 ]) assert.ok(menu.includes(token), "Menú: " + token);
 assert.equal((main.match(/SoledadIslandSurface\s*\{/g) || []).length,1);
 assert.equal((main.match(/SoledadMainButton\s*\{/g) || []).length,1);
-assert.equal((main.match(/SoledadGripMenu\s*\{/g) || []).length,1);
-for (const child of [surface, button, menu]) {
+assert.equal((grip.match(/SoledadGripMenu\s*\{/g) || []).length,1);
+for (const child of [surface, button, menu, grip]) {
   assert.doesNotMatch(child, /\broot\./, "No depender del id privado del host");
   assert.doesNotMatch(child, /\bQtCore\.Settings\b/, "No duplicar persistencia");
 }
-assert.ok(main.includes("gripMenu.close()") && main.includes("soButton.beginArtworkPreview("));
+assert.ok(main.includes("moveGrip.menuTarget.close()") && main.includes("soButton.beginArtworkPreview("));
 console.log("OK: superficie, botón SO y menú contextual mantienen enlaces y acciones.");
