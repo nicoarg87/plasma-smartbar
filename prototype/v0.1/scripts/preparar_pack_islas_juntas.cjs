@@ -55,14 +55,27 @@ function asset(dir,base){
  if(!fs.statSync(loc).isFile())return "";
  return pathToFileURL(loc).href;
 }
+function localImage(source){
+ if(typeof source!=="string"||!source.trim())return "";
+ let file=source;
+ if(file.startsWith("file:")){
+  try{file=require("node:url").fileURLToPath(file)}catch(_){return ""}
+ }else if(file.includes("://")||!path.isAbsolute(file))return "";
+ if(!allowed.has(path.extname(file).toLowerCase()))return "";
+ try{
+  const st=fs.statSync(file);
+  return st.isFile()&&st.size>0?pathToFileURL(file).href:"";
+ }catch(_){return ""}
+}
 function normalizeImage(profile,dir){
  if(profile.logoMode==="custom"){
-  const logo=asset(dir,"logo");
-  if(!logo)throw Error("falta el logo copiado del tema");
+  const logo=asset(dir,"logo")||localImage(profile.filePath);
+  if(!logo)throw Error("falta el logo original del tema");
   profile.filePath=logo;
  }
  if(profile.soTextBackgroundImage){
-  const background=asset(dir,"fondo-texto-so");
+  const background=asset(dir,"fondo-texto-so")||
+    localImage(profile.soTextBackgroundImage);
   if(!background)throw Error("falta el fondo de texto original");
   profile.soTextBackgroundImage=background;
  }
