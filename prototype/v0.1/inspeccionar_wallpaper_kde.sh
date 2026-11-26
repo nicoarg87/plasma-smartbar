@@ -24,12 +24,12 @@ fi
 SCRIPT='
 (function() {
   var list = desktops();
-  var active = currentActivity();
+  var activeDesktops = desktopsForActivity(currentActivity());
+  var activeIds = activeDesktops.map(function(d) { return Number(d.id); });
   var result = [];
   for (var i = 0; i < list.length; ++i) {
     var desktop = list[i];
     var plugin = String(desktop.wallpaperPlugin || "");
-    var activity = String(desktop.activityId || "");
     var screen = Number(desktop.screen);
     var imageSet = false;
     if (plugin === "org.kde.image") {
@@ -39,7 +39,8 @@ SCRIPT='
     result.push({
       id: Number(desktop.id),
       screen: screen,
-      activityIsCurrent: activity === String(active),
+      activityIsCurrent: activeIds.length > 0
+        ? activeIds.indexOf(Number(desktop.id)) >= 0 : null,
       plugin: plugin,
       imageConfigured: imageSet
     });
