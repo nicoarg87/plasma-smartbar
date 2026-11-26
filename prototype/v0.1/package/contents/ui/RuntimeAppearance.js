@@ -137,19 +137,21 @@ var themeBehaviorKeys = [
     "autoCollapseSO", "autoCollapseTray", "autoReturnRight",
     "soLeftClickOpensLauncher", "taskCloseMode"
 ]
-// Preferencia transversal confirmada del mantenedor: al seleccionar un tema
-// (fábrica, provisional o personalizado), mantener los niveles de opacidad
-// de Soledad/Malvina en 60 % sin reescribir los presets originales.
+// Regla aprobada exclusivamente para los temas del pack «Playa 24hs»:
+// mantener las opacidades a 60 % sin reescribir los presets originales.
+// Los packs personalizados conservan los valores de sus propios temas.
 var persistentThemeOpacityKeys = [
     "soledadOpacity", "malvinaOpacity", "launcherOpacity",
     "malvinaOptionsOpacity", "trayButtonOpacity", "gripButtonOpacity",
     "backgroundOpacity"
 ]
-function withThemeOpacity(patch) {
+function withThemeOpacity(patch, packId) {
     if (!patch || typeof patch !== "object" || Array.isArray(patch)) return null
     const updated = Object.assign({}, patch)
-    for (const name of persistentThemeOpacityKeys)
-        updated[savedKey(name)] = 0.6
+    if (packId === "playa-24hs") {
+        for (const name of persistentThemeOpacityKeys)
+            updated[savedKey(name)] = 0.6
+    }
     return updated
 }
 function themeToPatch(snapshot) {
