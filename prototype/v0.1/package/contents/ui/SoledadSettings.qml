@@ -2559,7 +2559,7 @@ Window {
             // 5. Autocontracción: mismas preferencias, vista extraída.
             SoledadBehaviorPage {
                 settingsTarget: settings
-                launcherSwitchColorDialog: launcherSwitchColorDialog
+                switchColorDialog: launcherSwitchColorDialog
             }
             MalvinaProvidersPage {
                 settingsTarget: settings
