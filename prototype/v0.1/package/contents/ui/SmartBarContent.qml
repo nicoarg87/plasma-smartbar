@@ -3613,16 +3613,20 @@ Item {
                             checked: root.previewFullscreen
                             onTriggered: root.previewFullscreen = !root.previewFullscreen
                         }
-                        // Opciones aprobadas, dentro del menú existente.
+                        // Un único control por aplicación: su etiqueta y su
+                        // acción dependen exclusivamente del perfil guardado.
+                        // No cambiar la lógica de almacenamiento ni posiciones.
                         QQC2.MenuItem {
                             visible: root.demoProfileContextReady
-                            text: "Recordar esta posición para " + root.lastDemoSelection
-                            onTriggered: root.saveDemoPositionProfile()
-                        }
-                        QQC2.MenuItem {
-                            visible: root.demoProfileExists
-                            text: "Olvidar posición de " + root.lastDemoSelection
-                            onTriggered: root.deleteDemoPositionProfile()
+                            text: root.demoProfileExists
+                                ? "Olvidar posición de " + root.lastDemoSelection
+                                : "Fijar esta posición para " + root.lastDemoSelection
+                            onTriggered: {
+                                if (root.demoProfileExists)
+                                    root.deleteDemoPositionProfile()
+                                else
+                                    root.saveDemoPositionProfile()
+                            }
                         }
                         QQC2.MenuItem {
                             visible: root.demoWindowControlsEnabled &&
@@ -3630,15 +3634,17 @@ Item {
                                      root.positionMode === "right" &&
                                      root.realProfileTarget.appName.length > 0
                             enabled: root.realProfileContextReady
-                            text: root.realProfileContextReady
-                                ? "Fijar esta posición para " + root.realProfileTarget.appName
-                                : root.realProfileTarget.appName + ": KDE no informa su ID"
-                            onTriggered: root.saveRealPositionProfile()
-                        }
-                        QQC2.MenuItem {
-                            visible: root.realProfileExists
-                            text: "Olvidar posición de " + root.realProfileTarget.appName
-                            onTriggered: root.deleteRealPositionProfile()
+                            text: !root.realProfileContextReady
+                                ? root.realProfileTarget.appName + ": KDE no informa su ID"
+                                : root.realProfileExists
+                                    ? "Olvidar posición de " + root.realProfileTarget.appName
+                                    : "Fijar esta posición para " + root.realProfileTarget.appName
+                            onTriggered: {
+                                if (root.realProfileExists)
+                                    root.deleteRealPositionProfile()
+                                else
+                                    root.saveRealPositionProfile()
+                            }
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
