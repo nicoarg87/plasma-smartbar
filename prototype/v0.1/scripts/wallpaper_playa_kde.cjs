@@ -12,8 +12,8 @@ const {spawnSync} = require("node:child_process");
 const {pathToFileURL} = require("node:url");
 const action = process.argv[2];
 if (process.argv.length !== 3 ||
-    !["day","sunset","night","undo","restore"].includes(action)) {
-    console.error("Uso: wallpaper_playa_kde.cjs day|sunset|night|undo|restore");
+    !["day","sunset","night","undo","restore","check"].includes(action)) {
+    console.error("Uso: wallpaper_playa_kde.cjs check|day|sunset|night|undo|restore");
     process.exit(2);
 }
 const here = path.resolve(__dirname, "..");
@@ -135,6 +135,18 @@ function readState(current) {
 }
 function run() {
     // No leer ni modificar el escritorio hasta confirmar recursos originales.
+    if(action==="check"){
+        for(const theme of ["day","sunset","night"]) wallpaperSource(theme);
+        const desktop=currentWallpaper();
+        const existing=readState(desktop);
+        if(existing && existing.lastApplied &&
+            existing.lastApplied!==desktop.image)
+            stop("el usuario cambió el fondo fuera de SmartBar; revisar manualmente");
+        console.log("OK: 3 fondos originales verificados por SHA-256;");
+        console.log("    un único escritorio KDE activo (imagen estática, pantalla 0).");
+        console.log("    Sin modificaciones de KDE, panel, wallpaper o respaldo.");
+        return;
+    }
     const desired = ["day","sunset","night"].includes(action)
         ? wallpaperSource(action):"";
     const current=currentWallpaper();
