@@ -531,43 +531,9 @@ Window {
     signal themeVisualTransitionRequested()
     // Ajuste personal, no forma parte de los temas oficiales inmutables.
     signal thematicWallpaperVisibilityRequested(bool enabled)
-    QQC2.Dialog {
+    SoledadFactoryExportDialog {
         id: factoryNightExportDialog
-        title: "Copiar apariencia exacta para " + (settings.factoryExportTarget === "sunset" ? "Atardecer" : "Noche") + " de fábrica"
-        modal: true
-        width: Math.min(740, settings.width - 80)
-        height: Math.min(560, settings.height - 90)
-        standardButtons: QQC2.Dialog.Close
-        contentItem: ColumnLayout {
-            spacing: 8
-            QQC2.Label {
-                Layout.fillWidth: true
-                wrapMode: Text.WordWrap
-                text: "Copiá este JSON y aportá el GIF o imagen original del logo. " +
-                      "La captura incluye los valores visuales exactos actuales y no escribe en la fábrica."
-            }
-            QQC2.ScrollView {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                clip: true
-                QQC2.TextArea {
-                    id: factoryNightExportText
-                    readOnly: true
-                    selectByMouse: true
-                    wrapMode: TextEdit.WrapAnywhere
-                    text: settings.factoryNightCandidateJson()
-                }
-            }
-            QQC2.Button {
-                text: "Copiar JSON actual"
-                Layout.alignment: Qt.AlignRight
-                onClicked: {
-                    factoryNightExportText.selectAll()
-                    factoryNightExportText.copy()
-                    factoryNightExportText.deselect()
-                }
-            }
-        }
+        settingsTarget: settings
     }
     // Los antiguos diálogos para sobrescribir Atardecer se retiraron.
     // Las ranuras históricas siguen persistidas, pero no son el original.
