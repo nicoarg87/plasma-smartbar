@@ -47,3 +47,24 @@
 **Pendiente:** pruebas QML reales, pruebas de URLs limite, persistencia KConfig, atajo global Wayland, seleccion de navegador, separar secciones demasiado grandes de `SmartBarContent.qml` y `SoledadSettings.qml` en intervenciones pequenas con retest. No dividirlos masivamente sin pruebas intermedias. Superposicion de pestañas/controles y fullscreen en KWin/Wayland no resueltos.
 
 **Licencias:** respetar `LICENSE` del repositorio para el codigo vigente (MIT, ratificada por el mantenedor el 21/11/2026), y el inventario separado para imagenes. No relicenciar material previo ni terceros sin revision.
+
+
+## Bandeja de Soledad: primer corte modular conectado (26/11/2026)
+
+**Implementado en la rama `prototype/v0.1-islas-so`, todavía no ejecutado en CachyOS tras esta refactorización.** Este corte separa de `SmartBarContent.qml` la bandeja existente en tres módulos con interfaces explícitas, sin incorporar funciones nuevas.
+
+| Archivo | Responsabilidad y límite |
+| --- | --- |
+| `package/contents/ui/SystemTrayModel.js` | Fuente de datos de demostración de tres iconos, copia de entradas visibles sin mutar el origen; NO consulta KDE. |
+| `package/contents/ui/SystemTrayController.js` | Reglas puras de alternancia y autocontracción; devuelve si hace falta comprobar ancho; NO conoce ventanas ni launcher. |
+| `package/contents/ui/SystemTrayView.qml` | Renderizado de los botones mediante `Repeater`, con apariencia y señal de activación. Como los elementos repetidos se insertan en la fila padre, se mantienen el ancho, orden, alineación y recorte del color de la isla. |
+| `SmartBarContent.qml` | Composición y efectos del contexto: cierre previo del launcher al pulsar la bandeja, garantía de ancho con fichas SO, estilos heredados y conexión a la preferencia `autoCollapseTray`. |
+| `tests/test_system_tray_modules.cjs` | Regresión de reglas puras, interfaces de presentación y aislamiento de KDE. |
+
+**Invariantes sin cambios:** flechas ◀/▶, expansión hacia la izquierda en una fila, alto fijo, prioridad de la última expansión solo si no caben ambas, separador entre bandeja y SO, autocontracción independiente y desactivada por defecto, apariencia vigente, panel KDE intacto. No se programa autocierre por temporizador ni por pérdida de foco.
+
+**Verificado internamente:** ejecución de siete casos de funciones JS puras y revisión estructural de 15 contratos del QML. **Pendiente de prueba real**: carga e interacciones de esta composición nueva en CachyOS. La prueba del mantenedor anterior corresponde a la composición vieja, no habilita a clasificar este cambio como probado en Wayland.
+
+**Próxima fase de bandeja:** desarrollar un proveedor StatusNotifierItem/StatusNotifierWatcher para iconos/estados reales con interfaz separada. No afirmar soporte de menús, notificaciones, volumen o redes hasta comprobar interfaces KDE y licencias; no alterar la bandeja habitual del usuario.
+
+**Deuda técnica visible:** `SmartBarContent.qml` y `SoledadSettings.qml` aún concentran muchas responsabilidades. La refactorización de otras áreas debe hacerse por módulos y sin reconstruir o volver a probar funciones estables por rutina.
