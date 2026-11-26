@@ -10,6 +10,7 @@ const read=p=>fs.readFileSync(path.join(ui,p),"utf8");
 const bar=read("SmartBarContent.qml");
 const chip=read("DemoTaskChip.qml");
 const settings=read("SoledadSettings.qml");
+const taskStyles=read("SoledadTaskStylesPage.qml");
 const viewer=fs.readFileSync(path.join(base,"preview_redimensionable.qml"),"utf8");
 const main=read("main.qml");
 const xml=fs.readFileSync(path.join(base,"package/contents/config/main.xml"),"utf8");
@@ -40,10 +41,14 @@ assert(bar.includes("onSaveTaskCloseModeRequested: function(mode)"));
 assert(settings.includes("property string taskCloseMode: \"both\""));
 assert(settings.includes("signal saveTaskCloseModeRequested(string mode)"));
 assert(settings.includes("saveTaskCloseModeRequested(taskCloseMode)"));
-assert(settings.includes('model: ["X en ficha y vista previa",'));
-assert(settings.includes('"Solo vista previa (sin X en ficha)"') &&
-       settings.includes('"Solo X en ficha (sin vista previa)"'));
-assert(settings.includes('settings.taskCloseMode = ["both", "preview", "chip"][i]'));
+assert(settings.includes('SoledadTaskStylesPage {'),
+       "El editor debe cargar el módulo de las fichas SO");
+assert(settings.includes('settingsTarget: settings'));
+assert(settings.includes('colorDialog: taskFrameColorDialog'));
+assert(taskStyles.includes('model: ["X en ficha y vista previa",'));
+assert(taskStyles.includes('"Solo vista previa (sin X en ficha)"') &&
+       taskStyles.includes('"Solo X en ficha (sin vista previa)"'));
+assert(taskStyles.includes('page.settingsTarget.taskCloseMode = ["both", "preview", "chip"][i]'));
 const keys=settings.match(/readonly property var editableSettingsKeys: (\[[^\n]+\])/);
 assert(keys && JSON.parse(keys[1]).includes("taskCloseMode"),
        "Cancelar debe revertir esta opción si no se pulsó Aplicar");
