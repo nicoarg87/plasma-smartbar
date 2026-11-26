@@ -2521,79 +2521,9 @@ Item {
             border.width: 0
             // Misma punta izquierda que Soledad. La zona estrecha queda libre
             // de botones para mantener clics y foco dentro de superficies útiles.
-            Canvas {
-                id: malvinaTipSurface
+            MalvinaTipSurface {
+                host: root
                 anchors.fill: parent
-                visible: root.malvinaShape === "leftTip"
-                onWidthChanged: requestPaint()
-                onHeightChanged: requestPaint()
-                onVisibleChanged: if (visible) requestPaint()
-                Connections {
-                    target: root
-                    function onMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
-                    function onDisplayMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
-                    function onDisplayMalvinaGradientEndChanged() { malvinaTipSurface.requestPaint() }
-                    function onDisplayMalvinaGradientThirdChanged() { malvinaTipSurface.requestPaint() }
-                    function onDisplayOutlineMalvinaColorChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaGradientEnabledChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaGradientEndChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaGradientThirdChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaGradientColorCountChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaGradientDirectionChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaOpacityChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaShapeChanged() { malvinaTipSurface.requestPaint() }
-                    function onMalvinaGradientBreathingFactorChanged() { malvinaTipSurface.requestPaint() }
-                    function onOutlineConfigChanged() { malvinaTipSurface.requestPaint() }
-                }
-                onPaint: {
-                    const ctx = getContext("2d")
-                    ctx.reset()
-                    if (!visible || width < 30 || height < 4) return
-                    ctx.beginPath()
-                    ctx.moveTo(1, height / 2)
-                    ctx.lineTo(24, 1)
-                    ctx.lineTo(width - 1, 1)
-                    ctx.lineTo(width - 1, height - 1)
-                    ctx.lineTo(24, height - 1)
-                    ctx.closePath()
-                    const alpha = root.malvinaOpacity * root.malvinaGradientBreathingFactor
-                    if (root.malvinaGradientEnabled) {
-                        const dir = root.malvinaGradientDirection
-                        const g = ctx.createLinearGradient(
-                            dir === "leftRight" ? 0 : dir === "rightLeft" ? width : 0,
-                            dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
-                            dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
-                            dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
-                        // La dirección ya está dada por las coordenadas.
-                        // No invertir además los colores: invertir dos veces
-                        // anulaba el efecto de derecha→izquierda.
-                        g.addColorStop(0, Qt.rgba(root.displayMalvinaColor.r,
-                            root.displayMalvinaColor.g, root.displayMalvinaColor.b, alpha))
-                        if (root.malvinaGradientColorCount === 3) {
-                            g.addColorStop(0.5, Qt.rgba(root.displayMalvinaGradientEnd.r,
-                                root.displayMalvinaGradientEnd.g, root.displayMalvinaGradientEnd.b, alpha))
-                            g.addColorStop(1, Qt.rgba(root.displayMalvinaGradientThird.r,
-                                root.displayMalvinaGradientThird.g, root.displayMalvinaGradientThird.b, alpha))
-                        } else {
-                            g.addColorStop(1, Qt.rgba(root.displayMalvinaGradientEnd.r,
-                                root.displayMalvinaGradientEnd.g, root.displayMalvinaGradientEnd.b, alpha))
-                        }
-                        ctx.fillStyle = g
-                    } else {
-                        ctx.fillStyle = Qt.rgba(root.displayMalvinaColor.r, root.displayMalvinaColor.g,
-                                                root.displayMalvinaColor.b, alpha)
-                    }
-                    ctx.fill()
-                    const outline = root.outlineConfig.malvina
-                    if (outline && outline.style !== "none" && outline.width > 0) {
-                        ctx.lineWidth = outline.width
-                        const c = root.displayOutlineMalvinaColor.toString()
-                        ctx.strokeStyle = c
-                        ctx.globalAlpha = outline.opacity
-                        ctx.stroke()
-                        ctx.globalAlpha = 1
-                    }
-                }
             }
             OutlineStyle {
                 visible: root.malvinaShape !== "leftTip"
@@ -2900,71 +2830,9 @@ Item {
             // Punta triangular opcional. Solo se pinta cuando cambia algo,
             // sin animación ni una fila extra. Botón de bandeja queda a la
             // derecha de la zona estrecha para conservar el área de clic.
-            Canvas {
-                id: soTipBackground
+            SoledadTipBackground {
+                host: root
                 anchors.fill: parent
-                visible: root.soledadShape === "leftTip"
-                onWidthChanged: requestPaint()
-                onHeightChanged: requestPaint()
-                onVisibleChanged: if (visible) requestPaint()
-                Connections {
-                    target: root
-                    function onSoledadColorChanged() { soTipBackground.requestPaint() }
-                    function onDisplaySoledadColorChanged() { soTipBackground.requestPaint() }
-                    function onDisplaySoledadGradientEndChanged() { soTipBackground.requestPaint() }
-                    function onDisplaySoledadGradientThirdChanged() { soTipBackground.requestPaint() }
-                    function onSoledadGradientEnabledChanged() { soTipBackground.requestPaint() }
-                    function onSoledadGradientEndChanged() { soTipBackground.requestPaint() }
-                    function onSoledadGradientThirdChanged() { soTipBackground.requestPaint() }
-                    function onSoledadGradientColorCountChanged() { soTipBackground.requestPaint() }
-                    function onSoledadGradientDirectionChanged() { soTipBackground.requestPaint() }
-                    function onGradientBreathingFactorChanged() {
-                        if (root.soledadGradientEnabled) soTipBackground.requestPaint()
-                    }
-                    function onSoledadOpacityChanged() { soTipBackground.requestPaint() }
-                    function onSoledadShapeChanged() { soTipBackground.requestPaint() }
-                }
-                onPaint: {
-                    const ctx = getContext("2d")
-                    ctx.reset()
-                    ctx.beginPath()
-                    ctx.moveTo(1, height / 2)
-                    ctx.lineTo(24, 1)
-                    ctx.lineTo(width - 1, 1)
-                    ctx.lineTo(width - 1, height - 1)
-                    ctx.lineTo(24, height - 1)
-                    ctx.closePath()
-                    if (root.soledadGradientEnabled) {
-                        const dir = root.soledadGradientDirection
-                        const g = ctx.createLinearGradient(
-                            dir === "leftRight" ? 0 : dir === "rightLeft" ? width : 0,
-                            dir === "topBottom" ? 0 : dir === "bottomTop" ? height : 0,
-                            dir === "leftRight" ? width : dir === "rightLeft" ? 0 : 0,
-                            dir === "topBottom" ? height : dir === "bottomTop" ? 0 : 0)
-                        g.addColorStop(0, Qt.rgba(root.displaySoledadColor.r, root.displaySoledadColor.g,
-                                                  root.displaySoledadColor.b, root.soledadOpacity * root.gradientBreathingFactor))
-                        if (root.soledadGradientColorCount === 3) {
-                            g.addColorStop(0.5, Qt.rgba(root.displaySoledadGradientEnd.r,
-                                root.displaySoledadGradientEnd.g, root.displaySoledadGradientEnd.b,
-                                root.soledadOpacity * root.gradientBreathingFactor))
-                            g.addColorStop(1, Qt.rgba(root.displaySoledadGradientThird.r,
-                                root.displaySoledadGradientThird.g, root.displaySoledadGradientThird.b,
-                                root.soledadOpacity * root.gradientBreathingFactor))
-                        } else {
-                            g.addColorStop(1, Qt.rgba(root.displaySoledadGradientEnd.r,
-                                root.displaySoledadGradientEnd.g, root.displaySoledadGradientEnd.b,
-                                root.soledadOpacity * root.gradientBreathingFactor))
-                        }
-                        ctx.fillStyle = g
-                    } else {
-                        ctx.fillStyle = Qt.rgba(root.displaySoledadColor.r, root.displaySoledadColor.g,
-                                                root.displaySoledadColor.b, root.soledadOpacity)
-                    }
-                    ctx.strokeStyle = "#4e8499"
-                    ctx.lineWidth = 1
-                    ctx.fill()
-                    ctx.stroke()
-                }
             }
             Row {
                 id: systemRow
