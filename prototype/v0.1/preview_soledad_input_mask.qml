@@ -929,7 +929,7 @@ Window {
         themeScheduleRuntimeEnabled: false
         // Playa 24hs se habilita solo si se prepararon y validaron los
         // tres perfiles privados. No carga valores inventados ni defaults.
-        runtimeThemePackJson: {
+        runtimeThemePackJson: (function() {
             try {
                 const url = Qt.resolvedUrl(
                     "package/contents/ui/assets/.smartbar-runtime-theme-pack.json")
@@ -946,7 +946,7 @@ Window {
                     value.themesSequence.length > 20) return ""
                 return String(req.responseText)
             } catch (error) { return "" }
-        }
+        })()
         // Mantener el DragHandler ORIGINAL: ventana/escena permanecen FIJAS.
         layerShellDragCompensation: false
 
