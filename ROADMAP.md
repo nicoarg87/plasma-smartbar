@@ -806,3 +806,15 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [x] **Implementación experimental:** `SmartBarContent.qml` recibe la apertura Web/IA ya compartida por `MalvinaSearch.qml`; si `launchWebUrl` o `Qt.openUrlExternally` acepta la apertura, `dismissMalvinaAfterSearch()` cierra la búsqueda y oculta temporalmente Malvina. Si no acepta el inicio, permanece abierta. Reaparece con nuevo hover de 600 ms o activación explícita, sin añadir botones. [c72d59d](https://github.com/nicoarg87/plasma-smartbar/commit/c72d59db3401bebed4d5d193f4fe7dc99c4a301b), [c3eadbf](https://github.com/nicoarg87/plasma-smartbar/commit/c3eadbf81536bcaa75c25764e5212eb70cf2b700).
 - [x] **Pruebas de código añadidas/actualizadas:** `test_malvina_browser_choice.cjs` ([e10920f](https://github.com/nicoarg87/plasma-smartbar/commit/e10920fbf0152b7857a96fad7379a30e2747eef9)) y `test_malvina_dismiss_on_search.cjs` ([35f4772](https://github.com/nicoarg87/plasma-smartbar/commit/35f4772db774d16f3d82b08cbe628acb1e3c98c9)); 8/8 comprobaciones V8 aisladas PASS, no son pruebas Qt nativas.
 - [ ] **Prueba en CachyOS, comandos Fish:** tras `git pull --ff-only`, correr ambos tests Node y `bash prototype/v0.1/probar_malvina_superposicion.sh`; buscar `cerveza` con DuckDuckGo/Google usando Brave, verificar desaparición inmediata de Malvina y vuelta tras salir/reingresar con el cursor; comprobar segundo Enter de IA sin revalidar login y confirmar que fullscreen/panel KDE quedan intactos.
+
+
+## Modularización de la bandeja — 26/11/2026
+
+- [x] Separar el modelo de muestra (`SystemTrayModel.js`), las reglas puras de alternancia/autocontracción (`SystemTrayController.js`) y el delegado visual (`SystemTrayView.qml`) en componentes propios y enlazarlos a Soledad.
+- [x] Mantener los iconos simulados anteriores, su aspecto y sus gestos; conservar el modelo directo `Row`/ `Repeater` para que los botones sigan ocupando una sola fila sin alterar transparencias.
+- [x] Añadir test Node `prototype/v0.1/tests/test_system_tray_modules.cjs` y revisar estructuralmente las conexiones.
+- [ ] Ejecutar la nueva composición en CachyOS cuando corresponda usarla; no imponer baterías de regresión para funciones ya aprobadas.
+- [ ] **Bandeja real KDE:** construir el proveedor StatusNotifierItem/StatusNotifierWatcher en módulo aislado, descubrir iconos y acciones auténticas y verificar compatibilidad real; [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
+- [ ] Seguir dividiendo progresivamente `SmartBarContent.qml` y `SoledadSettings.qml`, cuidando estados cruzados sin reconstruir funciones estables ni cambiar el panel actual.
+
+**Estado:** primer corte modular conectado, pruebas JS puras aprobadas, ejecución QML de la nueva composición y proveedor KDE real pendientes.
