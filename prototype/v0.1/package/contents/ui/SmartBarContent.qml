@@ -3014,58 +3014,8 @@ Item {
                 // Separación mínima y legible entre iconos de bandeja y
                 // fichas SO, solamente cuando ambas expansiones están
                 // visibles. Se incluye naturalmente en el ancho medido.
-                Item {
-                    id: traySOSeparator
-                    visible: root.trayExpanded && root.soExpanded
-                    width: 14
-                    height: 28
-                    y: (systemRow.height - height) / 2
-                    // Tres marcas indican que este separador se puede arrastrar.
-                    Row {
-                        anchors.centerIn: parent
-                        spacing: 2
-                        Repeater {
-                            model: 3
-                            Rectangle {
-                                width: 2
-                                height: 15
-                                radius: 1
-                                color: "#a6c4d4"
-                            }
-                        }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        acceptedButtons: Qt.LeftButton
-                        cursorShape: Qt.SizeHorCursor
-                        onPressed: function(mouse) {
-                            const pt = mapToItem(root, mouse.x, mouse.y)
-                            root.taskResizeStartX = pt.x
-                            root.taskResizeStartWidth = root.taskNameExtraWidth
-                            root.taskResizeChipCount = Math.max(1, root.usingRealTasks
-                                ? root.realTaskModel.count : root.demoOpenedApps.length)
-                        }
-                        onPositionChanged: function(mouse) {
-                            if (!(pressedButtons & Qt.LeftButton)) return
-                            const pt = mapToItem(root, mouse.x, mouse.y)
-                            // A la izquierda agranda las fichas SO; derecha achica.
-                            root.updateTaskNameExtraWidth(root.taskResizeStartWidth +
-                                Math.round((root.taskResizeStartX - pt.x) /
-                                    root.taskResizeChipCount))
-                        }
-                        onDoubleClicked: function(mouse) {
-                            if (mouse.button !== Qt.LeftButton) return
-                            // Restablecer la medida predeterminada y persistirla
-                            // de inmediato, sin cambiar preferencias de fichas.
-                            root.taskNameExtraWidth = 0
-                            root.saveTaskNameExtraWidth()
-                        }
-                        onReleased: root.saveTaskNameExtraWidth()
-                    }
-                    QQC2.ToolTip.visible: false
-                    QQC2.ToolTip.text: "Arrastrar para ajustar nombres SO · doble clic para restablecer"
-                    HoverHandler { id: resizeHover }
+                SoledadTaskWidthSeparator {
+                    host: root
                 }
 
                 // Modo histórico de maqueta: NO se altera la prueba de
