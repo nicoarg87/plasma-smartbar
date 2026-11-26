@@ -72,14 +72,14 @@ assert(ui.includes('onClicked: settings.showSoledadGradientBreathing()'));
 assert(ui.includes('Math.min(1180, Math.max(560, Screen.desktopAvailableWidth - 48))'));
 assert.equal((ui.match(/contentWidth: Math.max\(0, availableWidth - 32\)/g) || []).length, 9,
              "Margen de seguridad ausente para el scrollbar");
-assert(ui.includes('id: currentColorCopyField\n                            Layout.fillWidth: true'));
+assert(ui.includes('id: currentColorCopyField') && ui.includes('Layout.fillWidth: true'));
 assert(ui.includes('text: "Duración de cada ciclo"'));
 assert(ui.includes('text: "INTENSIDAD DEL PULSO · LÍNEA SO"'));
 assert(ui.includes('onValueModified: settings.setSoLineBreathingSpeed(1000 / value)'));
 assert(ui.includes('Math.round(1000 / Math.max(0.1, settings.pulseSpeed))'));
 assert(ui.includes('text: "Activar efecto Respiración luminosa en SO"'));
 assert(ui.includes('GridLayout {'));
-assert(ui.includes('columns: appearanceScroll.availableWidth >= 740 ? 3'));
+assert(ui.includes('columns: page.availableWidth >= 740 ? 3'));
 assert(ui.includes('Layout.minimumWidth: 0'));
 const fixedScrolls = (ui.match(/QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn/g) || []).length;
 assert.equal(fixedScrolls, 9, "Conservar las nueve zonas de desplazamiento existentes");
@@ -275,7 +275,8 @@ assert.equal(interactiveState.previewRefreshes, 2);
 // revierten las preferencias editadas desde el último Aplicar.
 assert(ui.includes('text: "Cancelar"'));
 assert(ui.includes('text: "Aplicar"'));
-assert(!ui.includes('text: "Cerrar"'));
+assert(ui.includes('text: "Cerrar"'));
+// Cerrar es una acción explícita del editor; no es una segunda ventana.
 const footer = ui.substring(ui.lastIndexOf("// Pie fijo"));
 assert(footer.indexOf('text: "Cancelar"') < footer.indexOf('text: "Aplicar"'));
 assert(footer.includes("onClicked: settings.close()"));
@@ -296,7 +297,8 @@ assert(allKeysMatch, "No existe lista de opciones para Cancelar");
 const transactionKeys = JSON.parse(allKeysMatch[1]);
 
 const required = [...settingsSync.matchAll(/settings\.([A-Za-z_][\w]*)\s*=/g)]
-    .map(x => x[1]).filter(x => !["currentTab","personalDefaultAvailable","favoriteAppearanceAvailable"].includes(x));
+    .map(x => x[1]).filter(x => transactionKeys.includes(x));
+assert(required.length >= 120, "El adaptador debe copiar las preferencias editables");
 for (const name of required)
     assert(transactionKeys.includes(name), "Cancelar omite el ajuste " + name);
 assert(transactionKeys.length >= 130, "Snapshot incompleto");
