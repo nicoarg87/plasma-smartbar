@@ -169,9 +169,10 @@ Item {
         const originalPatch = data.themes[theme]
         if (!originalPatch || typeof originalPatch !== "object" ||
             Object.keys(originalPatch).length < 55) return false
-        // El 60 % es una preferencia transversal vigente: preservar intactos
-        // el archivo del pack y las copias históricas de cada tema.
-        const patch = RuntimeAppearance.withThemeOpacity(originalPatch)
+        // El 60 % pertenece exclusivamente a Playa 24hs.
+        // Los packs personales conservan su propia opacidad guardada.
+        const patch = RuntimeAppearance.withThemeOpacity(originalPatch,
+                                                         data.packId)
         if (!patch) return false
         // Una sola escritura verificada por RuntimeAppearanceBridge;
         // Malvina relee el mismo perfil compartido. No tocar posiciones KWin.
