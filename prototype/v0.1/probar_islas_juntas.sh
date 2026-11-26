@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Sesión experimental de las dos islas en LayerShell sobre KDE Plasma/Wayland.
-# No instala ni reemplaza paneles; NO modifica los fondos del escritorio.
+# No instala ni reemplaza paneles; solo el botón de tema, por clic
+# explícito, puede cambiar el fondo del escritorio activo con respaldo.
 # Un solo binario temporal atiende dos procesos independientes y aislados.
 set -euo pipefail
 umask 077
@@ -119,6 +120,7 @@ MESSAGE_PATTERN='[%{time yyyy-MM-dd hh:mm:ss.zzz}] %{type}: %{message}'
 # LayerShell se declara en el QML raíz; no forzarlo sobre las ventanas Popup.
 env -u QT_WAYLAND_SHELL_INTEGRATION SMARTBAR_CONTINUOUS=1 \
     SMARTBAR_SHARED_APPEARANCE_PATH="$APPEARANCE_FILE" \
+    SMARTBAR_WALLPAPER_HELPER_PATH="$HERE/scripts/wallpaper_playa_kde.cjs" \
     QT_QPA_PLATFORM=wayland QML_XHR_ALLOW_FILE_READ=1 \
     QT_MESSAGE_PATTERN="$MESSAGE_PATTERN" \
     "$BIN" "$HERE/preview_soledad_input_mask.qml" \
