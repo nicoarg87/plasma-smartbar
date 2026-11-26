@@ -2,7 +2,7 @@
 "use strict";
 // Instalación LOCAL y reversible de Atardecer provisional aprobado.
 // Nunca modifica FactorySunsetTheme.js, tema histórico, Qt Settings ni KDE.
-const fs=require("node:fs"),path=require("node:path"),os=require("node:os");
+const fs=require("node:fs"),path=require("node:path"),os=require("node:os"),crypto=require("node:crypto");
 const source=process.argv[2];
 if(process.argv.length!==3||!source){
  console.error("Uso: node prototype/v0.1/scripts/instalar_atardecer_provisional.cjs ruta-del-resguardo");
@@ -25,6 +25,9 @@ try{
    throw Error("los archivos de origen no son regulares");
  original=fs.readFileSync(candidateFile,"utf8");
  manifest=JSON.parse(fs.readFileSync(manifestFile,"utf8"));
+ const expectedHash=crypto.createHash("sha256").update(Buffer.from(original,"utf8")).digest("hex");
+ if(!Array.isArray(manifest.files)||!manifest.files.some(x=>x.name==="atardecer-candidata-NO-OFICIAL.json"&&x.sha256===expectedHash))
+   throw Error("el perfil no coincide con la huella del resguardo");
  preset=JSON.parse(original);
  if(manifest.identity!=="NO VERIFICADA; candidato de reconstrucción, NO fábrica"||
     manifest.filledProperties!==22||!manifest.originalsUnchanged)
