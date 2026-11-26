@@ -878,17 +878,18 @@ Window {
             return ""
         } catch(e) { return "" }
     }
-    // Preferencia de opacidad uniforme solicitada para TODOS los temas.
-    // No altera los colores, bordes, GIFs ni la geometría. El usuario puede
-    // cambiar cada valor luego: al volver a seleccionar un tema se usa 90 %.
+    // Preferencia confirmada (25/11/2026): los controles de opacidad
+    // de Soledad y Malvina permanecen en 60 % al cambiar de tema o pack.
+    // No modificar el perfil ORIGINAL ni sus GIF, colores o geometrías.
+    // Los controles funcionales y las posiciones guardadas siguen intactos.
     function setUniformThemeOpacity() {
-        soledadOpacity = 0.9
-        malvinaOpacity = 0.9
-        launcherOpacity = 0.9
-        malvinaOptionsOpacity = 0.9
-        trayButtonOpacity = 0.9
-        gripButtonOpacity = 0.9
-        backgroundOpacity = 0.9 // dato histórico; la franja ya no se dibuja
+        soledadOpacity = 0.6
+        malvinaOpacity = 0.6
+        launcherOpacity = 0.6
+        malvinaOptionsOpacity = 0.6
+        trayButtonOpacity = 0.6
+        gripButtonOpacity = 0.6
+        backgroundOpacity = 0.6 // franja histórica, actualmente oculta
     }
     function activateTheme(slot) {
         const jsonData = slotJson(slot)
