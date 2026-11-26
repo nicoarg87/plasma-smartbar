@@ -939,9 +939,11 @@ Window {
                 if (req.status !== 0 && req.status !== 200) return ""
                 const value = JSON.parse(req.responseText)
                 if (!value || value.version !== 1 ||
-                    value.packId !== "playa-24hs" ||
+                    (value.packId !== "playa-24hs" &&
+                     !/^pack-[1-9][0-9]*$/.test(String(value.packId || ""))) ||
                     !Array.isArray(value.themesSequence) ||
-                    value.themesSequence.length !== 3) return ""
+                    value.themesSequence.length < 1 ||
+                    value.themesSequence.length > 20) return ""
                 return String(req.responseText)
             } catch (error) { return "" }
         }
