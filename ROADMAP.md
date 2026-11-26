@@ -818,3 +818,14 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [ ] Seguir dividiendo progresivamente `SmartBarContent.qml` y `SoledadSettings.qml`, cuidando estados cruzados sin reconstruir funciones estables ni cambiar el panel actual.
 
 **Estado:** primer corte modular conectado, pruebas JS puras aprobadas, ejecución QML de la nueva composición y proveedor KDE real pendientes.
+
+
+## Segundo corte de modularización — 26/11/2026
+- [x] `SoledadExpansionPolicy.js`: separar reglas de convivencia SO/bandeja del estado y la vista.
+- [x] `SoledadLauncherPlacement.js`: compartir el cálculo de posición horizontal del launcher en los contextos Qt y LayerShell.
+- [x] `SoledadTaskSizing.js`: separar cálculo de ancho de nombres de ventanas manteniendo el máximo de 160 px y la persistencia original.
+- [x] Integrar estas políticas en `SmartBarContent.qml` ([cc00828](https://github.com/nicoarg87/plasma-smartbar/commit/cc0082856a26783b467fc65e5cd09d6b3680b486)), y agregar `test_soledad_layout_modules.cjs` ([85ced0c](https://github.com/nicoarg87/plasma-smartbar/commit/85ced0ce6d74ee9f26e8fb9809563764479e3462)).
+- [x] Verificación interna: 720 comparaciones contra la lógica anterior y seis contratos QML verificados, sin diferencias.
+- [ ] Ejecutar la composición QML refactorizada en CachyOS cuando corresponda: no invalida pruebas anteriores de funciones estables ni requiere repetirlas por costumbre.
+- [ ] Continuar extracción progresiva de vistas y configuraciones, especialmente `SoledadSettings.qml`, sin rediseñar funciones.
+- [ ] Conectar indicadores reales KDE de la bandeja por proveedor separado ([issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24)); seguimiento general de modularización [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
