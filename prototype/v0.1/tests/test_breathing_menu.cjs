@@ -8,8 +8,15 @@ const path = require("node:path");
 const vm = require("node:vm");
 const root = path.join(__dirname, "..");
 const file = p => fs.readFileSync(path.join(root, p), "utf8");
-const ui = file("package/contents/ui/SoledadSettings.qml");
+const uiRoot = file("package/contents/ui/SoledadSettings.qml");
+const settingsPages = ["SoledadLogoPage.qml", "SoledadAppearancePage.qml",
+    "SoledadGeometryPage.qml", "SoledadThemesPage.qml",
+    "SoledadSharedOutlinesPage.qml", "SoledadTaskStylesPage.qml",
+    "SoledadBehaviorPage.qml", "SoledadAboutPage.qml", "MalvinaProvidersPage.qml"];
+const ui = uiRoot + "\n" + settingsPages.map(name => file("package/contents/ui/" + name)).join("\n");
 const bar = file("package/contents/ui/SmartBarContent.qml");
+const launcherHost = file("package/contents/ui/SoledadLauncherHost.qml");
+const settingsSync = file("package/contents/ui/SoledadSettingsSync.js");
 const main = file("package/contents/ui/main.qml");
 const preview = file("preview_redimensionable.qml");
 const kconfig = file("package/contents/config/main.xml");
@@ -25,7 +32,7 @@ assert(launcher > 0 && launcher < menuStart && menuStart < colors &&
 assert(!ui.includes('text: "Efectos luminosos"'), "Los efectos no son otra entrada lateral");
 assert(!ui.includes('id: logoSubtabs'), "Efectos no deben ser otra pestaña");
 assert(!ui.includes('id: outlineScroll'), "No usar scroll secundario para luz");
-assert(ui.includes('id: logoScroll'), "Debe haber una sola página de logo");
+assert(uiRoot.includes("SoledadLogoPage {") && uiRoot.includes("id: logoPage"), "Debe haber una sola página de logo");
 assert(ui.includes('id: soLightSectionTitle'), "Falta encabezado de Efectos bajo el logo");
 assert(ui.includes('text: "Efectos luminosos del botón SO"'));
 assert.equal((ui.match(/text: "Botón de inicio SO"/g) || []).length, 1);
@@ -80,7 +87,7 @@ assert.equal((ui.match(/QQC2.ScrollBar.vertical.width: 16/g) || []).length, fixe
              "Breeze necesita ancho estable en cada scroll vertical sin cambiar su política");
 assert(!ui.includes("QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOff"),
        "No deshabilitar el desplazamiento vertical de las páginas");
-assert(ui.includes("id: themesScroll"), "La página Temas debe conservar su scroll");
+assert(uiRoot.includes("SoledadThemesPage {"), "La página Temas debe conservar su scroll");
 // Regresión Qt observada el 20/11 en CachyOS: no enlazar el ancho de
 // TabBar a sus propios hijos ocultos y no inicializar la muestra como {}.
 assert(!ui.includes('width: islandSubtabs.width / 3'),
@@ -103,12 +110,12 @@ for (const field of ["iconSource", "iconAnimated", "iconAnimationEnabled", "icon
     "activityShowWhenOpen"]) {
     assert(previewContract.includes(field + ":"), "Muestra SO no inicializa " + field);
 }
-assert(bar.includes("switchCustomColor: root.launcherSwitchColorOverride"),
+assert(launcherHost.includes("switchCustomColor: host.launcherSwitchColorOverride"),
        "El launcher debe utilizar el booleano de configuración existente");
 assert(!bar.includes("root.displayLauncherSwitchColorOverride"),
        "No referenciar propiedades inexistentes");
 
-assert(ui.includes("id: themeOptionsPopup") && ui.includes("id: themesScroll"),
+assert(ui.includes("id: themeOptionsPopup") && uiRoot.includes("SoledadThemesPage {"),
        "La página Temas y el selector desplegable deben conservar su scroll");
 assert(ui.includes("contentHeight: themeOptionsColumn.implicitHeight") &&
        ui.includes("policy: QQC2.ScrollBar.AsNeeded"),
@@ -287,9 +294,8 @@ assert(!ui.includes('text: "Mover isla 1 a la derecha AHORA"'));
 const allKeysMatch = ui.match(/readonly property var editableSettingsKeys: (\[[^\n]+\])/);
 assert(allKeysMatch, "No existe lista de opciones para Cancelar");
 const transactionKeys = JSON.parse(allKeysMatch[1]);
-const loaded = bar.substring(bar.indexOf("function openSoledadSettings("),
-                             bar.indexOf("    SoledadSettings {"));
-const required = [...loaded.matchAll(/soledadSettings\.([A-Za-z_][\w]*)\s*=/g)]
+
+const required = [...settingsSync.matchAll(/settings\.([A-Za-z_][\w]*)\s*=/g)]
     .map(x => x[1]).filter(x => !["currentTab","personalDefaultAvailable","favoriteAppearanceAvailable"].includes(x));
 for (const name of required)
     assert(transactionKeys.includes(name), "Cancelar omite el ajuste " + name);
