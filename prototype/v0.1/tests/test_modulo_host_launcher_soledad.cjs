@@ -7,7 +7,7 @@ const path = require("node:path");
 const dir = path.resolve(__dirname, "../package/contents/ui");
 const main = fs.readFileSync(path.join(dir, "SmartBarContent.qml"), "utf8");
 const popup = fs.readFileSync(path.join(dir, "SoledadLauncherHost.qml"), "utf8");
-assert.match(main, /SoledadLauncherHost\s*\{\s*id:\s*installedAppsPopup\s*host:\s*root\s*soButtonTarget:\s*soButton\s*malvinaButtonTarget:\s*launcherIsland\s*islandTarget:\s*systemIsland\s*malvinaHoverTarget:\s*malvinaHotspotHover\s*malvinaHideTimerTarget:\s*malvinaHideTimer\s*\}/);
+assert.match(main, /SoledadLauncherHost\s*\{\s*id:\s*installedAppsPopup\s*host:\s*root\s*soButtonTarget:\s*soButton\s*malvinaButtonTarget:\s*malvinaHotspot\.launcherTarget\s*islandTarget:\s*systemIsland\s*malvinaHoverTarget:\s*malvinaHotspot\.hoverTarget\s*malvinaHideTimerTarget:\s*malvinaHideTimer\s*\}/);
 for (const prop of ["host", "soButtonTarget", "malvinaButtonTarget", "islandTarget", "malvinaHoverTarget", "malvinaHideTimerTarget"])
   assert.ok(popup.includes("required property var " + prop), "Dependencia no declarada: " + prop);
 for (const token of [
