@@ -2298,110 +2298,14 @@ Item {
     }
 
     // Lanzador aislado debajo de la barra: no modifica grosor ni ventanas externas.
-    SoLauncherPopup {
+    SoledadLauncherHost {
         id: installedAppsPopup
-        // En el ensayo real Wayland, Popup.Window debe tener como parent
-        // el BOTÓN que lo abrió, igual que gripMenu (que KWin sí ubica
-        // debajo de los seis puntos). Con parent:root, la superficie de
-        // LayerShell de 44 px hacía que el popup apareciera desde y=0,
-        // cubriendo SO aunque y fuese root.fixedHeight+8.
-        // El visor/maqueta mantienen su anclaje original, sin cambios.
-        // LayerShell real: el popup Item vive en el Window flotante propio.
-        // El visor Qt anterior conserva su alojamiento original.
-        parent: root.layerShellLauncherHost
-            ? root.layerShellLauncherHost.contentItem
-            : (root.realAppLaunchEnabled
-               ? ((root.installedLauncherSource === "so" || !root.launcherIslandVisible)
-                  ? soButton : launcherIsland)
-               : root)
-        x: {
-            if (root.layerShellLauncherHost) return 0
-            const fromSo = root.installedLauncherSource === "so" ||
-                           !root.launcherIslandVisible
-            // Misma política de coordenada física que la ventana LayerShell.
-            // Solo la conversión a origen LOCAL sigue siendo trabajo de QML.
-            const left = SoledadLauncherPlacement.screenLeft({
-                popupWidth: width,
-                screenWidth: root.width,
-                requirePositiveScreenWidth: false,
-                fromSo: fromSo,
-                systemIslandX: systemIsland.x,
-                systemIslandWidth: systemIsland.width,
-                launcherCenter: fromSo ? 0 : launcherIsland.mapToItem(
-                    root, launcherIsland.width / 2, 0).x,
-                categoryLayout: categoryLayout,
-                showCategoryPanel: showCategoryPanel,
-                filesMode: filesMode,
-                expandedCanvas: expandedCanvas,
-                primaryWidth: primaryWidth
-            })
-            if (!root.realAppLaunchEnabled) return left
-            const anchor = fromSo ? soButton : launcherIsland
-            return left - anchor.mapToItem(root, 0, 0).x
-        }
-        // Y relativo al botón ancla; no usar la altura del Window
-        // LayerShell: no es el mismo sistema de coordenadas que Popup.Window.
-        // En modo visor tradicional se preserva el posicionamiento anterior.
-        y: root.layerShellLauncherHost ? 0 :
-           (root.realAppLaunchEnabled
-            ? ((root.installedLauncherSource === "so" || !root.launcherIslandVisible)
-               ? soButton.height + 8 : launcherIsland.height + 8)
-            : root.fixedHeight + 8)
-        popupHeightLimit: root.realAppLaunchEnabled
-            ? Math.max(270, Math.min(root.launcherAvailableHeight, 760))
-            : root.launcherAvailableHeight
-        categoryLayout: root.launcherCategoryLayout
-        availableScreenWidth: root.width
-        maxVisibleSlots: root.launcherMaxSlots
-        iconsWithNames: root.launcherIconsWithNames
-        switchShape: root.launcherSwitchShape
-        switchCustomColor: root.launcherSwitchColorOverride
-        switchColor: root.displayLauncherSwitchColor
-        islandColor: root.displaySoledadColor
-        islandGradientEnd: root.displaySoledadGradientEnd
-        islandGradientThird: root.displaySoledadGradientThird
-        islandGradientColorCount: root.soledadGradientColorCount
-        islandOpacity: root.launcherOpacityOverride
-            ? root.launcherOpacity : root.soledadOpacity
-        islandGradientEnabled: root.soledadGradientEnabled
-        islandGradientDirection: root.soledadGradientDirection
-        islandBreathingFactor: root.gradientBreathingFactor
-        outlineColor: root.displayOutlineSoColor
-        outlineOpacity: root.outlineConfig.soledad.opacity
-        outlineWidth: root.outlineConfig.soledad.width
-        outlineStyle: root.outlineConfig.soledad.style
-        malvinaVisible: root.launcherIslandVisible
-        installedApplications: root.localAppCatalog
-        catalogIsReal: root.localCatalogReady
-        realLaunchEnabled: root.realAppLaunchEnabled
-        autoCollapseOnSelection: true
-        layerSurfaceHosted: root.realAppLaunchEnabled &&
-                            root.layerShellLauncherHost !== null
-        onLaunchDesktopEntry: function(desktopId) {
-            // Desmontar ambas superficies ANTES de solicitar el inicio KDE.
-            root.closeInstalledLauncher()
-            console.log("SmartBar launcher: aplicación elegida; caja cerrada")
-            root.requestLaunchDesktopEntry(desktopId)
-        }
-        onRequestDismiss: root.closeInstalledLauncher()
-        triggerButtonHovered: root.installedLauncherSource === "so" && soButton.hovered
-        onRequestShowMalvina: {
-            root.setLauncherIslandVisible(true)
-            root.closeInstalledLauncher()
-        }
-        onAppSelected: function(name, realCatalog) {
-            root.closeInstalledLauncher()
-            // En maqueta hacer visible la selección, sin ejecutar procesos.
-            if (!realCatalog && root.demoOpenedApps.indexOf(name) >= 0)
-                root.selectDemoApp(name)
-            console.log("SmartBar: aplicación seleccionada:",
-                        realCatalog ? "(catálogo sin ID ejecutable)" : "(simulación)",
-                        name)
-        }
-        onClosed: {
-            if (root.autoHideMalvina && !malvinaHotspotHover.hovered)
-                malvinaHideTimer.restart()
-        }
+        host: root
+        soButtonTarget: soButton
+        malvinaButtonTarget: launcherIsland
+        islandTarget: systemIsland
+        malvinaHoverTarget: malvinaHotspotHover
+        malvinaHideTimerTarget: malvinaHideTimer
     }
 
     Item {
