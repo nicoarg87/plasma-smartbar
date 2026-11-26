@@ -38,12 +38,12 @@ const host=source("package/contents/ui/LayerShellLauncherWindow.qml");
 assert(popup.includes("layerSurfaceHosted ? QQC2.Popup.Item :"),
        "En ventana LayerShell el launcher debe ser Item, no otro Window");
 assert(launcherBlock.includes("host.layerShellLauncherHost.contentItem") &&
-       launcherBlock.includes("layerSurfaceHosted: root.realAppLaunchEnabled"),
+       launcherBlock.includes("layerSurfaceHosted: host.realAppLaunchEnabled"),
        "El popup debe habitar el Window LayerShell creado para él");
-assert(launcherBlock.includes("if (root.layerShellLauncherHost) return 0") &&
+assert(launcherBlock.includes("if (host.layerShellLauncherHost) return 0") &&
        launcherBlock.includes("host.layerShellLauncherHost ? 0 :"),
        "El popup comienza en 0,0 dentro de la nueva superficie");
-assert(launcherBlock.includes("Math.min(root.launcherAvailableHeight, 760)"),
+assert(launcherBlock.includes("Math.min(host.launcherAvailableHeight, 760)"),
        "El cajón debe poder crecer hasta 760px si hay altura disponible");
 assert(popup.includes("primaryWidth: realLaunchEnabled ? sharedColumnWidth : 285") &&
        popup.includes("categoryWidth: realLaunchEnabled ? sharedColumnWidth : 280") &&
