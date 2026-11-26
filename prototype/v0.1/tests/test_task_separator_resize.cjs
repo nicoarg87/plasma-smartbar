@@ -7,6 +7,11 @@ const path = require("node:path");
 const base = path.resolve(__dirname, "..");
 const bar = fs.readFileSync(path.join(base, "package/contents/ui/SmartBarContent.qml"),"utf8");
 const island = fs.readFileSync(path.join(base, "package/contents/ui/IslandButton.qml"),"utf8");
+const sizing = fs.readFileSync(path.join(base, "package/contents/ui/SoledadTaskSizing.js"),"utf8");
+assert(sizing.includes("availableIslandWidth - naturalIslandWidth"),
+       "el cálculo de espacio debe estar delegado al módulo");
+assert(sizing.includes("Math.min(160,"),
+       "mantener límite de 160 píxeles");
 const mask = fs.readFileSync(path.join(base,"preview_soledad_input_mask.qml"),"utf8");
 for (const marker of [
   'id: traySOSeparator',
@@ -18,8 +23,7 @@ for (const marker of [
   'taskWidthSettings.setValue("extraWidth", taskNameExtraWidth)',
   'taskWidthSettings.sync()',
   'function updateTaskNameExtraWidth(value)',
-  'availableIslandWidth - naturalIslandWidth',
-  'Math.min(160,',
+  'SoledadTaskSizing.resizedExtraWidth(',
   'taskResizeChipCount'
 ]) assert(bar.includes(marker), "Falta ajuste: "+marker);
 assert.equal((bar.match(/taskNameExtraWidth: root\.taskNameExtraWidth/g)||[]).length,2,
