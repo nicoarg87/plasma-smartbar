@@ -166,9 +166,13 @@ Item {
         if (!count) return false
         const index = (manualPackThemeIndex + 1) % count
         const theme = data.themesSequence[index]
-        const patch = data.themes[theme]
-        if (!patch || typeof patch !== "object" ||
-            Object.keys(patch).length < 55) return false
+        const originalPatch = data.themes[theme]
+        if (!originalPatch || typeof originalPatch !== "object" ||
+            Object.keys(originalPatch).length < 55) return false
+        // El 60 % es una preferencia transversal vigente: preservar intactos
+        // el archivo del pack y las copias históricas de cada tema.
+        const patch = RuntimeAppearance.withThemeOpacity(originalPatch)
+        if (!patch) return false
         // Una sola escritura verificada por RuntimeAppearanceBridge;
         // Malvina relee el mismo perfil compartido. No tocar posiciones KWin.
         runtimeLastAppearanceCommitOk = false
