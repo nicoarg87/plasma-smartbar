@@ -129,3 +129,24 @@ function unmappedChanges(editor) {
     }
     return missing
 }
+
+
+ // Identidad visual del tema: los controles funcionales de las ventanas,
+ // la autocontracción y las posiciones guardadas NO son parte de un tema.
+var themeBehaviorKeys = [
+    "autoCollapseSO", "autoCollapseTray", "autoReturnRight",
+    "soLeftClickOpensLauncher", "taskCloseMode"
+]
+function themeToPatch(snapshot) {
+    if (!snapshot || snapshot.version !== 1 || Array.isArray(snapshot))
+        return null
+    const patch = ({})
+    for (const name of visualKeys) {
+        if (themeBehaviorKeys.indexOf(name) >= 0) continue
+        const source = editorNames[name] || name
+        if (!hasOwn(snapshot, source) || snapshot[source] === null ||
+            snapshot[source] === undefined) continue
+        patch[savedKey(name)] = snapshot[source]
+    }
+    return Object.keys(patch).length >= 55 ? patch : null
+}
