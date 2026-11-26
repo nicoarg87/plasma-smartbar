@@ -3374,3 +3374,14 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 - **PROBADO EN CACHYOS / KWIn-Wayland:** el mantenedor ejecutó `node prototype/v0.1/tests/test_cierre_launcher_fuera.cjs` con resultado `OK` y confirmó «funciona bien» al probar el cierre del launcher al hacer clic fuera. Se valida la corrección del host flotante `LayerShellLauncherWindow.qml`: pérdida de foco tras activación, cierre retardado 130 ms y función aislada `closeInstalledLauncher()`; sin tocar el cajón SO de ventanas abiertas.
 - **Fuente:** [issue #1](https://github.com/nicoarg87/plasma-smartbar/issues/1), [implementación 11bb7f7](https://github.com/nicoarg87/plasma-smartbar/commit/11bb7f7cc226938f469aec0d8af177cf8d8cba64), [prueba f0e3578](https://github.com/nicoarg87/plasma-smartbar/commit/f0e3578aa8f2c5cd9d8726e750335cf54d49f24d).
 - **Pendiente habitual:** vigilar regresiones del foco y el doble clic en futuras integraciones; ninguna modificación nueva necesaria ahora.
+
+
+## Modularización de la bandeja — 26/11/2026
+
+**REQUISITO AUTORIZADO:** el mantenedor pidió modularizar el código existente antes de continuar con los indicadores reales, preservando las funciones ya aprobadas y evitando pruebas repetitivas.
+
+**IMPLEMENTADO, NO PROBADO AÚN EN CACHYOS TRAS LA EXTRACCIÓN:** `SystemTrayModel.js`, `SystemTrayController.js`, `SystemTrayView.qml` y su integración con `SmartBarContent.qml` conservan catálogo ficticio Wi-Fi/Audio/Bluetooth, flechas, orden horizontal, estilos, capacidad compartida con SO, cierre previo del launcher al pulsar bandeja y autocontracción independiente. No se añadieron controles, no se cambiaron preferencias, panel KDE, wallpaper ni ventanas reales.
+
+**VERIFICACIÓN LOCAL DE CÓDIGO:** siete casos de JS puro aprobaron; revisión estática de 15 condiciones de interfaz/cableado sin fallos. Test Node del repositorio `prototype/v0.1/tests/test_system_tray_modules.cjs` creado, pero todavía no ejecutado en CachyOS. La vista QML modular y sus señales siguen pendientes de ejecución real. **No se descalifican pruebas anteriores de otras funciones** por esta refactorización.
+
+**Pendiente:** conexión StatusNotifierItem/StatusNotifierWatcher de KDE mediante adaptador Qt aislado y verificación de licencias. [Arquitectura](ARQUITECTURA_MODULAR.md) · [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24) · [integración 497ed07](https://github.com/nicoarg87/plasma-smartbar/commit/497ed07e6f810f9b45e7698323c8da8d17bf98bb) · [test 58a5c48](https://github.com/nicoarg87/plasma-smartbar/commit/58a5c48f2d40ed3e7fb480a04a75df16d477c727).
