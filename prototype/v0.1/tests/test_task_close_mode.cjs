@@ -8,6 +8,7 @@ const base=path.resolve(__dirname,"..");
 const ui=path.join(base,"package/contents/ui");
 const read=p=>fs.readFileSync(path.join(ui,p),"utf8");
 const bar=read("SmartBarContent.qml");
+const sync=read("SoledadSettingsSync.js");
 const chip=read("DemoTaskChip.qml");
 const settings=read("SoledadSettings.qml");
 const taskStyles=read("SoledadTaskStylesPage.qml");
@@ -36,7 +37,7 @@ assert(xml.includes('<entry name="taskCloseMode" type="String"><default>both</de
 assert(main.includes("taskCloseMode: Plasmoid.configuration.taskCloseMode"));
 assert(main.includes("onRequestTaskCloseModeChange: function(mode)"));
 assert(bar.includes("signal requestTaskCloseModeChange(string mode)"));
-assert(bar.includes("soledadSettings.taskCloseMode = root.taskCloseMode"));
+assert(sync.includes("settings.taskCloseMode = host.taskCloseMode"));
 assert(bar.includes("onSaveTaskCloseModeRequested: function(mode)"));
 assert(settings.includes("property string taskCloseMode: \"both\""));
 assert(settings.includes("signal saveTaskCloseModeRequested(string mode)"));
