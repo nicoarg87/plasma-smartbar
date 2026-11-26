@@ -5037,8 +5037,7 @@ Window {
                                             themeOptionsPopup.close()
                                             let slot = ""
                                             if (selectedIndex === 0) {
-                                                slot = settings.themeDayJson.length ? "day" :
-                                                    (settings.factorySunsetAvailable ? "sunset" : "")
+                                                slot = settings.resolvePackPreset("sunset")
                                             } else if (selectedIndex === 1) {
                                                 slot = settings.themeNightJson.length ? "nightLegacy" :
                                                     (settings.factoryNightAvailable ? "night" : "")
