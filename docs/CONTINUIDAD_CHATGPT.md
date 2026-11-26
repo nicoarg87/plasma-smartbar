@@ -1202,3 +1202,12 @@ and bash prototype/v0.1/probar_malvina_superposicion.sh
 ```
 Escribir `cerveza`, abrir Web, arrastrar DuckDuckGo al primer lugar; **sin volver a clicar el campo**, Tab hasta Web, Enter para confirmar DuckDuckGo, Enter para buscar; verificar Falkon. Si reaparece, conservar log de `SmartBar MALVINA gesto reordenar`, `SmartBar MALVINA orden temporal` y errores de foco QML. Ensayo temporal 180s; orden no persistido en preferencias. No tocar panel, temas, Soledad ni posiciones. Después del éxito seguir probando Web/IA y fullscreen con focos alternados, sin reabrir fallo anterior innecesariamente.
 
+
+
+## Continuidad 26/11/2026 — Bandeja modular
+
+El mantenedor confirmó como regla de trabajo: una función implementada y probada en CachyOS queda **funcional**, no solicitar baterías de comprobación repetitivas; investigar solo si falla o si un cambio nuevo afecta directamente ese módulo. El launcher que se cierra por clic exterior ya fue confirmado funcional, así como el cambio conjunto de los temas Playa 24hs.
+
+**Tarea actual autorizada:** modularizar antes de integrar bandeja real. En rama `prototype/v0.1-islas-so` se crearon `package/contents/ui/SystemTrayModel.js`, `SystemTrayController.js`, `SystemTrayView.qml`, se conectaron en `SmartBarContent.qml` ([497ed07](https://github.com/nicoarg87/plasma-smartbar/commit/497ed07e6f810f9b45e7698323c8da8d17bf98bb)) y se agregó `tests/test_system_tray_modules.cjs` ([58a5c48](https://github.com/nicoarg87/plasma-smartbar/commit/58a5c48f2d40ed3e7fb480a04a75df16d477c727)). Siete comprobaciones de lógica pura y 15 estáticas del cableado aprobaron. **No se ha cargado aún la nueva composición QML en CachyOS.** Los iconos siguen siendo SIMULADOS. No se creó una nueva función ni se modificó el panel KDE.
+
+**Próxima tarea:** desarrollar en un módulo aparte la lectura de indicadores reales KDE mediante StatusNotifierItem/Watcher, revisar disponibilidad de API y licencias, enlazar al modelo conservando estilos/expansiones y registrar resultado en [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24). No confundir esta entrega con bandeja real lista. La arquitectura sigue parcialmente monolítica; dividir las áreas restantes de forma incremental, sin rehacer funcionalidades ya validadas. Véase `docs/ARQUITECTURA_MODULAR.md` y `docs/ESTADO_PROYECTO.md`.
