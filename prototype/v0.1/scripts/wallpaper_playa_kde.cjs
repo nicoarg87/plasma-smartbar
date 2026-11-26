@@ -100,6 +100,10 @@ function updateKde(id,expected,next) {
  if(before!==${JSON.stringify(expected)}){
    print("${marker}"+JSON.stringify({ok:false}));return;
  }
+ // Igual que plasma-apply-wallpaperimage: revalidar el plugin de imagen
+ // para que KDE refresque el fondo en la pantalla del escritorio elegido.
+ d.wallpaperPlugin="org.kde.image";
+ d.currentConfigGroup=["Wallpaper","org.kde.image","General"];
  d.writeConfig("Image",${JSON.stringify(next)});
  print("${marker}"+JSON.stringify({
    ok:String(d.readConfig("Image",""))===${JSON.stringify(next)}
