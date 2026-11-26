@@ -927,6 +927,24 @@ Window {
         externalWindowControlsReserve: 0
         soLogoMode: "default"
         themeScheduleRuntimeEnabled: false
+        // Playa 24hs se habilita solo si se prepararon y validaron los
+        // tres perfiles privados. No carga valores inventados ni defaults.
+        runtimeThemePackJson: {
+            try {
+                const url = Qt.resolvedUrl(
+                    "package/contents/ui/assets/.smartbar-runtime-theme-pack.json")
+                const req = new XMLHttpRequest()
+                req.open("GET", url, false)
+                req.send()
+                if (req.status !== 0 && req.status !== 200) return ""
+                const value = JSON.parse(req.responseText)
+                if (!value || value.version !== 1 ||
+                    value.packId !== "playa-24hs" ||
+                    !Array.isArray(value.themesSequence) ||
+                    value.themesSequence.length !== 3) return ""
+                return String(req.responseText)
+            } catch (error) { return "" }
+        }
         // Mantener el DragHandler ORIGINAL: ventana/escena permanecen FIJAS.
         layerShellDragCompensation: false
 
