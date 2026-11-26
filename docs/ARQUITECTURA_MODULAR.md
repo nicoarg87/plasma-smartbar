@@ -68,3 +68,20 @@
 **Próxima fase de bandeja:** desarrollar un proveedor StatusNotifierItem/StatusNotifierWatcher para iconos/estados reales con interfaz separada. No afirmar soporte de menús, notificaciones, volumen o redes hasta comprobar interfaces KDE y licencias; no alterar la bandeja habitual del usuario.
 
 **Deuda técnica visible:** `SmartBarContent.qml` y `SoledadSettings.qml` aún concentran muchas responsabilidades. La refactorización de otras áreas debe hacerse por módulos y sin reconstruir o volver a probar funciones estables por rutina.
+
+
+## Núcleo Soledad: políticas de distribución extraídas (26/11/2026)
+
+**IMPLEMENTADO EN CÓDIGO EXPERIMENTAL:** tres responsabilidades anteriormente mezcladas en `SmartBarContent.qml` ahora pertenecen a módulos puros de JavaScript (`.pragma library`) que no dependen de la IU ni acceden a KDE:
+
+| Módulo | Responsabilidad |
+| --- | --- |
+| `SoledadExpansionPolicy.js` | Resuelve convivencia/contracción de SO y bandeja por espacio disponible: modo centrado y modo derecho, prioridad de última expansión; devuelve el resultado sin cambiar estado directamente. |
+| `SoledadLauncherPlacement.js` | Calcula una sola vez la coordenada horizontal del launcher, para el host LayerShell y el popup Qt; conserva el anclaje a SO, los dos diseños de categoría y los límites de pantalla. |
+| `SoledadTaskSizing.js` | Calcula el ancho adicional de los nombres de ventana sin cambiar tamaño de letra, ventana o persistencia; tope 160 px como antes. |
+
+**Composición existente preservada:** `SmartBarContent.qml` conserva las propiedades, señales, `systemIsland`, `systemRow`, `trayToggle`, `SoLauncherPopup`, `QtCore.Settings` y sus gestos. Las funciones originales permanecen como adaptadores delgados. El lanzamiento de aplicaciones, el panel KDE, Malvina, la bandeja real y los fondos no se modifican.
+
+**Pruebas de código:** 720 comparaciones del código puro contra la lógica anterior ejecutadas en V8, sin diferencias; seis contratos de conexión verificados por inspección. `tests/test_soledad_layout_modules.cjs` reproduce los casos para Node; `tests/test_task_separator_resize.cjs` ahora inspecciona el módulo de tamaños en su lugar. No se afirma prueba Qt/Wayland de esta modificación.
+
+**Estado:** parcialmente modularizado. La división de vistas y del centro `SoledadSettings.qml` continúa pendiente. [Issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25), [integración cc00828](https://github.com/nicoarg87/plasma-smartbar/commit/cc0082856a26783b467fc65e5cd09d6b3680b486). No introducir nuevas funciones o repetir pruebas de otras áreas ya aprobadas.
