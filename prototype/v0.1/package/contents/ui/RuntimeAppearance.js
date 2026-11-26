@@ -150,3 +150,27 @@ function themeToPatch(snapshot) {
     }
     return Object.keys(patch).length >= 55 ? patch : null
 }
+
+
+function closestThemeIndex(current, themes, sequence) {
+    if (!current || !themes || !Array.isArray(sequence)) return -1
+    let best = -1, bestScore = 0, second = 0
+    for (let i=0; i<sequence.length; ++i) {
+        const patch=themes[sequence[i]]
+        if (!patch || typeof patch !== "object") continue
+        let comparable=0, equal=0
+        for (const key of Object.keys(patch)) {
+            // Las rutas de GIF cambian al resguardar recursos sin cambiar el
+            // dibujo; nunca usar rutas personales para identificar un tema.
+            if (key==="demoSoLogoPath"||key==="demoSoTextBackgroundImage") continue
+            if (!hasOwn(current,key)) continue
+            ++comparable
+            if (JSON.stringify(current[key])===JSON.stringify(patch[key])) ++equal
+        }
+        const score=comparable>=50 ? equal/comparable : 0
+        if (score>bestScore){second=bestScore;bestScore=score;best=i}
+        else if(score>second) second=score
+    }
+    // Solo identificar si el parecido es alto y no hay otro tema ambiguo.
+    return bestScore>=0.80 && bestScore-second>=0.08 ? best : -1
+}
