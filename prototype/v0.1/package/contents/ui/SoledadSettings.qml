@@ -282,6 +282,7 @@ Window {
                 named >= 0 ? "library:" + named : ""
         if (theme === "sunset")
             return factorySunsetAvailable ? "sunset" :
+                provisionalSunsetJson.length ? "sunsetProvisional" :
                 named >= 0 ? "library:" + named :
                 (themeDayJson.length ? "day" : "")
         if (theme === "night")
@@ -477,6 +478,25 @@ Window {
     }
     readonly property string factorySunsetJson:
         factorySunsetAvailable ? JSON.stringify(factorySunsetPreset) : ""
+    // Alternativa provisional LOCAL, aprobada por el mantenedor.
+    // No reemplaza FactorySunsetTheme.js ni la ranura histórica.
+    function readProvisionalSunset() {
+        const url = Qt.resolvedUrl("assets/.smartbar-atardecer-provisional.json")
+        try {
+            const request = new XMLHttpRequest()
+            request.open("GET", url, false)
+            request.send()
+            if (request.status !== 0 && request.status !== 200) return ""
+            const raw = String(request.responseText || "")
+            if (raw.length < 2 || raw.length > 200000) return ""
+            const value = JSON.parse(raw)
+            if (!value || value.version !== 1 || Array.isArray(value))
+                return ""
+            return raw
+        } catch (e) { return "" }
+    }
+    readonly property string provisionalSunsetJson: readProvisionalSunset()
+
     // Tema oficial Día, solo lectura; no confundir con themeDayJson (Atardecer).
     readonly property var factoryDayPreset: FactoryDayTheme.preset
     readonly property url factoryDayImage:
@@ -814,7 +834,8 @@ Window {
             return isFinite(index) && index >= 0 && index < items.length &&
                    Math.floor(index) === index ? items[index].jsonData : ""
         }
-        return slot === "dayOfficial" ? factoryDayJson :
+        return slot === "sunsetProvisional" ? provisionalSunsetJson :
+                slot === "dayOfficial" ? factoryDayJson :
                slot === "sunset" ? factorySunsetJson :
                slot === "night" ? factoryNightJson :
                slot === "nightLegacy" ? themeNightJson :
