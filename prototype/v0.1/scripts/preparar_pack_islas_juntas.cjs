@@ -103,8 +103,9 @@ try{
  const matches=log.split(/\r?\n/).filter(l=>l.includes(marker));
  if(matches.length!==1)throw Error("respuesta Qt ambigua");
  payload=JSON.parse(matches[0].slice(matches[0].indexOf(marker)+marker.length));
- if(payload.selectedPack!=="playa-24hs")
-  throw Error("el pack seleccionado en Qt no es Playa 24hs");
+ if(typeof payload.selectedPack!=="string"||
+    (payload.selectedPack!=="playa-24hs"&&!/^pack-[1-9][0-9]*$/.test(payload.selectedPack)))
+  throw Error("el identificador del pack seleccionado no es válido");
  if(!fs.existsSync(live)||!fs.statSync(live).isFile())
   throw Error("no hay apariencia compartida del ensayo conjunto");
  const day=choose("dia-biblioteca-","perfil-dia-biblioteca.json");
@@ -131,17 +132,40 @@ try{
  if(!fs.existsSync(copy))fs.writeFileSync(copy,original,{flag:"wx",mode:0o600});
  else if(sha(fs.readFileSync(copy))!==sha(original))
    throw Error("el respaldo previo no coincide");
+ let members=["sunset","night","day"];
+ if(payload.selectedPack!=="playa-24hs"){
+   const library=JSON.parse(payload.themePackLibraryJson||"[]");
+   if(!Array.isArray(library))throw Error("biblioteca de packs inválida");
+   const selected=library.find(p=>p&&p.id===payload.selectedPack);
+   if(!selected||!Array.isArray(selected.members)||selected.members.length===0||
+      selected.members.length>20)throw Error("pack personalizado no disponible");
+   members=selected.members.map((member,index)=>{
+     if(member.kind==="preset"&&themes[member.theme])
+       return member.theme;
+     if(member.kind!=="snapshot"||typeof member.jsonData!=="string")
+       throw Error("miembro no válido del pack personalizado");
+     const original=JSON.parse(member.jsonData);
+     normalizeImage(original,null);
+     const patch=runtime.themeToPatch(original);
+     if(!patch||Object.keys(patch).length<55)
+       throw Error("tema personalizado incompleto (miembro "+(index+1)+")");
+     const key="member:"+index;
+     themes[key]=patch;
+     return key;
+   });
+ }
  const staged={
-  version:1,packId:"playa-24hs",
+  version:1,packId:payload.selectedPack,
   provisionalSunset:true,
   themes,
-  themesSequence:["sunset","night","day"],
+  themesSequence:members,
   sourceHashes:{day:sha(fs.readFileSync(path.join(day,"perfil-dia-biblioteca.json"))),
     sunset:sha(fs.readFileSync(path.join(sunset,"atardecer-candidata-NO-OFICIAL.json"))),
     night:sha(fs.readFileSync(path.join(night,"apariencia-activa-completa.json")))}
  };
  fs.writeFileSync(target,JSON.stringify(staged,null,2)+"\n",{flag:"wx",mode:0o600});
- console.log("Playa 24hs preparado para islas conjuntas: Atardecer provisional, Noche, Día.");
+ console.log("Pack visual preparado para islas conjuntas: "+payload.selectedPack+
+   " ("+members.length+" temas).");
  console.log("Copia previa de la apariencia activa: "+copy);
  console.log("Tres estéticas de SO/Soledad/Malvina disponibles, con sus recursos originales.");
  console.log("No se modificó el perfil activo, las posiciones por aplicación ni el wallpaper KDE.");
