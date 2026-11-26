@@ -24,12 +24,12 @@ const required = [
   "launcherSwitchColorDialog.open()"
 ];
 for (const term of required) assert.ok(view.includes(term), "Falta contrato de página: " + term);
-assert.match(main, /SoledadBehaviorPage\\s*\\{\\s*settingsTarget:\\s*settings\\s*launcherSwitchColorDialog:\\s*launcherSwitchColorDialog\\s*\\}/);
+assert.match(main, /SoledadBehaviorPage\s*\{\s*settingsTarget:\s*settings\s*launcherSwitchColorDialog:\s*launcherSwitchColorDialog\s*\}/);
 assert.ok(main.includes("function applyChanges()"), "Aplicar sigue en el centro");
 assert.ok(main.includes("function discardPendingEdits()"), "Cancelar sigue en el centro");
 assert.ok(!view.includes("function applyChanges()") && !view.includes("QtCore.Settings"), "La vista no persiste datos");
 assert.ok(!view.includes("collapseScroll.availableWidth"), "Scroll local renombrado");
-assert.equal((view.match(/QQC2.Button \\{/g) || []).length, 5);
-assert.equal((view.match(/QQC2.CheckBox \\{/g) || []).length, 3);
-assert.equal((view.match(/QQC2.ComboBox \\{/g) || []).length, 4);
+assert.equal((view.match(/QQC2.Button \{/g) || []).length, 5);
+assert.equal((view.match(/QQC2.CheckBox \{/g) || []).length, 3);
+assert.equal((view.match(/QQC2.ComboBox \{/g) || []).length, 4);
 console.log("OK: módulo de comportamiento Soledad, 15 contratos y controles originales.");
