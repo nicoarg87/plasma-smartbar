@@ -151,6 +151,12 @@ Item {
     property string runtimeThemePackJson: ""
     readonly property bool runtimeThemeSwitchAvailable:
         runtimeAppearanceEnabled && runtimeThemePackJson.length > 0
+    // Confirmación sincrónica del helper nativo del ensayo LayerShell.
+    // Sin wallpaper reconocido, los snapshots personales no inventan fondo.
+    property bool runtimeWallpaperLastOk: false
+    signal requestRuntimeWallpaperThemeChange(string themeName)
+    signal requestRuntimeWallpaperUndo()
+
     function passToNextRuntimeTheme() {
         if (!runtimeThemeSwitchAvailable) return false
         let data
@@ -174,11 +180,25 @@ Item {
         const patch = RuntimeAppearance.withThemeOpacity(originalPatch,
                                                          data.packId)
         if (!patch) return false
-        // Una sola escritura verificada por RuntimeAppearanceBridge;
+        // Solo tres presets tienen wallpapers verificados. Un snapshot
+        // personal sin fondo declarado cambia solo la apariencia guardada.
+        const hasWallpaper = theme === "day" || theme === "sunset" ||
+                             theme === "night"
+        if (hasWallpaper) {
+            runtimeWallpaperLastOk = false
+            requestRuntimeWallpaperThemeChange(theme)
+            if (!runtimeWallpaperLastOk) {
+                console.warn("SmartBar: el wallpaper no cambió; " +
+                             "se conservó el tema visual anterior")
+                return false
+            }
+        }
+        // Guardar la estética SOLO si KDE confirmó su fondo correspondiente.
         // Malvina relee el mismo perfil compartido. No tocar posiciones KWin.
         runtimeLastAppearanceCommitOk = false
         requestRuntimeAppearancePatch(JSON.stringify(patch))
         if (!runtimeLastAppearanceCommitOk) {
+            if (hasWallpaper) requestRuntimeWallpaperUndo()
             console.warn("SmartBar: no se pudo aplicar el tema completo")
             return false
         }
