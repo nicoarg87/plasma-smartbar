@@ -8,7 +8,7 @@ const main = fs.readFileSync(path.join(ui, "SoledadSettings.qml"), "utf8");
 const view = fs.readFileSync(path.join(ui, "SoledadBehaviorPage.qml"), "utf8");
 const required = [
   "required property var settingsTarget",
-  "required property var launcherSwitchColorDialog",
+  "required property var switchColorDialog",
   "readonly property var settings: settingsTarget",
   "page.availableWidth",
   "settings.soLeftClickOpensLauncher",
@@ -21,10 +21,10 @@ const required = [
   "settings.autoCollapseTray",
   "settings.showSharedLayout()",
   "settings.showSoledadShape()",
-  "launcherSwitchColorDialog.open()"
+  "switchColorDialog.open()"
 ];
 for (const term of required) assert.ok(view.includes(term), "Falta contrato de página: " + term);
-assert.match(main, /SoledadBehaviorPage\s*\{\s*settingsTarget:\s*settings\s*launcherSwitchColorDialog:\s*launcherSwitchColorDialog\s*\}/);
+assert.match(main, /SoledadBehaviorPage\s*\{\s*settingsTarget:\s*settings\s*switchColorDialog:\s*launcherSwitchColorDialog\s*\}/);
 assert.ok(main.includes("function applyChanges()"), "Aplicar sigue en el centro");
 assert.ok(main.includes("function discardPendingEdits()"), "Cancelar sigue en el centro");
 assert.ok(!view.includes("function applyChanges()") && !view.includes("QtCore.Settings"), "La vista no persiste datos");
