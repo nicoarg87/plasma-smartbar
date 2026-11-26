@@ -184,6 +184,7 @@ Item {
                 named >= 0 ? "library:" + named : ""
         if (theme === "sunset")
             return soledadSettings.factorySunsetAvailable ? "sunset" :
+                soledadSettings.provisionalSunsetJson.length ? "sunsetProvisional" :
                 named >= 0 ? "library:" + named :
                 (soledadSettings.themeDayJson.length ? "day" : "")
         if (theme === "night")
