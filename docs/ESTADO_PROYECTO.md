@@ -3385,3 +3385,14 @@ El comando siguiente sí abrió `bash prototype/v0.1/probar_ancho.sh`: encontró
 **VERIFICACIÓN LOCAL DE CÓDIGO:** siete casos de JS puro aprobaron; revisión estática de 15 condiciones de interfaz/cableado sin fallos. Test Node del repositorio `prototype/v0.1/tests/test_system_tray_modules.cjs` creado, pero todavía no ejecutado en CachyOS. La vista QML modular y sus señales siguen pendientes de ejecución real. **No se descalifican pruebas anteriores de otras funciones** por esta refactorización.
 
 **Pendiente:** conexión StatusNotifierItem/StatusNotifierWatcher de KDE mediante adaptador Qt aislado y verificación de licencias. [Arquitectura](ARQUITECTURA_MODULAR.md) · [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24) · [integración 497ed07](https://github.com/nicoarg87/plasma-smartbar/commit/497ed07e6f810f9b45e7698323c8da8d17bf98bb) · [test 58a5c48](https://github.com/nicoarg87/plasma-smartbar/commit/58a5c48f2d40ed3e7fb480a04a75df16d477c727).
+
+
+## Segundo corte de modularización — 26/11/2026
+
+**REQUISITO CONFIRMADO:** continuar modularizando código existente sin cambiar funciones validadas, geometría, panel KDE o preferencias personales. No pedir pruebas rutinarias de funciones ya aprobadas; las pruebas internas de reglas puras no equivalen a probar interfaz real.
+
+**IMPLEMENTADO:** `SoledadExpansionPolicy.js`, `SoledadLauncherPlacement.js` y `SoledadTaskSizing.js` extraen de `SmartBarContent.qml` respectivamente la política de coexistencia SO/bandeja, el posicionamiento del launcher para ambos modos Qt/LayerShell y el cálculo de anchura de fichas SO. La composición existente consume esos módulos y conserva las funciones previas como adaptadores. Ninguna operación KDE externa se movió a estos módulos. [Commit de integración](https://github.com/nicoarg87/plasma-smartbar/commit/cc0082856a26783b467fc65e5cd09d6b3680b486).
+
+**VERIFICADO EN V8 (lógica pura):** 720 comparaciones de entrada/salida contra el comportamiento anterior, sin diferencias; seis comprobaciones de código/llamadas preservadas. Se creó `tests/test_soledad_layout_modules.cjs` y se adaptó `tests/test_task_separator_resize.cjs` para comprobar las reglas ahora delegadas. **NO EJECUTADO EN CACHYOS** tras este cambio, ni se afirma prueba QML/nativa en esta etapa.
+
+**PENDIENTE:** continuar con vistas y páginas de configuración, que siguen concentradas en archivos extensos. Bandeja KDE real todavía no implementada; [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24). Seguimiento de modularización [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25). [Documento de arquitectura](ARQUITECTURA_MODULAR.md).
