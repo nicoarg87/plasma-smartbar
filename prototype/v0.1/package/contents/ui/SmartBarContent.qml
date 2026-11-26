@@ -1142,7 +1142,7 @@ Item {
             realTrackedAppId)
     function applyRealPositionProfile() {
         if (!demoWindowControlsEnabled || !usingRealTasks ||
-            positionMode !== "right" || gripDrag.active) return
+            positionMode !== "right" || moveGrip.dragTarget.active) return
         // El retorno al escritorio normal tiene prioridad por encima de
         // cualquier perfil guardado (incluido el general y Brave/Steam).
         // No interpretar fullscreen como escritorio normal.
@@ -1175,11 +1175,11 @@ Item {
         applyRealPositionProfile()
     }
     onRealPositionProfilesJsonChanged: {
-        if (usingRealTasks && !gripDrag.active)
+        if (usingRealTasks && !moveGrip.dragTarget.active)
             applyRealPositionProfile()
     }
     onGeneralSoledadOffsetChanged: {
-        if (usingRealTasks && !gripDrag.active && !realTrackedFullscreen)
+        if (usingRealTasks && !moveGrip.dragTarget.active && !realTrackedFullscreen)
             applyRealPositionProfile()
     }
     property var realTaskModel: null
@@ -1349,7 +1349,7 @@ Item {
     property real islandOffset: 0          // Distancia horizontal desde la derecha.
     // Observación de solo lectura para ensayos externos de posición:
     // nunca aplicar cambios automáticos durante un arrastre del agarre.
-    readonly property bool draggingIslandGrip: gripDrag.active
+    readonly property bool draggingIslandGrip: moveGrip.dragTarget.active
     property real offsetAtDragStart: 0
     // Solo para una ventana LayerShellQt ACOTADA que se mueve durante
     // el agarre. El visor principal y el plasmoide mantienen el cálculo
@@ -1404,7 +1404,7 @@ Item {
             applyDemoPositionProfile()
     }
     onDemoPositionProfilesJsonChanged: {
-        if (demoProfileContextReady && !gripDrag.active)
+        if (demoProfileContextReady && !moveGrip.dragTarget.active)
             applyDemoPositionProfile()
     }
     readonly property var demoApps: ["Dolphin", "Konsole", "Brave"]
@@ -1826,12 +1826,12 @@ Item {
 
     function toggleGripMenu() {
         // El menú se posiciona debajo de Soledad, NO en el cursor ni
-        // encima del agarre. "open()" respeta x/y definidos en gripMenu.
+        // encima del agarre. "open()" respeta x/y definidos en moveGrip.menuTarget.
         // Clic derecho o teclado lo alternan; izquierdo permite arrastrar.
-        if (gripMenu.visible) {
-            gripMenu.close()
+        if (moveGrip.menuTarget.visible) {
+            moveGrip.menuTarget.close()
         } else {
-            gripMenu.open()
+            moveGrip.menuTarget.open()
         }
     }
 
@@ -2466,232 +2466,12 @@ Item {
 
                 // ¡Agarre ACTIVO! Seis puntos (2 × 3), siempre INMEDIATAMENTE a la
                 // derecha de SO, antes de los controles de la ventana.
-                QQC2.Button {
+                SoledadGripControl {
                     id: moveGrip
-                    // Seis puntos reales, en dos columnas y tres filas;
-                    // no dependemos de un glifo de tipografía.
-                    implicitWidth: 30
-                    implicitHeight: 34
-                    hoverEnabled: true
-                    focusPolicy: Qt.StrongFocus
-                    property bool draggedDuringPress: false
-                    // Evitar que la ayuda quede flotando en la posición vieja
-                    // cuando el agarre se desplaza o hay un menú abierto.
-                    property bool suppressGripTooltip: false
-                    onHoveredChanged: {
-                        if (hovered && !root.soClockVisible) {
-                            soClockRevealTimer.restart()
-                        } else if (!hovered) {
-                            // Si todavía no comenzó, cancelar el hover.
-                            // Si ya está mostrando hora/fecha, dejar que
-                            // finalice independientemente del puntero.
-                            soClockRevealTimer.stop()
-                        }
-                        if (!hovered) suppressGripTooltip = false
-                    }
-                    onPressed: {
-                        // Si había un hover esperando su breve demora,
-                        // iniciar la secuencia ANTES de que abrir un popup
-                        // o mover la isla haga desaparecer el hover.
-                        if (soClockRevealTimer.running) {
-                            soClockRevealTimer.stop()
-                            root.showSoClock()
-                        }
-                        // Presionar, abrir opciones o arrastrar no detiene
-                        // el reloj ni resetea su fase de fecha.
-                        draggedDuringPress = false
-                        suppressGripTooltip = true
-                        // Cerrar ANTES de iniciar el arrastre. Si el menú
-                        // sigue como ventana separada puede capturar el ratón
-                        // o permanecer atrás en su coordenada original.
-                        if (gripMenu.visible) gripMenu.close()
-                    }
-                    // Clic izquierdo BREVE: si las opciones ya estaban
-                    // abiertas, cerrarlas sin reabrir. Si estaban cerradas,
-                    // no hacer nada: la apertura sigue siendo por derecho.
-                    // Si hubo arrastre, no interpretarlo como clic de cierre.
-                    onClicked: {
-                        if (gripMenu.visible && !draggedDuringPress) {
-                            gripMenu.close()
-                        }
-                    }
-                    background: Rectangle {
-                        radius: root.gripShape === "square" ? 0 : 8
-                        color: Qt.rgba(root.effectiveGripButtonColor.r,
-                                       root.effectiveGripButtonColor.g,
-                                       root.effectiveGripButtonColor.b,
-                                       root.soledadGradientEnabled &&
-                                       !root.gripButtonColorOverride
-                                           ? 0 : root.effectiveGripButtonOpacity)
-                        border.width: 0
-                        OutlineStyle {
-                            anchors.fill: parent
-                            lineStyle: root.outlineConfig.grip.style
-                            lineWidth: root.outlineConfig.grip.width
-                            lineColor: root.displayOutlineGripColor
-                            lineOpacity: root.outlineConfig.grip.opacity
-                            topLeft: parent.radius
-                            topRight: parent.radius
-                            bottomLeft: parent.radius
-                            bottomRight: parent.radius
-                        }
-                    }
-                    contentItem: Item {
-                        Grid {
-                            anchors.centerIn: parent
-                            columns: 2
-                            rowSpacing: 3
-                            columnSpacing: 3
-                            Repeater {
-                                model: 6
-                                delegate: Rectangle {
-                                    width: 4
-                                    height: 4
-                                    radius: 2
-                                    color: "#eaf7ff"
-                                }
-                            }
-                        }
-                    }
-                    // El izquierdo solo puede CERRAR opciones ya abiertas.
-                    // El derecho alterna abrir/cerrar y no intercepta
-                    // el arrastre horizontal del botón izquierdo.
-                    MouseArea {
-                        anchors.fill: parent
-                        acceptedButtons: Qt.RightButton
-                        onClicked: root.toggleGripMenu()
-                    }
-                    Keys.onPressed: function(event) {
-                        // Acceso de teclado: tecla Menú o Mayús+F10.
-                        if (event.key === Qt.Key_Menu ||
-                            (event.key === Qt.Key_F10 &&
-                             (event.modifiers & Qt.ShiftModifier))) {
-                            root.toggleGripMenu()
-                            event.accepted = true
-                        }
-                    }
-                    QQC2.ToolTip.visible: false
-                    QQC2.ToolTip.delay: 850
-                    QQC2.ToolTip.text: root.launcherIslandVisible
-                        ? "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
-                        : "Izquierdo: arrastrar o cerrar menú · Derecho: opciones"
-
-                    // target=null: el gesto modifica el margen, nunca la
-                    // geometría vertical ni el panel real de KDE.
-                    DragHandler {
-                        id: gripDrag
-                        target: null
-                        // Reservar el botón derecho a las opciones.
-                        acceptedButtons: Qt.LeftButton
-                        xAxis.enabled: true
-                        yAxis.enabled: false
-                        cursorShape: Qt.SizeHorCursor
-                        onActiveChanged: {
-                            if (!active) return
-                            // Centro visible de SO, antes de cerrar los cajones.
-                            const visualSoX = soButton.mapToItem(root, soButton.width / 2, 0).x
-                            if (gripMenu.visible) gripMenu.close()
-                            if (root.centeredPresentation) {
-                                root.manualSoCenterX = visualSoX
-                                root.centeredPositionDragged = true
-                                root.dragStartSoCenterX = visualSoX
-                            } else {
-                                root.offsetAtDragStart = root.islandOffset
-                                if (root.layerShellDragCompensation) {
-                                    // Coordenada del puntero RELATIVA al Window,
-                                    // no al Item que cambia de x al mover la isla.
-                                    root.layerShellDragSceneStartX =
-                                        gripDrag.centroid.scenePosition.x
-                                }
-                            }
-                            root.soExpanded = false
-                            root.trayExpanded = false
-                            moveGrip.draggedDuringPress = true
-                            moveGrip.suppressGripTooltip = true
-                        }
-                        onActiveTranslationChanged: {
-                            if (active && (root.layerShellDragCompensation ||
-                                          Math.abs(activeTranslation.x) > 1)) {
-                                // El gesto del usuario destilda de inmediato
-                                // «Alinear a la derecha» sin tocar el retorno
-                                // automático al desmaximizar.
-                                root.alignRightSelected = false
-                                if (root.centeredPresentation) {
-                                    // Mover la referencia del botón SO, sin
-                                    // cambiar el anclaje ni el orden de iconos.
-                                    const anchorLeft = (6 +
-                                        (root.soledadShape === "leftTip" ? 12 : 0)) +
-                                        soButton.x + soButton.width / 2
-                                    // Reservar los extremos REALES de la isla,
-                                    // incluida la bandeja a la izquierda y
-                                    // las fichas/agarre a la derecha.
-                                    const minX = root.leftReserved + anchorLeft
-                                    const maxX = root.width - root.rightReserved -
-                                        (systemIsland.width - anchorLeft)
-                                    if (maxX >= minX) {
-                                        root.manualSoCenterX = Math.max(minX,
-                                            Math.min(maxX, root.dragStartSoCenterX +
-                                                activeTranslation.x))
-                                    }
-                                } else if (root.layerShellDragCompensation) {
-                                    // Mientras LayerShellQt mueve el Window, la
-                                    // activeTranslation acumulada toma como
-                                    // origen una escena que también se mueve:
-                                    // realimentarla causa saltos y bloqueos.
-                                    // La desviación respecto de la coordenada
-                                    // inicial DEL PUNTERO dentro del Window
-                                    // es la corrección relativa estable.
-                                    const result =
-                                        LayerShellDragCompensation.nextWithEdgeRebase(
-                                            root.islandOffset,
-                                            root.layerShellDragSceneStartX,
-                                            gripDrag.centroid.scenePosition.x,
-                                            root.maxIslandOffset)
-                                    // No acumular sobre-recorrido en los extremos.
-                                    // Dejar que volver en sentido contrario
-                                    // responda desde el primer movimiento.
-                                    root.layerShellDragSceneStartX =
-                                        result.anchorSceneX
-                                    root.setIslandOffset(result.offset)
-                                } else {
-                                    // Modo original sin cambios: ventanas Qt
-                                    // estáticas, maqueta y plasmoide.
-                                    root.setIslandOffset(
-                                        root.offsetAtDragStart - activeTranslation.x)
-                                }
-                            }
-                        }
-                    }
-
-                    SoledadPositionEditor {
-                        id: soPositionEditor
-                        parent: moveGrip
-                        x: Math.min(0, moveGrip.width - width)
-                        y: moveGrip.height + 10
-                        realTasksModel: root.realTaskModel
-                        profilesJson: root.realPositionProfilesJson
-                        generalOffset: root.generalSoledadOffset
-                        currentOffset: root.islandOffset
-                        maxOffset: root.maxIslandOffset
-                        onPreviewRequested: function(offset) {
-                            root.setIslandOffset(offset)
-                            root.alignRightSelected = offset === 0
-                        }
-                        onSaveRequested: function(appId, offset) {
-                            root.storeRealPositionFor(appId, offset)
-                        }
-                        onRemoveRequested: function(appId) {
-                            root.forgetRealPositionFor(appId)
-                        }
-                    }
-
-                    SoledadGripMenu {
-                        id: gripMenu
-                        host: root
-                        gripTarget: moveGrip
-                        positionEditor: soPositionEditor
-                        clockRevealTimer: soClockRevealTimer
-                    }
+                    host: root
+                    islandTarget: systemIsland
+                    soButtonTarget: soButton
+                    clockRevealTimerTarget: soClockRevealTimer
                 }
 
                 // Modo histórico de maqueta: NO se altera la prueba de
