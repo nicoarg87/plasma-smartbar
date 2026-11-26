@@ -128,9 +128,11 @@ QQC2.Popup {
     // Elegir una aplicación cierra siempre este launcher; la navegación
     // en Archivos es un flujo separado y no se altera.
     property bool autoCollapseOnSelection: true
-    // El launcher nativo se aloja en una superficie LayerShell estable:
-    // cerrar por pérdida de foco no equivale a la intención del usuario.
-    // Escape se maneja explícitamente para conservar el cierre manual.
+    // En el ensayo LayerShell, Popup.Item no ve clics sobre OTRAS
+    // ventanas; el host LayerShellLauncherWindow gestiona el cierre al
+    // perder foco. No activar aquí un CloseOnPressOutside ineficaz
+    // que pueda cerrar la caja mientras se elige una aplicación.
+    // Escape y selección siguen siendo independientes.
     closePolicy: layerSurfaceHosted ? QQC2.Popup.NoAutoClose :
         (QQC2.Popup.CloseOnEscape |
          (autoCollapseOnSelection && !triggerButtonHovered
