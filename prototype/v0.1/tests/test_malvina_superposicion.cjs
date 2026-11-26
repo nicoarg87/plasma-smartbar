@@ -11,6 +11,7 @@ const qml = read("preview_malvina_input_mask.qml");
 const script = read("probar_malvina_superposicion.sh");
 const cpp = read("native_probes/soledad_input_mask_main.cpp");
 const shared = read("package/contents/ui/SmartBarContent.qml");
+const malvinaRuntime = read("package/contents/ui/MalvinaRuntimeIsland.qml");
 const viewer = read("preview_redimensionable.qml");
 const soledadProbe = read("preview_soledad_input_mask.qml");
 const search = read("package/contents/ui/MalvinaSearch.qml");
@@ -111,14 +112,16 @@ for (const text of [
 ]) assert(search.includes(text), "Editor debe exponer region sin duplicarse: " + text);
 for (const text of [
     "malvinaFieldInputX:", "malvinaFieldInputY:",
-    "malvinaFieldInputWidth: malvinaSearch.fieldRegionWidth",
-    "malvinaFieldInputHeight: malvinaSearch.fieldRegionHeight",
+    "malvinaFieldInputWidth: malvinaHotspot.searchTarget.fieldRegionWidth",
+    "malvinaFieldInputHeight: malvinaHotspot.searchTarget.fieldRegionHeight",
     "malvinaOptionsInputX:", "malvinaOptionsInputY:",
-    "malvinaOptionsInputWidth: malvinaSearch.optionsRegionWidth",
-    "malvinaOptionsInputHeight: malvinaSearch.optionsRegionHeight",
+    "malvinaOptionsInputWidth: malvinaHotspot.searchTarget.optionsRegionWidth",
+    "malvinaOptionsInputHeight: malvinaHotspot.searchTarget.optionsRegionHeight",
     "property real malvinaOptionsViewportWidth: 0",
-    "optionsViewportWidthOverride: root.malvinaOptionsViewportWidth"
+    // La vinculación interna a Malvina ahora vive en su módulo.
 ]) assert(shared.includes(text), "Falta geometria de popup compartido: " + text);
+assert(malvinaRuntime.includes("optionsViewportWidthOverride: host.malvinaOptionsViewportWidth"),
+       "Mantener límite de anchura del buscador");
 // El visor común y el plasmoide procesan RequestMalvinaOrderChange,
 // pero este experimento temporal antes dejaba la señal sin receptor.
 // Verificar el enlace sin escribir KConfig o preferencias de Qt.
