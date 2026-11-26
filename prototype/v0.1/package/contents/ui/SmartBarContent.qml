@@ -170,10 +170,12 @@ Item {
         }
         // Aplicación integral: preferencias del botón SO, Soledad y Malvina.
         if (!soledadSettings.activateTheme(slot)) return false
-        manualPackThemeIndex = index
         // Al escoger manualmente, no permitir que el reloj lo revierta
         // en el siguiente tick. Se mantiene el esquema horario guardado.
         soledadSettings.setScheduleEnabled(false)
+        // Los packs personales actualizan su JSON al desactivar el reloj:
+        // registrar el índice DESPUÉS para no reiniciar la secuencia.
+        manualPackThemeIndex = index
         lastScheduledSlotKey = ""
         if (theme) requestWallpaperThemeChange(theme)
         return true
