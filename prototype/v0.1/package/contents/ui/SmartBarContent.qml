@@ -156,8 +156,12 @@ Item {
         let data
         try { data = JSON.parse(runtimeThemePackJson) }
         catch (error) { return false }
-        if (!data || data.version !== 1 || data.packId !== "playa-24hs" ||
-            !Array.isArray(data.themesSequence) || !data.themes) return false
+        if (!data || data.version !== 1 ||
+            (data.packId !== "playa-24hs" &&
+             !/^pack-[1-9][0-9]*$/.test(String(data.packId || ""))) ||
+            !Array.isArray(data.themesSequence) ||
+            data.themesSequence.length < 1 || data.themesSequence.length > 20 ||
+            !data.themes) return false
         const count = data.themesSequence.length
         if (!count) return false
         const index = (manualPackThemeIndex + 1) % count
