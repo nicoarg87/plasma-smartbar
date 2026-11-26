@@ -650,13 +650,13 @@ Item {
     property bool malvinaDismissedAfterSearch: false
     property bool malvinaDismissRearmed: false
     function dismissMalvinaAfterSearch() {
-        malvinaSearch.closeSearch()
+        malvinaHotspot.searchTarget.closeSearch()
         malvinaRevealTimer.stop()
         malvinaHideTimer.stop()
         malvinaHoverRevealed = false
         // Si el puntero seguía en la isla, exigir salir antes de volver
         // a entrar para no reabrirla por el mismo movimiento.
-        malvinaDismissRearmed = !malvinaHotspotHover.hovered
+        malvinaDismissRearmed = !malvinaHotspot.hoverTarget.hovered
         malvinaDismissedAfterSearch = true
     }
     // Confirmación breve de la acción Mostrar/Ocultar del menú de seis puntos.
@@ -697,12 +697,12 @@ Item {
             malvinaHoverRevealed = false
             if (malvinaPopupActive) {
                 closeInstalledLauncher()
-                malvinaSearch.expanded = false
+                malvinaHotspot.searchTarget.expanded = false
             }
         }
     }
     readonly property bool malvinaPopupActive:
-        malvinaSearch.expanded ||
+        malvinaHotspot.searchTarget.expanded ||
         (soledadSettings.visible && soledadSettings.currentTab === 0 &&
          soledadSettings.currentIslandSubtab === 2)
     readonly property bool malvinaActuallyVisible:
@@ -737,7 +737,7 @@ Item {
             // El puntero debe permanecer todo el intervalo sobre el lugar
             // de la isla. No usar un MouseArea que capture clics.
             if (!root.autoRevealBlocked && root.launcherIslandVisible &&
-                    malvinaHotspotHover.hovered &&
+                    malvinaHotspot.hoverTarget.hovered &&
                     (root.autoHideMalvina || root.malvinaDismissedAfterSearch)) {
                 if (root.malvinaDismissedAfterSearch) {
                     if (!root.malvinaDismissRearmed) return
@@ -753,7 +753,7 @@ Item {
         interval: 250
         repeat: false
         onTriggered: {
-            if (root.autoHideMalvina && !malvinaHotspotHover.hovered &&
+            if (root.autoHideMalvina && !malvinaHotspot.hoverTarget.hovered &&
                     !root.malvinaPopupActive)
                 root.malvinaHoverRevealed = false
         }
@@ -811,8 +811,8 @@ Item {
             fromSo: fromSo,
             systemIslandX: systemIsland.x,
             systemIslandWidth: systemIsland.width,
-            launcherCenter: fromSo ? 0 : launcherIsland.mapToItem(
-                root, launcherIsland.width / 2, 0).x,
+            launcherCenter: fromSo ? 0 : malvinaHotspot.launcherTarget.mapToItem(
+                root, malvinaHotspot.launcherTarget.width / 2, 0).x,
             categoryLayout: installedAppsPopup.categoryLayout,
             showCategoryPanel: installedAppsPopup.showCategoryPanel,
             filesMode: installedAppsPopup.filesMode,
@@ -1564,17 +1564,17 @@ Item {
     // Coordenadas respecto del contenido compartido; los límites nativos
     // recortarán su máscara a la ventana visible, sin bloquear el resto.
     readonly property real malvinaFieldInputX:
-        malvinaHotspot.x + malvinaSearch.x + malvinaSearch.fieldRegionX
+        malvinaHotspot.x + malvinaHotspot.searchTarget.x + malvinaHotspot.searchTarget.fieldRegionX
     readonly property real malvinaFieldInputY:
-        malvinaHotspot.y + malvinaSearch.y + malvinaSearch.fieldRegionY
-    readonly property real malvinaFieldInputWidth: malvinaSearch.fieldRegionWidth
-    readonly property real malvinaFieldInputHeight: malvinaSearch.fieldRegionHeight
+        malvinaHotspot.y + malvinaHotspot.searchTarget.y + malvinaHotspot.searchTarget.fieldRegionY
+    readonly property real malvinaFieldInputWidth: malvinaHotspot.searchTarget.fieldRegionWidth
+    readonly property real malvinaFieldInputHeight: malvinaHotspot.searchTarget.fieldRegionHeight
     readonly property real malvinaOptionsInputX:
-        malvinaHotspot.x + malvinaSearch.x + malvinaSearch.optionsRegionX
+        malvinaHotspot.x + malvinaHotspot.searchTarget.x + malvinaHotspot.searchTarget.optionsRegionX
     readonly property real malvinaOptionsInputY:
-        malvinaHotspot.y + malvinaSearch.y + malvinaSearch.optionsRegionY
-    readonly property real malvinaOptionsInputWidth: malvinaSearch.optionsRegionWidth
-    readonly property real malvinaOptionsInputHeight: malvinaSearch.optionsRegionHeight
+        malvinaHotspot.y + malvinaHotspot.searchTarget.y + malvinaHotspot.searchTarget.optionsRegionY
+    readonly property real malvinaOptionsInputWidth: malvinaHotspot.searchTarget.optionsRegionWidth
+    readonly property real malvinaOptionsInputHeight: malvinaHotspot.searchTarget.optionsRegionHeight
     onAvailableIslandWidthChanged: ensureExpansionFits()
 
     function setIslandOffset(offset) {
@@ -1767,7 +1767,7 @@ Item {
         enabled: root.launcherIslandVisible && !root.autoRevealBlocked
         onActivated: {
             root.superKeyPending = false
-            malvinaSearch.focusSearch()
+            malvinaHotspot.searchTarget.focusSearch()
         }
     }
     function openInstalledLauncher(source) {
@@ -2302,9 +2302,9 @@ Item {
         id: installedAppsPopup
         host: root
         soButtonTarget: soButton
-        malvinaButtonTarget: launcherIsland
+        malvinaButtonTarget: malvinaHotspot.launcherTarget
         islandTarget: systemIsland
-        malvinaHoverTarget: malvinaHotspotHover
+        malvinaHoverTarget: malvinaHotspot.hoverTarget
         malvinaHideTimerTarget: malvinaHideTimer
     }
 
@@ -2317,248 +2317,11 @@ Item {
         // Zona pasiva de hover: no captura clics ni modifica el grosor.
         // Esta zona siempre existe para detectar la posición de Malvina.
         // El paso efectivo de clics a ventanas ajenas requiere validar KWin.
-        Item {
+        MalvinaRuntimeIsland {
             id: malvinaHotspot
-            // Geometría visual original intacta. Solo ampliamos el margen
-            // sensible del HoverHandler, no el ancho de Malvina.
-            width: Math.max(malvinaSearch.implicitWidth +
-                            (root.malvinaShape === "leftTip" ? 34 : 10),
-                            root.malvinaWidth)
-            height: Math.max(32, Math.min(root.fixedHeight - 4, root.malvinaHeight))
-            anchors.left: parent.left
-            // Ambas islas alineadas al borde superior, sin margen visual.
-            // Mantener sus alturas independientes y el grosor general fijo.
-            anchors.top: parent.top
-
-            HoverHandler {
-                id: malvinaHotspotHover
-                // Margen pasivo: más fácil encontrar la isla escondida,
-                // sin hacer más gruesa la barra ni ensanchar Malvina.
-                margin: 18
-                // Seguir leyendo hover también en modo siempre visible:
-                // al buscar desde ese modo necesitamos saber si el cursor
-                // seguía sobre la isla para evitar reaparecer de inmediato.
-                enabled: !root.autoRevealBlocked && root.launcherIslandVisible
-                onHoveredChanged: {
-                    if (hovered) {
-                        malvinaHideTimer.stop()
-                        if (root.malvinaDismissedAfterSearch &&
-                                !root.malvinaDismissRearmed) return
-                        if (!root.autoRevealBlocked &&
-                                (root.autoHideMalvina || root.malvinaDismissedAfterSearch))
-                            malvinaRevealTimer.restart()
-                    } else {
-                        malvinaRevealTimer.stop()
-                        if (root.malvinaDismissedAfterSearch)
-                            root.malvinaDismissRearmed = true
-                        if (!root.malvinaPopupActive)
-                            malvinaHideTimer.restart()
-                    }
-                }
-            }
-
-            Rectangle {
-            id: launcherIsland
-            visible: root.malvinaActuallyVisible
-            anchors.fill: parent
-            radius: root.malvinaShape === "square" || root.malvinaShape === "leftTip" ? 0 :
-                root.malvinaShape === "capsule" ? height / 2 :
-                Math.max(0, Math.min(root.malvinaRadius, height / 2))
-            topLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
-            bottomLeftRadius: root.malvinaShape === "leftSquareRightRound" ? 0 : radius
-            topRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
-            bottomRightRadius: root.malvinaShape === "leftRoundRightSquare" ? 0 : radius
-            color: root.malvinaShape === "leftTip" || root.malvinaGradientEnabled ? "transparent" :
-                Qt.rgba(root.displayMalvinaColor.r, root.displayMalvinaColor.g,
-                        root.displayMalvinaColor.b, root.malvinaOpacity * root.malvinaGradientBreathingFactor)
-            Rectangle {
-                anchors.fill: parent
-                visible: root.malvinaGradientEnabled && root.malvinaShape !== "leftTip"
-                radius: parent.radius
-                topLeftRadius: parent.topLeftRadius
-                topRightRadius: parent.topRightRadius
-                bottomLeftRadius: parent.bottomLeftRadius
-                bottomRightRadius: parent.bottomRightRadius
-                gradient: Gradient {
-                    orientation: (root.malvinaGradientDirection === "leftRight" ||
-                                  root.malvinaGradientDirection === "rightLeft")
-                        ? Gradient.Horizontal : Gradient.Vertical
-                    GradientStop {
-                        position: 0
-                        color: {
-                            const reversed = root.malvinaGradientDirection === "rightLeft" ||
-                                             root.malvinaGradientDirection === "bottomTop"
-                            const value = reversed
-                                ? (root.malvinaGradientColorCount === 3
-                                   ? root.displayMalvinaGradientThird : root.displayMalvinaGradientEnd)
-                                : root.displayMalvinaColor
-                            return Qt.rgba(value.r, value.g, value.b,
-                                root.malvinaOpacity * root.malvinaGradientBreathingFactor)
-                        }
-                    }
-                    GradientStop {
-                        position: root.malvinaGradientColorCount === 3 ? 0.5 : 1
-                        color: {
-                            const reversed = root.malvinaGradientDirection === "rightLeft" ||
-                                             root.malvinaGradientDirection === "bottomTop"
-                            const value = root.malvinaGradientColorCount === 3
-                                ? root.displayMalvinaGradientEnd
-                                : (reversed ? root.displayMalvinaColor : root.displayMalvinaGradientEnd)
-                            return Qt.rgba(value.r, value.g, value.b,
-                                root.malvinaOpacity * root.malvinaGradientBreathingFactor)
-                        }
-                    }
-                    GradientStop {
-                        position: 1
-                        color: {
-                            const reversed = root.malvinaGradientDirection === "rightLeft" ||
-                                             root.malvinaGradientDirection === "bottomTop"
-                            const value = reversed ? root.displayMalvinaColor
-                                : (root.malvinaGradientColorCount === 3
-                                   ? root.displayMalvinaGradientThird : root.displayMalvinaGradientEnd)
-                            return Qt.rgba(value.r, value.g, value.b,
-                                root.malvinaOpacity * root.malvinaGradientBreathingFactor)
-                        }
-                    }
-                }
-            }
-            border.width: 0
-            // Misma punta izquierda que Soledad. La zona estrecha queda libre
-            // de botones para mantener clics y foco dentro de superficies útiles.
-            MalvinaTipSurface {
-                host: root
-                anchors.fill: parent
-            }
-            OutlineStyle {
-                visible: root.malvinaShape !== "leftTip"
-                anchors.fill: parent
-                lineStyle: root.outlineConfig.malvina.style
-                lineWidth: root.outlineConfig.malvina.width
-                lineColor: root.displayOutlineMalvinaColor
-                lineOpacity: root.outlineConfig.malvina.opacity
-                topLeft: launcherIsland.topLeftRadius
-                topRight: launcherIsland.topRightRadius
-                bottomLeft: launcherIsland.bottomLeftRadius
-                bottomRight: launcherIsland.bottomRightRadius
-            }
-            MalvinaSearch {
-                id: malvinaSearch
-                optionsViewportWidthOverride: root.malvinaOptionsViewportWidth
-                gearButtonShape: root.malvinaGearButtonShape
-                searchButtonShape: root.malvinaSearchButtonShape
-                islandShape: root.malvinaShape
-                islandRadius: root.malvinaRadius
-                islandColor: root.displayMalvinaColor
-                islandOpacity: root.malvinaOpacity * root.malvinaGradientBreathingFactor
-                optionsPanelOpacity: root.malvinaOptionsOpacityOverride
-                    ? root.malvinaOptionsOpacity : root.malvinaOpacity
-                optionsPanelBreathingFactor: root.malvinaGradientBreathingFactor
-                islandGradientEnabled: root.malvinaGradientEnabled
-                islandGradientEnd: root.displayMalvinaGradientEnd
-                islandGradientThird: root.displayMalvinaGradientThird
-                islandGradientColorCount: root.malvinaGradientColorCount
-                islandGradientDirection: root.malvinaGradientDirection
-                islandOutlineColor: root.displayOutlineMalvinaColor
-                islandOutlineOpacity: root.outlineConfig.malvina.opacity
-                islandOutlineWidth: root.outlineConfig.malvina.width
-                islandOutlineStyle: root.outlineConfig.malvina.style
-                anchors.left: parent.left
-                anchors.leftMargin: root.malvinaShape === "leftTip" ? 27 : 5
-                anchors.verticalCenter: parent.verticalCenter
-                // Los 73 px de botones también cuentan en el límite de media ventana.
-                maximumSearchWidth: Math.max(180, Math.min(520, root.width / 2 - 82))
-                webGoogleEnabled: root.malvinaWebGoogleEnabled
-                webDuckEnabled: root.malvinaWebDuckEnabled
-                webYahooEnabled: root.malvinaWebYahooEnabled
-                googleName: root.malvinaGoogleName
-                duckName: root.malvinaDuckName
-                yahooName: root.malvinaYahooName
-                chatGptName: root.malvinaChatGptName
-                geminiName: root.malvinaGeminiName
-                claudeName: root.malvinaClaudeName
-                extraWeb: root.malvinaExtraWeb
-                extraAi: root.malvinaExtraAi
-                hiddenWeb: root.malvinaHiddenWeb
-                hiddenAi: root.malvinaHiddenAi
-                compactAi: root.malvinaCompactAi
-                taskFrameShape: root.taskFrameShape
-                taskFrameColor: root.displayTaskFrameColor
-                taskFrameOpacity: root.taskFrameOpacity
-                taskFrameWidth: root.taskFrameWidth
-                webFirst: root.malvinaWebFirst
-                webOrder: root.malvinaWebOrder
-                aiOrder: root.malvinaAiOrder
-                onRequestOrderChange: function(firstWeb, webOrder, aiOrder) {
-                    root.requestMalvinaOrderChange(firstWeb, webOrder, aiOrder)
-                }
-                googleTemplate: root.malvinaGoogleUrl
-                duckTemplate: root.malvinaDuckUrl
-                yahooTemplate: root.malvinaYahooUrl
-                allowChatGptPrefill: root.malvinaAllowChatGpt
-                allowGeminiPrefill: root.malvinaAllowGemini
-                allowClaudePrefill: root.malvinaAllowClaude
-                chatGptUrl: root.malvinaChatGptUrl
-                geminiUrl: root.malvinaGeminiUrl
-                claudeUrl: root.malvinaClaudeUrl
-                onExpandedChanged: {
-                    // Reapertura explícita por lupa/teclado: mostrarla.
-                    if (expanded) {
-                        root.malvinaDismissedAfterSearch = false
-                        root.malvinaDismissRearmed = false
-                    }
-                }
-                onRequestOpenUrl: function(url) {
-                    // Respeta la opción de un navegador para toda Malvina.
-                    // Si el ejecutable elegido desaparece, avisar y usar KDE.
-                    let choice = "system"
-                    for (let i = 0; i < root.malvinaBrowserChoices.length; ++i) {
-                        if (root.malvinaBrowserChoices[i].id === root.malvinaBrowserId) {
-                            choice = root.malvinaBrowserId
-                            break
-                        }
-                    }
-                    let accepted = false
-                    if (root.malvinaBrowserBackend !== null &&
-                        typeof root.malvinaBrowserBackend.launchWebUrl === "function") {
-                        accepted = root.malvinaBrowserBackend.launchWebUrl(choice, url)
-                    } else {
-                        // El plasmoide/visor QML aún no incluye puente nativo.
-                        // Conservar apertura KDE; no fingir selección específica.
-                        accepted = Qt.openUrlExternally(url)
-                    }
-                    if (accepted) {
-                        root.dismissMalvinaAfterSearch()
-                    } else {
-                        console.warn("Malvina: no se pudo iniciar el navegador:", choice)
-                    }
-                }
-                onRequestSettings: root.openMalvinaSettings()
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
-                    onClicked: launcherContextMenu.popup()
-                }
-                QQC2.Menu {
-                    id: launcherContextMenu
-                    QQC2.MenuItem {
-                        text: "Configuración de Malvina…"
-                        onTriggered: root.openMalvinaSettings()
-                    }
-                    // La misma acción de la prueba del visor, sin duplicar
-                    // temporizadores, lógica ni botones en la barra.
-                    QQC2.MenuItem {
-                        visible: root.themeScheduleRuntimeEnabled
-                        text: "siguiente tema y wallpaper"
-                        enabled: root.themeWallpaperPreviewAvailable
-                        onTriggered: root.triggerThemeWallpaperPreview()
-                    }
-                    QQC2.MenuItem {
-                        text: "Ocultar Malvina (isla 2)"
-                        onTriggered: root.setLauncherIslandVisible(false)
-                    }
-                }
-            }
-            }
+            host: root
+            revealTimerTarget: malvinaRevealTimer
+            hideTimerTarget: malvinaHideTimer
         }
 
         // Isla 1: anclaje propio desplazable, independiente de su expansión.
