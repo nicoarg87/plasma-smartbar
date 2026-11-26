@@ -117,7 +117,7 @@ Item {
             // Misma punta izquierda que Soledad. La zona estrecha queda libre
             // de botones para mantener clics y foco dentro de superficies útiles.
             MalvinaTipSurface {
-                host: root
+                host: malvinaHotspot.host
                 anchors.fill: parent
             }
             OutlineStyle {
