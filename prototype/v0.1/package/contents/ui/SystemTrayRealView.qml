@@ -45,6 +45,7 @@ Repeater {
 
         function requestAction(action) {
             if (!realTray.expanded) return
+            console.log("SmartBar SNI: clic recibido", action, itemTitle)
             // El protocolo espera coordenadas de pantalla como sugerencia.
             // Qt transforma la posición central del icono en el ensayo Wayland.
             const position = indicator.mapToGlobal(indicator.width / 2,
