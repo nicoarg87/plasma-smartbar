@@ -22,6 +22,19 @@ target_sources(smartbar_input_mask_probe PRIVATE
 if(TARGET Qt6::DBus)
     target_compile_definitions(smartbar_input_mask_probe PRIVATE SMARTBAR_HAS_DBUS=1)
     target_link_libraries(smartbar_input_mask_probe PRIVATE Qt6::DBus)
+
+    # En Plasma/Wayland, algunas aplicaciones exigen un token de activación
+    # antes de mostrar su popup. Opcional: sin KF6 se conserva el flujo SNI.
+    find_package(KF6WindowSystem 6.19 QUIET CONFIG)
+    if(TARGET KF6::WindowSystem)
+        target_link_libraries(smartbar_input_mask_probe PRIVATE KF6::WindowSystem)
+        target_compile_definitions(smartbar_input_mask_probe PRIVATE
+            SMARTBAR_HAS_KWAYLAND_ACTIVATION=1)
+    elseif(TARGET KF6::KWindowSystem)
+        target_link_libraries(smartbar_input_mask_probe PRIVATE KF6::KWindowSystem)
+        target_compile_definitions(smartbar_input_mask_probe PRIVATE
+            SMARTBAR_HAS_KWAYLAND_ACTIVATION=1)
+    endif()
     add_executable(smartbar_sni_readonly_probe EXCLUDE_FROM_ALL
         status_notifier_readonly.cpp)
     target_link_libraries(smartbar_sni_readonly_probe PRIVATE
