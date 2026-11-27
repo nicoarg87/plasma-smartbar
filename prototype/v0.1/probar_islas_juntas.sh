@@ -144,7 +144,7 @@ printf 'Los perfiles de Soledad y las preferencias de Malvina siguen separados.\
 printf 'La apariencia visual se comparte localmente, sin tocar los temas originales.\n'
 printf 'NO es un plasmoide instalado; miniaturas y wallpaper real continúan pendientes.\n'
 printf 'Logs privados: %s\n' "$SESSION_DIR"
-printf 'En otra Konsole: tail -f "%s/soledad.log" "%s/malvina.log"\n' "$SESSION_DIR" 
+printf 'En otra Konsole: tail -f "%s/soledad.log" "%s/malvina.log"\n' "$SESSION_DIR" "$SESSION_DIR"
 
 # Si se cierra inesperadamente una isla, cerrar la otra para no dejar un
 # experimento parcial superpuesto al escritorio.
