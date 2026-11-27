@@ -19,6 +19,10 @@
 #include <QDBusMessage>
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
+#include <QDBusArgument>
+#include <QDBusObjectPath>
+#include <QDBusVariant>
+#include <QMetaType>
 #include <QDBusServiceWatcher>
 #endif
 
@@ -80,6 +84,88 @@ QString iconUrl(const QString &name, quint64 revision) {
         QString::fromLatin1(QUrl::toPercentEncoding(name)) +
         QStringLiteral("?v=") + QString::number(revision);
 }
+// DBusMenu: GetLayout devuelve (u, (ia{sv}av)). Decodificar sólo
+// las filas directas, con límites; no confiar en etiquetas como código QML.
+QVariantMap readMenuNode(const QDBusArgument &incoming) {
+    QDBusArgument arg(incoming);
+    arg.beginStructure();
+    qint32 id = -1;
+    arg >> id;
+    QVariantMap props;
+    arg.beginMap();
+    int count = 0;
+    while (!arg.atEnd() && count++ < 80) {
+        arg.beginMapEntry();
+        QString key;
+        QDBusVariant value;
+        arg >> key >> value;
+        if (key.size() <= 48) props.insert(key, value.variant());
+        arg.endMapEntry();
+    }
+    // El emisor debe respetar límite de propiedades por fila.
+    while (!arg.atEnd()) {
+        arg.beginMapEntry();
+        QString key;
+        QDBusVariant value;
+        arg >> key >> value;
+        arg.endMapEntry();
+    }
+    arg.endMap();
+    arg.beginArray();
+    // GetLayout se solicita con profundidad 1; ignorar descendientes aquí.
+    while (!arg.atEnd()) {
+        QDBusVariant skipped;
+        arg >> skipped;
+    }
+    arg.endArray();
+    arg.endStructure();
+
+    QVariantMap row;
+    row.insert(QStringLiteral("id"), id);
+    row.insert(QStringLiteral("label"), clean(props.value(QStringLiteral("label")).toString()));
+    row.insert(QStringLiteral("separator"), props.value(QStringLiteral("type")).toString() ==
+                                              QStringLiteral("separator"));
+    row.insert(QStringLiteral("enabled"),
+               props.value(QStringLiteral("enabled"), true).toBool());
+    row.insert(QStringLiteral("visible"),
+               props.value(QStringLiteral("visible"), true).toBool());
+    row.insert(QStringLiteral("hasChildren"),
+               props.value(QStringLiteral("children-display")).toString() ==
+                   QStringLiteral("submenu"));
+    row.insert(QStringLiteral("checked"),
+               props.value(QStringLiteral("toggle-state"), 0).toInt() == 1);
+    return row;
+}
+
+bool readMenuRoot(const QDBusArgument &incoming, QVariantList *items) {
+    QDBusArgument arg(incoming);
+    arg.beginStructure();
+    qint32 rootId = -1;
+    arg >> rootId;
+    arg.beginMap();
+    while (!arg.atEnd()) {
+        arg.beginMapEntry();
+        QString key;
+        QDBusVariant value;
+        arg >> key >> value;
+        arg.endMapEntry();
+    }
+    arg.endMap();
+    arg.beginArray();
+    while (!arg.atEnd()) {
+        QDBusVariant child;
+        arg >> child;
+        if (items->size() >= 60) continue;
+        if (!child.variant().canConvert<QDBusArgument>()) continue;
+        const QVariantMap row = readMenuNode(qvariant_cast<QDBusArgument>(child.variant()));
+        if (row.value(QStringLiteral("id")).toInt() <= 0 ||
+            !row.value(QStringLiteral("visible")).toBool()) continue;
+        items->append(row);
+    }
+    arg.endArray();
+    arg.endStructure();
+    return rootId >= 0;
+}
 } // namespace
 #endif
 
@@ -127,6 +213,130 @@ void StatusNotifierBridge::itemChanged() {
 }
 void StatusNotifierBridge::itemStatusChanged(const QString &) {
     scheduleRefresh();
+}
+
+bool StatusNotifierBridge::menuDestination(const QString &service,
+                                               const QString &objectPath,
+                                               QString *menuPath) const {
+#ifdef SMARTBAR_HAS_DBUS
+    if (!m_enabled || !m_available) return false;
+    for (const QVariant &value : m_entries) {
+        const QVariantMap entry = value.toMap();
+        if (entry.value(QStringLiteral("service")).toString() == service &&
+            entry.value(QStringLiteral("objectPath")).toString() == objectPath) {
+            const QString path = entry.value(QStringLiteral("menuPath")).toString();
+            static const QRegularExpression safe(
+                QStringLiteral(R"(^/(?:[A-Za-z0-9_]+(?:/[A-Za-z0-9_]+)*)?$)"));
+            if (path == QStringLiteral("/") || !safe.match(path).hasMatch())
+                return false;
+            *menuPath = path;
+            return true;
+        }
+    }
+#else
+    Q_UNUSED(service);
+    Q_UNUSED(objectPath);
+    Q_UNUSED(menuPath);
+#endif
+    return false;
+}
+
+bool StatusNotifierBridge::requestMenu(const QString &service,
+                                        const QString &objectPath, int parentId) {
+#ifdef SMARTBAR_HAS_DBUS
+    QString menuPath;
+    if (parentId < 0 || !menuDestination(service, objectPath, &menuPath))
+        return false;
+    const QDBusConnection bus = QDBusConnection::sessionBus();
+    if (!bus.isConnected()) return false;
+
+    const quint64 generation = ++m_menuRequest;
+    qInfo() << "SmartBar SNI: consulta DBusMenu solicitada, nivel" << parentId;
+    QDBusMessage call = QDBusMessage::createMethodCall(
+        service, menuPath, QStringLiteral("com.canonical.dbusmenu"),
+        QStringLiteral("GetLayout"));
+    call << static_cast<qint32>(parentId) << static_cast<qint32>(1)
+         << QStringList{};
+    auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
+    connect(pending, &QDBusPendingCallWatcher::finished, this,
+            [this, service, objectPath, generation](QDBusPendingCallWatcher *done) {
+                const QDBusMessage reply = done->reply();
+                done->deleteLater();
+                if (generation != m_menuRequest) return;
+                QString currentMenu;
+                if (!menuDestination(service, objectPath, &currentMenu)) return;
+                if (reply.type() == QDBusMessage::ErrorMessage) {
+                    qWarning() << "SmartBar SNI: DBusMenu GetLayout rechazado:"
+                               << reply.errorName();
+                    return;
+                }
+                const auto values = reply.arguments();
+                if (values.size() < 2 || !values.at(1).canConvert<QDBusArgument>()) {
+                    qWarning() << "SmartBar SNI: respuesta DBusMenu no reconocida";
+                    return;
+                }
+                QVariantList rows;
+                if (!readMenuRoot(qvariant_cast<QDBusArgument>(values.at(1)), &rows)) {
+                    qWarning() << "SmartBar SNI: estructura DBusMenu inválida";
+                    return;
+                }
+                m_menuService = service;
+                m_menuObjectPath = objectPath;
+                m_menuEntries = rows;
+                qInfo() << "SmartBar SNI: menú leído, filas:" << rows.size();
+                emit menuChanged();
+            });
+    return true;
+#else
+    Q_UNUSED(service);
+    Q_UNUSED(objectPath);
+    Q_UNUSED(parentId);
+    return false;
+#endif
+}
+
+bool StatusNotifierBridge::triggerMenuEntry(const QString &service,
+                                            const QString &objectPath, int entryId) {
+#ifdef SMARTBAR_HAS_DBUS
+    if (service != m_menuService || objectPath != m_menuObjectPath)
+        return false;
+    QString menuPath;
+    if (!menuDestination(service, objectPath, &menuPath)) return false;
+    bool allowed = false;
+    for (const QVariant &value : m_menuEntries) {
+        const QVariantMap row = value.toMap();
+        if (row.value(QStringLiteral("id")).toInt() == entryId &&
+            row.value(QStringLiteral("enabled")).toBool() &&
+            !row.value(QStringLiteral("separator")).toBool() &&
+            !row.value(QStringLiteral("hasChildren")).toBool()) {
+            allowed = true;
+            break;
+        }
+    }
+    if (!allowed) return false;
+    QDBusMessage call = QDBusMessage::createMethodCall(
+        service, menuPath, QStringLiteral("com.canonical.dbusmenu"),
+        QStringLiteral("Event"));
+    call << static_cast<qint32>(entryId) << QStringLiteral("clicked")
+         << QVariant::fromValue(QDBusVariant(QString())) << quint32(0);
+    const QDBusConnection bus = QDBusConnection::sessionBus();
+    auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
+    connect(pending, &QDBusPendingCallWatcher::finished, this,
+            [entryId](QDBusPendingCallWatcher *done) {
+                if (done->isError())
+                    qWarning() << "SmartBar SNI: error en opción de menú"
+                               << entryId << done->error().name();
+                else
+                    qInfo() << "SmartBar SNI: opción de menú enviada" << entryId;
+                done->deleteLater();
+            });
+    return true;
+#else
+    Q_UNUSED(service);
+    Q_UNUSED(objectPath);
+    Q_UNUSED(entryId);
+    return false;
+#endif
 }
 
 bool StatusNotifierBridge::activate(const QString &service, const QString &objectPath,
@@ -242,6 +452,12 @@ void StatusNotifierBridge::refresh() {
             entry.insert(QStringLiteral("objectPath"), objectPath);
             entry.insert(QStringLiteral("itemInterface"), interfaceName);
             entry.insert(QStringLiteral("itemIsMenu"), item.property("ItemIsMenu").toBool());
+            const QVariant menuValue = item.property("Menu");
+            const QString menuPath = menuValue.canConvert<QDBusObjectPath>()
+                ? qvariant_cast<QDBusObjectPath>(menuValue).path()
+                : menuValue.toString();
+            entry.insert(QStringLiteral("menuPath"), menuPath);
+
             entry.insert(QStringLiteral("title"), clean(title.isEmpty() ? id : title));
             entry.insert(QStringLiteral("status"), clean(status));
             entry.insert(QStringLiteral("iconName"), iconName.left(128));
