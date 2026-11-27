@@ -21,6 +21,13 @@ public:
     bool available() const { return m_available; }
     QVariantList entries() const { return m_entries; }
 
+    // Acciones solo mediante interacción del usuario y un indicador
+    // que siga registrado: nunca aceptar destinos D-Bus arbitrarios.
+    Q_INVOKABLE bool activate(const QString &service, const QString &objectPath,
+                              int x, int y);
+    Q_INVOKABLE bool contextMenu(const QString &service, const QString &objectPath,
+                                 int x, int y);
+
 signals:
     void entriesChanged();
 
@@ -38,4 +45,6 @@ private:
     QTimer m_refreshTimer;
     QSet<QString> m_connectedSignals;
     quint64 m_revision = 0;
+    bool dispatchItemAction(const QString &service, const QString &objectPath,
+                            const QString &method, int x, int y);
 };
