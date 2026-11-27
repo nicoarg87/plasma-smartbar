@@ -57,8 +57,11 @@ bool parseItem(const QString &raw, QString *service, QString *objectPath) {
 }
 QString clean(const QString &value) {
     QString result = value.left(128);
-    for (QChar &ch : result) if (ch.isNull() || ch.isSpace() && ch != QLatin1Char(' '))
-        ch = QLatin1Char(' ');
+    for (qsizetype i = 0; i < result.size(); ++i) {
+        const QChar ch = result.at(i);
+        if (ch.isNull() || (ch.isSpace() && ch != QLatin1Char(' ')))
+            result[i] = QLatin1Char(' ');
+    }
     return result;
 }
 QString iconUrl(const QString &name, quint64 revision) {
