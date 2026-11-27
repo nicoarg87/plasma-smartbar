@@ -1,40 +1,22 @@
 #!/usr/bin/env node
 "use strict";
-// Contrato de lectura de menús DBusMenu. No envía acciones al escritorio.
-// Verificación estructural hasta compilar y usar KDE/Wayland en CachyOS.
+// REGRESIÓN SIGABRT (27/11/2026): el decodificador recursivo de
+// QDBusArgument abortó Soledad al abrir la bandeja y hacer clic en KMix.
+// Mantenerlo desconectado hasta contar con compilación y pruebas nativas.
+const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
-const assert = require("node:assert/strict");
-const root = path.resolve(__dirname, "..");
-const read = p => fs.readFileSync(path.join(root, p), "utf8");
-const cpp = read("native_probes/status_notifier_bridge.cpp");
-const head = read("native_probes/status_notifier_bridge.h");
+const base = path.resolve(__dirname, "..");
+const read = p => fs.readFileSync(path.join(base, p), "utf8");
+const bridge = read("native_probes/status_notifier_bridge.cpp");
+const header = read("native_probes/status_notifier_bridge.h");
 const view = read("package/contents/ui/SystemTrayRealView.qml");
-const bar = read("package/contents/ui/SmartBarContent.qml");
-assert.match(head, /Q_PROPERTY\(QVariantList menuEntries READ menuEntries NOTIFY menuChanged\)/);
-assert.match(head, /Q_INVOKABLE bool requestMenu\(/);
-assert.match(head, /Q_INVOKABLE bool triggerMenuEntry\(/);
-assert.match(cpp, /item\.property\("Menu"\)/);
-assert.match(cpp, /QDBusObjectPath/);
-assert.match(cpp, /menuDestination\(service, objectPath, &menuPath\)/);
-assert.match(cpp, /menuPath != m_menuPath/);
-assert.match(cpp, /QStringLiteral\("com\.canonical\.dbusmenu"\)/);
-assert.match(cpp, /QStringLiteral\("GetLayout"\)/);
-assert.match(cpp, /QStringLiteral\("Event"\)/);
-assert.match(cpp, /QStringLiteral\("clicked"\)/);
-assert.match(cpp, /readMenuRoot\(/);
-assert.match(cpp, /bus\.asyncCall\(call, 1800\)/);
-assert.match(cpp, /rows\.size\(\)/);
-assert.doesNotMatch(cpp, /bus\.call\(|registerService\(/);
-assert.match(view, /import QtQml\.Models/);
-assert.match(view, /QQC2\.Menu\s*\{/);
-assert.match(view, /Instantiator\s*\{/);
-assert.match(view, /remoteMenu\.insertItem\(index, object\)/);
-assert.match(view, /remoteMenu\.removeItem\(object\)/);
-assert.match(view, /realTray\.backend\.requestMenu\(/);
-assert.match(view, /realTray\.backend\.triggerMenuEntry\(/);
-assert.match(view, /remoteMenu\.popup\(\)/);
-assert.match(bar, /realSystemTrayBackend\.requestMenu\(service, objectPath, 0\)/);
-assert.match(bar, /realSystemTrayBackend\.contextMenu\(service, objectPath, x, y\)/);
-assert.match(bar, /backend: root\.realSystemTrayBackend/);
-console.log("OK: DBusMenu opcional, lectura asíncrona, menú nativo y selección validada.");
+const cmake = read("native_probes/CMakeLists.txt");
+assert.doesNotMatch(bridge, /readMenuRoot|readMenuNode|beginStructure\(|beginMap\(|beginArray\(|QDBusArgument/);
+assert.doesNotMatch(bridge, /GetLayout|com\.canonical\.dbusmenu|KWaylandExtras|ProvideXdgActivationToken/);
+assert.doesNotMatch(header, /menuEntries|menuChanged|triggerMenuEntry|requestMenu/);
+assert.doesNotMatch(view, /QQC2\.Menu\s*\{|Instantiator\s*\{|actionRequested|onClicked:/);
+assert.match(view, /enabled:\s*false/);
+assert.doesNotMatch(cmake, /KF6WindowSystem|SMARTBAR_HAS_KWAYLAND_ACTIVATION/);
+assert.match(cmake, /if\(TARGET Qt6::DBus\)/);
+console.log("OK: decoder DBusMenu inseguro aislado; visualización SNI conservada.");
