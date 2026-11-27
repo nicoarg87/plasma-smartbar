@@ -1870,7 +1870,11 @@ Item {
         if (action === "activate") {
             accepted = realSystemTrayBackend.activate(service, objectPath, x, y)
         } else if (action === "context") {
-            accepted = realSystemTrayBackend.contextMenu(service, objectPath, x, y)
+            // KDE normalmente importa Menu (DBusMenu) y lo abre desde su
+            // propio panel; ContextMenu solo es el respaldo si no hay menú.
+            accepted = realSystemTrayBackend.requestMenu(service, objectPath, 0)
+            if (!accepted)
+                accepted = realSystemTrayBackend.contextMenu(service, objectPath, x, y)
         }
         // Sólo el clic principal puede utilizar la preferencia de
         // autocontracción. No cerrar durante la apertura del menú remoto.
@@ -2287,6 +2291,7 @@ Item {
                 // ni crear una segunda bandeja. Las acciones reales siguen
                 // bloqueadas hasta integrar menús SNI bajo Wayland.
                 SystemTrayRealView {
+                    backend: root.realSystemTrayBackend
                     sourceEntries: root.realSystemTrayEntries
                     expanded: root.trayExpanded && root.useRealSystemTray
                     trayColor: root.effectiveTrayButtonColor
