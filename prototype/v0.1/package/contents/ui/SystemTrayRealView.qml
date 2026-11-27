@@ -7,6 +7,7 @@ import QtQuick.Controls as QQC2
 Repeater {
     id: realTray
     property var sourceEntries: []
+    property var backend: null
     property bool expanded: false
     property color trayColor: "#010111"
     property real trayOpacity: 0.9
@@ -59,7 +60,58 @@ Repeater {
             acceptedButtons: Qt.RightButton
             onTapped: indicator.requestAction("context")
         }
-        QQC2.ToolTip.visible: indicator.hovered
+        // El menú KDE viaja por DBusMenu: se solicita el diseño al
+        // emisor y se presenta junto al icono, sin nuevos botones de barra.
+        QQC2.Menu {
+            id: remoteMenu
+            title: indicator.itemTitle
+            Instantiator {
+                id: rows
+                model: realTray.backend &&
+                       realTray.backend.menuService === String(indicator.modelData.service || "") &&
+                       realTray.backend.menuObjectPath === String(indicator.modelData.objectPath || "")
+                       ? realTray.backend.menuEntries : []
+                delegate: QQC2.MenuItem {
+                    required property var modelData
+                    readonly property int entryId: Number(modelData.id || 0)
+                    text: modelData.separator ? "────────────" :
+                          String(modelData.label || "")
+                    enabled: !modelData.separator && modelData.enabled !== false
+                    onTriggered: {
+                        if (!realTray.backend) return
+                        if (modelData.hasChildren) {
+                            realTray.backend.requestMenu(
+                                String(indicator.modelData.service || ""),
+                                String(indicator.modelData.objectPath || ""), entryId)
+                        } else {
+                            realTray.backend.triggerMenuEntry(
+                                String(indicator.modelData.service || ""),
+                                String(indicator.modelData.objectPath || ""), entryId)
+                        }
+                    }
+                }
+                onObjectAdded: function(index, object) {
+                    remoteMenu.insertItem(index, object)
+                }
+                onObjectRemoved: function(index, object) {
+                    remoteMenu.removeItem(object)
+                }
+            }
+        }
+        Connections {
+            target: realTray.backend
+            function onMenuChanged() {
+                if (!realTray.expanded || !realTray.backend) return
+                if (realTray.backend.menuService !== String(indicator.modelData.service || "") ||
+                    realTray.backend.menuObjectPath !== String(indicator.modelData.objectPath || ""))
+                    return
+                Qt.callLater(function() {
+                    if (realTray.expanded) remoteMenu.popup()
+                })
+            }
+        }
+
+        QQC2.ToolTip.visible: indicator.hovered && !remoteMenu.visible
         QQC2.ToolTip.text: itemTitle
     }
 }
