@@ -389,13 +389,18 @@ bool StatusNotifierBridge::dispatchItemAction(
     qInfo() << "SmartBar SNI: envío de clic" << method;
     auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
     connect(pending, &QDBusPendingCallWatcher::finished, this,
-            [method](QDBusPendingCallWatcher *done) {
+            [this, method, service, objectPath](QDBusPendingCallWatcher *done) {
                 const QDBusPendingReply<> reply = *done;
-                if (reply.isError())
+                if (reply.isError()) {
                     qWarning() << "SmartBar SNI: acción" << method
                                << "no atendida:" << reply.error().name();
-                else
+                    // Plasma también intenta abrir el menú de la aplicación
+                    // cuando no puede activar un indicador.
+                    if (method == QStringLiteral("Activate"))
+                        requestMenu(service, objectPath, 0);
+                } else {
                     qInfo() << "SmartBar SNI: acción" << method << "enviada";
+                }
                 done->deleteLater();
             });
     return true; // Encolada, no implica que la aplicación la haya ejecutado.
