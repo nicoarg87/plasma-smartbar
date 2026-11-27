@@ -758,6 +758,7 @@ Window {
         // Sin ese modo, este visor conserva los tres iconos de demostración.
         useRealSystemTray: smartbarSni.enabled && smartbarSni.available
         realSystemTrayEntries: smartbarSni.entries
+        realSystemTrayBackend: smartbarSni
         realTaskActivationEnabled: smartbarContinuousMode
         realTaskPreviewEnabled: smartbarContinuousMode
         onTaskCloseModeChanged: {
