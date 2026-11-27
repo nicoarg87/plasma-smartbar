@@ -53,6 +53,15 @@ finish() {
     if [[ -n "$MAL_PID" ]]; then wait "$MAL_PID" 2>/dev/null || true; fi
     if [[ -d "$BUILD_DIR" ]]; then rm -rf -- "$BUILD_DIR"; fi
     if (( CATALOG_CREATED == 1 )); then rm -f -- "$CATALOG_FILE"; fi
+    # Al finalizar el ensayo SNI, mostrar únicamente sus mensajes nuevos.
+    # No borra, resume ni reescribe los registros completos de la sesión.
+    if [[ "${SMARTBAR_ENABLE_REAL_TRAY:-0}" == "1" &&
+          -f "$SESSION_DIR/soledad.log" ]]; then
+        printf '\n=== Acciones SNI de esta sesión (últimos mensajes) ===\n'
+        if ! grep -F 'SmartBar SNI:' "$SESSION_DIR/soledad.log" | tail -n 32; then
+            printf 'No hay mensajes de interacción SNI registrados.\n'
+        fi
+    fi
     printf '\nSesión terminada. Logs conservados en: %s\n' "$SESSION_DIR"
     exit "$status"
 }
