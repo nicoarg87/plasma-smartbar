@@ -3674,3 +3674,19 @@ and env SMARTBAR_ENABLE_REAL_TRAY=1 bash prototype/v0.1/probar_islas_juntas.sh
 Al expandir la bandeja, probar únicamente **clic izquierdo sobre KMix** y, luego, **clic derecho**; informar si abre el control de volumen o el menú. Si una isla falla, el lanzador ya imprime las últimas líneas de ambos logs sin eliminarlos.
 
 **Siguiente etapa:** implementar menú remoto DBusMenu y token de activación Wayland usando componentes KDE/Qt6 cuando existan y puedan probarse, sin crear botones, rediseñar las islas ni alterar el panel existente. Issue [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
+
+
+## SNI: clics sin efecto y nuevo soporte DBusMenu/xdg-activation — 27/11/2026
+
+**PRUEBA REAL NEGATIVA:** el mantenedor probó clic izquierdo y clic derecho sobre el icono KMix de Soledad tras la primera implementación de `Activate/ContextMenu`; comunicó «no pasa nada». **No están validados los clics**. La aparición de KMix sigue probada y no debe repetirse esa comprobación básica. No se dispone todavía de logs de la sesión de clics; la causa exacta no se puede atribuir a QML/D-Bus/KWin por ese solo reporte.
+
+**ANÁLISIS DEL PROTOCOLO KDE:** la bandeja Plasma usa `DBusMenuImporter` para indicadores SNI con propiedad `Menu`, y solo usa `ContextMenu()` como respaldo; para `Activate` en Wayland, KDE proporciona `xdgActivationToken` antes del clic. Referencias: [statusnotifieritemsource.cpp](https://github.com/KDE/plasma-workspace/blob/master/applets/systemtray/statusnotifieritemsource.cpp) y [systemtray.cpp](https://github.com/KDE/plasma-workspace/blob/master/applets/systemtray/systemtray.cpp).
+
+**IMPLEMENTADO, AÚN NO PROBADO EN EL EQUIPO:** 
+- `native_probes/status_notifier_bridge.h/.cpp`: lector básico asíncrono `com.canonical.dbusmenu.GetLayout(0,1,[])`, respuesta limitada a 60 filas, estado `menuEntries/menuService/menuObjectPath`; acción `Event(id, "clicked", variante vacía, uint32 0)` validada contra el último menú y el emisor SNI registrado. Conserva fallback `ContextMenu`, y si `Activate` devuelve error intenta el menú, sin registrar hosts ni modificar KDE. **El importador aún no garantiza el protocolo completo** (actualización de propiedades, iconos propios, estados de submenús, tokens para `Event`).
+- `package/contents/ui/SystemTrayRealView.qml`: renderiza `QQC2.Menu` mediante `Instantiator` y reutiliza las fichas SNI existentes; los submenús se consultan por ID. `SmartBarContent.qml` prioriza DBusMenu al abrir contexto.
+- Activación `KWaylandExtras::xdgActivationToken(nullptr, QString())` condicionada por CMake a `KF6WindowSystem >=6.19`; fallback a `Activate` simple tras 400 ms. No hay dependencia obligatoria; fuera del ensayo `SMARTBAR_ENABLE_REAL_TRAY=1` no cambia el comportamiento.
+- Logs privados persistentes ahora distinguen clic QML recibido, lectura DBusMenu, menú devuelto, acción SNI enviada y token Wayland. No se eliminan registros.
+- Prueba nueva `tests/test_sni_dbusmenu_contract.cjs`, y prueba de acciones reforzada; **tres tests estructurales SNI ejecutados en evaluador JS con fuentes actuales: PASS**. No hay Qt6 ni KWin en el entorno de ejecución para compilar/cargar este corte. **PENDIENTE** compilación Qt/QML y prueba dirigida de clic izquierdo/derecho de KMix en CachyOS. No afirmar funcionamiento sin respuesta real del mantenedor.
+
+**Próximo paso:** un único ensayo focalizado de interacción; de fallar, usar los logs ya registrados para saber si el clic llegó a QML, si DBusMenu respondió o si KWin rechazó el popup. Los requisitos de altura, posición, isla, temas, launcher, panel KDE y logs se mantienen sin cambios. [Issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
