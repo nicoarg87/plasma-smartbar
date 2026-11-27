@@ -2,6 +2,7 @@
 // Observador SNI experimental. Solo consulta propiedades y señales D-Bus.
 // NO registra hosts/watchers, no ejecuta Activate ni ContextMenu, no toca KDE.
 #include "status_notifier_bridge.h"
+#include <QDebug>
 #include <QIcon>
 #include <QPixmap>
 #include <QQuickImageProvider>
@@ -9,6 +10,7 @@
 #include <QStringList>
 #include <QUrl>
 #include <QVariantMap>
+#include <QtGlobal>
 
 #ifdef SMARTBAR_HAS_DBUS
 #include <QDBusConnection>
