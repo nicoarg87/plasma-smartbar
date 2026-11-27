@@ -151,6 +151,15 @@ printf 'En otra Konsole: tail -f "%s/soledad.log" "%s/malvina.log"\n' "$SESSION_
 if wait -n "$SO_PID" "$MAL_PID"; then
     printf 'Una de las islas terminó; se cierra la sesión conjunta.\n'
 else
-    printf 'Una isla terminó con error; revisar los logs de la sesión.\n' >&2
+    printf 'Una isla terminó con error. Últimas líneas de ambos logs:\n' >&2
+    # Mostrar únicamente el tramo final en caso de fallo, sin tocar
+    # los registros completos que permanecen guardados por sesión.
+    for island in soledad malvina; do
+        printf '\n=== %s ===\n' "$island" >&2
+        if [[ -f "$SESSION_DIR/$island.log" ]]; then
+            tail -n 18 -- "$SESSION_DIR/$island.log" >&2
+        fi
+    done
+    printf '\nLogs originales conservados en: %s\n' "$SESSION_DIR" >&2
     exit 7
 fi
