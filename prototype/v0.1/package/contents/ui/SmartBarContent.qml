@@ -1521,6 +1521,7 @@ Item {
     // En visor y sin backend se conserva la bandeja simulada original.
     property bool useRealSystemTray: false
     property var realSystemTrayEntries: []
+    property var realSystemTrayBackend: null
     readonly property var demoTray: SystemTrayModel.demoEntries()
     // Menú de muestra: NO representa las aplicaciones instaladas todavía.
     readonly property var demoInstalledApps: ["Dolphin", "Konsole", "Brave", "Firefox", "Configuración"]
@@ -1861,6 +1862,22 @@ Item {
         console.log("Soledad: ficha simulada", appName,
                     "autocontraer SO =", autoCollapseSO,
                     "(sin controlar ventanas reales)")
+    }
+
+    function requestRealTrayAction(service, objectPath, action, x, y) {
+        if (!useRealSystemTray || !realSystemTrayBackend) return
+        let accepted = false
+        if (action === "activate") {
+            accepted = realSystemTrayBackend.activate(service, objectPath, x, y)
+        } else if (action === "context") {
+            accepted = realSystemTrayBackend.contextMenu(service, objectPath, x, y)
+        }
+        // Sólo el clic principal puede utilizar la preferencia de
+        // autocontracción. No cerrar durante la apertura del menú remoto.
+        if (accepted && action === "activate") {
+            trayExpanded = SystemTrayController.afterIconSelection(
+                trayExpanded, autoCollapseTray)
+        }
     }
 
     function selectDemoTray(iconName) {
@@ -2278,6 +2295,9 @@ Item {
                     trayOutlineWidth: root.outlineConfig.tray.width
                     trayOutlineColor: root.displayOutlineTrayColor
                     trayOutlineOpacity: root.outlineConfig.tray.opacity
+                    onActionRequested: function(service, objectPath, action, x, y) {
+                        root.requestRealTrayAction(service, objectPath, action, x, y)
+                    }
                 }
 
                 // Separación mínima y legible entre iconos de bandeja y
