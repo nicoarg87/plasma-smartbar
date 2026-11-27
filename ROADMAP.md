@@ -878,3 +878,27 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 **TEST INCORPORADO:** `prototype/v0.1/tests/test_sni_detalle_readonly.cjs` ([bcdc24c](https://github.com/nicoarg87/plasma-smartbar/commit/bcdc24c7660c3eb09d789021c5e491dd5fa10df7)) comprueba con `busctl` simulado los datos y que no se use ningún comando de escritura. **PROBADO LOCALMENTE (Linux aislado, datos artificiales):** identificación de ítem `:1.54/StatusNotifierItem`, lectura de ID/título/estado/icono/menú, solo llamadas `get-property`, salida 0 con ítem y 4 sin watcher. **PENDIENTE en CachyOS:** identificar la aplicación real y validar su interfaz de propiedades; no se afirma prueba real de este segundo inspector todavía.
 
 **PENDIENTE DE IMPLEMENTAR:** observación de señales de alta/baja, pictogramas reales (nombre de tema o pixmap), menús D-Bus y acciones seguras, y sustitución visual de la demo sin alterar altura ni prioridad horizontal. La preparación para uso diario continúa al final.
+
+
+## Primera vinculación SNI real a Soledad (modo experimental) — 27/11/2026
+
+**PROBADO EN CACHYOS POR EL MANTENEDOR (etapa previa):** el inspector de solo lectura `inspeccionar_bandeja_sni_detalle.cjs` identificó **KMix**, título **Control del volumen**, estado **Active**, icono de tema **audio-volume-high**, menú remoto disponible, desde `org.kde.StatusNotifierWatcher` y `:1.54/StatusNotifierItem`. El identificador es de sesión, no fijo. Esta confirmación no significa que la bandeja ya fuese visible en SmartBar.
+
+**IMPLEMENTADO AHORA EN RAMA EXPERIMENTAL, SIN PRUEBA DE CARGA QT EN CACHYOS:**
+- `native_probes/status_notifier_bridge.h/.cpp`: objeto Qt con `entries` y `available`, observación por señales D-Bus de registro/baja del watcher y `NewIcon`, `NewAttentionIcon`, `NewTitle`, `NewStatus` de cada entrada; coalescencia de señales, límite máximo de 32 indicadores y sanitización de servicio/ruta/icono. Consulta solo propiedades de lectura. Usa `QIcon::fromTheme` y proveedor `image://smartbar-sni/` para iconos nombrados por las aplicaciones. **No implementa iconos binarios Pixmap, DBusMenu, Activate ni ContextMenu**.
+- `native_probes/CMakeLists.txt`: el módulo `Qt6::DBus` sigue siendo opcional; sin él queda la bandeja simulada. `status_notifier_bridge.cpp` se compila con el puente ya existente, sin nuevos procesos.
+- `native_probes/soledad_input_mask_main.cpp`: el observador se expone como `smartbarSni` y solo se habilita para el ensayo de Soledad mediante **`SMARTBAR_ENABLE_REAL_TRAY=1`**, nunca para Malvina ni para el visor habitual. Registra en los logs persistentes si el soporte se activó o faltaba Qt6/DBus; no borra ni cambia los logs.
+- `package/contents/ui/SystemTrayRealView.qml` y `SmartBarContent.qml`: vista SNI pasiva con **iconos reales, una sola fila, misma altura y estilo configurado**; alterna entre `SystemTrayView` de demostración y la vista real, sin representar ambas a la vez ni alterar el botón de bandeja. **Los iconos reales están deshabilitados para clics**: falta validar acciones de KDE bajo Wayland; no fingir que ya funcionan. Fuera del modo experimental, comportamiento anterior intacto.
+- `preview_soledad_input_mask.qml`: enlaza `smartbarSni.enabled && smartbarSni.available` y `smartbarSni.entries`. No altera panel KDE, preferencias ni máscaras de entrada.
+
+**TEST INCORPORADO:** `tests/test_sni_live_view_contract.cjs`, que verifica estructuralmente bandera opcional, modelo demo conservado, misma fila, Qt6::DBus condicionado, monitorización por señales y ausencia de acciones remotas. **COMPROBADO ESTÁTICAMENTE EN REVISIÓN:** presencia de contratos y sintaxis JS del test. **NO EJECUTADO:** compilación Qt6 de este cambio ni su composición QML en el equipo del mantenedor; tampoco se ejecutó Node del test sobre esa copia. No atribuir mejoras de rendimiento sin mediciones.
+
+**Prueba única nueva, exclusivamente de la función recién conectada, en Fish:**
+```fish
+cd ~/plasma-smartbar
+and git pull --ff-only
+and env SMARTBAR_ENABLE_REAL_TRAY=1 bash prototype/v0.1/probar_islas_juntas.sh
+```
+Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-volume-high`) en lugar de los botones `Wi-Fi/Audio/Bluetooth` de muestra. **No intentar todavía operar volumen ni menú desde este icono**. Los logs originales del ensayo siguen guardados.
+
+**Siguiente desarrollo:** resolver iconos transmitidos como Pixmap, menús y acciones D-Bus mediante una API KDE validada, y revisar foco/activación bajo Wayland antes de habilitar clics. Seguimiento [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24). El empaquetado para uso diario continúa al final.
