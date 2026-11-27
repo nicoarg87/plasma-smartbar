@@ -47,5 +47,9 @@ assert.match(bridge, /NewIcon/);
 assert.match(bridge, /NewStatus/);
 assert.match(bridge, /QIcon::fromTheme/);
 assert.match(bridge, /m_connectedSignals = desiredConnections/);
+// QDBusConnection::connect/disconnect no son métodos const en Qt 6.
+// La conexión local debe ser mutable tanto en el constructor como en refresh().
+assert.equal((bridge.match(/QDBusConnection bus = QDBusConnection::sessionBus\(\);/g) || []).length, 2);
+assert.doesNotMatch(bridge, /const QDBusConnection bus = QDBusConnection::sessionBus\(\);/);
 assert.doesNotMatch(bridge, /RegisterStatusNotifierHost|RegisterStatusNotifierItem|\.call\(.*Activate|\.call\(.*ContextMenu|QProcess|startDetached|registerService\(/);
 console.log("OK: bandeja real SNI opcional/pasiva, demo conservada, sin acciones ni panel KDE.");
