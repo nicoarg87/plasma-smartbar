@@ -238,6 +238,7 @@ void StatusNotifierBridge::refresh() {
             entry.insert(QStringLiteral("service"), service);
             entry.insert(QStringLiteral("objectPath"), objectPath);
             entry.insert(QStringLiteral("itemInterface"), interfaceName);
+            entry.insert(QStringLiteral("itemIsMenu"), item.property("ItemIsMenu").toBool());
             entry.insert(QStringLiteral("title"), clean(title.isEmpty() ? id : title));
             entry.insert(QStringLiteral("status"), clean(status));
             entry.insert(QStringLiteral("iconName"), iconName.left(128));
