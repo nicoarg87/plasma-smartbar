@@ -3631,3 +3631,14 @@ Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-vo
 **CAUSA ENCONTRADA:** la raíz `QQC2.ScrollView` de `SoledadBehaviorPage.qml` declaraba dos veces la propiedad especial `id` (`page` y `collapseScroll`) al extraer el módulo. **CORRECCIÓN IMPLEMENTADA:** se quitó solo `id: collapseScroll` ([6410d00](https://github.com/nicoarg87/plasma-smartbar/commit/6410d00143b1457ab383f9a0f0dfb77fbb71ec74)), conservando todo el contenido de la página. Se añadió un guard al test de ese módulo contra IDs duplicados ([06db862](https://github.com/nicoarg87/plasma-smartbar/commit/06db8624a91c453bd2cbb6877ce8dc41c3717970)).
 
 **COMPROBADO ESTÁTICAMENTE:** solo `id: page`, no quedan referencias a `collapseScroll`; código del test sin error de sintaxis. **PENDIENTE:** cargar esta corrección en CachyOS y luego comprobar únicamente la capacidad nueva SNI, sin retestar funcionalidades previamente aprobadas. No se alteraron configuraciones del usuario, panel KDE ni logs existentes. Referencias: issues [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24) y [#25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
+
+
+## Corrección adicional de ID QML y autodiagnóstico de arranque — 27/11/2026
+
+**PRUEBA REAL:** tras sincronizar `57bd20a`, la compilación del puente Qt6 pasó, Soledad (PID 8649) y Malvina (PID 8650) se lanzaron, pero una terminó con error durante el arranque y la otra fue detenida por el ensayo. Logs originales preservados en `~/.local/state/plasma-smartbar/ensayos/sesion-20261127-140800-1RAC2iib`. **El contenido de estos logs no ha sido aportado**, por lo que no se atribuye formalmente la salida a un mensaje concreto.
+
+**CORRECCIÓN BASADA EN REVISIÓN DEL CÓDIGO:** se halló una segunda doble asignación de `id` en la misma raíz `QQC2.ScrollView` de `SoledadSharedOutlinesPage.qml` (`page` y `sharedOutlineScroll`). Este último no tenía referencias; se quitó únicamente esa línea ([b869bac](https://github.com/nicoarg87/plasma-smartbar/commit/b869bac63ed5fff959dbef13f31f54a3705b4fc2)). Nueva comprobación estructural de IDs de las ocho páginas QML extraídas ([640352f](https://github.com/nicoarg87/plasma-smartbar/commit/640352fcb5607df41a3c916b7881616a5c7fce7)); **verificado estáticamente** que las ocho tienen un solo `id: page` en su raíz. No se ha validado una nueva carga Qt después de este cambio.
+
+**MEJORA DE DIAGNÓSTICO:** `probar_islas_juntas.sh` ahora muestra automáticamente las últimas 18 líneas de cada log solo cuando el ensayo falla, sin modificar ni borrar registros completos ([326c6bb](https://github.com/nicoarg87/plasma-smartbar/commit/326c6bbb611d9c5eb5aa0817507c5053d8775038)). No afecta el panel KDE ni cambia funciones de las islas.
+
+**PENDIENTE:** comprobar la carga tras el nuevo corte y ver KMix en la bandeja SNI real. Issues [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24), [#25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
