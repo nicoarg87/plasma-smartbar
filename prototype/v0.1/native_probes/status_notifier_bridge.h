@@ -56,6 +56,7 @@ private:
     QVariantList m_menuEntries;
     QString m_menuService;
     QString m_menuObjectPath;
+    QString m_menuPath;
     quint64 m_menuRequest = 0;
     bool menuDestination(const QString &service, const QString &objectPath,
                          QString *menuPath) const;
