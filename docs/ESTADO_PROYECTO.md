@@ -3701,3 +3701,20 @@ Al expandir la bandeja, probar únicamente **clic izquierdo sobre KMix** y, lueg
 **TESTS DE SEGURIDAD:** `test_sni_live_view_contract.cjs` regresó al contrato visual; `test_sni_actions_security_contract.cjs` y `test_sni_dbusmenu_contract.cjs` se modificaron para **rechazar por regresión cualquier ruta ejecutable del parser D-Bus que provocó el aborto** y exigir fichas pasivas. Los tres tests estructurales **PASS en revisión JS de la fuente vigente**, pero **el rollback aún no fue recompilado/cargado en CachyOS**; no afirmar prueba nativa después del cambio. Los registros originales no se tocaron, y el panel KDE sigue sin modificaciones.
 
 **DECISIÓN DE SEGURIDAD PARA PRÓXIMA FASE:** no volver a pedir al mantenedor que reproduzca los clics o el crash. Investigar un importador DBusMenu ya validado de KDE/Qt o un decodificador tipado y probado con datos sintéticos de D-Bus en un proceso aislado, antes de enlazar acciones al panel y arriesgar el proceso principal. Reconsiderar autocontracción: nunca cerrar la bandeja al **encolar** una acción asíncrona; solo después de un resultado comprobado y de acuerdo con la preferencia del usuario. Reanudar pruebas reales cuando exista una corrección segura y específicamente verificada. Issues [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24) y [#26](https://github.com/nicoarg87/plasma-smartbar/issues/26).
+
+
+## Inspector DBusMenu aislado tras SIGABRT — 27/11/2026
+
+**CONTEXTO:** la vista real de KMix en Soledad está aprobada; la activación de clics y el lector recursivo de menú Qt6 se revirtieron tras un **SIGABRT real** en `libQt6DBus`/`QDBusArgument`. El código de las islas sigue en el último corte visual validado, con iconos SNI pasivos y sin cambios en panel KDE ni preferencias.
+
+**IMPLEMENTADO AHORA:** `prototype/v0.1/scripts/inspeccionar_menu_sni_aislado.cjs`, [dcd05e3](https://github.com/nicoarg87/plasma-smartbar/commit/dcd05e3540ed3b64181d43483ce98e37396c79a6), consulta `com.canonical.dbusmenu.GetLayout` **desde un proceso `busctl` hijo, independiente de Soledad/Malvina**, obtiene solo la firma top-level de la respuesta JSON y verifica `u(ia{sv}av)`. Entradas derivadas de `RegisteredStatusNotifierItems` validadas, rutas `Menu` validadas, máximo 16 indicadores, profundidad 1, propiedades seleccionadas, timeout y límite de buffer. No decodifica hijos `QDBusArgument`, no emite `Event`, `Activate`, `ContextMenu` ni registra host; no imprime etiquetas del menú.
+
+**PRUEBAS:** `tests/test_sni_dbusmenu_aislado_mock.cjs`, [d1e367a](https://github.com/nicoarg87/plasma-smartbar/commit/d1e367a95f8b514b38fc50b7cd7d7c098b482d06), cubre por mock cinco escenarios. El propio inspector fue **ejecutado en V8 con dependencias `busctl` y archivos simulados**: cinco rutas de salida consistentes, ninguna acción D-Bus. El archivo de test se comprobó sintácticamente; **NO se ejecutó en Node nativo ni se llamó al D-Bus de CachyOS**. No afirmar que KMix devolvió aún una firma válida.
+
+**PRÓXIMA VALIDACIÓN FOCALIZADA, SOLO LECTURA, EN FISH:**
+```fish
+cd ~/plasma-smartbar
+and git pull --ff-only
+and node prototype/v0.1/scripts/inspeccionar_menu_sni_aislado.cjs
+```
+No relanzar ensayos de clic tras el crash. Si hay resultado de `GetLayout`, investigar un importador DBusMenu probado y compatible con la licencia vigente antes de conectar acciones al proceso principal. Fuentes técnicas: [manual `busctl`](https://www.freedesktop.org/software/systemd/man/255/busctl.html), [firma `GetLayout` de DBusMenu](https://sources.debian.org/src/libdbusmenu-qt/0.9.3%2B16.04.20160218-2/src/com.canonical.dbusmenu.xml) y [implementación de Plasma](https://github.com/KDE/plasma-workspace/blob/master/applets/systemtray/statusnotifieritemsource.cpp). Seguimiento [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
