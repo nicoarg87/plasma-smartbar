@@ -1521,7 +1521,6 @@ Item {
     // En visor y sin backend se conserva la bandeja simulada original.
     property bool useRealSystemTray: false
     property var realSystemTrayEntries: []
-    property var realSystemTrayBackend: null
     readonly property var demoTray: SystemTrayModel.demoEntries()
     // Menú de muestra: NO representa las aplicaciones instaladas todavía.
     readonly property var demoInstalledApps: ["Dolphin", "Konsole", "Brave", "Firefox", "Configuración"]
@@ -1862,26 +1861,6 @@ Item {
         console.log("Soledad: ficha simulada", appName,
                     "autocontraer SO =", autoCollapseSO,
                     "(sin controlar ventanas reales)")
-    }
-
-    function requestRealTrayAction(service, objectPath, action, x, y) {
-        if (!useRealSystemTray || !realSystemTrayBackend) return
-        let accepted = false
-        if (action === "activate") {
-            accepted = realSystemTrayBackend.activate(service, objectPath, x, y)
-        } else if (action === "context") {
-            // KDE normalmente importa Menu (DBusMenu) y lo abre desde su
-            // propio panel; ContextMenu solo es el respaldo si no hay menú.
-            accepted = realSystemTrayBackend.requestMenu(service, objectPath, 0)
-            if (!accepted)
-                accepted = realSystemTrayBackend.contextMenu(service, objectPath, x, y)
-        }
-        // Sólo el clic principal puede utilizar la preferencia de
-        // autocontracción. No cerrar durante la apertura del menú remoto.
-        if (accepted && action === "activate") {
-            trayExpanded = SystemTrayController.afterIconSelection(
-                trayExpanded, autoCollapseTray)
-        }
     }
 
     function selectDemoTray(iconName) {
@@ -2291,7 +2270,6 @@ Item {
                 // ni crear una segunda bandeja. Las acciones reales siguen
                 // bloqueadas hasta integrar menús SNI bajo Wayland.
                 SystemTrayRealView {
-                    backend: root.realSystemTrayBackend
                     sourceEntries: root.realSystemTrayEntries
                     expanded: root.trayExpanded && root.useRealSystemTray
                     trayColor: root.effectiveTrayButtonColor
@@ -2300,9 +2278,6 @@ Item {
                     trayOutlineWidth: root.outlineConfig.tray.width
                     trayOutlineColor: root.displayOutlineTrayColor
                     trayOutlineOpacity: root.outlineConfig.tray.opacity
-                    onActionRequested: function(service, objectPath, action, x, y) {
-                        root.requestRealTrayAction(service, objectPath, action, x, y)
-                    }
                 }
 
                 // Separación mínima y legible entre iconos de bandeja y
