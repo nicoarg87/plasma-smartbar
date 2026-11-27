@@ -902,3 +902,12 @@ and env SMARTBAR_ENABLE_REAL_TRAY=1 bash prototype/v0.1/probar_islas_juntas.sh
 Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-volume-high`) en lugar de los botones `Wi-Fi/Audio/Bluetooth` de muestra. **No intentar todavía operar volumen ni menú desde este icono**. Los logs originales del ensayo siguen guardados.
 
 **Siguiente desarrollo:** resolver iconos transmitidos como Pixmap, menús y acciones D-Bus mediante una API KDE validada, y revisar foco/activación bajo Wayland antes de habilitar clics. Seguimiento [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24). El empaquetado para uso diario continúa al final.
+
+
+## Primer corte de activación de indicadores SNI — 27/11/2026
+
+**BASE VALIDADA EN CACHYOS:** la bandeja SNI real de Soledad presenta KMix con icono de KDE, según prueba y captura del mantenedor. No repetir esa comprobación sin regresión.
+
+**IMPLEMENTADO (no probado todavía tras este nuevo corte):** `SystemTrayRealView.qml` permite clic principal y clic derecho sobre las fichas SNI reales; `StatusNotifierBridge` valida identidad de servicio/ruta registrados y envía `Activate(x,y)` o `ContextMenu(x,y)` de modo asíncrono (timeout 1800 ms), anotando resultado en logs. `ItemIsMenu` orienta la acción primaria. La bandera `SMARTBAR_ENABLE_REAL_TRAY=1` continúa siendo necesaria; la bandeja simulada y el panel KDE no cambian. Pruebas estructurales `test_sni_live_view_contract.cjs` y `test_sni_actions_security_contract.cjs` creadas/adaptadas y revisadas estáticamente. [Seguimiento #24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
+
+**PENDIENTE de verificar en CachyOS:** recompilación Qt6, clic real de KMix y respuesta de clic contextual. **No afirmar DBusMenu funcional**: las aplicaciones que anuncian el menú remoto `com.canonical.dbusmenu` pueden requerir un importador dedicado, que aún no existe. También falta estudiar token xdg-activation y popup Wayland, sin modificar posición de iconos, geometría, configuraciones ni el panel instalado.
