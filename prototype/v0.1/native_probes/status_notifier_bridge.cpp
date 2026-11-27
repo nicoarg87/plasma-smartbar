@@ -4,7 +4,9 @@
 // Activate y ContextMenu se envían solo a los indicadores SNI vigentes.
 #include "status_notifier_bridge.h"
 #include <QDebug>
+#include <QGuiApplication>
 #include <QIcon>
+#include <memory>
 #include <QPixmap>
 #include <QQuickImageProvider>
 #include <QRegularExpression>
@@ -24,6 +26,9 @@
 #include <QDBusVariant>
 #include <QMetaType>
 #include <QDBusServiceWatcher>
+#endif
+#ifdef SMARTBAR_HAS_KWAYLAND_ACTIVATION
+#include <KWaylandExtras>
 #endif
 
 class StatusNotifierIconProvider final : public QQuickImageProvider {
@@ -379,30 +384,69 @@ bool StatusNotifierBridge::dispatchItemAction(
 
     const QDBusConnection bus = QDBusConnection::sessionBus();
     if (!bus.isConnected()) return false;
-    // Las coordenadas son una pista de ubicación del menú o ventana, no
-    // autoridad para mover/redimensionar nada. Acotar valores extremos.
+    // Las coordenadas son una sugerencia de ubicación, no una orden
+    // de mover ventanas. Quitar coordenadas fuera de rango.
     const int safeX = qBound(-32768, x, 32767);
     const int safeY = qBound(-32768, y, 32767);
-    QDBusMessage call = QDBusMessage::createMethodCall(
-        service, objectPath, itemInterface, method);
-    call << safeX << safeY;
-    qInfo() << "SmartBar SNI: envío de clic" << method;
-    auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
-    connect(pending, &QDBusPendingCallWatcher::finished, this,
-            [this, method, service, objectPath](QDBusPendingCallWatcher *done) {
-                const QDBusPendingReply<> reply = *done;
-                if (reply.isError()) {
-                    qWarning() << "SmartBar SNI: acción" << method
-                               << "no atendida:" << reply.error().name();
-                    // Plasma también intenta abrir el menú de la aplicación
-                    // cuando no puede activar un indicador.
-                    if (method == QStringLiteral("Activate"))
-                        requestMenu(service, objectPath, 0);
-                } else {
-                    qInfo() << "SmartBar SNI: acción" << method << "enviada";
-                }
-                done->deleteLater();
+
+    auto sendAction = [this, service, objectPath, itemInterface, method,
+                       safeX, safeY](const QString &token) {
+        const QDBusConnection actionBus = QDBusConnection::sessionBus();
+        if (!actionBus.isConnected()) return;
+        if (!token.isEmpty()) {
+            // KDE Plasma envía el token antes del método Activate para
+            // permitir que KWin enfoque la ventana/popup bajo Wayland.
+            QDBusMessage tokenCall = QDBusMessage::createMethodCall(
+                service, objectPath, itemInterface,
+                QStringLiteral("ProvideXdgActivationToken"));
+            tokenCall << token;
+            actionBus.asyncCall(tokenCall, 1000);
+            qInfo() << "SmartBar SNI: token Wayland enviado";
+        }
+        QDBusMessage call = QDBusMessage::createMethodCall(
+            service, objectPath, itemInterface, method);
+        call << safeX << safeY;
+        qInfo() << "SmartBar SNI: envío de clic" << method;
+        auto *pending = new QDBusPendingCallWatcher(
+            actionBus.asyncCall(call, 1800), this);
+        connect(pending, &QDBusPendingCallWatcher::finished, this,
+                [this, method, service, objectPath](QDBusPendingCallWatcher *done) {
+                    const QDBusPendingReply<> reply = *done;
+                    if (reply.isError()) {
+                        qWarning() << "SmartBar SNI: acción" << method
+                                   << "no atendida:" << reply.error().name();
+                        if (method == QStringLiteral("Activate"))
+                            requestMenu(service, objectPath, 0);
+                    } else {
+                        qInfo() << "SmartBar SNI: acción" << method << "enviada";
+                    }
+                    done->deleteLater();
+                });
+    };
+
+#ifdef SMARTBAR_HAS_KWAYLAND_ACTIVATION
+    if (method == QStringLiteral("Activate") &&
+        QGuiApplication::platformName().contains(QStringLiteral("wayland"),
+                                                 Qt::CaseInsensitive)) {
+        auto sent = std::make_shared<bool>(false);
+        // Nunca retener una interacción indefinidamente si el compositor
+        // no entrega token; la activación simple sigue siendo respaldo.
+        QTimer::singleShot(400, this, [sent, sendAction]() {
+            if (*sent) return;
+            *sent = true;
+            qWarning() << "SmartBar SNI: token Wayland no disponible; activar sin token";
+            sendAction(QString());
+        });
+        KWaylandExtras::xdgActivationToken(nullptr, QString()).then(
+            this, [sent, sendAction](const QString &token) {
+                if (*sent) return;
+                *sent = true;
+                sendAction(token);
             });
+        return true;
+    }
+#endif
+    sendAction(QString());
     return true; // Encolada, no implica que la aplicación la haya ejecutado.
 #else
     Q_UNUSED(service);
