@@ -29,6 +29,12 @@ assert.ok(main.includes("function applyChanges()"), "Aplicar sigue en el centro"
 assert.ok(main.includes("function discardPendingEdits()"), "Cancelar sigue en el centro");
 assert.ok(!view.includes("function applyChanges()") && !view.includes("QtCore.Settings"), "La vista no persiste datos");
 assert.ok(!view.includes("collapseScroll.availableWidth"), "Scroll local renombrado");
+assert.match(view, /QQC2\.ScrollView\s*\{\s*id:\s*page\b/,
+  "la página debe conservar un único id raíz page");
+assert.equal((view.match(/^\s*id:\s*\w+/gm) || []).length, 1,
+  "no duplicar id en el mismo ScrollView: impide cargar QML");
+assert.ok(!view.includes("id: collapseScroll"),
+  "el id anterior de la extracción debe estar eliminado");
 assert.equal((view.match(/QQC2.Button \{/g) || []).length, 5);
 assert.equal((view.match(/QQC2.CheckBox \{/g) || []).length, 3);
 assert.equal((view.match(/QQC2.ComboBox \{/g) || []).length, 4);
