@@ -3613,3 +3613,12 @@ Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-vo
 **FALLA REAL PROBADA EN CACHYOS:** la primera compilación de `probar_islas_juntas.sh` con `SMARTBAR_ENABLE_REAL_TRAY=1` se detuvo en `status_notifier_bridge.cpp` al conectar/desconectar señales, por `const QDBusConnection bus` incompatible con los métodos no constantes de Qt6. El programa no llegó a cargar las islas en ese intento, sin afectar el panel KDE. Los logs de la sesión se conservaron.
 
 **CORREGIDO EN RAMA EXPERIMENTAL:** dos declaraciones pasan a `QDBusConnection bus` ([cdb1cc3](https://github.com/nicoarg87/plasma-smartbar/commit/cdb1cc31fc16e8adc5e09dc7b8181cf12250ed48)); prueba estructural existente ampliada para prevenir la regresión ([f64da7e](https://github.com/nicoarg87/plasma-smartbar/commit/f64da7eff28a215a6cc4a30f06d4b8886a9db155)). Revisión de código: dos declaraciones mutables, ninguna antigua, sintaxis JavaScript válida. **No afirmar compilación Qt exitosa ni funcionamiento de iconos hasta repetir una única prueba dirigida en CachyOS.** Seguimiento [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
+
+
+## Compilación SNI aprobada, arranque conjunto detenido — 27/11/2026
+
+**PROBADO EN CACHYOS POR EL MANTENEDOR:** actualizó desde `4378696` a `d45a463` y volvió a ejecutar el ensayo con `SMARTBAR_ENABLE_REAL_TRAY=1`. **La compilación Qt6 del puente ahora se completó**, por lo que la reparación `const QDBusConnection` corrigió el error anterior. Se lanzaron Soledad (PID 8284) y Malvina (PID 8285), pero uno de los procesos terminó con error y el script detuvo el otro. **No se considera probada la vista real de KMix** ni se puede atribuir aún la salida al módulo SNI sin leer `soledad.log` y `malvina.log`.
+
+**REGISTROS CONSERVADOS:** `/home/nico/.local/state/plasma-smartbar/ensayos/sesion-20261127-140028-YGipBXYb/` (ruta informada por el mantenedor). No eliminar registros ni alterar el panel KDE. Se corrigió un problema independiente del texto del lanzador: faltaba el segundo argumento de `printf` y el comando de consulta indicaba `/malvina.log` en vez de su ruta completa ([4e4d465](https://github.com/nicoarg87/plasma-smartbar/commit/4e4d4652ac3a8500d7d1e6fe556821f27404f66f)). Este ajuste no modifica ejecución ni recupera el proceso.
+
+**SIGUIENTE PASO:** analizar las últimas líneas de los dos logs guardados, identificar exactamente qué isla y error causaron la salida, reparar y probar solo la nueva integración. Issue [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
