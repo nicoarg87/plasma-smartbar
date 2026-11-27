@@ -7,6 +7,9 @@
 #include <QSet>
 #include <QString>
 
+class QQuickImageProvider;
+QQuickImageProvider *createStatusNotifierIconProvider();
+
 class StatusNotifierBridge final : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ enabled CONSTANT)
