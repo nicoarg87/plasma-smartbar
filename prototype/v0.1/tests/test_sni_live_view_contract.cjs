@@ -27,16 +27,11 @@ assert.match(real, /model: expanded \? sourceEntries : \[\]/);
 assert.match(real, /delegate: IslandButton\s*\{/);
 assert.match(real, /iconSource: itemIcon/);
 assert.match(real, /preferredButtonWidth: 40/);
-assert.match(real, /enabled: true/);
-assert.match(real, /onClicked: requestAction\(itemIsMenu \? "context" : "activate"\)/);
-assert.match(real, /TapHandler\s*\{[\s\S]*?acceptedButtons: Qt.RightButton/);
-assert.match(real, /signal actionRequested\(string service, string objectPath/);
-assert.match(real, /indicator.mapToGlobal\(/);
-assert.doesNotMatch(real, /qdbus|QProcess|RegisterStatusNotifier/);
+assert.match(real, /enabled: false/);
+assert.doesNotMatch(real, /onClicked:|qdbus|QProcess|RegisterStatusNotifier/);
 assert.match(demo, /Bandeja simulada/);
 assert.match(preview, /useRealSystemTray: smartbarSni\.enabled && smartbarSni\.available/);
 assert.match(preview, /realSystemTrayEntries: smartbarSni\.entries/);
-assert.match(preview, /realSystemTrayBackend: smartbarSni/);
 assert.match(native, /qEnvironmentVariableIntValue\("SMARTBAR_ENABLE_REAL_TRAY"\) == 1/);
 assert.match(native, /preview_soledad_input_mask\.qml/);
 assert.match(native, /engine\.rootContext\(\)->setContextProperty\("smartbarSni", &sni\)/);
@@ -46,11 +41,6 @@ assert.match(cmake, /if\(TARGET Qt6::DBus\)/);
 assert.match(cmake, /SMARTBAR_HAS_DBUS=1/);
 assert.match(cmake, /smartbar_sni_readonly_probe EXCLUDE_FROM_ALL/);
 assert.match(header, /Q_PROPERTY\(QVariantList entries READ entries NOTIFY entriesChanged\)/);
-assert.match(header, /Q_INVOKABLE bool activate\(/);
-assert.match(header, /Q_INVOKABLE bool contextMenu\(/);
-assert.match(bar, /property var realSystemTrayBackend: null/);
-assert.match(bar, /function requestRealTrayAction\(/);
-assert.match(bar, /root.requestRealTrayAction\(service, objectPath, action, x, y\)/);
 assert.match(bridge, /StatusNotifierItemRegistered/);
 assert.match(bridge, /StatusNotifierItemUnregistered/);
 assert.match(bridge, /NewIcon/);
@@ -59,18 +49,7 @@ assert.match(bridge, /QIcon::fromTheme/);
 assert.match(bridge, /m_connectedSignals = desiredConnections/);
 // QDBusConnection::connect/disconnect no son métodos const en Qt 6.
 // La conexión local debe ser mutable tanto en el constructor como en refresh().
-const constructorPart = bridge.slice(bridge.indexOf("StatusNotifierBridge::StatusNotifierBridge"),
-                                     bridge.indexOf("void StatusNotifierBridge::scheduleRefresh"));
-const refreshPart = bridge.slice(bridge.indexOf("void StatusNotifierBridge::refresh()"));
-for (const part of [constructorPart, refreshPart]) {
-    assert.match(part, /QDBusConnection bus = QDBusConnection::sessionBus\(\);/);
-    assert.doesNotMatch(part, /const QDBusConnection bus = QDBusConnection::sessionBus\(\);/);
-}
-// dispatchItemAction usa asyncCall(), que sí es const en Qt6.
-assert.match(bridge, /QDBusMessage::createMethodCall\(/);
-assert.match(bridge, /QDBusPendingCallWatcher\(bus.asyncCall\(call, 1800\), this\)/);
-assert.match(bridge, /entry.value\(QStringLiteral\("service"\)\)/);
-assert.match(bridge, /entry.value\(QStringLiteral\("objectPath"\)\)/);
-assert.match(bridge, /itemInterface != QStringLiteral\("org.kde.StatusNotifierItem"\)/);
-assert.doesNotMatch(bridge, /RegisterStatusNotifierHost|RegisterStatusNotifierItem|QProcess|startDetached|registerService\(/);
-console.log("OK: bandeja SNI opcional con clics validados, demo intacta y sin registrar host KDE.");
+assert.equal((bridge.match(/QDBusConnection bus = QDBusConnection::sessionBus\(\);/g) || []).length, 2);
+assert.doesNotMatch(bridge, /const QDBusConnection bus = QDBusConnection::sessionBus\(\);/);
+assert.doesNotMatch(bridge, /RegisterStatusNotifierHost|RegisterStatusNotifierItem|\.call\(.*Activate|\.call\(.*ContextMenu|QProcess|startDetached|registerService\(/);
+console.log("OK: bandeja real SNI opcional/pasiva, demo conservada, sin acciones ni panel KDE.");
