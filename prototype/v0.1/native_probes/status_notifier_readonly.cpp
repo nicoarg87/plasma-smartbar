@@ -61,29 +61,24 @@ int main(int argc, char *argv[]) {
             QDBusInterface item(service, objectPath,
                                QStringLiteral("org.kde.StatusNotifierItem"), bus);
             item.setTimeout(1500);
-            if (!item.isValid()) {
-                QDBusInterface fallback(service, objectPath,
-                                       QStringLiteral("org.freedesktop.StatusNotifierItem"), bus);
-                fallback.setTimeout(1500);
-                if (!fallback.isValid()) continue;
+            const auto appendEntry = [&](QDBusInterface &source) {
                 QJsonObject entry;
                 entry.insert(QStringLiteral("service"), service);
                 entry.insert(QStringLiteral("objectPath"), objectPath);
-                entry.insert(QStringLiteral("id"), fallback.property("Id").toString());
-                entry.insert(QStringLiteral("title"), fallback.property("Title").toString());
-                entry.insert(QStringLiteral("iconName"), fallback.property("IconName").toString());
-                entry.insert(QStringLiteral("status"), fallback.property("Status").toString());
+                entry.insert(QStringLiteral("id"), source.property("Id").toString());
+                entry.insert(QStringLiteral("title"), source.property("Title").toString());
+                entry.insert(QStringLiteral("iconName"), source.property("IconName").toString());
+                entry.insert(QStringLiteral("status"), source.property("Status").toString());
                 entries.append(entry);
-                continue;
+            };
+            if (item.isValid()) {
+                appendEntry(item);
+            } else {
+                QDBusInterface fallback(service, objectPath,
+                                       QStringLiteral("org.freedesktop.StatusNotifierItem"), bus);
+                fallback.setTimeout(1500);
+                if (fallback.isValid()) appendEntry(fallback);
             }
-            QJsonObject entry;
-            entry.insert(QStringLiteral("service"), service);
-            entry.insert(QStringLiteral("objectPath"), objectPath);
-            entry.insert(QStringLiteral("id"), item.property("Id").toString());
-            entry.insert(QStringLiteral("title"), item.property("Title").toString());
-            entry.insert(QStringLiteral("iconName"), item.property("IconName").toString());
-            entry.insert(QStringLiteral("status"), item.property("Status").toString());
-            entries.append(entry);
         }
         QJsonObject report;
         report.insert(QStringLiteral("watcher"), watcherName);
