@@ -1517,6 +1517,10 @@ Item {
         const next = DemoWindows.firstClosed(demoOpenedApps, demoApps)
         return next.length > 0 && openDemoWindow(next)
     }
+    // Bandeja real SNI exclusivamente en el ensayo Qt/DBus activado.
+    // En visor y sin backend se conserva la bandeja simulada original.
+    property bool useRealSystemTray: false
+    property var realSystemTrayEntries: []
     readonly property var demoTray: SystemTrayModel.demoEntries()
     // Menú de muestra: NO representa las aplicaciones instaladas todavía.
     readonly property var demoInstalledApps: ["Dolphin", "Konsole", "Brave", "Firefox", "Configuración"]
@@ -2250,7 +2254,7 @@ Item {
                 SystemTrayView {
                     sourceEntries: SystemTrayModel.visibleEntries(
                         root.demoTray, root.trayExpanded)
-                    expanded: root.trayExpanded
+                    expanded: root.trayExpanded && !root.useRealSystemTray
                     trayColor: root.effectiveTrayButtonColor
                     trayOpacity: root.effectiveTrayButtonOpacity
                     trayOutlineStyle: root.outlineConfig.tray.style
@@ -2260,6 +2264,20 @@ Item {
                     onIconActivated: function(iconName) {
                         root.selectDemoTray(iconName)
                     }
+                }
+
+                // Vista opcional en la MISMA Row, sin alterar la geometría
+                // ni crear una segunda bandeja. Las acciones reales siguen
+                // bloqueadas hasta integrar menús SNI bajo Wayland.
+                SystemTrayRealView {
+                    sourceEntries: root.realSystemTrayEntries
+                    expanded: root.trayExpanded && root.useRealSystemTray
+                    trayColor: root.effectiveTrayButtonColor
+                    trayOpacity: root.effectiveTrayButtonOpacity
+                    trayOutlineStyle: root.outlineConfig.tray.style
+                    trayOutlineWidth: root.outlineConfig.tray.width
+                    trayOutlineColor: root.displayOutlineTrayColor
+                    trayOutlineOpacity: root.outlineConfig.tray.opacity
                 }
 
                 // Separación mínima y legible entre iconos de bandeja y
