@@ -1,34 +1,19 @@
 // Copyright (c) Plasma SmartBar contributors. SPDX-License-Identifier: MIT
-// Observador SNI experimental: lectura, señales y acciones por clic explícito.
-// No registra hosts/watchers ni modifica la configuración del panel KDE.
-// Activate y ContextMenu se envían solo a los indicadores SNI vigentes.
+// Observador SNI experimental. Solo consulta propiedades y señales D-Bus.
+// NO registra hosts/watchers, no ejecuta Activate ni ContextMenu, no toca KDE.
 #include "status_notifier_bridge.h"
-#include <QDebug>
-#include <QGuiApplication>
 #include <QIcon>
-#include <memory>
 #include <QPixmap>
 #include <QQuickImageProvider>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QUrl>
 #include <QVariantMap>
-#include <QtGlobal>
 
 #ifdef SMARTBAR_HAS_DBUS
 #include <QDBusConnection>
 #include <QDBusInterface>
-#include <QDBusMessage>
-#include <QDBusPendingCallWatcher>
-#include <QDBusPendingReply>
-#include <QDBusArgument>
-#include <QDBusObjectPath>
-#include <QDBusVariant>
-#include <QMetaType>
 #include <QDBusServiceWatcher>
-#endif
-#ifdef SMARTBAR_HAS_KWAYLAND_ACTIVATION
-#include <KWaylandExtras>
 #endif
 
 class StatusNotifierIconProvider final : public QQuickImageProvider {
@@ -89,88 +74,6 @@ QString iconUrl(const QString &name, quint64 revision) {
         QString::fromLatin1(QUrl::toPercentEncoding(name)) +
         QStringLiteral("?v=") + QString::number(revision);
 }
-// DBusMenu: GetLayout devuelve (u, (ia{sv}av)). Decodificar sólo
-// las filas directas, con límites; no confiar en etiquetas como código QML.
-QVariantMap readMenuNode(const QDBusArgument &incoming) {
-    QDBusArgument arg(incoming);
-    arg.beginStructure();
-    qint32 id = -1;
-    arg >> id;
-    QVariantMap props;
-    arg.beginMap();
-    int count = 0;
-    while (!arg.atEnd() && count++ < 80) {
-        arg.beginMapEntry();
-        QString key;
-        QDBusVariant value;
-        arg >> key >> value;
-        if (key.size() <= 48) props.insert(key, value.variant());
-        arg.endMapEntry();
-    }
-    // El emisor debe respetar límite de propiedades por fila.
-    while (!arg.atEnd()) {
-        arg.beginMapEntry();
-        QString key;
-        QDBusVariant value;
-        arg >> key >> value;
-        arg.endMapEntry();
-    }
-    arg.endMap();
-    arg.beginArray();
-    // GetLayout se solicita con profundidad 1; ignorar descendientes aquí.
-    while (!arg.atEnd()) {
-        QDBusVariant skipped;
-        arg >> skipped;
-    }
-    arg.endArray();
-    arg.endStructure();
-
-    QVariantMap row;
-    row.insert(QStringLiteral("id"), id);
-    row.insert(QStringLiteral("label"), clean(props.value(QStringLiteral("label")).toString()));
-    row.insert(QStringLiteral("separator"), props.value(QStringLiteral("type")).toString() ==
-                                              QStringLiteral("separator"));
-    row.insert(QStringLiteral("enabled"),
-               props.value(QStringLiteral("enabled"), true).toBool());
-    row.insert(QStringLiteral("visible"),
-               props.value(QStringLiteral("visible"), true).toBool());
-    row.insert(QStringLiteral("hasChildren"),
-               props.value(QStringLiteral("children-display")).toString() ==
-                   QStringLiteral("submenu"));
-    row.insert(QStringLiteral("checked"),
-               props.value(QStringLiteral("toggle-state"), 0).toInt() == 1);
-    return row;
-}
-
-bool readMenuRoot(const QDBusArgument &incoming, QVariantList *items) {
-    QDBusArgument arg(incoming);
-    arg.beginStructure();
-    qint32 rootId = -1;
-    arg >> rootId;
-    arg.beginMap();
-    while (!arg.atEnd()) {
-        arg.beginMapEntry();
-        QString key;
-        QDBusVariant value;
-        arg >> key >> value;
-        arg.endMapEntry();
-    }
-    arg.endMap();
-    arg.beginArray();
-    while (!arg.atEnd()) {
-        QDBusVariant child;
-        arg >> child;
-        if (items->size() >= 60) continue;
-        if (!child.variant().canConvert<QDBusArgument>()) continue;
-        const QVariantMap row = readMenuNode(qvariant_cast<QDBusArgument>(child.variant()));
-        if (row.value(QStringLiteral("id")).toInt() <= 0 ||
-            !row.value(QStringLiteral("visible")).toBool()) continue;
-        items->append(row);
-    }
-    arg.endArray();
-    arg.endStructure();
-    return rootId >= 0;
-}
 } // namespace
 #endif
 
@@ -220,244 +123,6 @@ void StatusNotifierBridge::itemStatusChanged(const QString &) {
     scheduleRefresh();
 }
 
-bool StatusNotifierBridge::menuDestination(const QString &service,
-                                               const QString &objectPath,
-                                               QString *menuPath) const {
-#ifdef SMARTBAR_HAS_DBUS
-    if (!m_enabled || !m_available) return false;
-    for (const QVariant &value : m_entries) {
-        const QVariantMap entry = value.toMap();
-        if (entry.value(QStringLiteral("service")).toString() == service &&
-            entry.value(QStringLiteral("objectPath")).toString() == objectPath) {
-            const QString path = entry.value(QStringLiteral("menuPath")).toString();
-            static const QRegularExpression safe(
-                QStringLiteral(R"(^/(?:[A-Za-z0-9_]+(?:/[A-Za-z0-9_]+)*)?$)"));
-            if (path == QStringLiteral("/") || !safe.match(path).hasMatch())
-                return false;
-            *menuPath = path;
-            return true;
-        }
-    }
-#else
-    Q_UNUSED(service);
-    Q_UNUSED(objectPath);
-    Q_UNUSED(menuPath);
-#endif
-    return false;
-}
-
-bool StatusNotifierBridge::requestMenu(const QString &service,
-                                        const QString &objectPath, int parentId) {
-#ifdef SMARTBAR_HAS_DBUS
-    QString menuPath;
-    if (parentId < 0 || !menuDestination(service, objectPath, &menuPath))
-        return false;
-    const QDBusConnection bus = QDBusConnection::sessionBus();
-    if (!bus.isConnected()) return false;
-
-    const quint64 generation = ++m_menuRequest;
-    qInfo() << "SmartBar SNI: consulta DBusMenu solicitada, nivel" << parentId;
-    QDBusMessage call = QDBusMessage::createMethodCall(
-        service, menuPath, QStringLiteral("com.canonical.dbusmenu"),
-        QStringLiteral("GetLayout"));
-    call << static_cast<qint32>(parentId) << static_cast<qint32>(1)
-         << QStringList{};
-    auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
-    connect(pending, &QDBusPendingCallWatcher::finished, this,
-            [this, service, objectPath, menuPath, generation](QDBusPendingCallWatcher *done) {
-                const QDBusMessage reply = done->reply();
-                done->deleteLater();
-                if (generation != m_menuRequest) return;
-                QString currentMenu;
-                if (!menuDestination(service, objectPath, &currentMenu)) return;
-                if (currentMenu != menuPath) return;
-                if (reply.type() == QDBusMessage::ErrorMessage) {
-                    qWarning() << "SmartBar SNI: DBusMenu GetLayout rechazado:"
-                               << reply.errorName();
-                    return;
-                }
-                const auto values = reply.arguments();
-                if (values.size() < 2 || !values.at(1).canConvert<QDBusArgument>()) {
-                    qWarning() << "SmartBar SNI: respuesta DBusMenu no reconocida";
-                    return;
-                }
-                QVariantList rows;
-                if (!readMenuRoot(qvariant_cast<QDBusArgument>(values.at(1)), &rows)) {
-                    qWarning() << "SmartBar SNI: estructura DBusMenu inválida";
-                    return;
-                }
-                m_menuService = service;
-                m_menuObjectPath = objectPath;
-                m_menuPath = menuPath;
-                m_menuEntries = rows;
-                qInfo() << "SmartBar SNI: menú leído, filas:" << rows.size();
-                emit menuChanged();
-            });
-    return true;
-#else
-    Q_UNUSED(service);
-    Q_UNUSED(objectPath);
-    Q_UNUSED(parentId);
-    return false;
-#endif
-}
-
-bool StatusNotifierBridge::triggerMenuEntry(const QString &service,
-                                            const QString &objectPath, int entryId) {
-#ifdef SMARTBAR_HAS_DBUS
-    if (service != m_menuService || objectPath != m_menuObjectPath)
-        return false;
-    QString menuPath;
-    if (!menuDestination(service, objectPath, &menuPath) ||
-        menuPath != m_menuPath) return false;
-    bool allowed = false;
-    for (const QVariant &value : m_menuEntries) {
-        const QVariantMap row = value.toMap();
-        if (row.value(QStringLiteral("id")).toInt() == entryId &&
-            row.value(QStringLiteral("enabled")).toBool() &&
-            !row.value(QStringLiteral("separator")).toBool() &&
-            !row.value(QStringLiteral("hasChildren")).toBool()) {
-            allowed = true;
-            break;
-        }
-    }
-    if (!allowed) return false;
-    QDBusMessage call = QDBusMessage::createMethodCall(
-        service, menuPath, QStringLiteral("com.canonical.dbusmenu"),
-        QStringLiteral("Event"));
-    call << static_cast<qint32>(entryId) << QStringLiteral("clicked")
-         << QVariant::fromValue(QDBusVariant(QString())) << quint32(0);
-    const QDBusConnection bus = QDBusConnection::sessionBus();
-    auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
-    connect(pending, &QDBusPendingCallWatcher::finished, this,
-            [entryId](QDBusPendingCallWatcher *done) {
-                if (done->isError())
-                    qWarning() << "SmartBar SNI: error en opción de menú"
-                               << entryId << done->error().name();
-                else
-                    qInfo() << "SmartBar SNI: opción de menú enviada" << entryId;
-                done->deleteLater();
-            });
-    return true;
-#else
-    Q_UNUSED(service);
-    Q_UNUSED(objectPath);
-    Q_UNUSED(entryId);
-    return false;
-#endif
-}
-
-bool StatusNotifierBridge::activate(const QString &service, const QString &objectPath,
-                                    int x, int y) {
-    return dispatchItemAction(service, objectPath, QStringLiteral("Activate"), x, y);
-}
-
-bool StatusNotifierBridge::contextMenu(const QString &service, const QString &objectPath,
-                                       int x, int y) {
-    return dispatchItemAction(service, objectPath, QStringLiteral("ContextMenu"), x, y);
-}
-
-// Sólo se invoca tras un clic real en una entrada publicada por este mismo
-// observador. No se aceptan nombres/rutas arbitarios ni se lanza otro proceso.
-bool StatusNotifierBridge::dispatchItemAction(
-    const QString &service, const QString &objectPath,
-    const QString &method, int x, int y) {
-#ifdef SMARTBAR_HAS_DBUS
-    if (!m_enabled || !m_available ||
-        (method != QStringLiteral("Activate") && method != QStringLiteral("ContextMenu")))
-        return false;
-
-    QString itemInterface;
-    for (const QVariant &value : m_entries) {
-        const QVariantMap entry = value.toMap();
-        if (entry.value(QStringLiteral("service")).toString() == service &&
-            entry.value(QStringLiteral("objectPath")).toString() == objectPath) {
-            itemInterface = entry.value(QStringLiteral("itemInterface")).toString();
-            break;
-        }
-    }
-    if (itemInterface != QStringLiteral("org.kde.StatusNotifierItem") &&
-        itemInterface != QStringLiteral("org.freedesktop.StatusNotifierItem")) {
-        qWarning() << "SmartBar SNI: acción rechazada, indicador no registrado";
-        return false;
-    }
-
-    const QDBusConnection bus = QDBusConnection::sessionBus();
-    if (!bus.isConnected()) return false;
-    // Las coordenadas son una sugerencia de ubicación, no una orden
-    // de mover ventanas. Quitar coordenadas fuera de rango.
-    const int safeX = qBound(-32768, x, 32767);
-    const int safeY = qBound(-32768, y, 32767);
-
-    auto sendAction = [this, service, objectPath, itemInterface, method,
-                       safeX, safeY](const QString &token) {
-        const QDBusConnection actionBus = QDBusConnection::sessionBus();
-        if (!actionBus.isConnected()) return;
-        if (!token.isEmpty()) {
-            // KDE Plasma envía el token antes del método Activate para
-            // permitir que KWin enfoque la ventana/popup bajo Wayland.
-            QDBusMessage tokenCall = QDBusMessage::createMethodCall(
-                service, objectPath, itemInterface,
-                QStringLiteral("ProvideXdgActivationToken"));
-            tokenCall << token;
-            actionBus.asyncCall(tokenCall, 1000);
-            qInfo() << "SmartBar SNI: token Wayland enviado";
-        }
-        QDBusMessage call = QDBusMessage::createMethodCall(
-            service, objectPath, itemInterface, method);
-        call << safeX << safeY;
-        qInfo() << "SmartBar SNI: envío de clic" << method;
-        auto *pending = new QDBusPendingCallWatcher(
-            actionBus.asyncCall(call, 1800), this);
-        connect(pending, &QDBusPendingCallWatcher::finished, this,
-                [this, method, service, objectPath](QDBusPendingCallWatcher *done) {
-                    const QDBusPendingReply<> reply = *done;
-                    if (reply.isError()) {
-                        qWarning() << "SmartBar SNI: acción" << method
-                                   << "no atendida:" << reply.error().name();
-                        if (method == QStringLiteral("Activate"))
-                            requestMenu(service, objectPath, 0);
-                    } else {
-                        qInfo() << "SmartBar SNI: acción" << method << "enviada";
-                    }
-                    done->deleteLater();
-                });
-    };
-
-#ifdef SMARTBAR_HAS_KWAYLAND_ACTIVATION
-    if (method == QStringLiteral("Activate") &&
-        QGuiApplication::platformName().contains(QStringLiteral("wayland"),
-                                                 Qt::CaseInsensitive)) {
-        auto sent = std::make_shared<bool>(false);
-        // Nunca retener una interacción indefinidamente si el compositor
-        // no entrega token; la activación simple sigue siendo respaldo.
-        QTimer::singleShot(400, this, [sent, sendAction]() {
-            if (*sent) return;
-            *sent = true;
-            qWarning() << "SmartBar SNI: token Wayland no disponible; activar sin token";
-            sendAction(QString());
-        });
-        KWaylandExtras::xdgActivationToken(nullptr, QString()).then(
-            this, [sent, sendAction](const QString &token) {
-                if (*sent) return;
-                *sent = true;
-                sendAction(token);
-            });
-        return true;
-    }
-#endif
-    sendAction(QString());
-    return true; // Encolada, no implica que la aplicación la haya ejecutado.
-#else
-    Q_UNUSED(service);
-    Q_UNUSED(objectPath);
-    Q_UNUSED(method);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    return false;
-#endif
-}
-
 void StatusNotifierBridge::refresh() {
 #ifdef SMARTBAR_HAS_DBUS
     if (!m_enabled) return;
@@ -503,14 +168,6 @@ void StatusNotifierBridge::refresh() {
             itemInterface = interfaceName;
             entry.insert(QStringLiteral("service"), service);
             entry.insert(QStringLiteral("objectPath"), objectPath);
-            entry.insert(QStringLiteral("itemInterface"), interfaceName);
-            entry.insert(QStringLiteral("itemIsMenu"), item.property("ItemIsMenu").toBool());
-            const QVariant menuValue = item.property("Menu");
-            const QString menuPath = menuValue.canConvert<QDBusObjectPath>()
-                ? qvariant_cast<QDBusObjectPath>(menuValue).path()
-                : menuValue.toString();
-            entry.insert(QStringLiteral("menuPath"), menuPath);
-
             entry.insert(QStringLiteral("title"), clean(title.isEmpty() ? id : title));
             entry.insert(QStringLiteral("status"), clean(status));
             entry.insert(QStringLiteral("iconName"), iconName.left(128));
