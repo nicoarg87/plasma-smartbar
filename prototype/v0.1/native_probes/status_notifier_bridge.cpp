@@ -90,7 +90,7 @@ StatusNotifierBridge::StatusNotifierBridge(bool requested, QObject *parent)
 
 #ifdef SMARTBAR_HAS_DBUS
     if (!m_enabled) return;
-    const QDBusConnection bus = QDBusConnection::sessionBus();
+    QDBusConnection bus = QDBusConnection::sessionBus();
     auto *ownerWatcher = new QDBusServiceWatcher(QString(), bus,
                              QDBusServiceWatcher::WatchForOwnerChange, this);
     connect(ownerWatcher, &QDBusServiceWatcher::serviceOwnerChanged,
@@ -126,7 +126,7 @@ void StatusNotifierBridge::itemStatusChanged(const QString &) {
 void StatusNotifierBridge::refresh() {
 #ifdef SMARTBAR_HAS_DBUS
     if (!m_enabled) return;
-    const QDBusConnection bus = QDBusConnection::sessionBus();
+    QDBusConnection bus = QDBusConnection::sessionBus();
     bool available = false;
     QStringList ids;
     for (const QString &name : watchers()) {
