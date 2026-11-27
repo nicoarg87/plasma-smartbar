@@ -259,12 +259,13 @@ bool StatusNotifierBridge::requestMenu(const QString &service,
          << QStringList{};
     auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
     connect(pending, &QDBusPendingCallWatcher::finished, this,
-            [this, service, objectPath, generation](QDBusPendingCallWatcher *done) {
+            [this, service, objectPath, menuPath, generation](QDBusPendingCallWatcher *done) {
                 const QDBusMessage reply = done->reply();
                 done->deleteLater();
                 if (generation != m_menuRequest) return;
                 QString currentMenu;
                 if (!menuDestination(service, objectPath, &currentMenu)) return;
+                if (currentMenu != menuPath) return;
                 if (reply.type() == QDBusMessage::ErrorMessage) {
                     qWarning() << "SmartBar SNI: DBusMenu GetLayout rechazado:"
                                << reply.errorName();
@@ -282,6 +283,7 @@ bool StatusNotifierBridge::requestMenu(const QString &service,
                 }
                 m_menuService = service;
                 m_menuObjectPath = objectPath;
+                m_menuPath = menuPath;
                 m_menuEntries = rows;
                 qInfo() << "SmartBar SNI: menú leído, filas:" << rows.size();
                 emit menuChanged();
@@ -301,7 +303,8 @@ bool StatusNotifierBridge::triggerMenuEntry(const QString &service,
     if (service != m_menuService || objectPath != m_menuObjectPath)
         return false;
     QString menuPath;
-    if (!menuDestination(service, objectPath, &menuPath)) return false;
+    if (!menuDestination(service, objectPath, &menuPath) ||
+        menuPath != m_menuPath) return false;
     bool allowed = false;
     for (const QVariant &value : m_menuEntries) {
         const QVariantMap row = value.toMap();
@@ -383,6 +386,7 @@ bool StatusNotifierBridge::dispatchItemAction(
     QDBusMessage call = QDBusMessage::createMethodCall(
         service, objectPath, itemInterface, method);
     call << safeX << safeY;
+    qInfo() << "SmartBar SNI: envío de clic" << method;
     auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
     connect(pending, &QDBusPendingCallWatcher::finished, this,
             [method](QDBusPendingCallWatcher *done) {
