@@ -59,8 +59,14 @@ assert.match(bridge, /QIcon::fromTheme/);
 assert.match(bridge, /m_connectedSignals = desiredConnections/);
 // QDBusConnection::connect/disconnect no son métodos const en Qt 6.
 // La conexión local debe ser mutable tanto en el constructor como en refresh().
-assert.equal((bridge.match(/QDBusConnection bus = QDBusConnection::sessionBus\(\);/g) || []).length, 2);
-assert.doesNotMatch(bridge, /const QDBusConnection bus = QDBusConnection::sessionBus\(\);/);
+const constructorPart = bridge.slice(bridge.indexOf("StatusNotifierBridge::StatusNotifierBridge"),
+                                     bridge.indexOf("void StatusNotifierBridge::scheduleRefresh"));
+const refreshPart = bridge.slice(bridge.indexOf("void StatusNotifierBridge::refresh()"));
+for (const part of [constructorPart, refreshPart]) {
+    assert.match(part, /QDBusConnection bus = QDBusConnection::sessionBus\(\);/);
+    assert.doesNotMatch(part, /const QDBusConnection bus = QDBusConnection::sessionBus\(\);/);
+}
+// dispatchItemAction usa asyncCall(), que sí es const en Qt6.
 assert.match(bridge, /QDBusMessage::createMethodCall\(/);
 assert.match(bridge, /QDBusPendingCallWatcher\(bus.asyncCall\(call, 1800\), this\)/);
 assert.match(bridge, /entry.value\(QStringLiteral\("service"\)\)/);
