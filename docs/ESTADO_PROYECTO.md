@@ -3622,3 +3622,12 @@ Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-vo
 **REGISTROS CONSERVADOS:** `/home/nico/.local/state/plasma-smartbar/ensayos/sesion-20261127-140028-YGipBXYb/` (ruta informada por el mantenedor). No eliminar registros ni alterar el panel KDE. Se corrigió un problema independiente del texto del lanzador: faltaba el segundo argumento de `printf` y el comando de consulta indicaba `/malvina.log` en vez de su ruta completa ([4e4d465](https://github.com/nicoarg87/plasma-smartbar/commit/4e4d4652ac3a8500d7d1e6fe556821f27404f66f)). Este ajuste no modifica ejecución ni recupera el proceso.
 
 **SIGUIENTE PASO:** analizar las últimas líneas de los dos logs guardados, identificar exactamente qué isla y error causaron la salida, reparar y probar solo la nueva integración. Issue [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
+
+
+## Fallo QML de configuración compartida corregido — 27/11/2026
+
+**PRUEBA REAL DEL MANTENEDOR EN CACHYOS:** el ensayo con `SMARTBAR_ENABLE_REAL_TRAY=1` compiló correctamente, pero tanto Soledad como Malvina no pudieron cargar `SmartBarContent.qml` → `SoledadSettings.qml` → `SoledadBehaviorPage.qml`. Logs de la sesión `20261127-140028-YGipBXYb`: `SoledadBehaviorPage.qml:11:17: Property value set multiple times`; `QML no creó exactamente una superficie`.
+
+**CAUSA ENCONTRADA:** la raíz `QQC2.ScrollView` de `SoledadBehaviorPage.qml` declaraba dos veces la propiedad especial `id` (`page` y `collapseScroll`) al extraer el módulo. **CORRECCIÓN IMPLEMENTADA:** se quitó solo `id: collapseScroll` ([6410d00](https://github.com/nicoarg87/plasma-smartbar/commit/6410d00143b1457ab383f9a0f0dfb77fbb71ec74)), conservando todo el contenido de la página. Se añadió un guard al test de ese módulo contra IDs duplicados ([06db862](https://github.com/nicoarg87/plasma-smartbar/commit/06db8624a91c453bd2cbb6877ce8dc41c3717970)).
+
+**COMPROBADO ESTÁTICAMENTE:** solo `id: page`, no quedan referencias a `collapseScroll`; código del test sin error de sintaxis. **PENDIENTE:** cargar esta corrección en CachyOS y luego comprobar únicamente la capacidad nueva SNI, sin retestar funcionalidades previamente aprobadas. No se alteraron configuraciones del usuario, panel KDE ni logs existentes. Referencias: issues [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24) y [#25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
