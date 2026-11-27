@@ -753,6 +753,11 @@ Window {
         // sin crear botones ni controlar ventanas externas.
         demoWindowControlsEnabled: true
         realTaskModel: groupedKdeWindows
+        // El lector SNI se habilita solo al lanzar el ensayo con
+        // SMARTBAR_ENABLE_REAL_TRAY=1 y Qt6::DBus disponible.
+        // Sin ese modo, este visor conserva los tres iconos de demostración.
+        useRealSystemTray: smartbarSni.enabled && smartbarSni.available
+        realSystemTrayEntries: smartbarSni.entries
         realTaskActivationEnabled: smartbarContinuousMode
         realTaskPreviewEnabled: smartbarContinuousMode
         onTaskCloseModeChanged: {
