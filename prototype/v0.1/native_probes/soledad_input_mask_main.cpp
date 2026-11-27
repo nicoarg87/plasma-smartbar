@@ -1,6 +1,8 @@
 // Copyright (c) Plasma SmartBar contributors. SPDX-License-Identifier: MIT
 // Ensayo diagnóstico nativo: ventana LayerShellQt FIJA + región de entrada.
 // NO instala plasmoides, no modifica ventanas externas ni guarda preferencias.
+#include "status_notifier_bridge.h"
+#include <QQuickImageProvider>
 #include <QGuiApplication>
 #include <QDesktopServices>
 #include <QProcess>
@@ -374,6 +376,15 @@ int main(int argc, char *argv[]) {
 
     InputMaskBridge input;
     QQmlApplicationEngine engine;
+    // Solo el ensayo explícito de Soledad habilita la nueva bandeja real.
+    // Malvina, visor y panel KDE no se inscriben como nuevos hosts.
+    const bool enableRealTray =
+        qEnvironmentVariableIntValue("SMARTBAR_ENABLE_REAL_TRAY") == 1 &&
+        QFileInfo(QString::fromLocal8Bit(argv[1])).fileName() ==
+            QStringLiteral("preview_soledad_input_mask.qml");
+    StatusNotifierBridge sni(enableRealTray, &app);
+    engine.addImageProvider(QStringLiteral("smartbar-sni"), createStatusNotifierIconProvider());
+    engine.rootContext()->setContextProperty("smartbarSni", &sni);
     engine.rootContext()->setContextProperty("soledadInputMask", &input);
     // Solo el lanzador conjunto habilita sesiones sin autocierre; el resto
     // de los ensayos conserva sus límites de tiempo y su seguridad.
