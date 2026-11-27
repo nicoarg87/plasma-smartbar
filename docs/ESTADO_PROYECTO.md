@@ -3651,3 +3651,26 @@ Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-vo
 Durante el dictado por voz, el mantenedor observó además un **icono de micrófono**. No se atribuye automáticamente a un segundo `StatusNotifierItem` de SmartBar porque podría ser un indicador de privacidad de KDE; falta evidencia para clasificar su origen.
 
 **PENDIENTE:** implementar y validar clics y menús D-Bus de iconos reales, estados dinámicos con varias aplicaciones, iconos SNI Pixmap, accesibilidad interactiva, rendimiento y uso diario. Los botones SNI continúan intencionalmente sin acción; no repetir validaciones de aparición del icono de KMix salvo regresión específica. Sin cambios en panel KDE, preferencias ni logs. Seguimiento [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
+
+
+## Acciones SNI de primer corte: clic principal y contextual — 27/11/2026
+
+**BASE CONFIRMADA POR EL MANTENEDOR:** la bandeja real KDE se muestra correctamente en Soledad y el icono de KMix es visible en CachyOS. Los iconos eran **intencionalmente no interactivos** hasta este corte (`SystemTrayRealView.qml` usaba `enabled: false`). Esta comprobación visual ya fue aprobada y **no hay que exigirla otra vez de forma aislada**.
+
+**IMPLEMENTADO EN RAMA EXPERIMENTAL; AÚN NO PROBADO EN CACHYOS:**
+- `status_notifier_bridge.h/.cpp`: métodos Q_INVOKABLE `activate(service, path, x, y)` y `contextMenu(...)` que envían los métodos SNI estándar `Activate` y `ContextMenu` mediante `QDBusConnection::asyncCall` (1,8 s de timeout) únicamente cuando el servicio y la ruta **siguen figurando en el modelo SNI registrado**, la interfaz es reconocida y la integración real está habilitada. Se registra éxito o error asíncrono en los logs existentes. No permite destinos de D-Bus arbitrarios, no crea un segundo host ni modifica KDE.
+- `SystemTrayRealView.qml`: habilita clic izquierdo, clic derecho mediante `TapHandler` sobre los mismos `IslandButton` visibles, muestra ayuda con título y entrega coordenadas de pantalla como sugerencia. Si `ItemIsMenu` es verdadero, el clic izquierdo solicita menú en vez de activación.
+- `SmartBarContent.qml` y `preview_soledad_input_mask.qml`: conectan la vista al backend `smartbarSni` únicamente dentro del ensayo real; la contracción opcional de bandeja existente se aplica solo al clic principal aceptado, nunca durante la solicitud del menú.
+- `tests/test_sni_live_view_contract.cjs` adaptado, y nuevo `tests/test_sni_actions_security_contract.cjs`: comprueban los contratos de acción, validación de identidad, uso de métodos asíncronos, ausencia de registro de host y conservación de la demo.
+
+**COMPROBADO ESTÁTICAMENTE:** contratos fuente y sintaxis de las pruebas JS, concordancia de señales/vinculación y ausencia de cambios de panel. **PENDIENTE DE PRUEBA NATIVA**: compilación Qt6, clic izquierdo real en KMix y clic derecho. **IMPORTANTE:** muchos iconos KDE exportan un menú `com.canonical.dbusmenu` en la propiedad `Menu`; ese **importador de menú remoto completo NO está implementado aún**. Para esas aplicaciones, `ContextMenu` puede no abrir el menú aunque el método llegue a destino. También queda por validar la activación Wayland/xdg-activation y la ubicación exacta del popup. No afirmar menú funcional hasta prueba.
+
+**Prueba dirigida, compatible con Fish, conservando logs y panel:** 
+```fish
+cd ~/plasma-smartbar
+and git pull --ff-only
+and env SMARTBAR_ENABLE_REAL_TRAY=1 bash prototype/v0.1/probar_islas_juntas.sh
+```
+Al expandir la bandeja, probar únicamente **clic izquierdo sobre KMix** y, luego, **clic derecho**; informar si abre el control de volumen o el menú. Si una isla falla, el lanzador ya imprime las últimas líneas de ambos logs sin eliminarlos.
+
+**Siguiente etapa:** implementar menú remoto DBusMenu y token de activación Wayland usando componentes KDE/Qt6 cuando existan y puedan probarse, sin crear botones, rediseñar las islas ni alterar el panel existente. Issue [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
