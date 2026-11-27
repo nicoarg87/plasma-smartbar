@@ -3,6 +3,7 @@
 // ejecuta nada por hover ni se registra otro host del escritorio.
 import QtQuick
 import QtQuick.Controls as QQC2
+import QtQml.Models
 
 Repeater {
     id: realTray
