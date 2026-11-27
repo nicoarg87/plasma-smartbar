@@ -383,6 +383,12 @@ int main(int argc, char *argv[]) {
         QFileInfo(QString::fromLocal8Bit(argv[1])).fileName() ==
             QStringLiteral("preview_soledad_input_mask.qml");
     StatusNotifierBridge sni(enableRealTray, &app);
+    if (enableRealTray) {
+        if (sni.enabled())
+            qInfo() << "SmartBar SNI: observador de solo lectura habilitado";
+        else
+            qWarning() << "SmartBar SNI: Qt6/DBus no disponible; se conserva la bandeja de muestra";
+    }
     engine.addImageProvider(QStringLiteral("smartbar-sni"), createStatusNotifierIconProvider());
     engine.rootContext()->setContextProperty("smartbarSni", &sni);
     engine.rootContext()->setContextProperty("soledadInputMask", &input);
