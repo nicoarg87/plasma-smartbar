@@ -3642,3 +3642,12 @@ Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-vo
 **MEJORA DE DIAGNÓSTICO:** `probar_islas_juntas.sh` ahora muestra automáticamente las últimas 18 líneas de cada log solo cuando el ensayo falla, sin modificar ni borrar registros completos ([326c6bb](https://github.com/nicoarg87/plasma-smartbar/commit/326c6bbb611d9c5eb5aa0817507c5053d8775038)). No afecta el panel KDE ni cambia funciones de las islas.
 
 **PENDIENTE:** comprobar la carga tras el nuevo corte y ver KMix en la bandeja SNI real. Issues [#24](https://github.com/nicoarg87/plasma-smartbar/issues/24), [#25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
+
+
+## Primera visualización real de KMix en Soledad validada — 27/11/2026
+
+**PROBADO Y CONFIRMADO POR EL MANTENEDOR EN CACHYOS, CON CAPTURA:** el ensayo de Soledad con `SMARTBAR_ENABLE_REAL_TRAY=1` carga y, al pulsar el interruptor de bandeja, **muestra KMix como indicador SNI real**, utilizando la integración Qt6/DBus opcional que se implementó en `status_notifier_bridge.cpp`, `SystemTrayRealView.qml` y `SmartBarContent.qml`. La etapa de lectura, enlace y visualización dejó de estar pendiente: **aprobada para KMix en el equipo de referencia**. La carga QML también confirma que las correcciones de ID duplicado de las páginas de configuración permitieron superar el fallo de arranque previo.
+
+Durante el dictado por voz, el mantenedor observó además un **icono de micrófono**. No se atribuye automáticamente a un segundo `StatusNotifierItem` de SmartBar porque podría ser un indicador de privacidad de KDE; falta evidencia para clasificar su origen.
+
+**PENDIENTE:** implementar y validar clics y menús D-Bus de iconos reales, estados dinámicos con varias aplicaciones, iconos SNI Pixmap, accesibilidad interactiva, rendimiento y uso diario. Los botones SNI continúan intencionalmente sin acción; no repetir validaciones de aparición del icono de KMix salvo regresión específica. Sin cambios en panel KDE, preferencias ni logs. Seguimiento [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
