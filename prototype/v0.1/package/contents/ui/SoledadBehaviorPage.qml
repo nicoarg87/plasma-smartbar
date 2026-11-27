@@ -8,7 +8,6 @@ QQC2.ScrollView {
     required property var settingsTarget
     required property var switchColorDialog
     readonly property var settings: settingsTarget
-                id: collapseScroll
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
