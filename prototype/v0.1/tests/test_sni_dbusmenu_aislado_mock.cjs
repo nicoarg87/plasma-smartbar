@@ -18,6 +18,8 @@ try {
         "elif [[ \"$*\" == *'get-property'*' Menu' ]]; then",
         "  if [[ -n \"$SMARTBAR_MOCK_NO_MENU\" ]]; then",
         "    printf 'o \"/\"\\n'",
+        "  elif [[ -n \"$SMARTBAR_MOCK_BAD_PATH\" ]]; then",
+        "    printf 'o \"/MenuBar/../escape\"\\n'",
         "  else",
         "    printf 'o \"/MenuBar\"\\n'",
         "  fi",
@@ -58,6 +60,10 @@ try {
     assert.equal(empty.status, 0, empty.stderr);
     assert.match(empty.stdout, /Menús anunciados: 0/);
 
+    const badPath = run({SMARTBAR_MOCK_BAD_PATH:"1"});
+    assert.equal(badPath.status, 0, badPath.stderr);
+    assert.match(badPath.stdout, /Menús anunciados: 0/);
+
     const missing = run({SMARTBAR_MOCK_NO_WATCHER:"1"});
     assert.equal(missing.status, 4);
     assert.match(missing.stderr, /No se encontró un watcher SNI/);
@@ -70,7 +76,7 @@ try {
         !/\b(?:Event|Activate|ContextMenu|set-property|RegisterStatusNotifier)\b/.test(line)));
     assert.ok(recorded.filter(line => line.includes(" call ")).every(line =>
         line.includes("GetLayout iias 0 1 5 label enabled visible type children-display")));
-    console.log("OK: 5 escenarios DBusMenu aislado, únicamente lectura, sin acciones KDE.");
+    console.log("OK: 6 escenarios DBusMenu aislado, únicamente lectura, sin acciones KDE.");
 } finally {
     fs.rmSync(tmp, {recursive:true,force:true});
 }
