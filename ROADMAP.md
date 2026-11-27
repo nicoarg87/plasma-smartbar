@@ -839,3 +839,14 @@ No se incorporan ventanas reales ni controles para cerrarlas; el objetivo es ens
 - [x] Comprobar equivalencia del código trasladado, corregir los IDs locales de ancho; agregar `test_modulos_configuracion_soledad.cjs` y adaptar `test_task_close_mode.cjs`. Pruebas internas de contratos aprobadas.
 - [ ] Evaluar el nuevo QML en CachyOS cuando sea necesario utilizar la Configuración refactorizada; no implica nuevas funciones ni revalidar el resto del programa.
 - [ ] Continuar separando vistas/estado de `SoledadSettings.qml` y `SmartBarContent.qml` sin alterar requisitos ni panel instalado. Seguimiento: [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
+
+
+## Priorización aprobada y política de registros — 27/11/2026
+
+**DECISIÓN CONFIRMADA DEL MANTENEDOR:** mantener el orden de trabajo: **(1)** auditoría y depuración de código, duplicaciones y dependencias; **(2)** rendimiento y estabilidad; **(3)** integración de la bandeja de sistema real KDE mediante un proveedor modular ([issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24)); **(4)** preparación/paquetización para uso diario al final. El mantenedor identifica la bandeja de sistema real como la **función pendiente prioritaria** para aproximar el prototipo a su uso cotidiano; evitar dilatarla con funcionalidades no solicitadas.
+
+**REGISTROS — ACLARACIÓN EXPRESA:** **no eliminar ni desactivar los logs de uso y errores**. La propuesta de controlar el volumen de trazas verbosas se limita a separar la salida diagnóstica detallada de los registros persistentes de sucesos y fallos; cualquier ubicación, rotación, política de retención, exportación y tratamiento de privacidad se definirá antes de implementar. **No hay autorización para borrar logs existentes.**
+
+**DIAGNÓSTICO Y RECUPERACIÓN — IDEA ACEPTADA, DETALLES PENDIENTES:** se admite un modo de diagnóstico y recuperación seguro, temporal y reversible, sin introducir botones nuevos en la barra. El usuario propone **de manera provisional** situar sus accesos en el clic derecho del agarre de **seis puntos** de Soledad; no modificar todavía las opciones del menú ni funciones aprobadas sin una especificación posterior. No sustituir configuración personal, temas, packs ni perfiles, y no intervenir en KWin ni el panel KDE instalado. Ver [issue #26](https://github.com/nicoarg87/plasma-smartbar/issues/26).
+
+**ESTADO DE ESTE CORTE:** decisiones y prioridades documentadas; **no implementados** nuevos logs, recuperación ni menú contextual; ningún cambio funcional ni prueba nueva en CachyOS. Seguimiento de modularización [issue #25](https://github.com/nicoarg87/plasma-smartbar/issues/25).
