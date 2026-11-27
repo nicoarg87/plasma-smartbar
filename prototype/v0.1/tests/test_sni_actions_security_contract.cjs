@@ -22,7 +22,11 @@ assert.match(cpp, /entry.value\(QStringLiteral\("objectPath"\)\).toString\(\) ==
 assert.match(cpp, /itemInterface != QStringLiteral\("org.kde.StatusNotifierItem"\)/);
 assert.match(cpp, /itemInterface != QStringLiteral\("org.freedesktop.StatusNotifierItem"\)/);
 assert.match(cpp, /QDBusMessage::createMethodCall\(/);
-assert.match(cpp, /bus.asyncCall\(call, 1800\)/);
+assert.match(cpp, /actionBus\.asyncCall\(call, 1800\)/);
+assert.match(cpp, /ProvideXdgActivationToken/);
+assert.match(cpp, /KWaylandExtras::xdgActivationToken\(nullptr, QString\(\)\)/);
+assert.match(cpp, /QTimer::singleShot\(400, this/);
+assert.match(cpp, /requestMenu\(service, objectPath, 0\)/);
 assert.match(cpp, /entry.insert\(QStringLiteral\("itemIsMenu"\)/);
 assert.doesNotMatch(cpp, /bus.call\(|registerService\(|RegisterStatusNotifierHost|QProcess|startDetached/);
 assert.match(view, /onClicked: requestAction\(itemIsMenu \? "context" : "activate"\)/);
