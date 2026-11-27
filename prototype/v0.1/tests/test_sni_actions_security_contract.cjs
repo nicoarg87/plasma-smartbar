@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+"use strict";
+// Regresión estructural: las acciones SNI deben proceder de un clic real
+// sobre un indicador registrado y nunca crear un host nuevo ni bloquear Qt.
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const base = path.resolve(__dirname, "..");
+const get = relative => fs.readFileSync(path.join(base, relative), "utf8");
+const cpp = get("native_probes/status_notifier_bridge.cpp");
+const head = get("native_probes/status_notifier_bridge.h");
+const view = get("package/contents/ui/SystemTrayRealView.qml");
+const bar = get("package/contents/ui/SmartBarContent.qml");
+const preview = get("preview_soledad_input_mask.qml");
+assert.match(head, /Q_INVOKABLE bool activate\(/);
+assert.match(head, /Q_INVOKABLE bool contextMenu\(/);
+assert.match(cpp, /if \(!m_enabled \|\| !m_available \|\|/);
+assert.match(cpp, /method != QStringLiteral\("Activate"\) && method != QStringLiteral\("ContextMenu"\)/);
+assert.match(cpp, /for \(const QVariant &value : m_entries\)/);
+assert.match(cpp, /entry.value\(QStringLiteral\("service"\)\).toString\(\) == service/);
+assert.match(cpp, /entry.value\(QStringLiteral\("objectPath"\)\).toString\(\) == objectPath/);
+assert.match(cpp, /itemInterface != QStringLiteral\("org.kde.StatusNotifierItem"\)/);
+assert.match(cpp, /itemInterface != QStringLiteral\("org.freedesktop.StatusNotifierItem"\)/);
+assert.match(cpp, /QDBusMessage::createMethodCall\(/);
+assert.match(cpp, /bus.asyncCall\(call, 1800\)/);
+assert.match(cpp, /entry.insert\(QStringLiteral\("itemIsMenu"\)/);
+assert.doesNotMatch(cpp, /bus.call\(|registerService\(|RegisterStatusNotifierHost|QProcess|startDetached/);
+assert.match(view, /onClicked: requestAction\(itemIsMenu \? "context" : "activate"\)/);
+assert.match(view, /acceptedButtons: Qt.RightButton/);
+assert.match(view, /onTapped: indicator.requestAction\("context"\)/);
+assert.match(view, /mapToGlobal\(indicator.width \/ 2,/);
+assert.doesNotMatch(view, /enabled: false|QQC2.Button\s*\{|QProcess/);
+assert.match(bar, /property var realSystemTrayBackend: null/);
+assert.match(bar, /if \(!useRealSystemTray \|\| !realSystemTrayBackend\) return/);
+assert.match(bar, /action === "activate"/);
+assert.match(bar, /action === "context"/);
+assert.match(bar, /accepted && action === "activate"/);
+assert.match(preview, /realSystemTrayBackend: smartbarSni/);
+console.log("OK: acciones SNI limitadas al indicador actual, asíncronas, sin crear host KDE.");
