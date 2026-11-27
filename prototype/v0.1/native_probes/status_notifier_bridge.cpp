@@ -13,6 +13,9 @@
 #ifdef SMARTBAR_HAS_DBUS
 #include <QDBusConnection>
 #include <QDBusInterface>
+#include <QDBusMessage>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
 #include <QDBusServiceWatcher>
 #endif
 
@@ -123,6 +126,72 @@ void StatusNotifierBridge::itemStatusChanged(const QString &) {
     scheduleRefresh();
 }
 
+bool StatusNotifierBridge::activate(const QString &service, const QString &objectPath,
+                                    int x, int y) {
+    return dispatchItemAction(service, objectPath, QStringLiteral("Activate"), x, y);
+}
+
+bool StatusNotifierBridge::contextMenu(const QString &service, const QString &objectPath,
+                                       int x, int y) {
+    return dispatchItemAction(service, objectPath, QStringLiteral("ContextMenu"), x, y);
+}
+
+// Sólo se invoca tras un clic real en una entrada publicada por este mismo
+// observador. No se aceptan nombres/rutas arbitarios ni se lanza otro proceso.
+bool StatusNotifierBridge::dispatchItemAction(
+    const QString &service, const QString &objectPath,
+    const QString &method, int x, int y) {
+#ifdef SMARTBAR_HAS_DBUS
+    if (!m_enabled || !m_available ||
+        (method != QStringLiteral("Activate") && method != QStringLiteral("ContextMenu")))
+        return false;
+
+    QString itemInterface;
+    for (const QVariant &value : m_entries) {
+        const QVariantMap entry = value.toMap();
+        if (entry.value(QStringLiteral("service")).toString() == service &&
+            entry.value(QStringLiteral("objectPath")).toString() == objectPath) {
+            itemInterface = entry.value(QStringLiteral("itemInterface")).toString();
+            break;
+        }
+    }
+    if (itemInterface != QStringLiteral("org.kde.StatusNotifierItem") &&
+        itemInterface != QStringLiteral("org.freedesktop.StatusNotifierItem")) {
+        qWarning() << "SmartBar SNI: acción rechazada, indicador no registrado";
+        return false;
+    }
+
+    const QDBusConnection bus = QDBusConnection::sessionBus();
+    if (!bus.isConnected()) return false;
+    // Las coordenadas son una pista de ubicación del menú o ventana, no
+    // autoridad para mover/redimensionar nada. Acotar valores extremos.
+    const int safeX = qBound(-32768, x, 32767);
+    const int safeY = qBound(-32768, y, 32767);
+    QDBusMessage call = QDBusMessage::createMethodCall(
+        service, objectPath, itemInterface, method);
+    call << safeX << safeY;
+    auto *pending = new QDBusPendingCallWatcher(bus.asyncCall(call, 1800), this);
+    connect(pending, &QDBusPendingCallWatcher::finished, this,
+            [method](QDBusPendingCallWatcher *done) {
+                const QDBusPendingReply<> reply = *done;
+                if (reply.isError())
+                    qWarning() << "SmartBar SNI: acción" << method
+                               << "no atendida:" << reply.error().name();
+                else
+                    qInfo() << "SmartBar SNI: acción" << method << "enviada";
+                done->deleteLater();
+            });
+    return true; // Encolada, no implica que la aplicación la haya ejecutado.
+#else
+    Q_UNUSED(service);
+    Q_UNUSED(objectPath);
+    Q_UNUSED(method);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    return false;
+#endif
+}
+
 void StatusNotifierBridge::refresh() {
 #ifdef SMARTBAR_HAS_DBUS
     if (!m_enabled) return;
@@ -168,6 +237,7 @@ void StatusNotifierBridge::refresh() {
             itemInterface = interfaceName;
             entry.insert(QStringLiteral("service"), service);
             entry.insert(QStringLiteral("objectPath"), objectPath);
+            entry.insert(QStringLiteral("itemInterface"), interfaceName);
             entry.insert(QStringLiteral("title"), clean(title.isEmpty() ? id : title));
             entry.insert(QStringLiteral("status"), clean(status));
             entry.insert(QStringLiteral("iconName"), iconName.left(128));
