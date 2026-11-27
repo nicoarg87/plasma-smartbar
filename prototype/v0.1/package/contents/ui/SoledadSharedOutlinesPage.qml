@@ -9,7 +9,6 @@ QQC2.ScrollView {
     required property var outlineColorDialog
     readonly property var settings: settingsTarget
     property alias currentTargetIndex: outlineTarget.currentIndex
-                id: sharedOutlineScroll
                 clip: true
                 contentWidth: Math.max(0, availableWidth - 32)
                 QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
