@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QQuickImageProvider>
 #include <QRegularExpression>
+#include <QStringList>
 #include <QUrl>
 #include <QVariantMap>
 
@@ -22,8 +23,10 @@ public:
         // No tratar el identificador de imagen como ruta de archivo o URL.
         const QString name = QUrl::fromPercentEncoding(id.section(QLatin1Char('?'), 0, 0).toUtf8());
         static const QRegularExpression safe(QStringLiteral(R"(^[A-Za-z0-9_+-][A-Za-z0-9_.+-]{0,127}$)"));
-        const QSize requested = requestedSize.isValid() ? requestedSize.boundedTo(QSize(64, 64))
-                                                       : QSize(24, 24);
+        const int px = requestedSize.width() > 0 && requestedSize.height() > 0
+            ? qBound(16, qMin(requestedSize.width(), requestedSize.height()), 64)
+            : 24;
+        const QSize requested(px, px);
         if (size) *size = requested;
         const QString iconName = safe.match(name).hasMatch() ? name
                                                              : QStringLiteral("application-x-executable");
