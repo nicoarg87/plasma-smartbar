@@ -3606,3 +3606,10 @@ and env SMARTBAR_ENABLE_REAL_TRAY=1 bash prototype/v0.1/probar_islas_juntas.sh
 Abrir bandeja de Soledad y verificar aparición de icono real de KMix (`audio-volume-high`) en lugar de los botones `Wi-Fi/Audio/Bluetooth` de muestra. **No intentar todavía operar volumen ni menú desde este icono**. Los logs originales del ensayo siguen guardados.
 
 **Siguiente desarrollo:** resolver iconos transmitidos como Pixmap, menús y acciones D-Bus mediante una API KDE validada, y revisar foco/activación bajo Wayland antes de habilitar clics. Seguimiento [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24). El empaquetado para uso diario continúa al final.
+
+
+## Corrección puntual del observador SNI Qt6 — 27/11/2026
+
+**FALLA REAL PROBADA EN CACHYOS:** la primera compilación de `probar_islas_juntas.sh` con `SMARTBAR_ENABLE_REAL_TRAY=1` se detuvo en `status_notifier_bridge.cpp` al conectar/desconectar señales, por `const QDBusConnection bus` incompatible con los métodos no constantes de Qt6. El programa no llegó a cargar las islas en ese intento, sin afectar el panel KDE. Los logs de la sesión se conservaron.
+
+**CORREGIDO EN RAMA EXPERIMENTAL:** dos declaraciones pasan a `QDBusConnection bus` ([cdb1cc3](https://github.com/nicoarg87/plasma-smartbar/commit/cdb1cc31fc16e8adc5e09dc7b8181cf12250ed48)); prueba estructural existente ampliada para prevenir la regresión ([f64da7e](https://github.com/nicoarg87/plasma-smartbar/commit/f64da7eff28a215a6cc4a30f06d4b8886a9db155)). Revisión de código: dos declaraciones mutables, ninguna antigua, sintaxis JavaScript válida. **No afirmar compilación Qt exitosa ni funcionamiento de iconos hasta repetir una única prueba dirigida en CachyOS.** Seguimiento [issue #24](https://github.com/nicoarg87/plasma-smartbar/issues/24).
