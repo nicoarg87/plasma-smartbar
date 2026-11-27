@@ -35,11 +35,14 @@ try {
     assert.match(result.stdout, /b true/);
     assert.match(result.stdout, /panel KDE queda intacto/);
     assert.match(result.stdout, /Sin cambios en KDE/);
+    // Con watcher ausente, no se registra ni inventa ninguna bandeja.
+    fs.writeFileSync(mock, "#!/usr/bin/env bash\\nexit 1\\n".replace(/\\n/g, "\n"), {mode:0o700});
     const noWatcher = spawnSync(bash, [script], {
         env: {...process.env, PATH:tmp + path.delimiter + process.env.PATH},
         encoding:"utf8", timeout:8000
     });
-    assert.equal(noWatcher.status, 0);
+    assert.equal(noWatcher.status, 4);
+    assert.match(noWatcher.stderr, /No se encontró un StatusNotifierWatcher/);
     console.log("OK: introspección SNI solo lectura (busctl simulado), sintaxis Bash válida.");
 } finally {
     fs.rmSync(tmp, {recursive:true, force:true});
