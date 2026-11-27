@@ -1,6 +1,7 @@
 // Copyright (c) Plasma SmartBar contributors. SPDX-License-Identifier: MIT
-// Observador SNI experimental. Solo consulta propiedades y señales D-Bus.
-// NO registra hosts/watchers, no ejecuta Activate ni ContextMenu, no toca KDE.
+// Observador SNI experimental: lectura, señales y acciones por clic explícito.
+// No registra hosts/watchers ni modifica la configuración del panel KDE.
+// Activate y ContextMenu se envían solo a los indicadores SNI vigentes.
 #include "status_notifier_bridge.h"
 #include <QDebug>
 #include <QIcon>
